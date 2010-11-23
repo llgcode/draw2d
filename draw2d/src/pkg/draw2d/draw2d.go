@@ -76,7 +76,7 @@ func (gc *GraphicContext) Clear() {
 
 func (gc *GraphicContext) ClearRect(x1, y1, x2, y2 int) {
 	imageColor := image.NewColorImage(gc.current.fillColor)
-	draw.Draw(gc.PaintedImage, gc.PaintedImage.Bounds(), imageColor, image.ZP)
+	draw.Draw(gc.PaintedImage, image.Rect(x1, y1, x2, y2), imageColor, image.ZP)
 }
 
 func (gc *GraphicContext) SetStrokeColor(c image.Color) {
