@@ -19,7 +19,7 @@ const (
 
 var (
 	lastTime int64
-	folder   = "../../test_results/"
+	folder   = "../../../wiki/test_results/"
 )
 
 func initGc(w, h int) (image.Image, *draw2d.GraphicContext) {
@@ -400,8 +400,8 @@ func main() {
 	TestPath()
 	TestDrawArc()
 	TestDrawArcNegative()
-	TestDrawCubicCurve()
 	TestCurveRectangle()
+	TestDrawCubicCurve()
 	TestDash()
 	TestFillStroke()
 	TestFillStyle()
