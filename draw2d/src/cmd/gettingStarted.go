@@ -1,16 +1,16 @@
 package main
 
-
 import (
 	"fmt"
 	"log"
 	"os"
 	"bufio"
-	
+
 	"image"
 	"image/png"
-	"draw2d"
+	"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
 )
+
 
 func saveToPngFile(filePath string, m image.Image) {
 	f, err := os.Open(filePath, os.O_CREAT|os.O_WRONLY, 0600)
@@ -39,6 +39,5 @@ func main() {
 	gc.MoveTo(10.0, 10.0)
 	gc.LineTo(100.0, 10.0)
 	gc.Stroke()
-	
-	saveToPngFile("../../TestPath.png", i)
+	saveToPngFile("TestPath.png", i)
 }
