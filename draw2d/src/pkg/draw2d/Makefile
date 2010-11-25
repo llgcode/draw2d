@@ -7,5 +7,6 @@ GOFILES=\
 	draw2d.go\
 	math.go\
 	path.go\
+	transform.go\
 
 include $(GOROOT)/src/Make.pkg
