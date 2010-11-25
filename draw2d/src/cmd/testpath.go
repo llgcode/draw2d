@@ -4,7 +4,8 @@
 package main
 
 import (
-	"draw2d"
+	//"draw2d"
+	"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
 	"fmt"
 )
 

@@ -13,7 +13,8 @@ import (
 	"math"
 	"image"
 	"image/png"
-	"draw2d"
+	//"draw2d"
+	"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
 )
 
 const (
@@ -22,7 +23,7 @@ const (
 
 var (
 	lastTime int64
-	folder   = "../../../wiki/test_results/"
+	folder   = "../../../../wiki/test_results/"
 )
 
 func initGc(w, h int) (image.Image, *draw2d.GraphicContext) {
