@@ -399,6 +399,20 @@ func TestLineJoin() {
 	saveToPngFile("TestLineJoin", i)
 }
 
+func TestBubble() {
+	i, gc := initGc(w, h)
+  	gc.BeginPath();
+    gc.MoveTo(75,25);
+    gc.QuadCurveTo(25,25,25,62.5);
+    gc.QuadCurveTo(25,100,50,100);
+    gc.QuadCurveTo(50,120,30,125);
+    gc.QuadCurveTo(60,120,65,100);
+    gc.QuadCurveTo(125,100,125,62.5);
+    gc.QuadCurveTo(125,25,75,25);
+    gc.Stroke();
+    saveToPngFile("TestBubble", i)
+}
+
 
 func main() {
 	TestPath()
@@ -413,4 +427,5 @@ func main() {
 	TestRoundRectangle()
 	TestLineCap()
 	TestLineJoin()
+	TestBubble()
 }
