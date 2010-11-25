@@ -39,6 +39,7 @@ type GraphicContext struct {
 }
 
 type contextStack struct {
+	tr			MatrixTransform
 	path        *Path
 	lineWidth   float
 	dash        []float
@@ -48,7 +49,6 @@ type contextStack struct {
 	fillRule    FillRule
 	cap         Cap
 	join        Join
-
 	previous *contextStack
 }
 
@@ -62,14 +62,48 @@ func NewGraphicContext(pi *image.RGBA) *GraphicContext {
 	gc.rasterizer = raster.NewRasterizer(width, height)
 
 	gc.current = new(contextStack)
+	
+	gc.current.tr = NewIdentityMatrix()
+	gc.current.path = new(Path)
 	gc.current.lineWidth = 1.0
 	gc.current.strokeColor = image.Black
 	gc.current.fillColor = image.White
 	gc.current.cap = RoundCap
 	gc.current.fillRule = FillRuleEvenOdd
 	gc.current.join = RoundJoin
-	gc.current.path = new(Path)
 	return gc
+}
+
+func (gc *GraphicContext) SetMatrixTransform(tr MatrixTransform) {
+	gc.current.tr = tr
+}
+
+func (gc *GraphicContext) ComposeMatrixTransform(tr MatrixTransform) {
+	gc.current.tr.Compose(tr)
+}
+
+func (gc *GraphicContext) Rotate(angle float) {
+	ox, oy := gc.current.path.LastPoint()
+	tr := NewTranslationMatrix(ox, oy)
+	tr2 := NewRotationMatrix(angle)
+	tr1 :=  tr.GetInverseTransformation()
+	gc.current.tr.Compose(tr).Compose(tr2).Compose(tr1)
+}
+
+func (gc *GraphicContext) Translate(tx, ty float) {
+	ox, oy := gc.current.path.LastPoint()
+	tr  := NewTranslationMatrix(ox, oy)
+	tr2 := NewTranslationMatrix(tx, ty)
+	tr1 := tr.GetInverseTransformation()
+	gc.current.tr.Compose(tr).Compose(tr2).Compose(tr1)
+}
+
+func (gc *GraphicContext) Scale(sx, sy float) {
+	ox, oy := gc.current.path.LastPoint()
+	tr := NewTranslationMatrix(ox, oy)
+	tr2 := NewScaleMatrix(sx, sy)
+	tr1 := tr.GetInverseTransformation()
+	gc.current.tr.Compose(tr).Compose(tr2).Compose(tr1)
 }
 
 func (gc *GraphicContext) Clear() {
@@ -139,50 +173,64 @@ func (gc *GraphicContext) BeginPath() {
 }
 
 func (gc *GraphicContext) MoveTo(x, y float) {
+	gc.current.tr.Transform(&x, &y)
 	gc.current.path.MoveTo(x, y)
 }
 
 func (gc *GraphicContext) RMoveTo(dx, dy float) {
+	gc.current.tr.VectorTransform(&dx, &dy)
 	gc.current.path.RMoveTo(dx, dy)
 }
 
 func (gc *GraphicContext) LineTo(x, y float) {
+	gc.current.tr.Transform(&x, &y)
 	gc.current.path.LineTo(x, y)
 }
 
 func (gc *GraphicContext) RLineTo(dx, dy float) {
+	gc.current.tr.VectorTransform(&dx, &dy)
 	gc.current.path.RLineTo(dx, dy)
 }
 
 func (gc *GraphicContext) Rect(x1, y1, x2, y2 float) {
+	gc.current.tr.Transform(&x1, &y1, &x2, &y2)
 	gc.current.path.Rect(x1, y1, x2, y2)
 }
 
 func (gc *GraphicContext) RRect(dx1, dy1, dx2, dy2 float) {
+	gc.current.tr.VectorTransform(&dx1, &dy1, &dx2, &dy2)
 	gc.current.path.RRect(dx1, dy1, dx2, dy2)
 }
 
 func (gc *GraphicContext) QuadCurveTo(cx, cy, x, y float) {
+	gc.current.tr.Transform(&cx, &cy, &x, &y)
 	gc.current.path.QuadCurveTo(cx, cy, x, y)
 }
 
 func (gc *GraphicContext) RQuadCurveTo(dcx, dcy, dx, dy float) {
+	gc.current.tr.VectorTransform(&dcx, &dcy, &dx, &dy)
 	gc.current.path.RQuadCurveTo(dcx, dcy, dx, dy)
 }
 
 func (gc *GraphicContext) CubicCurveTo(cx1, cy1, cx2, cy2, x, y float) {
+	gc.current.tr.Transform(&cx1, &cy1, &cx2, &cy2, &x, &y)
 	gc.current.path.CubicCurveTo(cx1, cy1, cx2, cy2, x, y)
 }
 
 func (gc *GraphicContext) RCubicCurveTo(dcx1, dcy1, dcx2, dcy2, dx, dy float) {
+	gc.current.tr.VectorTransform(&dcx1, &dcy1, &dcx2, &dcy2, &dx, &dy)
 	gc.current.path.RCubicCurveTo(dcx1, dcy1, dcx2, dcy2, dx, dy)
 }
 
 func (gc *GraphicContext) ArcTo(cx, cy, rx, ry, startAngle, angle float) {
+	gc.current.tr.Transform(&cx, &cy)
+	gc.current.tr.VectorTransform(&rx, &ry)
 	gc.current.path.ArcTo(cx, cy, rx, ry, startAngle, angle)
 }
 
 func (gc *GraphicContext) RArcTo(dcx, dcy, rx, ry, startAngle, angle float) {
+	gc.current.tr.VectorTransform(&dcx, &dcy)
+	gc.current.tr.VectorTransform(&rx, &ry)
 	gc.current.path.RArcTo(dcx, dcy, rx, ry, startAngle, angle)
 }
 
