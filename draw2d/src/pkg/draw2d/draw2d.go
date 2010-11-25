@@ -91,18 +91,15 @@ func (gc *GraphicContext) Rotate(angle float) {
 }
 
 func (gc *GraphicContext) Translate(tx, ty float) {
-	ox, oy := gc.current.path.LastPoint()
-	tr  := NewTranslationMatrix(ox, oy)
-	tr2 := NewTranslationMatrix(tx, ty)
-	tr1 := tr.GetInverseTransformation()
-	gc.current.tr.Compose(tr).Compose(tr2).Compose(tr1)
+	tr := NewTranslationMatrix(tx, ty)
+	gc.current.tr.Compose(tr)
 }
 
 func (gc *GraphicContext) Scale(sx, sy float) {
 	ox, oy := gc.current.path.LastPoint()
 	tr := NewTranslationMatrix(ox, oy)
 	tr2 := NewScaleMatrix(sx, sy)
-	tr1 := tr.GetInverseTransformation()
+	tr1 :=  tr.GetInverseTransformation()
 	gc.current.tr.Compose(tr).Compose(tr2).Compose(tr1)
 }
 
@@ -156,6 +153,7 @@ func (gc *GraphicContext) Save() {
 	context.cap = gc.current.cap
 	context.join = gc.current.join
 	context.path = gc.current.path.Copy()
+	copy(context.tr[:], gc.current.tr[:])
 	context.previous = gc.current
 	gc.current = context
 }
@@ -234,7 +232,7 @@ func (gc *GraphicContext) RArcTo(dcx, dcy, rx, ry, startAngle, angle float) {
 	gc.current.path.RArcTo(dcx, dcy, rx, ry, startAngle, angle)
 }
 
-func (gc *GraphicContext) Close() {
+func (gc *GraphicContext) ClosePath() {
 	gc.current.path.Close()
 }
 
