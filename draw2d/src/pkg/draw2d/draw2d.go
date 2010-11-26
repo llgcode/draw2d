@@ -84,15 +84,15 @@ func (gc *GraphicContext) ComposeMatrixTransform(tr MatrixTransform) {
 }
 
 func (gc *GraphicContext) Rotate(angle float) {
-	gc.current.tr.Rotate(angle)
+	gc.current.tr = NewRotationMatrix(angle).Multiply(gc.current.tr)
 }
 
 func (gc *GraphicContext) Translate(tx, ty float) {
-	gc.current.tr.Translate(tx, ty)
+	gc.current.tr = NewTranslationMatrix(tx, ty).Multiply(gc.current.tr)
 }
 
 func (gc *GraphicContext) Scale(sx, sy float) {
-	gc.current.tr.Scale(sx, sy)
+	gc.current.tr = NewScaleMatrix(sx, sy).Multiply(gc.current.tr)
 }
 
 func (gc *GraphicContext) Clear() {
