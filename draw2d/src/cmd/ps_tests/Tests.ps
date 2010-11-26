@@ -15,3 +15,50 @@
 
 showpage
 
+/box {
+   newpath
+   moveto
+   72 0 rlineto
+   0 72 rlineto
+   -72 0 rlineto
+   closepath
+} def
+
+% Specify font for text labels
+/Helvetica findfont 40 scalefont setfont
+
+gsave
+  40 40 translate               % Set origin to (40, 40)
+  0 0 box stroke                % Draw box at new origin...
+  77 0 moveto
+  (Translated) show             %   and label
+grestore
+
+gsave
+  100 150 translate             % Translate origin to (100, 150)
+  30 rotate                     % Rotate counter-clockwise by 30 degrees
+  0 0 box stroke                % Draw box...
+  75 0 moveto
+  (Translated & Rotated) show   %   and label
+grestore
+
+gsave
+  40 300 translate              % Translate to  (40, 300)
+  0.5 1 scale                   % Reduce x coord by 1/2, y coord left alone
+  0 0 box stroke                % Draw box...
+  75 0 moveto
+  (Translated & Squished) show  %   and label
+grestore
+
+gsave
+  100 450 translate             % Set origin to (300, 300)
+  30 rotate                     % Rotate coordinates by 45 degrees
+  0.5 1 scale                   % Scale coordinates
+  0 0 box stroke                % Draw box
+  75 0 moveto
+  (Everything) show
+grestore
+
+showpage
+
+
