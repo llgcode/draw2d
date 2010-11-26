@@ -9,35 +9,18 @@ const (
 	epsilon = 1e-6
 )
 
-func (tr MatrixTransform) TransformX(x, y float) float {
-	return x*tr[0] + y*tr[2] + tr[4]
-}
-
-func (tr MatrixTransform) TransformY(x, y float) float {
-	return x*tr[1] + y*tr[3] + tr[5]
-}
-
 func (tr MatrixTransform) Determinant() float {
 	return tr[0]*tr[3] - tr[1]*tr[2]
-}
-
-func (tr MatrixTransform) InverseTransformX(x, y float) float {
-	return ((x-tr[4])*tr[3] - (y-tr[5])*tr[2]) / tr.Determinant()
-}
-
-func (tr MatrixTransform) InverseTransformY(x, y float) float {
-	return ((y-tr[5])*tr[0] - (x-tr[4])*tr[1]) / tr.Determinant()
 }
 
 func (tr MatrixTransform) Transform(points ...*float) {
 	for i, j := 0, 1; j < len(points); i, j = i+2, j+2 {
 		x := *points[i]
 		y := *points[j]
-		*points[i] = tr.TransformX(x, y)
-		*points[j] = tr.TransformY(x, y)
+		*points[i] = x*tr[0] + y*tr[2] + tr[4]
+		*points[j] = x*tr[1] + y*tr[3] + tr[5]
 	}
 }
-
 
 func (tr MatrixTransform) InverseTransform(points ...*float) {
 	d := tr.Determinant() // matrix determinant
@@ -51,30 +34,12 @@ func (tr MatrixTransform) InverseTransform(points ...*float) {
 
 // ******************** Vector transformations ********************
 
-func (tr MatrixTransform) VectorTransformX(x, y float) float {
-	return x*tr[0] + y*tr[2]
-}
-
-func (tr MatrixTransform) VectorTransformY(x, y float) float {
-	return x*tr[1] + y*tr[3]
-}
-
-func (tr MatrixTransform) VectorInverseTransformX(x, y float) float {
-	d := tr.Determinant() // matrix determinant
-	return (x*tr[3] - y*tr[2]) / d
-}
-
-func (tr MatrixTransform) VectorInverseTransformY(x, y float) float {
-	d := tr.Determinant() // matrix determinant
-	return (y*tr[0] - x*tr[1]) / d
-}
-
 func (tr MatrixTransform) VectorTransform(points ...*float) {
 	for i, j := 0, 1; j < len(points); i, j = i+2, j+2 {
 		x := *points[i]
 		y := *points[j]
-		*points[i] = tr.VectorTransformX(x, y)
-		*points[j] = tr.VectorTransformY(x, y)
+		*points[i] = x*tr[0] + y*tr[2]
+		*points[j] = x*tr[1] + y*tr[3] 
 	}
 }
 
@@ -112,7 +77,7 @@ func NewRotationMatrix(angle float) MatrixTransform {
 /**
  * Creates a transformation, combining a scale and a translation, that transform rectangle1 into rectangle2.
  */
-func NewMatrixTransform(rectangle1 [4]float, rectangle2 [4]float) MatrixTransform {
+func NewMatrixTransform(rectangle1, rectangle2 [4]float) MatrixTransform {
 	xScale := (rectangle2[2] - rectangle2[0]) / (rectangle1[2] - rectangle1[0])
 	yScale := (rectangle2[3] - rectangle2[1]) / (rectangle1[3] - rectangle1[1])
 	xOffset := rectangle2[0] - (rectangle1[0] * xScale)
@@ -136,15 +101,8 @@ func (tr MatrixTransform) GetInverseTransformation() MatrixTransform {
 		(tr[1]*tr[4] - tr[0]*tr[5]) / d}
 }
 
-/**
- * Returns a transformation that is the composition (tr2 o tr1) of the given
- * transformations tr2 and tr1.
 
- * For given point (x, y), the composed transformation is defined by the
- * equation:
- * (tr2 o tr1)(x, y) = tr2(tr1(x, y))
- */
-func (tr1 MatrixTransform) GetComposedTransformation(tr2 MatrixTransform) MatrixTransform {
+func (tr1 MatrixTransform) Multiply(tr2 MatrixTransform) MatrixTransform {
 	return [6]float{
 		tr1[0]*tr2[0] + tr1[1]*tr2[2],
 		tr1[1]*tr2[3] + tr1[0]*tr2[1],
@@ -154,14 +112,40 @@ func (tr1 MatrixTransform) GetComposedTransformation(tr2 MatrixTransform) Matrix
 		tr1[5]*tr2[3] + tr1[4]*tr2[1] + tr2[5]}
 }
 
-func (tr1 *MatrixTransform) Compose(tr2 MatrixTransform) (*MatrixTransform){
-	tr1[0] = tr2[0]*tr1[0] + tr2[1]*tr1[2]
-	tr1[1] = tr2[1]*tr1[3] + tr2[0]*tr1[1]
-	tr1[2] = tr2[2]*tr1[0] + tr2[3]*tr1[2]
-	tr1[3] = tr2[3]*tr1[3] + tr2[2]*tr1[1]
-	tr1[4] = tr2[4]*tr1[0] + tr2[5]*tr1[2] + tr1[4]
-	tr1[5] = tr2[5]*tr1[3] + tr2[4]*tr1[1] + tr1[5]
-	return tr1
+
+func (tr *MatrixTransform) Scale(sx, sy float) (*MatrixTransform){
+ 	tr[0]  = tr[0]*sx;
+    tr[1] = tr[1]*sx;
+    tr[4]  = tr[4]*sx;
+    tr[2] = tr[2]*sy;
+    tr[3]  = tr[3]*sy;
+    tr[5]  = tr[5]*sy;
+    return tr;
+}
+
+func (tr *MatrixTransform) Translate(tx, ty float) (*MatrixTransform){
+ 	tr[4] = tr[4] + tx 
+ 	tr[5] = tr[5] + ty
+    return tr;
+}
+
+func (tr *MatrixTransform) Rotate(angle float) (*MatrixTransform){
+ 	ca := cos(angle); 
+    sa := sin(angle);
+    t0 := tr[0]  * ca - tr[1] * sa;
+    t2 := tr[1] * ca - tr[3] * sa;
+    t4 := tr[4]  * ca - tr[5] * sa;
+    tr[1] = tr[0]  * sa + tr[1] * ca;
+    tr[3]  = tr[2] * sa + tr[3] * ca; 
+    tr[5]  = tr[4]  * sa + tr[5] * ca;
+    tr[0]  = t0;
+    tr[2] = t2;
+    tr[4]  = t4;
+    return tr;
+}
+
+func (tr MatrixTransform) GetTranslation() (x, y float) {
+	return tr[4], tr[5]
 }
 
 // ******************** Testing ********************

@@ -6,6 +6,7 @@ package draw2d
 import (
 	"exp/draw"
 	"image"
+	//"math"
 	"freetype-go.googlecode.com/hg/freetype/raster"
 )
 
@@ -79,28 +80,19 @@ func (gc *GraphicContext) SetMatrixTransform(tr MatrixTransform) {
 }
 
 func (gc *GraphicContext) ComposeMatrixTransform(tr MatrixTransform) {
-	gc.current.tr.Compose(tr)
+	gc.current.tr = tr.Multiply(gc.current.tr)
 }
 
 func (gc *GraphicContext) Rotate(angle float) {
-	ox, oy := gc.current.path.LastPoint()
-	tr := NewTranslationMatrix(ox, oy)
-	tr2 := NewRotationMatrix(angle)
-	tr1 :=  tr.GetInverseTransformation()
-	gc.current.tr.Compose(tr).Compose(tr2).Compose(tr1)
+	gc.current.tr.Rotate(angle)
 }
 
 func (gc *GraphicContext) Translate(tx, ty float) {
-	tr := NewTranslationMatrix(tx, ty)
-	gc.current.tr.Compose(tr)
+	gc.current.tr.Translate(tx, ty)
 }
 
 func (gc *GraphicContext) Scale(sx, sy float) {
-	ox, oy := gc.current.path.LastPoint()
-	tr := NewTranslationMatrix(ox, oy)
-	tr2 := NewScaleMatrix(sx, sy)
-	tr1 :=  tr.GetInverseTransformation()
-	gc.current.tr.Compose(tr).Compose(tr2).Compose(tr1)
+	gc.current.tr.Scale(sx, sy)
 }
 
 func (gc *GraphicContext) Clear() {

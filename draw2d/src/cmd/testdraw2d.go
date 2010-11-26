@@ -446,7 +446,7 @@ func TestTransform() {
 	
 	gc.Save()
 	gc.Translate(100, 150)				// Translate origin to (100, 150)
-	gc.Rotate(30* (math.Pi / 180.0))						// Rotate counter-clockwise by 30 degrees
+	gc.Rotate(30* (math.Pi / 180.0))	// Rotate counter-clockwise by 30 degrees
 	gc.BeginPath()
 	gc.MoveTo(0,0)
 	gc.RLineTo(72,0)
@@ -467,10 +467,10 @@ func TestTransform() {
 	gc.ClosePath()                		// Draw box...
 	gc.Stroke()
 	gc.Restore()
-	
+
 	gc.Save()
 	gc.Translate(300, 300)              // Set origin to (300, 300)
-	gc.Rotate(45* (math.Pi / 180.0))                   	// Rotate coordinates by 45 degrees
+	gc.Rotate(45* (math.Pi / 180.0))    // Rotate coordinates by 45 degrees
 	gc.Scale(0.5, 1)                   	// Scale coordinates
 	gc.BeginPath()
 	gc.MoveTo(0,0)
