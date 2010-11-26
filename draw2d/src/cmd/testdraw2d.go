@@ -421,10 +421,9 @@ func TestStar() {
   	for i := 0.0 ; i < 360; i = i + 10 {// Go from 0 to 360 degrees in 10 degree steps
 	  gc.BeginPath()              		// Start a new path
 	  gc.Save()                			// Keep rotations temporary
-	  gc.Translate(144, 144)
+	  gc.MoveTo(144, 144)
 	  gc.Rotate(i * (math.Pi / 180.0))	// Rotate by degrees on stack from 'for'
-	  gc.MoveTo(0, 0)
-	  gc.LineTo(72, 0)
+	  gc.RLineTo(72, 0)
 	  gc.Stroke()
 	  gc.Restore()           			// Get back the unrotated state
 	}
