@@ -11,8 +11,8 @@ import (
 
 	"image"
 	"image/png"
-	//"draw2d"
-	"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
+	"draw2d"
+	//"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
 )
 
 const (
@@ -64,26 +64,26 @@ func saveToPngFile(TestName string, m image.Image) {
 func gordon(gc *draw2d.GraphicContext, x, y, w, h float) {
 	h23 := (h * 2) / 3
 
-	blf := image.RGBAColor{0, 0, 0,  0xff}
+	blf := image.RGBAColor{0, 0, 0, 0xff}
 	wf := image.RGBAColor{0xff, 0xff, 0xff, 0xff}
 	nf := image.RGBAColor{0x8B, 0x45, 0x13, 0xff}
 	brf := image.RGBAColor{0x8B, 0x45, 0x13, 0x99}
 	brb := image.RGBAColor{0x8B, 0x45, 0x13, 0xBB}
-	
+
 	gc.MoveTo(x, y+h)
 	gc.CubicCurveTo(x, y+h, x+w/2, y-h, x+w, y+h)
 	gc.Close()
 	gc.SetFillColor(brb)
 	gc.Fill()
-	draw2d.RoundRect(gc, x, y+h, x+ w, y+h+h, 10, 10)
+	draw2d.RoundRect(gc, x, y+h, x+w, y+h+h, 10, 10)
 	gc.Fill()
-	draw2d.Circle(gc,x, y+h, w/12) // left ear
+	draw2d.Circle(gc, x, y+h, w/12) // left ear
 	gc.SetFillColor(brf)
 	gc.Fill()
 	draw2d.Circle(gc, x, y+h, w/12-10)
 	gc.SetFillColor(nf)
 	gc.Fill()
-	
+
 	draw2d.Circle(gc, x+w, y+h, w/12) // right ear
 	gc.SetFillColor(brf)
 	gc.Fill()
@@ -94,7 +94,7 @@ func gordon(gc *draw2d.GraphicContext, x, y, w, h float) {
 	draw2d.Circle(gc, x+w/3, y+h23, w/9) // left eye
 	gc.SetFillColor(wf)
 	gc.Fill()
-	draw2d.Circle(gc, x+w/3+10, y+h23, w / 10 - 10)
+	draw2d.Circle(gc, x+w/3+10, y+h23, w/10-10)
 	gc.SetFillColor(blf)
 	gc.Fill()
 	draw2d.Circle(gc, x+w/3+15, y+h23, 5)
@@ -103,7 +103,7 @@ func gordon(gc *draw2d.GraphicContext, x, y, w, h float) {
 
 	draw2d.Circle(gc, x+w-w/3, y+h23, w/9) // right eye
 	gc.Fill()
-	draw2d.Circle(gc, x+w-w/3+10, y+h23, w / 10 - 10)
+	draw2d.Circle(gc, x+w-w/3+10, y+h23, w/10-10)
 	gc.SetFillColor(blf)
 	gc.Fill()
 	draw2d.Circle(gc, x+w-(w/3)+15, y+h23, 5)
@@ -111,19 +111,18 @@ func gordon(gc *draw2d.GraphicContext, x, y, w, h float) {
 	gc.Fill()
 
 	gc.SetFillColor(wf)
-	draw2d.RoundRect(gc, x+w/2-w/8, y+h+30, x+w/2-w/8 + w/8, y+h+30 + w/6, 5, 5) // left tooth
+	draw2d.RoundRect(gc, x+w/2-w/8, y+h+30, x+w/2-w/8+w/8, y+h+30+w/6, 5, 5) // left tooth
 	gc.Fill()
-	draw2d.RoundRect(gc, x+w/2, y+h+30, x+w/2+w/8, y+h+30+w/6, 5, 5)    // right tooth
+	draw2d.RoundRect(gc, x+w/2, y+h+30, x+w/2+w/8, y+h+30+w/6, 5, 5) // right tooth
 	gc.Fill()
 
-
-	draw2d.Ellipse(gc, x+(w/2), y+h+30, w/6, w/12)   // snout
+	draw2d.Ellipse(gc, x+(w/2), y+h+30, w/6, w/12) // snout
 	gc.SetFillColor(nf)
 	gc.Fill()
 	draw2d.Ellipse(gc, x+(w/2), y+h+10, w/10, w/12) // nose
 	gc.SetFillColor(blf)
 	gc.Fill()
-	
+
 }
 
 func main() {
