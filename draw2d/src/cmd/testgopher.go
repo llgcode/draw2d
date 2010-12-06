@@ -11,12 +11,12 @@ import (
 
 	"image"
 	"image/png"
-	"draw2d"
-	//"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
+	//"draw2d"
+	"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
 )
 
 const (
-	width, height = 500, 300
+	width, height = 300, 200
 )
 
 var (
@@ -129,7 +129,7 @@ func gordon(gc *draw2d.GraphicContext, x, y, w, h float) {
 func main() {
 	i, gc := initGc(width, height)
 	gc.Clear()
-	gc.Translate(100, 100)
+	gc.Translate(-75, 58)
 	gc.Rotate(-30 * (math.Pi / 180.0))
 	gordon(gc, 48, 48, 240, 72)
 	saveToPngFile("TestGopher", i)
