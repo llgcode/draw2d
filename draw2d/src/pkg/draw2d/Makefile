@@ -8,5 +8,12 @@ GOFILES=\
 	math.go\
 	path.go\
 	transform.go\
+	dasher.go\
+	demux_converter.go\
+	font.go\
+	path_adder.go\
+	path_converter.go\
+	path_storage.go\
+	stroker.go\
 
 include $(GOROOT)/src/Make.pkg
