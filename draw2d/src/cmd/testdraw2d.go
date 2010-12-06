@@ -193,7 +193,7 @@ func TestCurveRectangle() {
 			gc.CubicCurveTo(x0, y1, x0, y1, x0, y1-radius)
 		}
 	}
-	gc.ClosePath()
+	gc.Close()
 
 	gc.SetFillColor(image.RGBAColor{0x80, 0x80, 0xFF, 0xFF})
 	gc.SetStrokeColor(image.RGBAColor{0x80, 0, 0, 0x80})
@@ -261,13 +261,13 @@ func TestFillStroke() {
 	gc.LineTo(230.4, 230.4)
 	gc.RLineTo(-102.4, 0.0)
 	gc.CubicCurveTo(51.2, 230.4, 51.2, 128.0, 128.0, 128.0)
-	gc.ClosePath()
+	gc.Close()
 
 	gc.MoveTo(64.0, 25.6)
 	gc.RLineTo(51.2, 51.2)
 	gc.RLineTo(-51.2, 51.2)
 	gc.RLineTo(-51.2, -51.2)
-	gc.ClosePath()
+	gc.Close()
 
 	gc.SetLineWidth(10.0)
 	gc.SetFillColor(image.RGBAColor{0, 0, 0xFF, 0xFF})
@@ -341,7 +341,7 @@ func TestRoundRectangle() {
 	gc.ArcTo(x+width-radius, y+height-radius, radius, radius, 0*degrees, 90*degrees)
 	gc.ArcTo(x+radius, y+height-radius, radius, radius, 90*degrees, 90*degrees)
 	gc.ArcTo(x+radius, y+radius, radius, radius, 180*degrees, 90*degrees)
-	gc.ClosePath()
+	gc.Close()
 
 	gc.SetFillColor(image.RGBAColor{0x80, 0x80, 0xFF, 0xFF})
 	gc.SetStrokeColor(image.RGBAColor{0x80, 0, 0, 0x80})
@@ -419,13 +419,14 @@ func TestBubble() {
 func TestStar() {
 	i, gc := initGc(w, h)
   	for i := 0.0 ; i < 360; i = i + 10 {// Go from 0 to 360 degrees in 10 degree steps
-	  gc.BeginPath()              		// Start a new path
-	  gc.Save()                			// Keep rotations temporary
-	  gc.MoveTo(144, 144)
+	  gc.Save()  
+	  gc.SetLineWidth(5)              			// Keep rotations temporary
+	  gc.Translate(144, 144)
 	  gc.Rotate(i * (math.Pi / 180.0))	// Rotate by degrees on stack from 'for'
-	  gc.RLineTo(72, 0)
+	  gc.MoveTo(0, 0)
+	  gc.LineTo(72, 0)
 	  gc.Stroke()
-	  gc.Restore()           			// Get back the unrotated state
+	  gc.Restore()     
 	}
     saveToPngFile("TestStar", i)
 }
@@ -440,7 +441,7 @@ func TestTransform() {
 	gc.RLineTo(72,0)
 	gc.RLineTo(0, 72)
 	gc.RLineTo(-72,0)
-	gc.ClosePath()
+	gc.Close()
 	gc.Stroke()
 	gc.Restore()
 	
@@ -452,7 +453,7 @@ func TestTransform() {
 	gc.RLineTo(72,0)
 	gc.RLineTo(0, 72)
 	gc.RLineTo(-72,0)
-	gc.ClosePath()                		// Draw box...
+	gc.Close()                		// Draw box...
 	gc.Stroke()
 	gc.Restore()
 	
@@ -464,7 +465,7 @@ func TestTransform() {
 	gc.RLineTo(72,0)
 	gc.RLineTo(0, 72)
 	gc.RLineTo(-72,0)
-	gc.ClosePath()                		// Draw box...
+	gc.Close()                		// Draw box...
 	gc.Stroke()
 	gc.Restore()
 
@@ -477,11 +478,20 @@ func TestTransform() {
 	gc.RLineTo(72,0)
 	gc.RLineTo(0, 72)
 	gc.RLineTo(-72,0)
-	gc.ClosePath()                	// Draw box
+	gc.Close()                	// Draw box
 	gc.Stroke()
 	gc.Restore()
 	
 	saveToPngFile("TestTransform", i)
+}
+
+func TestPathTransform() {
+	i, gc := initGc(800, 600)   
+	gc.SetLineWidth(20)
+	gc.Scale(1,5)
+	gc.ArcTo(200, 50, 50, 50, 0, math.Pi * 2)
+	gc.Stroke()
+	saveToPngFile("TestPathTransform", i)
 }
 
 func main() {
@@ -500,4 +510,5 @@ func main() {
 	TestBubble()
 	TestStar()
 	TestTransform()
+	TestPathTransform()
 }

@@ -6,7 +6,7 @@ package draw2d
 import (
 	"exp/draw"
 	"image"
-	//"math"
+	"math"
 	"freetype-go.googlecode.com/hg/freetype/raster"
 )
 
@@ -163,68 +163,83 @@ func (gc *GraphicContext) BeginPath() {
 }
 
 func (gc *GraphicContext) MoveTo(x, y float) {
-	gc.current.tr.Transform(&x, &y)
 	gc.current.path.MoveTo(x, y)
 }
 
 func (gc *GraphicContext) RMoveTo(dx, dy float) {
-	gc.current.tr.VectorTransform(&dx, &dy)
 	gc.current.path.RMoveTo(dx, dy)
 }
 
 func (gc *GraphicContext) LineTo(x, y float) {
-	gc.current.tr.Transform(&x, &y)
 	gc.current.path.LineTo(x, y)
 }
 
 func (gc *GraphicContext) RLineTo(dx, dy float) {
-	gc.current.tr.VectorTransform(&dx, &dy)
 	gc.current.path.RLineTo(dx, dy)
 }
 
-func (gc *GraphicContext) Rect(x1, y1, x2, y2 float) {
-	gc.current.tr.Transform(&x1, &y1, &x2, &y2)
-	gc.current.path.Rect(x1, y1, x2, y2)
-}
-
-func (gc *GraphicContext) RRect(dx1, dy1, dx2, dy2 float) {
-	gc.current.tr.VectorTransform(&dx1, &dy1, &dx2, &dy2)
-	gc.current.path.RRect(dx1, dy1, dx2, dy2)
-}
-
 func (gc *GraphicContext) QuadCurveTo(cx, cy, x, y float) {
-	gc.current.tr.Transform(&cx, &cy, &x, &y)
 	gc.current.path.QuadCurveTo(cx, cy, x, y)
 }
 
 func (gc *GraphicContext) RQuadCurveTo(dcx, dcy, dx, dy float) {
-	gc.current.tr.VectorTransform(&dcx, &dcy, &dx, &dy)
 	gc.current.path.RQuadCurveTo(dcx, dcy, dx, dy)
 }
 
 func (gc *GraphicContext) CubicCurveTo(cx1, cy1, cx2, cy2, x, y float) {
-	gc.current.tr.Transform(&cx1, &cy1, &cx2, &cy2, &x, &y)
 	gc.current.path.CubicCurveTo(cx1, cy1, cx2, cy2, x, y)
 }
 
 func (gc *GraphicContext) RCubicCurveTo(dcx1, dcy1, dcx2, dcy2, dx, dy float) {
-	gc.current.tr.VectorTransform(&dcx1, &dcy1, &dcx2, &dcy2, &dx, &dy)
 	gc.current.path.RCubicCurveTo(dcx1, dcy1, dcx2, dcy2, dx, dy)
 }
 
 func (gc *GraphicContext) ArcTo(cx, cy, rx, ry, startAngle, angle float) {
-	gc.current.tr.Transform(&cx, &cy)
-	gc.current.tr.VectorTransform(&rx, &ry)
 	gc.current.path.ArcTo(cx, cy, rx, ry, startAngle, angle)
 }
 
 func (gc *GraphicContext) RArcTo(dcx, dcy, rx, ry, startAngle, angle float) {
-	gc.current.tr.VectorTransform(&dcx, &dcy)
-	gc.current.tr.VectorTransform(&rx, &ry)
 	gc.current.path.RArcTo(dcx, dcy, rx, ry, startAngle, angle)
 }
 
-func (gc *GraphicContext) ClosePath() {
+//high level path creation
+func (gc *GraphicContext) Rect(x1, y1, x2, y2 float) {
+	if gc.current.path.isEmpty() {
+		gc.current.path.MoveTo(x1, y1)
+	} else {
+		gc.current.path.LineTo(x1, y1)
+	}
+	gc.current.path.LineTo(x2, y1)
+	gc.current.path.LineTo(x2, y2)
+	gc.current.path.LineTo(x1, y2)
+	gc.current.path.Close()
+}
+
+func (gc *GraphicContext) RoundRect(x1, y1, x2, y2, arcWidth, arcHeight float) {
+	arcWidth = arcWidth/2;
+	arcHeight = arcHeight/2;
+	gc.MoveTo(x1, y1+ arcHeight);
+	gc.QuadCurveTo(x1, y1, x1 + arcWidth, y1);
+	gc.LineTo(x2-arcWidth, y1);
+	gc.QuadCurveTo(x2, y1, x2, y1 + arcHeight);
+	gc.LineTo(x2, y2-arcHeight);
+	gc.QuadCurveTo(x2, y2, x2 - arcWidth, y2);
+	gc.LineTo(x1 + arcWidth, y2);
+	gc.QuadCurveTo(x1, y2, x1, y2 - arcHeight);
+	gc.Close()
+}
+
+func (gc *GraphicContext) Ellipse(cx, cy, rx, ry float) {
+	gc.current.path.ArcTo(cx, cy, rx, ry, 0, -math.Pi * 2)
+	gc.current.path.Close()
+}
+
+func (gc *GraphicContext) Circle(cx, cy, radius float) {
+	gc.current.path.ArcTo(cx, cy, radius, radius, 0, -math.Pi * 2)
+	gc.current.path.Close()
+}
+
+func (gc *GraphicContext) Close() {
 	gc.current.path.Close()
 }
 
@@ -236,35 +251,44 @@ func (gc *GraphicContext) paint(color image.Color) {
 	gc.current.path = new(Path)
 }
 
-func (gc *GraphicContext) Stroke(paths ...*Path) {
+func (gc *GraphicContext) Stroke(paths ...*Path) {	
 	paths = append(paths, gc.current.path)
-	rasterPath := tracePath(gc.current.dash, gc.current.dashOffset, paths...)
 	gc.rasterizer.UseNonZeroWinding = true
-	gc.rasterizer.AddStroke(*rasterPath, raster.Fix32(gc.current.lineWidth*256), gc.current.cap.capper(), gc.current.join.joiner())
+	rasterPath := new(raster.Path)
+	if(gc.current.dash == nil) {
+		tracePath(gc.current.tr.GetMaxAbsScaling(), rasterPath, paths...)
+	} else {
+		traceDashPath(gc.current.dash, gc.current.dashOffset, gc.current.tr.GetMaxAbsScaling(), rasterPath, paths...)
+	}
+	mta := NewMatrixTransformAdder(gc.current.tr, gc.rasterizer)
+	raster.Stroke(mta, *rasterPath, raster.Fix32(gc.current.lineWidth*256), gc.current.cap.capper(), gc.current.join.joiner())
 	gc.paint(gc.current.strokeColor)
 }
 
 func (gc *GraphicContext) Fill(paths ...*Path) {
 	paths = append(paths, gc.current.path)
-	rasterPath := tracePath(nil, 0, paths...)
-
 	gc.rasterizer.UseNonZeroWinding = gc.current.fillRule.fillRule()
-	gc.rasterizer.AddPath(*rasterPath)
+	mta := NewMatrixTransformAdder(gc.current.tr, gc.rasterizer)
+	tracePath(gc.current.tr.GetMaxAbsScaling(), mta,  paths...)
 	gc.paint(gc.current.fillColor)
 }
 
 func (gc *GraphicContext) FillStroke(paths ...*Path) {
 	paths = append(paths, gc.current.path)
-	rasterPath := tracePath(nil, 0, paths...)
+	mta := NewMatrixTransformAdder(gc.current.tr, gc.rasterizer)
+	tracePath(gc.current.tr.GetMaxAbsScaling(), mta, paths...)
 
 	gc.rasterizer.UseNonZeroWinding = gc.current.fillRule.fillRule()
-	gc.rasterizer.AddPath(*rasterPath)
 	gc.paint(gc.current.fillColor)
-	if gc.current.dash != nil {
-		rasterPath = tracePath(gc.current.dash, gc.current.dashOffset, paths...)
-	}
+	
 	gc.rasterizer.UseNonZeroWinding = true
-	gc.rasterizer.AddStroke(*rasterPath, raster.Fix32(gc.current.lineWidth*256), gc.current.cap.capper(), gc.current.join.joiner())
+	rasterPath := new(raster.Path)
+	if(gc.current.dash == nil) {
+		tracePath(gc.current.tr.GetMaxAbsScaling(), rasterPath, paths...)
+	} else {
+		traceDashPath(gc.current.dash, gc.current.dashOffset, gc.current.tr.GetMaxAbsScaling(), rasterPath, paths...)
+	}
+	raster.Stroke(mta, *rasterPath, raster.Fix32(gc.current.lineWidth*256), gc.current.cap.capper(), gc.current.join.joiner())
 	gc.paint(gc.current.strokeColor)
 }
 
@@ -300,79 +324,3 @@ func (j Join) joiner() raster.Joiner {
 	return raster.RoundJoiner
 }
 
-
-type PathAdapter struct {
-	path           *raster.Path
-	x, y, distance float
-	dash           []float
-	currentDash    int
-	dashOffset     float
-}
-
-func tracePath(dash []float, dashOffset float, paths ...*Path) *raster.Path {
-	var adapter PathAdapter
-	if dash != nil && len(dash) > 0 {
-		adapter.dash = dash
-	} else {
-		adapter.dash = nil
-	}
-	adapter.currentDash = 0
-	adapter.dashOffset = dashOffset
-	adapter.path = new(raster.Path)
-	for _, path := range paths {
-		path.TraceLine(&adapter)
-	}
-	return adapter.path
-}
-
-func floatToPoint(x, y float) raster.Point {
-	return raster.Point{raster.Fix32(x * 256), raster.Fix32(y * 256)}
-}
-
-func (p *PathAdapter) MoveTo(x, y float) {
-	p.path.Start(floatToPoint(x, y))
-	p.x, p.y = x, y
-	p.distance = p.dashOffset
-	p.currentDash = 0
-}
-
-func (p *PathAdapter) LineTo(x, y float) {
-	if p.dash != nil {
-		rest := p.dash[p.currentDash] - p.distance
-		for rest < 0 {
-			p.distance = p.distance - p.dash[p.currentDash]
-			p.currentDash = (p.currentDash + 1) % len(p.dash)
-			rest = p.dash[p.currentDash] - p.distance
-		}
-		d := distance(p.x, p.y, x, y)
-		for d >= rest {
-			k := rest / d
-			lx := p.x + k*(x-p.x)
-			ly := p.y + k*(y-p.y)
-			if p.currentDash%2 == 0 {
-				// line
-				p.path.Add1(floatToPoint(lx, ly))
-			} else {
-				// gap
-				p.path.Start(floatToPoint(lx, ly))
-			}
-			d = d - rest
-			p.x, p.y = lx, ly
-			p.currentDash = (p.currentDash + 1) % len(p.dash)
-			rest = p.dash[p.currentDash]
-		}
-		p.distance = d
-		if p.currentDash%2 == 0 {
-			p.path.Add1(floatToPoint(x, y))
-		} else {
-			p.path.Start(floatToPoint(x, y))
-		}
-		if p.distance >= p.dash[p.currentDash] {
-			p.distance = p.distance - p.dash[p.currentDash]
-			p.currentDash = (p.currentDash + 1) % len(p.dash)
-		}
-	} else {
-		p.path.Add1(floatToPoint(x, y))
-	}
-	p.x, p.y = x, y
-}
