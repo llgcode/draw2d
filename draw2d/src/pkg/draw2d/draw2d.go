@@ -6,7 +6,6 @@ package draw2d
 import (
 	"exp/draw"
 	"image"
-	"math"
 	"freetype-go.googlecode.com/hg/freetype/raster"
 )
 
@@ -41,7 +40,7 @@ type GraphicContext struct {
 
 type contextStack struct {
 	tr			MatrixTransform
-	path        *Path
+	path        *PathStorage
 	lineWidth   float
 	dash        []float
 	dashOffset  float
@@ -65,7 +64,7 @@ func NewGraphicContext(pi *image.RGBA) *GraphicContext {
 	gc.current = new(contextStack)
 	
 	gc.current.tr = NewIdentityMatrix()
-	gc.current.path = new(Path)
+	gc.current.path = new(PathStorage)
 	gc.current.lineWidth = 1.0
 	gc.current.strokeColor = image.Black
 	gc.current.fillColor = image.White
@@ -159,7 +158,7 @@ func (gc *GraphicContext) Restore() {
 }
 
 func (gc *GraphicContext) BeginPath() {
-	gc.current.path = new(Path)
+	gc.current.path = new(PathStorage)
 }
 
 func (gc *GraphicContext) MoveTo(x, y float) {
@@ -202,43 +201,6 @@ func (gc *GraphicContext) RArcTo(dcx, dcy, rx, ry, startAngle, angle float) {
 	gc.current.path.RArcTo(dcx, dcy, rx, ry, startAngle, angle)
 }
 
-//high level path creation
-func (gc *GraphicContext) Rect(x1, y1, x2, y2 float) {
-	if gc.current.path.isEmpty() {
-		gc.current.path.MoveTo(x1, y1)
-	} else {
-		gc.current.path.LineTo(x1, y1)
-	}
-	gc.current.path.LineTo(x2, y1)
-	gc.current.path.LineTo(x2, y2)
-	gc.current.path.LineTo(x1, y2)
-	gc.current.path.Close()
-}
-
-func (gc *GraphicContext) RoundRect(x1, y1, x2, y2, arcWidth, arcHeight float) {
-	arcWidth = arcWidth/2;
-	arcHeight = arcHeight/2;
-	gc.MoveTo(x1, y1+ arcHeight);
-	gc.QuadCurveTo(x1, y1, x1 + arcWidth, y1);
-	gc.LineTo(x2-arcWidth, y1);
-	gc.QuadCurveTo(x2, y1, x2, y1 + arcHeight);
-	gc.LineTo(x2, y2-arcHeight);
-	gc.QuadCurveTo(x2, y2, x2 - arcWidth, y2);
-	gc.LineTo(x1 + arcWidth, y2);
-	gc.QuadCurveTo(x1, y2, x1, y2 - arcHeight);
-	gc.Close()
-}
-
-func (gc *GraphicContext) Ellipse(cx, cy, rx, ry float) {
-	gc.current.path.ArcTo(cx, cy, rx, ry, 0, -math.Pi * 2)
-	gc.current.path.Close()
-}
-
-func (gc *GraphicContext) Circle(cx, cy, radius float) {
-	gc.current.path.ArcTo(cx, cy, radius, radius, 0, -math.Pi * 2)
-	gc.current.path.Close()
-}
-
 func (gc *GraphicContext) Close() {
 	gc.current.path.Close()
 }
@@ -248,10 +210,10 @@ func (gc *GraphicContext) paint(color image.Color) {
 	painter.SetColor(color)
 	gc.rasterizer.Rasterize(painter)
 	gc.rasterizer.Clear()
-	gc.current.path = new(Path)
+	gc.current.path = new(PathStorage)
 }
 
-func (gc *GraphicContext) Stroke(paths ...*Path) {	
+func (gc *GraphicContext) Stroke(paths ...*PathStorage) {	
 	paths = append(paths, gc.current.path)
 	gc.rasterizer.UseNonZeroWinding = true
 	rasterPath := new(raster.Path)
@@ -265,7 +227,7 @@ func (gc *GraphicContext) Stroke(paths ...*Path) {
 	gc.paint(gc.current.strokeColor)
 }
 
-func (gc *GraphicContext) Fill(paths ...*Path) {
+func (gc *GraphicContext) Fill(paths ...*PathStorage) {
 	paths = append(paths, gc.current.path)
 	gc.rasterizer.UseNonZeroWinding = gc.current.fillRule.fillRule()
 	mta := NewMatrixTransformAdder(gc.current.tr, gc.rasterizer)
@@ -273,7 +235,7 @@ func (gc *GraphicContext) Fill(paths ...*Path) {
 	gc.paint(gc.current.fillColor)
 }
 
-func (gc *GraphicContext) FillStroke(paths ...*Path) {
+func (gc *GraphicContext) FillStroke(paths ...*PathStorage) {
 	paths = append(paths, gc.current.path)
 	mta := NewMatrixTransformAdder(gc.current.tr, gc.rasterizer)
 	tracePath(gc.current.tr.GetMaxAbsScaling(), mta, paths...)

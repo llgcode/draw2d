@@ -13,8 +13,8 @@ import (
 	"math"
 	"image"
 	"image/png"
-	//"draw2d"
-	"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
+	"draw2d"
+	//"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
 )
 
 const (
@@ -283,11 +283,11 @@ func TestFillStyle() {
 	i, gc := initGc(w, h)
 	gc.SetLineWidth(6)
 
-	gc.Rect(12, 12, 244, 70)
+	draw2d.Rect(gc, 12, 12, 244, 70)
 
-	wheel1 := new(draw2d.Path)
+	wheel1 := new(draw2d.PathStorage)
 	wheel1.ArcTo(64, 64, 40, 40, 0, 2*math.Pi)
-	wheel2 := new(draw2d.Path)
+	wheel2 := new(draw2d.PathStorage)
 	wheel2.ArcTo(192, 64, 40, 40, 0, 2*math.Pi)
 
 	gc.SetFillRule(draw2d.FillRuleEvenOdd)
@@ -296,10 +296,10 @@ func TestFillStyle() {
 	gc.SetStrokeColor(image.Black)
 	gc.FillStroke(wheel1, wheel2)
 
-	gc.Rect(12, 140, 244, 198)
-	wheel1 = new(draw2d.Path)
+	draw2d.Rect(gc, 12, 140, 244, 198)
+	wheel1 = new(draw2d.PathStorage)
 	wheel1.ArcTo(64, 192, 40, 40, 0, 2*math.Pi)
-	wheel2 = new(draw2d.Path)
+	wheel2 = new(draw2d.PathStorage)
 	wheel2.ArcTo(192, 192, 40, 40, 0, -2*math.Pi)
 
 	gc.SetFillRule(draw2d.FillRuleWinding)

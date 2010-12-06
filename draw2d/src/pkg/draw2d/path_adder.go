@@ -15,7 +15,7 @@ func floatToPoint(x, y float) raster.Point {
 	return raster.Point{raster.Fix32(x * 256), raster.Fix32(y * 256)}
 }
 
-func tracePath(approximationScale float, adder raster.Adder, paths ...*Path) {
+func tracePath(approximationScale float, adder raster.Adder, paths ...*PathStorage) {
 	pathAdder := &PathAdder{adder}
 	for _, path := range paths {
 		path.TraceLine(pathAdder, approximationScale)
