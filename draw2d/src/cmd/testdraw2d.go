@@ -489,6 +489,7 @@ func TestPathTransform() {
 	gc.SetLineWidth(20)
 	gc.Scale(1, 5)
 	gc.ArcTo(200, 50, 50, 50, 0, math.Pi*2)
+	gc.Close()
 	gc.Stroke()
 	saveToPngFile("TestPathTransform", i)
 }
