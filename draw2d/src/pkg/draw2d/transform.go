@@ -2,6 +2,7 @@
 // created: 21/11/2010 by Laurent Le Goff
 
 package draw2d
+
 import (
 	"freetype-go.googlecode.com/hg/freetype/raster"
 )
@@ -29,7 +30,7 @@ func (tr MatrixTransform) TransformRasterPoint(points ...*raster.Point) {
 	for _, point := range points {
 		x := float(point.X) / 256
 		y := float(point.Y) / 256
-		point.X = raster.Fix32((x*tr[0] + y*tr[2] + tr[4]) * 256) 
+		point.X = raster.Fix32((x*tr[0] + y*tr[2] + tr[4]) * 256)
 		point.Y = raster.Fix32((x*tr[1] + y*tr[3] + tr[5]) * 256)
 	}
 }
@@ -51,7 +52,7 @@ func (tr MatrixTransform) VectorTransform(points ...*float) {
 		x := *points[i]
 		y := *points[j]
 		*points[i] = x*tr[0] + y*tr[2]
-		*points[j] = x*tr[1] + y*tr[3] 
+		*points[j] = x*tr[1] + y*tr[3]
 	}
 }
 
@@ -125,35 +126,35 @@ func (tr1 MatrixTransform) Multiply(tr2 MatrixTransform) MatrixTransform {
 }
 
 
-func (tr *MatrixTransform) Scale(sx, sy float) (*MatrixTransform){
- 	tr[0]  = tr[0]*sx;
-    tr[1] = tr[1]*sx;
-    tr[4]  = tr[4]*sx;
-    tr[2] = tr[2]*sy;
-    tr[3]  = tr[3]*sy;
-    tr[5]  = tr[5]*sy;
-    return tr;
+func (tr *MatrixTransform) Scale(sx, sy float) *MatrixTransform {
+	tr[0] = tr[0] * sx
+	tr[1] = tr[1] * sx
+	tr[4] = tr[4] * sx
+	tr[2] = tr[2] * sy
+	tr[3] = tr[3] * sy
+	tr[5] = tr[5] * sy
+	return tr
 }
 
-func (tr *MatrixTransform) Translate(tx, ty float) (*MatrixTransform){
- 	tr[4] = tr[4] + tx 
- 	tr[5] = tr[5] + ty
-    return tr;
+func (tr *MatrixTransform) Translate(tx, ty float) *MatrixTransform {
+	tr[4] = tr[4] + tx
+	tr[5] = tr[5] + ty
+	return tr
 }
 
-func (tr *MatrixTransform) Rotate(angle float) (*MatrixTransform){
- 	ca := cos(angle); 
-    sa := sin(angle);
-    t0 := tr[0]  * ca - tr[1] * sa;
-    t2 := tr[1] * ca - tr[3] * sa;
-    t4 := tr[4]  * ca - tr[5] * sa;
-    tr[1] = tr[0]  * sa + tr[1] * ca;
-    tr[3]  = tr[2] * sa + tr[3] * ca; 
-    tr[5]  = tr[4]  * sa + tr[5] * ca;
-    tr[0]  = t0;
-    tr[2] = t2;
-    tr[4]  = t4;
-    return tr;
+func (tr *MatrixTransform) Rotate(angle float) *MatrixTransform {
+	ca := cos(angle)
+	sa := sin(angle)
+	t0 := tr[0]*ca - tr[1]*sa
+	t2 := tr[1]*ca - tr[3]*sa
+	t4 := tr[4]*ca - tr[5]*sa
+	tr[1] = tr[0]*sa + tr[1]*ca
+	tr[3] = tr[2]*sa + tr[3]*ca
+	tr[5] = tr[4]*sa + tr[5]*ca
+	tr[0] = t0
+	tr[2] = t2
+	tr[4] = t4
+	return tr
 }
 
 func (tr MatrixTransform) GetTranslation() (x, y float) {
@@ -167,7 +168,7 @@ func (tr MatrixTransform) GetScaling() (x, y float) {
 func (tr MatrixTransform) GetMaxAbsScaling() (s float) {
 	sx := fabs(tr[0])
 	sy := fabs(tr[3])
-	if(sx > sy) {
+	if sx > sy {
 		return sx
 	}
 	return sy
@@ -176,7 +177,7 @@ func (tr MatrixTransform) GetMaxAbsScaling() (s float) {
 func (tr MatrixTransform) GetMinAbsScaling() (s float) {
 	sx := fabs(tr[0])
 	sy := fabs(tr[3])
-	if(sx > sy) {
+	if sx > sy {
 		return sy
 	}
 	return sx
@@ -221,13 +222,34 @@ func fequals(float1, float2 float) bool {
 	return fabs(float1-float2) <= epsilon
 }
 
+// this VertexConverter apply the Matrix transformation tr
+type VertexMatrixTransform struct {
+	tr   MatrixTransform
+	Next VertexConverter
+}
+
+func NewVertexMatrixTransform(tr MatrixTransform, converter VertexConverter) *VertexMatrixTransform {
+	return &VertexMatrixTransform{tr, converter}
+}
+
+// Vertex Matrix Transform
+func (vmt *VertexMatrixTransform) NextCommand(command VertexCommand) {
+	vmt.Next.NextCommand(command)
+}
+
+func (vmt *VertexMatrixTransform) Vertex(x, y float) {
+	vmt.tr.Transform(&x, &y)
+	vmt.Next.Vertex(x, y)
+}
+
+
 // this adder apply a Matrix transformation to points
 type MatrixTransformAdder struct {
-	tr MatrixTransform
+	tr   MatrixTransform
 	next raster.Adder
 }
 
-func NewMatrixTransformAdder(tr MatrixTransform, adder raster.Adder) (*MatrixTransformAdder) {
+func NewMatrixTransformAdder(tr MatrixTransform, adder raster.Adder) *MatrixTransformAdder {
 	return &MatrixTransformAdder{tr, adder}
 }
 
@@ -255,4 +277,3 @@ func (mta MatrixTransformAdder) Add3(b, c, d raster.Point) {
 	mta.tr.TransformRasterPoint(&b, &c, &d)
 	mta.next.Add3(b, c, d)
 }
-

@@ -1,13 +1,14 @@
 package draw2d
 
 
-import(
-	"freetype-go.googlecode.com/hg/freetype/raster"	
+import (
+	"freetype-go.googlecode.com/hg/freetype/raster"
 )
 
 
-type PathAdder struct {
-	adder raster.Adder
+type VertexAdder struct {
+	command VertexCommand
+	adder   raster.Adder
 }
 
 
@@ -15,17 +16,21 @@ func floatToPoint(x, y float) raster.Point {
 	return raster.Point{raster.Fix32(x * 256), raster.Fix32(y * 256)}
 }
 
-func tracePath(approximationScale float, adder raster.Adder, paths ...*PathStorage) {
-	pathAdder := &PathAdder{adder}
-	for _, path := range paths {
-		path.TraceLine(pathAdder, approximationScale)
+
+func NewVertexAdder(adder raster.Adder) *VertexAdder {
+	return &VertexAdder{VertexNoCommand, adder}
+}
+
+func (vertexAdder *VertexAdder) NextCommand(cmd VertexCommand) {
+	vertexAdder.command = cmd
+}
+
+func (vertexAdder *VertexAdder) Vertex(x, y float) {
+	switch vertexAdder.command {
+	case VertexStartCommand:
+		vertexAdder.adder.Start(floatToPoint(x, y))
+	default:
+		vertexAdder.adder.Add1(floatToPoint(x, y))
 	}
-}
-
-func (pathAdder *PathAdder) MoveTo(x, y float) {
-	pathAdder.adder.Start(floatToPoint(x, y))
-}
-
-func (pathAdder *PathAdder) LineTo(x, y float) {
-	pathAdder.adder.Add1(floatToPoint(x, y))
+	vertexAdder.command = VertexNoCommand
 }

@@ -1,40 +1,49 @@
 package draw2d
 
-import(
-	"freetype-go.googlecode.com/hg/freetype/raster"	
-)
-
-type DashAdder struct {
-	adder          raster.Adder
+type DashVertexConverter struct {
+	command        VertexCommand
+	next           VertexConverter
 	x, y, distance float
 	dash           []float
 	currentDash    int
 	dashOffset     float
 }
 
-func traceDashPath(dash []float, dashOffset float, approximationScale float, adder raster.Adder, paths ...*PathStorage) {
-	var dasher DashAdder
-	if dash != nil && len(dash) > 0 {
-		dasher.dash = dash
-	} else {
-		dasher.dash = nil
-	}
+func NewDashConverter(dash []float, dashOffset float, converter VertexConverter) *DashVertexConverter {
+	var dasher DashVertexConverter
+	dasher.dash = dash
 	dasher.currentDash = 0
 	dasher.dashOffset = dashOffset
-	dasher.adder = adder
-	for _, path := range paths {
-		path.TraceLine(&dasher, approximationScale)
+	dasher.next = converter
+	return &dasher
+}
+
+func (dasher *DashVertexConverter) NextCommand(cmd VertexCommand) {
+	dasher.command = cmd
+	if(dasher.command == VertexStopCommand) {
+		dasher.next.NextCommand(VertexStopCommand)
 	}
 }
 
-func (dasher *DashAdder) MoveTo(x, y float) {
-	dasher.adder.Start(floatToPoint(x, y))
+func (dasher *DashVertexConverter) Vertex(x, y float) {
+	switch dasher.command {
+	case VertexStartCommand:
+		dasher.start(x, y)
+	default:
+		dasher.lineTo(x, y)
+	}
+	dasher.command = VertexNoCommand
+}
+
+func (dasher *DashVertexConverter) start(x, y float) {
+	dasher.next.NextCommand(VertexStartCommand)
+	dasher.next.Vertex(x, y)
 	dasher.x, dasher.y = x, y
 	dasher.distance = dasher.dashOffset
 	dasher.currentDash = 0
 }
 
-func (dasher *DashAdder) LineTo(x, y float) {
+func (dasher *DashVertexConverter) lineTo(x, y float) {
 	rest := dasher.dash[dasher.currentDash] - dasher.distance
 	for rest < 0 {
 		dasher.distance = dasher.distance - dasher.dash[dasher.currentDash]
@@ -48,10 +57,12 @@ func (dasher *DashAdder) LineTo(x, y float) {
 		ly := dasher.y + k*(y-dasher.y)
 		if dasher.currentDash%2 == 0 {
 			// line
-			dasher.adder.Add1(floatToPoint(lx, ly))
+			dasher.next.Vertex(lx, ly)
 		} else {
 			// gap
-			dasher.adder.Start(floatToPoint(lx, ly))
+			dasher.next.NextCommand(VertexStopCommand)
+			dasher.next.NextCommand(VertexStartCommand)
+			dasher.next.Vertex(lx, ly)
 		}
 		d = d - rest
 		dasher.x, dasher.y = lx, ly
@@ -60,9 +71,13 @@ func (dasher *DashAdder) LineTo(x, y float) {
 	}
 	dasher.distance = d
 	if dasher.currentDash%2 == 0 {
-		dasher.adder.Add1(floatToPoint(x, y))
+		// line
+		dasher.next.Vertex(x, y)
 	} else {
-		dasher.adder.Start(floatToPoint(x, y))
+		// gap
+		dasher.next.NextCommand(VertexStopCommand)
+		dasher.next.NextCommand(VertexStartCommand)
+		dasher.next.Vertex(x, y)
 	}
 	if dasher.distance >= dasher.dash[dasher.currentDash] {
 		dasher.distance = dasher.distance - dasher.dash[dasher.currentDash]
