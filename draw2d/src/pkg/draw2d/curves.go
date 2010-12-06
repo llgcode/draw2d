@@ -33,25 +33,22 @@ var (
 			The more this value is the less sharp turns will be cut. 
 			Typically it should not exceed 10-15 degrees.
 */
-
-func cubicBezier(v LineTracer, x1, y1, x2, y2, x3, y3, x4, y4, approximationScale, angleTolerance, cuspLimit float) {
+func cubicBezier(v VertexConverter, x1, y1, x2, y2, x3, y3, x4, y4, approximationScale, angleTolerance, cuspLimit float) {
 	cuspLimit = computeCuspLimit(cuspLimit)
 	distanceToleranceSquare := 0.5 / approximationScale
 	distanceToleranceSquare = distanceToleranceSquare * distanceToleranceSquare
 	recursiveCubicBezier(v, x1, y1, x2, y2, x3, y3, x4, y4, 0, distanceToleranceSquare, angleTolerance, cuspLimit)
-	v.LineTo(x4, y4)
 }
 
 
 /*
  * see cubicBezier comments for approximationScale and angleTolerance definition
  */
-func quadraticBezier(v LineTracer, x1, y1, x2, y2, x3, y3, approximationScale, angleTolerance float) {
+func quadraticBezier(v VertexConverter, x1, y1, x2, y2, x3, y3, approximationScale, angleTolerance float) {
 	distanceToleranceSquare := 0.5 / approximationScale
 	distanceToleranceSquare = distanceToleranceSquare * distanceToleranceSquare
 
 	recursiveQuadraticBezierBezier(v, x1, y1, x2, y2, x3, y3, 0, distanceToleranceSquare, angleTolerance)
-	v.LineTo(x3, y3)
 }
 
 
@@ -68,7 +65,7 @@ func computeCuspLimit(v float) (r float) {
 /**
  * http://www.antigrain.com/research/adaptive_bezier/index.html
  */
-func recursiveQuadraticBezierBezier(v LineTracer, x1, y1, x2, y2, x3, y3 float, level int, distanceToleranceSquare, angleTolerance float) {
+func recursiveQuadraticBezierBezier(v VertexConverter, x1, y1, x2, y2, x3, y3 float, level int, distanceToleranceSquare, angleTolerance float) {
 	if level > CurveRecursionLimit {
 		return
 	}
@@ -94,7 +91,7 @@ func recursiveQuadraticBezierBezier(v LineTracer, x1, y1, x2, y2, x3, y3 float, 
 			// we tend to finish subdivisions.
 			//----------------------
 			if angleTolerance < CurveAngleToleranceEpsilon {
-				v.LineTo(x123, y123)
+				v.Vertex(x123, y123)
 				return
 			}
 
@@ -108,7 +105,7 @@ func recursiveQuadraticBezierBezier(v LineTracer, x1, y1, x2, y2, x3, y3 float, 
 			if da < angleTolerance {
 				// Finally we can stop the recursion
 				//----------------------
-				v.LineTo(x123, y123)
+				v.Vertex(x123, y123)
 				return
 			}
 		}
@@ -134,7 +131,7 @@ func recursiveQuadraticBezierBezier(v LineTracer, x1, y1, x2, y2, x3, y3 float, 
 			}
 		}
 		if d < distanceToleranceSquare {
-			v.LineTo(x2, y2)
+			v.Vertex(x2, y2)
 			return
 		}
 	}
@@ -148,7 +145,7 @@ func recursiveQuadraticBezierBezier(v LineTracer, x1, y1, x2, y2, x3, y3 float, 
 /**
  * http://www.antigrain.com/research/adaptive_bezier/index.html
  */
-func recursiveCubicBezier(v LineTracer, x1, y1, x2, y2, x3, y3, x4, y4 float, level int, distanceToleranceSquare, angleTolerance, cuspLimit float) {
+func recursiveCubicBezier(v VertexConverter, x1, y1, x2, y2, x3, y3, x4, y4 float, level int, distanceToleranceSquare, angleTolerance, cuspLimit float) {
 	if level > CurveRecursionLimit {
 		return
 	}
@@ -215,12 +212,12 @@ func recursiveCubicBezier(v LineTracer, x1, y1, x2, y2, x3, y3, x4, y4 float, le
 		}
 		if d2 > d3 {
 			if d2 < distanceToleranceSquare {
-				v.LineTo(x2, y2)
+				v.Vertex(x2, y2)
 				return
 			}
 		} else {
 			if d3 < distanceToleranceSquare {
-				v.LineTo(x3, y3)
+				v.Vertex(x3, y3)
 				return
 			}
 		}
@@ -231,7 +228,7 @@ func recursiveCubicBezier(v LineTracer, x1, y1, x2, y2, x3, y3, x4, y4 float, le
 		//----------------------
 		if d3*d3 <= distanceToleranceSquare*(dx*dx+dy*dy) {
 			if angleTolerance < CurveAngleToleranceEpsilon {
-				v.LineTo(x23, y23)
+				v.Vertex(x23, y23)
 				return
 			}
 
@@ -243,14 +240,14 @@ func recursiveCubicBezier(v LineTracer, x1, y1, x2, y2, x3, y3, x4, y4 float, le
 			}
 
 			if da1 < angleTolerance {
-				v.LineTo(x2, y2)
-				v.LineTo(x3, y3)
+				v.Vertex(x2, y2)
+				v.Vertex(x3, y3)
 				return
 			}
 
 			if cuspLimit != 0.0 {
 				if da1 > cuspLimit {
-					v.LineTo(x3, y3)
+					v.Vertex(x3, y3)
 					return
 				}
 			}
@@ -262,7 +259,7 @@ func recursiveCubicBezier(v LineTracer, x1, y1, x2, y2, x3, y3, x4, y4 float, le
 		//----------------------
 		if d2*d2 <= distanceToleranceSquare*(dx*dx+dy*dy) {
 			if angleTolerance < CurveAngleToleranceEpsilon {
-				v.LineTo(x23, y23)
+				v.Vertex(x23, y23)
 				return
 			}
 
@@ -274,14 +271,14 @@ func recursiveCubicBezier(v LineTracer, x1, y1, x2, y2, x3, y3, x4, y4 float, le
 			}
 
 			if da1 < angleTolerance {
-				v.LineTo(x2, y2)
-				v.LineTo(x3, y3)
+				v.Vertex(x2, y2)
+				v.Vertex(x3, y3)
 				return
 			}
 
 			if cuspLimit != 0.0 {
 				if da1 > cuspLimit {
-					v.LineTo(x2, y2)
+					v.Vertex(x2, y2)
 					return
 				}
 			}
@@ -296,7 +293,7 @@ func recursiveCubicBezier(v LineTracer, x1, y1, x2, y2, x3, y3, x4, y4 float, le
 			// we tend to finish subdivisions.
 			//----------------------
 			if angleTolerance < CurveAngleToleranceEpsilon {
-				v.LineTo(x23, y23)
+				v.Vertex(x23, y23)
 				return
 			}
 
@@ -315,18 +312,18 @@ func recursiveCubicBezier(v LineTracer, x1, y1, x2, y2, x3, y3, x4, y4 float, le
 			if da1+da2 < angleTolerance {
 				// Finally we can stop the recursion
 				//----------------------
-				v.LineTo(x23, y23)
+				v.Vertex(x23, y23)
 				return
 			}
 
 			if cuspLimit != 0.0 {
 				if da1 > cuspLimit {
-					v.LineTo(x2, y2)
+					v.Vertex(x2, y2)
 					return
 				}
 
 				if da2 > cuspLimit {
-					v.LineTo(x3, y3)
+					v.Vertex(x3, y3)
 					return
 				}
 			}

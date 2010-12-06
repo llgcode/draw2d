@@ -17,8 +17,18 @@ type Path interface {
 	Close()
 }
 
-type LineTracer interface {
-	MoveTo(x, y float)
-	LineTo(x, y float)
-}
 
+type VertexCommand byte
+
+const (
+	VertexNoCommand VertexCommand = iota
+	VertexStartCommand
+	VertexJoinCommand
+	VertexCloseCommand
+	VertexStopCommand
+)
+
+type VertexConverter interface {
+	NextCommand(cmd VertexCommand)
+	Vertex(x, y float)
+}

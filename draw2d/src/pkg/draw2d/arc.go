@@ -1,10 +1,8 @@
 // Copyright 2010 The draw2d Authors. All rights reserved.
 // created: 21/11/2010 by Laurent Le Goff
-
 package draw2d
 
-
-func arc(t LineTracer, x, y, rx, ry, start, angle, scale float) {
+func arc(t VertexConverter, x, y, rx, ry, start, angle, scale float) (lastX, lastY float) {
 	end := start + angle
 	clockWise := true
 	if angle < 0 {
@@ -22,13 +20,13 @@ func arc(t LineTracer, x, y, rx, ry, start, angle, scale float) {
 		if (angle < end-da/4) != clockWise {
 			curX = x + cos(end)*rx
 			curY = y + sin(end)*ry
-			t.LineTo(curX, curY)
-			break
+			return curX, curY
 		}
 		curX = x + cos(angle)*rx
 		curY = y + sin(angle)*ry
 
 		angle += da
-		t.LineTo(curX, curY)
+		t.Vertex(curX, curY)
 	}
+	return curX, curY
 }

@@ -37,6 +37,10 @@ func distance(x1, y1, x2, y2 float) float {
 	return float(math.Sqrt(float64(dx*dx + dy*dy)))
 }
 
+func vectorDistance(dx, dy float) float {
+	return float(math.Sqrt(float64(dx*dx + dy*dy)))
+}
+
 func squareDistance(x1, y1, x2, y2 float) float {
 	dx := x2 - x1
 	dy := y2 - y1

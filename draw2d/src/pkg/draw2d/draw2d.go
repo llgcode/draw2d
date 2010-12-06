@@ -16,30 +16,15 @@ const (
 	FillRuleWinding
 )
 
-type Cap int
-
-const (
-	RoundCap Cap = iota
-	ButtCap
-	SquareCap
-)
-
-type Join int
-
-const (
-	BevelJoin Join = iota
-	RoundJoin
-	MiterJoin
-)
-
 type GraphicContext struct {
-	PaintedImage *image.RGBA
-	rasterizer   *raster.Rasterizer
-	current      *contextStack
+	PaintedImage     *image.RGBA
+	fillRasterizer   *raster.Rasterizer
+	strokeRasterizer *raster.Rasterizer
+	current          *contextStack
 }
 
 type contextStack struct {
-	tr			MatrixTransform
+	tr          MatrixTransform
 	path        *PathStorage
 	lineWidth   float
 	dash        []float
@@ -49,7 +34,7 @@ type contextStack struct {
 	fillRule    FillRule
 	cap         Cap
 	join        Join
-	previous *contextStack
+	previous    *contextStack
 }
 
 /**
@@ -59,10 +44,11 @@ func NewGraphicContext(pi *image.RGBA) *GraphicContext {
 	gc := new(GraphicContext)
 	gc.PaintedImage = pi
 	width, height := gc.PaintedImage.Bounds().Dx(), gc.PaintedImage.Bounds().Dy()
-	gc.rasterizer = raster.NewRasterizer(width, height)
+	gc.fillRasterizer = raster.NewRasterizer(width, height)
+	gc.strokeRasterizer = raster.NewRasterizer(width, height)
 
 	gc.current = new(contextStack)
-	
+
 	gc.current.tr = NewIdentityMatrix()
 	gc.current.path = new(PathStorage)
 	gc.current.lineWidth = 1.0
@@ -205,54 +191,123 @@ func (gc *GraphicContext) Close() {
 	gc.current.path.Close()
 }
 
-func (gc *GraphicContext) paint(color image.Color) {
+func (gc *GraphicContext) paint(rasterizer *raster.Rasterizer, color image.Color) {
 	painter := raster.NewRGBAPainter(gc.PaintedImage)
 	painter.SetColor(color)
-	gc.rasterizer.Rasterize(painter)
-	gc.rasterizer.Clear()
+	rasterizer.Rasterize(painter)
+	rasterizer.Clear()
 	gc.current.path = new(PathStorage)
 }
 
-func (gc *GraphicContext) Stroke(paths ...*PathStorage) {	
+/**** first method ****/
+func (gc *GraphicContext) Stroke(paths ...*PathStorage) {
 	paths = append(paths, gc.current.path)
-	gc.rasterizer.UseNonZeroWinding = true
+	gc.strokeRasterizer.UseNonZeroWinding = true
+
 	rasterPath := new(raster.Path)
-	if(gc.current.dash == nil) {
-		tracePath(gc.current.tr.GetMaxAbsScaling(), rasterPath, paths...)
+
+	var pathConverter *PathConverter
+	if gc.current.dash != nil && len(gc.current.dash) > 0 {
+		dasher := NewDashConverter(gc.current.dash, gc.current.dashOffset, NewVertexAdder(rasterPath))
+		pathConverter = NewPathConverter(dasher)
 	} else {
-		traceDashPath(gc.current.dash, gc.current.dashOffset, gc.current.tr.GetMaxAbsScaling(), rasterPath, paths...)
+		pathConverter = NewPathConverter(NewVertexAdder(rasterPath))
 	}
-	mta := NewMatrixTransformAdder(gc.current.tr, gc.rasterizer)
+
+	pathConverter.ApproximationScale = gc.current.tr.GetMaxAbsScaling()
+	pathConverter.Convert(paths...)
+
+	mta := NewMatrixTransformAdder(gc.current.tr, gc.strokeRasterizer)
 	raster.Stroke(mta, *rasterPath, raster.Fix32(gc.current.lineWidth*256), gc.current.cap.capper(), gc.current.join.joiner())
-	gc.paint(gc.current.strokeColor)
+
+	gc.paint(gc.strokeRasterizer, gc.current.strokeColor)
 }
 
+/**** second method ****/
+func (gc *GraphicContext) Stroke2(paths ...*PathStorage) {
+	paths = append(paths, gc.current.path)
+	gc.strokeRasterizer.UseNonZeroWinding = true
+
+	stroker := NewLineStroker(NewVertexMatrixTransform(gc.current.tr, NewVertexAdder(gc.strokeRasterizer)))
+	stroker.HalfLineWidth = gc.current.lineWidth / 2
+	var pathConverter *PathConverter
+	if gc.current.dash != nil && len(gc.current.dash) > 0 {
+		dasher := NewDashConverter(gc.current.dash, gc.current.dashOffset, stroker)
+		pathConverter = NewPathConverter(dasher)
+	} else {
+		pathConverter = NewPathConverter(stroker)
+	}
+	pathConverter.ApproximationScale = gc.current.tr.GetMaxAbsScaling()
+	pathConverter.Convert(paths...)
+
+	gc.paint(gc.strokeRasterizer, gc.current.strokeColor)
+}
+
+/**** first method ****/
 func (gc *GraphicContext) Fill(paths ...*PathStorage) {
 	paths = append(paths, gc.current.path)
-	gc.rasterizer.UseNonZeroWinding = gc.current.fillRule.fillRule()
-	mta := NewMatrixTransformAdder(gc.current.tr, gc.rasterizer)
-	tracePath(gc.current.tr.GetMaxAbsScaling(), mta,  paths...)
-	gc.paint(gc.current.fillColor)
+	gc.fillRasterizer.UseNonZeroWinding = gc.current.fillRule.fillRule()
+
+	pathConverter := NewPathConverter(NewVertexAdder(NewMatrixTransformAdder(gc.current.tr, gc.fillRasterizer)))
+	pathConverter.ApproximationScale = gc.current.tr.GetMaxAbsScaling()
+	pathConverter.Convert(paths...)
+	gc.paint(gc.fillRasterizer, gc.current.fillColor)
+}
+
+/**** second method ****/
+func (gc *GraphicContext) Fill2(paths ...*PathStorage) {
+	paths = append(paths, gc.current.path)
+	gc.fillRasterizer.UseNonZeroWinding = gc.current.fillRule.fillRule()
+
+	/**** first method ****/
+	pathConverter := NewPathConverter(NewVertexMatrixTransform(gc.current.tr, NewVertexAdder(gc.fillRasterizer)))
+	pathConverter.ApproximationScale = gc.current.tr.GetMaxAbsScaling()
+	pathConverter.Convert(paths...)
+	gc.paint(gc.fillRasterizer, gc.current.fillColor)
 }
 
 func (gc *GraphicContext) FillStroke(paths ...*PathStorage) {
 	paths = append(paths, gc.current.path)
-	mta := NewMatrixTransformAdder(gc.current.tr, gc.rasterizer)
-	tracePath(gc.current.tr.GetMaxAbsScaling(), mta, paths...)
+	gc.fillRasterizer.UseNonZeroWinding = gc.current.fillRule.fillRule()
+	gc.strokeRasterizer.UseNonZeroWinding = true
 
-	gc.rasterizer.UseNonZeroWinding = gc.current.fillRule.fillRule()
-	gc.paint(gc.current.fillColor)
-	
-	gc.rasterizer.UseNonZeroWinding = true
+	filler := NewVertexMatrixTransform(gc.current.tr, NewVertexAdder(gc.fillRasterizer))
 	rasterPath := new(raster.Path)
-	if(gc.current.dash == nil) {
-		tracePath(gc.current.tr.GetMaxAbsScaling(), rasterPath, paths...)
-	} else {
-		traceDashPath(gc.current.dash, gc.current.dashOffset, gc.current.tr.GetMaxAbsScaling(), rasterPath, paths...)
-	}
+	stroker := NewVertexAdder(rasterPath)
+
+	demux := NewDemuxConverter(filler, stroker)
+
+	pathConverter := NewPathConverter(demux)
+	pathConverter.ApproximationScale = gc.current.tr.GetMaxAbsScaling()
+	pathConverter.Convert(paths...)
+
+	mta := NewMatrixTransformAdder(gc.current.tr, gc.strokeRasterizer)
 	raster.Stroke(mta, *rasterPath, raster.Fix32(gc.current.lineWidth*256), gc.current.cap.capper(), gc.current.join.joiner())
-	gc.paint(gc.current.strokeColor)
+
+	gc.paint(gc.fillRasterizer, gc.current.fillColor)
+	gc.paint(gc.strokeRasterizer, gc.current.strokeColor)
 }
+
+/* second method */
+func (gc *GraphicContext) FillStroke2(paths ...*PathStorage) {
+	gc.fillRasterizer.UseNonZeroWinding = gc.current.fillRule.fillRule()
+	gc.strokeRasterizer.UseNonZeroWinding = true
+
+	filler := NewVertexMatrixTransform(gc.current.tr, NewVertexAdder(gc.fillRasterizer))
+
+	stroker := NewLineStroker(NewVertexMatrixTransform(gc.current.tr, NewVertexAdder(gc.strokeRasterizer)))
+	stroker.HalfLineWidth = gc.current.lineWidth / 2
+
+	demux := NewDemuxConverter(filler, stroker)
+	paths = append(paths, gc.current.path)
+	pathConverter := NewPathConverter(demux)
+	pathConverter.ApproximationScale = gc.current.tr.GetMaxAbsScaling()
+	pathConverter.Convert(paths...)
+
+	gc.paint(gc.fillRasterizer, gc.current.fillColor)
+	gc.paint(gc.strokeRasterizer, gc.current.strokeColor)
+}
+
 
 func (f FillRule) fillRule() bool {
 	switch f {
@@ -285,4 +340,3 @@ func (j Join) joiner() raster.Joiner {
 	}
 	return raster.RoundJoiner
 }
-

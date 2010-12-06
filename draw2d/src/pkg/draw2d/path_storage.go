@@ -137,44 +137,6 @@ func (p *PathStorage) RArcTo(dcx, dcy, rx, ry, startAngle, angle float) *PathSto
 	return p
 }
 
-func (p *PathStorage) TraceLine(tracer LineTracer, approximationScale float) {
-	j := 0
-	x, y := 0.0, 0.0
-	firstX, firstY := x, y
-	if len(p.commands) > 0 {
-		if p.commands[0] == MoveTo {
-			firstX, firstY = p.vertices[0], p.vertices[1]
-		}
-	}
-	for _, cmd := range p.commands {
-		switch cmd {
-		case MoveTo:
-			tracer.MoveTo(p.vertices[j], p.vertices[j+1])
-			x, y = p.vertices[j], p.vertices[j+1]
-			firstX, firstY = x, y
-			j = j + 2
-		case LineTo:
-			tracer.LineTo(p.vertices[j], p.vertices[j+1])
-			x, y = p.vertices[j], p.vertices[j+1]
-			j = j + 2
-		case QuadCurveTo:
-			quadraticBezier(tracer, x, y, p.vertices[j], p.vertices[j+1], p.vertices[j+2], p.vertices[j+3], approximationScale, 0)
-			x, y = p.vertices[j+2], p.vertices[j+3]
-			j = j + 4
-		case CubicCurveTo:
-			cubicBezier(tracer, x, y, p.vertices[j], p.vertices[j+1], p.vertices[j+2], p.vertices[j+3], p.vertices[j+4], p.vertices[j+5], approximationScale, 0, 0)
-			x, y = p.vertices[j+4], p.vertices[j+5]
-			j = j + 6
-		case ArcTo:
-			arc(tracer, p.vertices[j], p.vertices[j+1], p.vertices[j+2], p.vertices[j+3], p.vertices[j+4], p.vertices[j+5], approximationScale)
-			j = j + 6
-		case Close:
-			tracer.LineTo(firstX, firstY)
-			x, y = firstX, firstY
-		}
-	}
-}
-
 func (p *PathStorage) String() string {
 	s := ""
 	j := 0
