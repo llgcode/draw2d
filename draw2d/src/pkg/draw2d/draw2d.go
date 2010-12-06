@@ -273,8 +273,8 @@ func (gc *GraphicContext) paint(rasterizer *raster.Rasterizer, color image.Color
 	gc.current.path = new(PathStorage)
 }
 
-/**** first method ****/
-func (gc *GraphicContext) Stroke(paths ...*PathStorage) {
+/**** First method ****/
+func (gc *GraphicContext) Stroke2(paths ...*PathStorage) {
 	paths = append(paths, gc.current.path)
 	gc.strokeRasterizer.UseNonZeroWinding = true
 
@@ -298,7 +298,7 @@ func (gc *GraphicContext) Stroke(paths ...*PathStorage) {
 }
 
 /**** second method ****/
-func (gc *GraphicContext) Stroke2(paths ...*PathStorage) {
+func (gc *GraphicContext) Stroke(paths ...*PathStorage) {
 	paths = append(paths, gc.current.path)
 	gc.strokeRasterizer.UseNonZeroWinding = true
 
@@ -318,7 +318,7 @@ func (gc *GraphicContext) Stroke2(paths ...*PathStorage) {
 }
 
 /**** first method ****/
-func (gc *GraphicContext) Fill(paths ...*PathStorage) {
+func (gc *GraphicContext) Fill2(paths ...*PathStorage) {
 	paths = append(paths, gc.current.path)
 	gc.fillRasterizer.UseNonZeroWinding = gc.current.fillRule.fillRule()
 
@@ -329,7 +329,7 @@ func (gc *GraphicContext) Fill(paths ...*PathStorage) {
 }
 
 /**** second method ****/
-func (gc *GraphicContext) Fill2(paths ...*PathStorage) {
+func (gc *GraphicContext) Fill(paths ...*PathStorage) {
 	paths = append(paths, gc.current.path)
 	gc.fillRasterizer.UseNonZeroWinding = gc.current.fillRule.fillRule()
 
@@ -340,7 +340,7 @@ func (gc *GraphicContext) Fill2(paths ...*PathStorage) {
 	gc.paint(gc.fillRasterizer, gc.current.fillColor)
 }
 
-func (gc *GraphicContext) FillStroke(paths ...*PathStorage) {
+func (gc *GraphicContext) FillStroke2(paths ...*PathStorage) {
 	paths = append(paths, gc.current.path)
 	gc.fillRasterizer.UseNonZeroWinding = gc.current.fillRule.fillRule()
 	gc.strokeRasterizer.UseNonZeroWinding = true
@@ -363,7 +363,7 @@ func (gc *GraphicContext) FillStroke(paths ...*PathStorage) {
 }
 
 /* second method */
-func (gc *GraphicContext) FillStroke2(paths ...*PathStorage) {
+func (gc *GraphicContext) FillStroke(paths ...*PathStorage) {
 	gc.fillRasterizer.UseNonZeroWinding = gc.current.fillRule.fillRule()
 	gc.strokeRasterizer.UseNonZeroWinding = true
 
