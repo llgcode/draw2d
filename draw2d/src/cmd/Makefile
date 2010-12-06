@@ -1,16 +1,16 @@
 
 include $(GOROOT)/src/Make.inc
 
-TARG=gettingStarted testdraw2d testPath
+TARG=gettingStarted testdraw2d testX11draw testandroid testgopher
 OFILES=$(TARG:%=%.$O)
 
 all: $(TARG)
 
 $(TARG): %: %.$O
-        $(LD) -o $@ $<
+	$(LD) -o $@ $<
 
 $(OFILES): %.$O: %.go Makefile
-        $(GC) -o $@ $<
+	$(GC) -o $@ $<
 
 clean:
-        rm -f *.[$(OS)] $(TARG) $(CLEANFILES)
+	rm -f *.[$(OS)] $(TARG) $(CLEANFILES)
