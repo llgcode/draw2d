@@ -12,7 +12,7 @@ import (
 
 var (
 	fontFolder = "../../fonts/"
-	fonts = make(map[string] *truetype.Font)
+	fonts      = make(map[string]*truetype.Font)
 )
 
 
@@ -34,32 +34,34 @@ const (
 
 
 type FontData struct {
-	Name string
+	Name   string
 	Family FontFamily
-	Style FontStyle
+	Style  FontStyle
 }
 
 
-
-func GetFont(fontData FontData) (*truetype.Font) {
+func GetFont(fontData FontData) *truetype.Font {
 	fontFileName := fontData.Name
 	switch fontData.Family {
-		case FontFamilySans: fontFileName += "s"
-		case FontFamilySerif: fontFileName += "r"
-		case FontFamilyMono: fontFileName += "m"
+	case FontFamilySans:
+		fontFileName += "s"
+	case FontFamilySerif:
+		fontFileName += "r"
+	case FontFamilyMono:
+		fontFileName += "m"
 	}
-	if(fontData.Style & FontStyleBold != 0) {
+	if fontData.Style&FontStyleBold != 0 {
 		fontFileName += "b"
 	} else {
 		fontFileName += "r"
-	} 
-	
-	if(fontData.Style & FontStyleItalic != 0) {
+	}
+
+	if fontData.Style&FontStyleItalic != 0 {
 		fontFileName += "i"
 	}
 	fontFileName += ".ttf"
 	font := fonts[fontFileName]
-	if(font != nil) {
+	if font != nil {
 		return font
 	}
 	fonts[fontFileName] = loadFont(fontFileName)
@@ -74,7 +76,7 @@ func SetFontFolder(folder string) {
 	fontFolder = folder
 }
 
-func loadFont(fontFileName string) (*truetype.Font) {
+func loadFont(fontFileName string) *truetype.Font {
 	fontBytes, err := ioutil.ReadFile(path.Join(fontFolder, fontFileName))
 	if err != nil {
 		log.Println(err)
@@ -87,5 +89,3 @@ func loadFont(fontFileName string) (*truetype.Font) {
 	}
 	return font
 }
-
-

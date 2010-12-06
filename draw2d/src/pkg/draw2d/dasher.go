@@ -20,7 +20,7 @@ func NewDashConverter(dash []float, dashOffset float, converter VertexConverter)
 
 func (dasher *DashVertexConverter) NextCommand(cmd VertexCommand) {
 	dasher.command = cmd
-	if(dasher.command == VertexStopCommand) {
+	if dasher.command == VertexStopCommand {
 		dasher.next.NextCommand(VertexStopCommand)
 	}
 }

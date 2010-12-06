@@ -22,9 +22,9 @@ type GraphicContext struct {
 	PaintedImage     *image.RGBA
 	fillRasterizer   *raster.Rasterizer
 	strokeRasterizer *raster.Rasterizer
-	freetype    	 *freetype.Context
-	defaultFontData 	 FontData
-	DPI			     int
+	freetype         *freetype.Context
+	defaultFontData  FontData
+	DPI              int
 	current          *contextStack
 }
 
@@ -41,7 +41,7 @@ type contextStack struct {
 	join        Join
 	previous    *contextStack
 	fontSize    float
-	fontData	FontData
+	fontData    FontData
 }
 
 /**
@@ -53,14 +53,14 @@ func NewGraphicContext(pi *image.RGBA) *GraphicContext {
 	width, height := gc.PaintedImage.Bounds().Dx(), gc.PaintedImage.Bounds().Dy()
 	gc.fillRasterizer = raster.NewRasterizer(width, height)
 	gc.strokeRasterizer = raster.NewRasterizer(width, height)
-	
+
 	gc.DPI = 92
 	gc.defaultFontData = FontData{"luxi", FontFamilySans, FontStyleNormal}
 	gc.freetype = freetype.NewContext()
 	gc.freetype.SetDPI(gc.DPI)
 	gc.freetype.SetClip(pi.Bounds())
 	gc.freetype.SetDst(pi)
-	
+
 	gc.current = new(contextStack)
 
 	gc.current.tr = NewIdentityMatrix()
@@ -73,7 +73,7 @@ func NewGraphicContext(pi *image.RGBA) *GraphicContext {
 	gc.current.join = RoundJoin
 	gc.current.fontSize = 10
 	gc.current.fontData = gc.defaultFontData
-	
+
 	return gc
 }
 
@@ -236,7 +236,7 @@ func (gc *GraphicContext) Close() {
 	gc.current.path.Close()
 }
 
-func (gc *GraphicContext) FillString(text string) (cursor float){
+func (gc *GraphicContext) FillString(text string) (cursor float) {
 	gc.freetype.SetSrc(image.NewColorImage(gc.current.strokeColor))
 	// Draw the text.
 	x, y := gc.current.path.LastPoint()
@@ -244,11 +244,11 @@ func (gc *GraphicContext) FillString(text string) (cursor float){
 	x0, fontSize := 0.0, gc.current.fontSize
 	gc.current.tr.VectorTransform(&x0, &fontSize)
 	font := GetFont(gc.current.fontData)
-	if(font == nil) {
+	if font == nil {
 		font = GetFont(gc.defaultFontData)
-	} 
-	if(font == nil) { 
-		return 0 
+	}
+	if font == nil {
+		return 0
 	}
 	gc.freetype.SetFont(font)
 	gc.freetype.SetFontSize(fontSize)
@@ -258,12 +258,11 @@ func (gc *GraphicContext) FillString(text string) (cursor float){
 		log.Println(err)
 	}
 	x1, _ := gc.current.path.LastPoint()
-	x2, y2 := float(p.X) / 256, float(p.Y) / 256
+	x2, y2 := float(p.X)/256, float(p.Y)/256
 	gc.current.tr.InverseTransform(&x2, &y2)
 	width := x2 - x1
-	return width 
+	return width
 }
-
 
 
 func (gc *GraphicContext) paint(rasterizer *raster.Rasterizer, color image.Color) {
