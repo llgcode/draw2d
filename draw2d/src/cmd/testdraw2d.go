@@ -13,8 +13,8 @@ import (
 	"math"
 	"image"
 	"image/png"
-	//"draw2d"
-	"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
+	"draw2d"
+	//"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
 )
 
 const (
@@ -68,7 +68,7 @@ func saveToPngFile(TestName string, m image.Image) {
 */
 func TestPath() {
 	i, gc := initGc(w, h)
-	gc.Translate(10,10)
+	gc.Translate(10, 10)
 	gc.MoveTo(0.0, 0.0)
 	gc.LineTo(100.0, 00.0)
 	gc.LineTo(100.0, 100.0)
@@ -128,15 +128,14 @@ func TestDrawArcNegative() {
 	gc.SetLineWidth(10)
 	gc.SetLineCap(draw2d.ButtCap)
 	gc.SetStrokeColor(image.Black)
-	
+
 	gc.ArcTo(xc, yc, radiusX, radiusY, startAngle, angle)
 	gc.Stroke()
 	// fill a circle
 	gc.SetStrokeColor(image.RGBAColor{255, 0x33, 0x33, 0x80})
 	gc.SetFillColor(image.RGBAColor{255, 0x33, 0x33, 0x80})
 	gc.SetLineWidth(6)
-	
-	
+
 	gc.MoveTo(xc, yc)
 	gc.LineTo(xc+cos(startAngle)*radiusX, yc+sin(startAngle)*radiusY)
 	gc.MoveTo(xc, yc)
@@ -404,104 +403,104 @@ func TestLineJoin() {
 
 func TestBubble() {
 	i, gc := initGc(w, h)
-  	gc.BeginPath()
-    gc.MoveTo(75,25)
-    gc.QuadCurveTo(25,25,25,62.5)
-    gc.QuadCurveTo(25,100,50,100)
-    gc.QuadCurveTo(50,120,30,125)
-    gc.QuadCurveTo(60,120,65,100)
-    gc.QuadCurveTo(125,100,125,62.5)
-    gc.QuadCurveTo(125,25,75,25)
-    gc.Stroke()
-    saveToPngFile("TestBubble", i)
+	gc.BeginPath()
+	gc.MoveTo(75, 25)
+	gc.QuadCurveTo(25, 25, 25, 62.5)
+	gc.QuadCurveTo(25, 100, 50, 100)
+	gc.QuadCurveTo(50, 120, 30, 125)
+	gc.QuadCurveTo(60, 120, 65, 100)
+	gc.QuadCurveTo(125, 100, 125, 62.5)
+	gc.QuadCurveTo(125, 25, 75, 25)
+	gc.Stroke()
+	saveToPngFile("TestBubble", i)
 }
 
 func TestStar() {
 	i, gc := initGc(w, h)
-  	for i := 0.0 ; i < 360; i = i + 10 {// Go from 0 to 360 degrees in 10 degree steps
-	  gc.Save()  
-	  gc.SetLineWidth(5)              			// Keep rotations temporary
-	  gc.Translate(144, 144)
-	  gc.Rotate(i * (math.Pi / 180.0))	// Rotate by degrees on stack from 'for'
-	  gc.MoveTo(0, 0)
-	  gc.LineTo(72, 0)
-	  gc.Stroke()
-	  gc.Restore()     
+	for i := 0.0; i < 360; i = i + 10 { // Go from 0 to 360 degrees in 10 degree steps
+		gc.Save()
+		gc.SetLineWidth(5) // Keep rotations temporary
+		gc.Translate(144, 144)
+		gc.Rotate(i * (math.Pi / 180.0)) // Rotate by degrees on stack from 'for'
+		gc.MoveTo(0, 0)
+		gc.LineTo(72, 0)
+		gc.Stroke()
+		gc.Restore()
 	}
-    saveToPngFile("TestStar", i)
+	saveToPngFile("TestStar", i)
 }
 
 func TestTransform() {
-	i, gc := initGc(800, 600)   
+	i, gc := initGc(800, 600)
 
 	gc.Save()
-	gc.Translate(40, 40) 				// Set origin to (40, 40)
+	gc.Translate(40, 40) // Set origin to (40, 40)
 	gc.BeginPath()
-	gc.MoveTo(0,0)
-	gc.RLineTo(72,0)
+	gc.MoveTo(0, 0)
+	gc.RLineTo(72, 0)
 	gc.RLineTo(0, 72)
-	gc.RLineTo(-72,0)
+	gc.RLineTo(-72, 0)
 	gc.Close()
 	gc.Stroke()
 	gc.Restore()
-	
+
 	gc.Save()
-	gc.Translate(100, 150)				// Translate origin to (100, 150)
-	gc.Rotate(30* (math.Pi / 180.0))	// Rotate counter-clockwise by 30 degrees
+	gc.Translate(100, 150)            // Translate origin to (100, 150)
+	gc.Rotate(30 * (math.Pi / 180.0)) // Rotate counter-clockwise by 30 degrees
 	gc.BeginPath()
-	gc.MoveTo(0,0)
-	gc.RLineTo(72,0)
+	gc.MoveTo(0, 0)
+	gc.RLineTo(72, 0)
 	gc.RLineTo(0, 72)
-	gc.RLineTo(-72,0)
-	gc.Close()                		// Draw box...
-	gc.Stroke()
-	gc.Restore()
-	
-	gc.Save()
-	gc.Translate(40, 300)				// Translate to  (40, 300)
-	gc.Scale(0.5, 1)                  	// Reduce x coord by 1/2, y coord left alone
-	gc.BeginPath()
-	gc.MoveTo(0,0)
-	gc.RLineTo(72,0)
-	gc.RLineTo(0, 72)
-	gc.RLineTo(-72,0)
-	gc.Close()                		// Draw box...
+	gc.RLineTo(-72, 0)
+	gc.Close() // Draw box...
 	gc.Stroke()
 	gc.Restore()
 
 	gc.Save()
-	gc.Translate(300, 300)              // Set origin to (300, 300)
-	gc.Rotate(45* (math.Pi / 180.0))    // Rotate coordinates by 45 degrees
-	gc.Scale(0.5, 1)                   	// Scale coordinates
+	gc.Translate(40, 300) // Translate to  (40, 300)
+	gc.Scale(0.5, 1)      // Reduce x coord by 1/2, y coord left alone
 	gc.BeginPath()
-	gc.MoveTo(0,0)
-	gc.RLineTo(72,0)
+	gc.MoveTo(0, 0)
+	gc.RLineTo(72, 0)
 	gc.RLineTo(0, 72)
-	gc.RLineTo(-72,0)
-	gc.Close()                	// Draw box
+	gc.RLineTo(-72, 0)
+	gc.Close() // Draw box...
 	gc.Stroke()
 	gc.Restore()
-	
+
+	gc.Save()
+	gc.Translate(300, 300)            // Set origin to (300, 300)
+	gc.Rotate(45 * (math.Pi / 180.0)) // Rotate coordinates by 45 degrees
+	gc.Scale(0.5, 1)                  // Scale coordinates
+	gc.BeginPath()
+	gc.MoveTo(0, 0)
+	gc.RLineTo(72, 0)
+	gc.RLineTo(0, 72)
+	gc.RLineTo(-72, 0)
+	gc.Close() // Draw box
+	gc.Stroke()
+	gc.Restore()
+
 	saveToPngFile("TestTransform", i)
 }
 
 func TestPathTransform() {
-	i, gc := initGc(800, 600)   
+	i, gc := initGc(800, 600)
 	gc.SetLineWidth(20)
-	gc.Scale(1,5)
-	gc.ArcTo(200, 50, 50, 50, 0, math.Pi * 2)
+	gc.Scale(1, 5)
+	gc.ArcTo(200, 50, 50, 50, 0, math.Pi*2)
 	gc.Stroke()
 	saveToPngFile("TestPathTransform", i)
 }
 
 func TestFillString() {
 	draw2d.SetFontFolder("../../fonts/")
-	i, gc := initGc(100, 100)   
+	i, gc := initGc(100, 100)
 	draw2d.RoundRect(gc, 5, 5, 95, 95, 10, 10)
 	gc.FillStroke()
 	gc.SetFontSize(18)
 	gc.MoveTo(10, 52)
-	gc.SetFontData(draw2d.FontData{"luxi", draw2d.FontFamilyMono, draw2d.FontStyleBold|draw2d.FontStyleItalic})
+	gc.SetFontData(draw2d.FontData{"luxi", draw2d.FontFamilyMono, draw2d.FontStyleBold | draw2d.FontStyleItalic})
 	width := gc.FillString("cou")
 	fmt.Printf("width: %f\n", width)
 	gc.RMoveTo(width+1, 0)

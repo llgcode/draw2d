@@ -7,12 +7,12 @@ import (
 	"os"
 	"bufio"
 	"time"
-	
+
 	"math"
 	"image"
 	"image/png"
-	//"draw2d"
-	"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
+	"draw2d"
+	//"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
 )
 
 const (
@@ -64,22 +64,22 @@ func saveToPngFile(TestName string, m image.Image) {
 func android(gc *draw2d.GraphicContext, x, y float) {
 	gc.SetLineCap(draw2d.RoundCap)
 	gc.SetLineWidth(5)
-	gc.ArcTo(x+80, y+70, 50, 50, 180 * (math.Pi/180), 360 * (math.Pi/180))                     // head
+	gc.ArcTo(x+80, y+70, 50, 50, 180*(math.Pi/180), 360*(math.Pi/180)) // head
 	gc.FillStroke()
 	gc.MoveTo(x+60, y+25)
 	gc.LineTo(x+50, y+10)
 	gc.MoveTo(x+100, y+25)
-	gc.LineTo( x+110, y+10)
+	gc.LineTo(x+110, y+10)
 	gc.Stroke()
-	draw2d.Circle(gc, x+60, y+45, 5)                                      // left eye
+	draw2d.Circle(gc, x+60, y+45, 5) // left eye
 	gc.FillStroke()
-	draw2d.Circle(gc, x+100, y+45, 5)                                   // right eye
+	draw2d.Circle(gc, x+100, y+45, 5) // right eye
 	gc.FillStroke()
-	draw2d.RoundRect(gc, x+30, y+75, x+30+100, y+75+90, 10, 10)                                   // body
+	draw2d.RoundRect(gc, x+30, y+75, x+30+100, y+75+90, 10, 10) // body
 	gc.FillStroke()
 	draw2d.Rect(gc, x+30, y+75, x+30+100, y+75+80)
 	gc.FillStroke()
-	draw2d.RoundRect(gc, x+5, y+80, x+5+20, y+80+70, 10, 10)   // left arm
+	draw2d.RoundRect(gc, x+5, y+80, x+5+20, y+80+70, 10, 10) // left arm
 	gc.FillStroke()
 	draw2d.RoundRect(gc, x+135, y+80, x+135+20, y+80+70, 10, 10) // right arm
 	gc.FillStroke()
@@ -88,7 +88,6 @@ func android(gc *draw2d.GraphicContext, x, y float) {
 	draw2d.RoundRect(gc, x+90, y+150, x+90+20, y+150+50, 10, 10) // right leg
 	gc.FillStroke()
 }
-
 
 
 func main() {
