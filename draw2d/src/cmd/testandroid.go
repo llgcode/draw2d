@@ -11,12 +11,12 @@ import (
 	"math"
 	"image"
 	"image/png"
-	"draw2d"
-	//"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
+	//"draw2d"
+	"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
 )
 
 const (
-	width, height = 500, 500
+	width, height = 178, 224
 )
 
 var (
@@ -93,6 +93,8 @@ func android(gc *draw2d.GraphicContext, x, y float) {
 
 func main() {
 	i, gc := initGc(width, height)
-	android(gc, 100, 100)
+	gc.SetFillColor(image.RGBAColor{0xff, 0x44, 0x44, 0xff})
+	gc.SetStrokeColor(image.RGBAColor{0x44, 0x44, 0x44, 0xff})
+	android(gc, 10, 10)
 	saveToPngFile("TestAndroid", i)
 }
