@@ -6,6 +6,8 @@ import (
 
 
 //high level path creation
+
+
 func Rect(path Path, x1, y1, x2, y2 float) {
 	path.MoveTo(x1, y1)
 	path.LineTo(x2, y1)

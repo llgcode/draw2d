@@ -494,6 +494,19 @@ func TestPathTransform() {
 	saveToPngFile("TestPathTransform", i)
 }
 
+func TestFillString() {
+	i, gc := initGc(100, 100)   
+	draw2d.RoundRect(gc, 5, 5, 95, 95, 10, 10)
+	gc.FillStroke()
+	gc.SetFontSize(18)
+	gc.MoveTo(10, 52)
+	width := gc.FillString("cou")
+	fmt.Printf("width: %f\n", width)
+	gc.RMoveTo(width+1, 0)
+	gc.FillString("cou")
+	saveToPngFile("TestFillString", i)
+}
+
 func main() {
 	TestPath()
 	TestDrawArc()
@@ -511,4 +524,5 @@ func main() {
 	TestStar()
 	TestTransform()
 	TestPathTransform()
+	TestFillString()
 }

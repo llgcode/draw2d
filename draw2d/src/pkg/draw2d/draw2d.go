@@ -6,8 +6,32 @@ package draw2d
 import (
 	"exp/draw"
 	"image"
+	"log"
+	"io/ioutil"
+	"freetype-go.googlecode.com/hg/freetype"
 	"freetype-go.googlecode.com/hg/freetype/raster"
+	"freetype-go.googlecode.com/hg/freetype/truetype"
 )
+
+var (
+	font *truetype.Font
+)
+
+func init() {
+	// Read the font data.
+	
+	fontBytes, err := ioutil.ReadFile("../../luxi-fonts/luxisr.ttf")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	font, err = freetype.ParseFont(fontBytes)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+}
+
 
 type FillRule int
 
@@ -20,6 +44,8 @@ type GraphicContext struct {
 	PaintedImage     *image.RGBA
 	fillRasterizer   *raster.Rasterizer
 	strokeRasterizer *raster.Rasterizer
+	freetype    	 *freetype.Context
+	DPI			     int
 	current          *contextStack
 }
 
@@ -35,6 +61,7 @@ type contextStack struct {
 	cap         Cap
 	join        Join
 	previous    *contextStack
+	fontSize    float
 }
 
 /**
@@ -46,7 +73,14 @@ func NewGraphicContext(pi *image.RGBA) *GraphicContext {
 	width, height := gc.PaintedImage.Bounds().Dx(), gc.PaintedImage.Bounds().Dy()
 	gc.fillRasterizer = raster.NewRasterizer(width, height)
 	gc.strokeRasterizer = raster.NewRasterizer(width, height)
-
+	
+	gc.DPI = 92
+	gc.freetype = freetype.NewContext()
+	gc.freetype.SetDPI(gc.DPI)
+	gc.freetype.SetFont(font)
+	gc.freetype.SetClip(pi.Bounds())
+	gc.freetype.SetDst(pi)
+	
 	gc.current = new(contextStack)
 
 	gc.current.tr = NewIdentityMatrix()
@@ -57,6 +91,8 @@ func NewGraphicContext(pi *image.RGBA) *GraphicContext {
 	gc.current.cap = RoundCap
 	gc.current.fillRule = FillRuleEvenOdd
 	gc.current.join = RoundJoin
+	gc.current.fontSize = 10
+	
 	return gc
 }
 
@@ -119,8 +155,27 @@ func (gc *GraphicContext) SetLineDash(dash []float, dashOffset float) {
 	gc.current.dashOffset = dashOffset
 }
 
+func (gc *GraphicContext) SetFontSize(fontSize float) {
+	gc.current.fontSize = fontSize
+}
+
+func (gc *GraphicContext) GetFontSize() float {
+	return gc.current.fontSize
+}
+
+func (gc *GraphicContext) SetDPI(dpi int) {
+	gc.DPI = dpi
+	gc.freetype.SetDPI(dpi)
+}
+
+func (gc *GraphicContext) GetDPI() int {
+	return gc.DPI
+}
+
+
 func (gc *GraphicContext) Save() {
 	context := new(contextStack)
+	context.fontSize = gc.current.fontSize
 	context.lineWidth = gc.current.lineWidth
 	context.strokeColor = gc.current.strokeColor
 	context.fillColor = gc.current.fillColor
@@ -190,6 +245,30 @@ func (gc *GraphicContext) RArcTo(dcx, dcy, rx, ry, startAngle, angle float) {
 func (gc *GraphicContext) Close() {
 	gc.current.path.Close()
 }
+
+func (gc *GraphicContext) FillString(text string) (cursor float){
+	gc.freetype.SetSrc(image.NewColorImage(gc.current.strokeColor))
+	// Draw the text.
+	x, y := gc.current.path.LastPoint()
+	gc.current.tr.Transform(&x, &y)
+	x0, fontSize := 0.0, gc.current.fontSize
+	gc.current.tr.VectorTransform(&x0, &fontSize)
+	gc.freetype.SetFontSize(fontSize)
+	pt := freetype.Pt(int(x), int(y))
+	p, err := gc.freetype.DrawString(text, pt)
+	if err != nil {
+		log.Println(err)
+	}
+	x1, _ := gc.current.path.LastPoint()
+	x2, y2 := float(p.X) / 256, float(p.Y) / 256
+	log.Printf("x2: %f, y2: %f\n", x2, y2)
+	gc.current.tr.InverseTransform(&x2, &y2)
+	log.Printf("x2: %f, y2: %f\n", x2, y2)
+	width := x2 - x1
+	return width 
+}
+
+
 
 func (gc *GraphicContext) paint(rasterizer *raster.Rasterizer, color image.Color) {
 	painter := raster.NewRGBAPainter(gc.PaintedImage)
