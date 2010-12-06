@@ -13,8 +13,8 @@ import (
 	"math"
 	"image"
 	"image/png"
-	//"draw2d"
-	"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
+	"draw2d"
+	//"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
 )
 
 const (
@@ -495,11 +495,13 @@ func TestPathTransform() {
 }
 
 func TestFillString() {
+	draw2d.SetFontFolder("../../fonts/")
 	i, gc := initGc(100, 100)   
 	draw2d.RoundRect(gc, 5, 5, 95, 95, 10, 10)
 	gc.FillStroke()
 	gc.SetFontSize(18)
 	gc.MoveTo(10, 52)
+	gc.SetFontData(draw2d.FontData{"luxi", draw2d.FontFamilyMono, draw2d.FontStyleBold|draw2d.FontStyleItalic})
 	width := gc.FillString("cou")
 	fmt.Printf("width: %f\n", width)
 	gc.RMoveTo(width+1, 0)

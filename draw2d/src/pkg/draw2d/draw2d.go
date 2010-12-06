@@ -7,31 +7,9 @@ import (
 	"exp/draw"
 	"image"
 	"log"
-	"io/ioutil"
 	"freetype-go.googlecode.com/hg/freetype"
 	"freetype-go.googlecode.com/hg/freetype/raster"
-	"freetype-go.googlecode.com/hg/freetype/truetype"
 )
-
-var (
-	font *truetype.Font
-)
-
-func init() {
-	// Read the font data.
-	
-	fontBytes, err := ioutil.ReadFile("../../luxi-fonts/luxisr.ttf")
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	font, err = freetype.ParseFont(fontBytes)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-}
-
 
 type FillRule int
 
@@ -45,6 +23,7 @@ type GraphicContext struct {
 	fillRasterizer   *raster.Rasterizer
 	strokeRasterizer *raster.Rasterizer
 	freetype    	 *freetype.Context
+	defaultFontData 	 FontData
 	DPI			     int
 	current          *contextStack
 }
@@ -62,6 +41,7 @@ type contextStack struct {
 	join        Join
 	previous    *contextStack
 	fontSize    float
+	fontData	FontData
 }
 
 /**
@@ -75,9 +55,9 @@ func NewGraphicContext(pi *image.RGBA) *GraphicContext {
 	gc.strokeRasterizer = raster.NewRasterizer(width, height)
 	
 	gc.DPI = 92
+	gc.defaultFontData = FontData{"luxi", FontFamilySans, FontStyleNormal}
 	gc.freetype = freetype.NewContext()
 	gc.freetype.SetDPI(gc.DPI)
-	gc.freetype.SetFont(font)
 	gc.freetype.SetClip(pi.Bounds())
 	gc.freetype.SetDst(pi)
 	
@@ -92,6 +72,7 @@ func NewGraphicContext(pi *image.RGBA) *GraphicContext {
 	gc.current.fillRule = FillRuleEvenOdd
 	gc.current.join = RoundJoin
 	gc.current.fontSize = 10
+	gc.current.fontData = gc.defaultFontData
 	
 	return gc
 }
@@ -163,6 +144,14 @@ func (gc *GraphicContext) GetFontSize() float {
 	return gc.current.fontSize
 }
 
+func (gc *GraphicContext) SetFontData(fontData FontData) {
+	gc.current.fontData = fontData
+}
+
+func (gc *GraphicContext) GetFontData() FontData {
+	return gc.current.fontData
+}
+
 func (gc *GraphicContext) SetDPI(dpi int) {
 	gc.DPI = dpi
 	gc.freetype.SetDPI(dpi)
@@ -176,6 +165,7 @@ func (gc *GraphicContext) GetDPI() int {
 func (gc *GraphicContext) Save() {
 	context := new(contextStack)
 	context.fontSize = gc.current.fontSize
+	context.fontData = gc.current.fontData
 	context.lineWidth = gc.current.lineWidth
 	context.strokeColor = gc.current.strokeColor
 	context.fillColor = gc.current.fillColor
@@ -253,6 +243,14 @@ func (gc *GraphicContext) FillString(text string) (cursor float){
 	gc.current.tr.Transform(&x, &y)
 	x0, fontSize := 0.0, gc.current.fontSize
 	gc.current.tr.VectorTransform(&x0, &fontSize)
+	font := GetFont(gc.current.fontData)
+	if(font == nil) {
+		font = GetFont(gc.defaultFontData)
+	} 
+	if(font == nil) { 
+		return 0 
+	}
+	gc.freetype.SetFont(font)
 	gc.freetype.SetFontSize(fontSize)
 	pt := freetype.Pt(int(x), int(y))
 	p, err := gc.freetype.DrawString(text, pt)
@@ -261,9 +259,7 @@ func (gc *GraphicContext) FillString(text string) (cursor float){
 	}
 	x1, _ := gc.current.path.LastPoint()
 	x2, y2 := float(p.X) / 256, float(p.Y) / 256
-	log.Printf("x2: %f, y2: %f\n", x2, y2)
 	gc.current.tr.InverseTransform(&x2, &y2)
-	log.Printf("x2: %f, y2: %f\n", x2, y2)
 	width := x2 - x1
 	return width 
 }
