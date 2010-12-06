@@ -2,6 +2,9 @@
 // created: 21/11/2010 by Laurent Le Goff
 
 package draw2d
+import (
+	"freetype-go.googlecode.com/hg/freetype/raster"
+)
 
 type MatrixTransform [6]float
 
@@ -19,6 +22,15 @@ func (tr MatrixTransform) Transform(points ...*float) {
 		y := *points[j]
 		*points[i] = x*tr[0] + y*tr[2] + tr[4]
 		*points[j] = x*tr[1] + y*tr[3] + tr[5]
+	}
+}
+
+func (tr MatrixTransform) TransformRasterPoint(points ...*raster.Point) {
+	for _, point := range points {
+		x := float(point.X) / 256
+		y := float(point.Y) / 256
+		point.X = raster.Fix32((x*tr[0] + y*tr[2] + tr[4]) * 256) 
+		point.Y = raster.Fix32((x*tr[1] + y*tr[3] + tr[5]) * 256)
 	}
 }
 
@@ -148,6 +160,28 @@ func (tr MatrixTransform) GetTranslation() (x, y float) {
 	return tr[4], tr[5]
 }
 
+func (tr MatrixTransform) GetScaling() (x, y float) {
+	return tr[0], tr[3]
+}
+
+func (tr MatrixTransform) GetMaxAbsScaling() (s float) {
+	sx := fabs(tr[0])
+	sy := fabs(tr[3])
+	if(sx > sy) {
+		return sx
+	}
+	return sy
+}
+
+func (tr MatrixTransform) GetMinAbsScaling() (s float) {
+	sx := fabs(tr[0])
+	sy := fabs(tr[3])
+	if(sx > sy) {
+		return sy
+	}
+	return sx
+}
+
 // ******************** Testing ********************
 
 /**
@@ -186,3 +220,39 @@ func (tr MatrixTransform) IsTranslation() bool {
 func fequals(float1, float2 float) bool {
 	return fabs(float1-float2) <= epsilon
 }
+
+// this adder apply a Matrix transformation to points
+type MatrixTransformAdder struct {
+	tr MatrixTransform
+	next raster.Adder
+}
+
+func NewMatrixTransformAdder(tr MatrixTransform, adder raster.Adder) (*MatrixTransformAdder) {
+	return &MatrixTransformAdder{tr, adder}
+}
+
+
+// Start starts a new curve at the given point.
+func (mta MatrixTransformAdder) Start(a raster.Point) {
+	mta.tr.TransformRasterPoint(&a)
+	mta.next.Start(a)
+}
+
+// Add1 adds a linear segment to the current curve.
+func (mta MatrixTransformAdder) Add1(b raster.Point) {
+	mta.tr.TransformRasterPoint(&b)
+	mta.next.Add1(b)
+}
+
+// Add2 adds a quadratic segment to the current curve.
+func (mta MatrixTransformAdder) Add2(b, c raster.Point) {
+	mta.tr.TransformRasterPoint(&b, &c)
+	mta.next.Add2(b, c)
+}
+
+// Add3 adds a cubic segment to the current curve.
+func (mta MatrixTransformAdder) Add3(b, c, d raster.Point) {
+	mta.tr.TransformRasterPoint(&b, &c, &d)
+	mta.next.Add3(b, c, d)
+}
+
