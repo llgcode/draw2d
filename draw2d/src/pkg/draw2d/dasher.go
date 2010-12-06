@@ -12,7 +12,7 @@ type DashAdder struct {
 	dashOffset     float
 }
 
-func traceDashPath(dash []float, dashOffset float, approximationScale float, adder raster.Adder, paths ...*Path) {
+func traceDashPath(dash []float, dashOffset float, approximationScale float, adder raster.Adder, paths ...*PathStorage) {
 	var dasher DashAdder
 	if dash != nil && len(dash) > 0 {
 		dasher.dash = dash

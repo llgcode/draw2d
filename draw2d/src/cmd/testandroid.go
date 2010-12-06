@@ -11,8 +11,8 @@ import (
 	"math"
 	"image"
 	"image/png"
-	//"draw2d"
-	"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
+	"draw2d"
+	//"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
 )
 
 const (
@@ -71,21 +71,21 @@ func android(gc *draw2d.GraphicContext, x, y float) {
 	gc.MoveTo(x+100, y+25)
 	gc.LineTo( x+110, y+10)
 	gc.Stroke()
-	gc.Circle(x+60, y+45, 5)                                      // left eye
+	draw2d.Circle(gc, x+60, y+45, 5)                                      // left eye
 	gc.FillStroke()
-	gc.Circle(x+100, y+45, 5)                                   // right eye
+	draw2d.Circle(gc, x+100, y+45, 5)                                   // right eye
 	gc.FillStroke()
-	gc.RoundRect(x+30, y+75, x+30+100, y+75+90, 10, 10)                                   // body
+	draw2d.RoundRect(gc, x+30, y+75, x+30+100, y+75+90, 10, 10)                                   // body
 	gc.FillStroke()
-	gc.Rect(x+30, y+75, x+30+100, y+75+80)
+	draw2d.Rect(gc, x+30, y+75, x+30+100, y+75+80)
 	gc.FillStroke()
-	gc.RoundRect(x+5, y+80, x+5+20, y+80+70, 10, 10)   // left arm
+	draw2d.RoundRect(gc, x+5, y+80, x+5+20, y+80+70, 10, 10)   // left arm
 	gc.FillStroke()
-	gc.RoundRect(x+135, y+80, x+135+20, y+80+70, 10, 10) // right arm
+	draw2d.RoundRect(gc, x+135, y+80, x+135+20, y+80+70, 10, 10) // right arm
 	gc.FillStroke()
-	gc.RoundRect(x+50, y+150, x+50+20, y+150+50, 10, 10) // left leg
+	draw2d.RoundRect(gc, x+50, y+150, x+50+20, y+150+50, 10, 10) // left leg
 	gc.FillStroke()
-	gc.RoundRect(x+90, y+150, x+90+20, y+150+50, 10, 10) // right leg
+	draw2d.RoundRect(gc, x+90, y+150, x+90+20, y+150+50, 10, 10) // right leg
 	gc.FillStroke()
 }
 
