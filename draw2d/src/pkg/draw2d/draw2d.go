@@ -77,6 +77,10 @@ func NewGraphicContext(pi *image.RGBA) *GraphicContext {
 	return gc
 }
 
+func (gc *GraphicContext) GetMatrixTransform() (tr MatrixTransform) {
+	return gc.current.tr
+}
+
 func (gc *GraphicContext) SetMatrixTransform(tr MatrixTransform) {
 	gc.current.tr = tr
 }
@@ -186,6 +190,42 @@ func (gc *GraphicContext) Restore() {
 		gc.current = gc.current.previous
 		oldContext.previous = nil
 	}
+}
+
+func (gc *GraphicContext) DrawImage(image image.Image) {
+	width := raster.Fix32(gc.PaintedImage.Bounds().Dx()* 256)
+	height := raster.Fix32(gc.PaintedImage.Bounds().Dy()* 256)
+
+	painter := raster.NewRGBAPainter(gc.PaintedImage)
+
+	p0 := raster.Point{0,0}
+	p1 := raster.Point{0,0}
+	p2 := raster.Point{0,0}
+	p3 := raster.Point{0,0}
+	var i raster.Fix32 = 0
+	for ; i < width; i+=256 {
+		var j raster.Fix32 = 0
+		for ; j < height; j+=256 {
+			p0.X, p0.Y = i, j
+			p1.X, p1.Y = p0.X + 256, p0.Y
+			p2.X, p2.Y = p1.X, p0.Y + 256
+			p3.X, p3.Y = p0.X, p2.Y
+			
+			gc.current.tr.TransformRasterPoint(&p0, &p1, &p2, &p3)
+			gc.fillRasterizer.Start(p0)
+			gc.fillRasterizer.Add1(p1)
+			gc.fillRasterizer.Add1(p2)
+			gc.fillRasterizer.Add1(p3)
+			gc.fillRasterizer.Add1(p0)
+			painter.SetColor(image.At(int(i>>8), int(j>>8)))
+			gc.fillRasterizer.Rasterize(painter)
+			gc.fillRasterizer.Clear()
+		}
+	}
+}
+
+func (gc *GraphicContext) LastPoint() (x, y float) {
+	return gc.current.path.LastPoint()
 }
 
 func (gc *GraphicContext) BeginPath() {
