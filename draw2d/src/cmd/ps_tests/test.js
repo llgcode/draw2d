@@ -17,6 +17,7 @@ function draw(test){
 function executeTests() {
 	draw(TestStar)
 	draw(TestTransform)
+	draw(TestFillRect)
 }
 
 function TestStar(gc) {
@@ -81,4 +82,22 @@ function TestTransform(gc) {
 	gc.closePath()                	// Draw box
 	gc.stroke()
 	gc.restore()
+}
+function TestFillRect(gc) {
+	gc.moveTo(95,95)
+	gc.lineTo(195,95)
+	gc.lineTo(195, 195)
+	gc.lineTo(95, 195)
+	gc.lineTo(95, 95)
+	
+	
+	gc.moveTo(105,105)
+	gc.lineTo(105, 205)
+	gc.lineTo(205, 205)
+	gc.lineTo(205,105)
+	gc.lineTo(105, 105)
+	
+	gc.fill()
+	
+
 }
