@@ -77,7 +77,7 @@ func NewGraphicContext(pi *image.RGBA) *GraphicContext {
 	return gc
 }
 
-func (gc *GraphicContext) GetMatrixTransform() (tr MatrixTransform) {
+func (gc *GraphicContext) GetMatrixTransform() MatrixTransform {
 	return gc.current.tr
 }
 
@@ -224,12 +224,16 @@ func (gc *GraphicContext) DrawImage(image image.Image) {
 	}
 }
 
-func (gc *GraphicContext) LastPoint() (x, y float) {
-	return gc.current.path.LastPoint()
-}
-
 func (gc *GraphicContext) BeginPath() {
 	gc.current.path = new(PathStorage)
+}
+
+func (gc *GraphicContext) IsEmpty() bool{
+	return gc.current.path.IsEmpty()
+}
+
+func (gc *GraphicContext) LastPoint() (float, float){
+	return gc.current.path.LastPoint()
 }
 
 func (gc *GraphicContext) MoveTo(x, y float) {

@@ -41,7 +41,7 @@ func (p *PathStorage) LastPoint() (x, y float) {
 	return p.x, p.y
 }
 
-func (p *PathStorage) isEmpty() bool {
+func (p *PathStorage) IsEmpty() bool {
 	return len(p.commands) == 0
 }
 
