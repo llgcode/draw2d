@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>postscript-go</name>
+	<comment></comment>
+	<projects>
+		<project>draw2d</project>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>com.googlecode.goclipse.goBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>goclipse.goNature</nature>
+	</natures>
+</projectDescription>

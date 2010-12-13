@@ -1,0 +1,4 @@
+Postscript go implementation that uses [http://code.google.com/p/draw2d/ draw2d] to generate images.
+
+sample generation:
+[http://postcript-go.googlecode.com/svn/postscript-go/TestPostscript.png]
