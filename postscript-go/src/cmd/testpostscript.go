@@ -3,6 +3,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 	"log"
 	"os"
 	"bufio"
@@ -41,7 +42,10 @@ func main() {
 	gc.Translate(0, 380)
 	gc.Scale(1,-1)
 	gc.Translate(0, -380)
+	lastTime := time.Nanoseconds()
 	interpreter := postscript.NewInterpreter(gc)
 	interpreter.ExecuteFile("../../test_files/tiger.ps")
+	dt := time.Nanoseconds() - lastTime
+	fmt.Printf("Draw image: %f ms\n", float(dt)*1e-6)
 	saveToPngFile("../../TestPostscript.png", i)
 }
