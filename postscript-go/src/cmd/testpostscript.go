@@ -9,8 +9,8 @@ import (
 	"image"
 	"image/png"
 	"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
-	//"postscript"
-	"postscript-go.googlecode.com/svn/trunk/postscript-go/src/pkg/postscript"
+	"postscript"
+	//"postscript-go.googlecode.com/svn/trunk/postscript-go/src/pkg/postscript"
 )
 
 

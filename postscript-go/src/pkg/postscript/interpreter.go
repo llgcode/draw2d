@@ -1,3 +1,6 @@
+// Copyright 2010 The postscript-go Authors. All rights reserved.
+// created: 13/12/2010 by Laurent Le Goff
+
 package postscript
 
 import (
@@ -214,6 +217,12 @@ func (interpreter *Interpreter) Peek() Value {
 func (interpreter *Interpreter) OperandSize() int {
 	return len(interpreter.valueStack)
 }
+
+func (interpreter *Interpreter) ClearOperands() {
+	interpreter.valueStack = interpreter.valueStack[0:0]
+}
+
+// misc pop
 
 func (interpreter *Interpreter) PopFloat() float {
 	operand := interpreter.Pop()

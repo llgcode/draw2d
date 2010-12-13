@@ -1,3 +1,6 @@
+// Copyright 2010 The postscript-go Authors. All rights reserved.
+// created: 13/12/2010 by Laurent Le Goff
+
 package postscript
 
 
