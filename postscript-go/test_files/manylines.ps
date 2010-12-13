@@ -1,0 +1,939 @@
+%!PS-Adobe-2.0
+%%Title: Just A Little PostScript
+%%Creator: Randolph J. Herber
+%%CreationDate: Mon Aug 19 18:39:39 CDT 1996
+%%DocumentData: Clean7Bit
+%%LanguageLevel: 1
+%%Pages: (atend)
+%%BoundingBox: 0 0 792 612
+%%Orientation: Portrait
+%%PageOrder: Ascend
+%%EndComments
+%%BeginProlog 
+/DoColor true def
+/Handout true def
+%!
+% behandler.ps, v1.3, Mar 23 1990, a modified version of Adobe's ehandler.ps
+% Original program copyright (c) 1986 Adobe Systems Incorporated
+% Modified by Fredric Ihren, for support contact fred@nada.kth.se or write to
+%   Fredric Ihren; Moerbydalen 17; S-182 32 D-RYD; Sweden
+% Adobe will not keep maintenance of this program.
+% Distributed with permission from Adobe Systems Incorporated
+
+% 0000 % serverloop password
+% /$brkpage where not {
+%   dup serverdict begin statusdict begin checkpassword
+%     { (NEW Error Handler downloaded.\n) print flush exitserver }
+%     { pop (Bad Password on loading error handler.\n) print flush stop }
+%   ifelse
+% } {
+%   pop pop (NEW Error Handler in place - not loaded again\n) print flush stop
+% } ifelse
+/$brkpage 64 dict def
+$brkpage begin
+  /== { /cp 0 def typeprint nl } def
+  /printpage {
+    /prnt {
+      dup type /stringtype ne { =string cvs } if dup length 6 mul /tx exch def
+      /ty 10 def currentpoint /toy exch def /tox exch def 1 setgray newpath
+      tox toy 2 sub moveto 0 ty rlineto tx 0 rlineto 0 ty neg rlineto
+      closepath fill tox toy moveto 0 setgray show
+    } bind def
+    /nl { currentpoint exch pop lmargin exch moveto 0 -10 rmoveto } def
+    /doshowpage systemdict /showpage get def
+  } def
+  /printonly {
+    /nl { (\n) print } def
+    /prnt { dup type /stringtype ne { =string cvs } if print } def
+    /doshowpage null cvx def
+  } def
+  printpage
+  /typeprint { dup type dup currentdict exch known
+    { exec } { unknowntype } ifelse
+  } def
+  /lmargin 72 def /rmargin 72 def
+  /tprint { dup length cp add rmargin gt { nl /cp 0 def } if
+    dup length cp add /cp exch def prnt
+  } def
+  /cvsprint { =string cvs tprint( ) tprint } def
+  /unknowntype { exch pop cvlit (??) tprint cvsprint } def
+  /integertype { cvsprint } def
+  /realtype { cvsprint } def
+  /booleantype { cvsprint } def
+  /operatortype { (//) tprint cvsprint } def
+  /marktype { pop (-mark- ) tprint } def
+  /dicttype { pop (-dictionary- ) tprint } def
+  /nulltype { pop (-null- ) tprint } def
+  /filetype { pop (-filestream- ) tprint } def
+  /savetype { pop (-savelevel- ) tprint } def
+  /fonttype { pop (-fontid- ) tprint } def
+  /nametype { dup xcheck not { (/) tprint } if cvsprint } def
+  /stringtype {
+    dup rcheck
+      { (\() tprint tprint (\)) tprint }
+      { pop (-string- ) tprint }
+    ifelse
+  } def
+  /arraytype {
+    dup rcheck { dup xcheck
+      { ({) tprint { typeprint } forall (}) tprint }
+      { ([) tprint { typeprint } forall (]) tprint }
+    ifelse } { pop (-array- ) tprint } ifelse
+  } def
+  /packedarraytype {
+    dup rcheck { dup xcheck
+      { ({) tprint { typeprint } forall (}) tprint }
+      { ([) tprint { typeprint } forall (]) tprint }
+    ifelse } { pop (-packedarray- ) tprint } ifelse
+  } def
+  /stackmax 50 def
+  /execmax 25 def
+  /filemax 10 def
+  /courier /Courier findfont 10 scalefont def
+  /OLDhandleerror errordict /handleerror get def
+end %$brkpage
+errordict /handleerror {
+  systemdict begin $error begin $brkpage begin newerror {
+    {
+      /newerror false store
+      vmstatus pop pop 0 ne { grestoreall } if initgraphics courier setfont
+      lmargin 750 moveto
+      statusdict /jobname get dup null ne
+        { (Jobname: ) prnt prnt nl } { pop } ifelse
+      (Error: ) prnt errorname prnt nl
+      (Command: ) prnt /command load ==
+      $error /ostack known {
+        $error /ostack get dup length 0 ne {
+          (Stack \() prnt
+          aload length dup prnt (\):) prnt nl
+          /i 0 def
+          { /i i 1 add def i stackmax le { == } { pop } ifelse }
+          repeat
+        } { pop } ifelse
+      } if
+      $error /estack known {
+        $error /estack get dup dup length 1 sub get type /filetype ne {
+          (Execstack \() prnt
+          aload length dup prnt (\):) prnt nl
+          /i 0 def
+          { /i i 1 add def dup type /filetype eq { /i 99 def } if
+            i execmax le { == } { pop } ifelse
+          } repeat
+        } { pop } ifelse
+      } if
+      (%stdin) (r) file
+      dup =string readline {
+        (File:) prnt nl prnt nl
+        filemax 1 sub { dup =string readline { prnt nl } { exit } ifelse }
+        repeat
+      } if pop
+      userdict /debug known {
+        (Debug:) prnt nl
+        userdict /debug get stopped pop nl
+      } if
+    } stopped pop
+    doshowpage
+    /newerror true store
+    /OLDhandleerror load end end end exec
+  } { end end end }
+  ifelse
+} dup 0 systemdict put dup 4 $brkpage put bind put
+
+/PageFrame 600 dict dup begin
+%%Copyright: Copyright 1991 University Research Associates.
+%%+ ***************************************************************************
+%%+ **	    Copyright (c) 1991 Randolph J. Herber			     **
+%%+ **				All Rights Reserved.			     **
+%%+ **                          Applies only to the included type 3 font     **
+%%+ **                          describing the Fermilab logo.		     **
+%%+ **				The type 3 font was developed using personal **
+%%+ **				equipment and own time and materials.	     **
+%%+ **				The following license granted to the	     **
+%%+ **				Government.				     **
+%%+ **	    Copyright (c) 1991 Universities Research Association, Inc.       **
+%%+ **				All Rights Reserved.			     **
+%%+ **									     **
+%%+ ** This material resulted from work developed under a Government	     **
+%%+ ** Contract and is subject to the following license:		     **
+%%+ **									     **
+%%+ **				LICENSE					     **
+%%+ ** The Government retains a paid-up, nonexclusive, irrevocable worldwide **
+%%+ ** license to reproduce, prepare derivative works, perform publicly and  **
+%%+ ** display publicly by or for the Government, including the right to     **
+%%+ ** distribute to other Government contractors.  Neither the		     **
+%%+ ** United States nor the United States Department of Energy nor any of   **
+%%+ ** their employees, nor the author of the type 3 font included makes     **
+%%+ ** any warranty, express or implied, or assumes any legal liability or   **
+%%+ ** responsibility for the accuracy, completeness, or usefulness of any   **
+%%+ ** information, apparatus, product, or process disclosed, or represents  **
+%%+ ** that its use would not infringe privately owned rights.		     **
+%%+ **									     **
+%%+ **									     **
+%%+ **	Fermilab Computing Division/Distributed Computing Department	     **
+%%+ **									     **
+%%+ ***************************************************************************
+%%
+%% Begining of Logo font definition
+%%
+9 dict dup begin
+/FontType 3 def
+/FontName (Logo) cvn def
+/FontMatrix [0.001 0 0 0.001 0 0] def
+/FontBBox [0 0 0 0] def % Some interperters need this
+/Encoding 256 array def
+0 1 255 { Encoding exch /.notdef put } bind for
+Encoding
+dup  70 /Fermi    put
+pop
+/CharProcs 7 dict dup begin
+/Fermi {
+0 setlinecap
+0 setlinejoin
+1 setlinewidth
+1000 0 0 0 1000 1000 setcachedevice
+ 475     887.5  moveto
+      0   80.88 rlineto
+-150          0 rlineto
+      0  -93.38 rlineto
+-155.72       0 rlineto
+      0 -150    rlineto
+ 154.46       0 rlineto
+ 262.5   737.5  62.5  348.46 270 arcn
+-230.88       0 rlineto
+      0 -150    rlineto
+ 230.88       0 rlineto
+ 262.5   737.5  212.5  270 360 arc
+  50          0 rlineto
+ 737.5   737.5  212.5  180 270 arc
+ 230.88       0 rlineto
+      0  150    rlineto
+-230.88       0 rlineto
+ 737.5   737.5  62.5  270 191.54 arcn
+ 154.46       0 rlineto
+      0  150    rlineto
+-155.72       0 rlineto
+      0   93.38 rlineto
+-150          0 rlineto
+      0  -80.88 rlineto fill
+ 525     112.5  moveto
+      0  -80.88 rlineto
+ 150          0 rlineto
+      0   93.38 rlineto
+ 155.72       0 rlineto
+      0  150    rlineto
+-154.46       0 rlineto
+ 737.5   262.5  62.5  168.46 90 arcn
+ 230.88       0 rlineto
+      0  150    rlineto
+-230.88       0 rlineto
+ 737.5   262.5  212.5  90 180 arc
+ -50          0 rlineto
+ 262.5   262.5  212.5  0 90 arc
+-230.88       0 rlineto
+      0 -150    rlineto
+ 230.88       0 rlineto
+ 262.5   262.5  62.5  90 11.54 arcn
+-154.46       0 rlineto
+      0 -150    rlineto
+ 155.72       0 rlineto
+      0  -93.38 rlineto
+ 150          0 rlineto
+      0   80.88 rlineto fill
+} bind def
+end def
+/BuildChar {
+0
+begin
+exch begin
+Encoding exch get
+CharProcs exch get
+end
+exec
+end
+} bind def
+/BuildChar load 0
+6 dict dup begin
+end put
+end
+/Logo exch definefont pop
+
+%
+% Copyright 1990 by Adobe Systems Incorporated. All rights reserved.
+%
+% This file may be freely copied and redistributed as long as:
+%   1) This entire notice continues to be included in the file, 
+%   2) If the file has been modified in any way, a notice of such
+%      modification is conspicuously indicated.
+%
+% PostScript, Display PostScript, and Adobe are registered trademarks of
+% Adobe Systems Incorporated.
+% 
+% ************************************************************************
+% THE INFORMATION BELOW IS FURNISHED AS IS, IS SUBJECT TO CHANGE WITHOUT
+% NOTICE, AND SHOULD NOT BE CONSTRUED AS A COMMITMENT BY ADOBE SYSTEMS
+% INCORPORATED. ADOBE SYSTEMS INCORPORATED ASSUMES NO RESPONSIBILITY OR 
+% LIABILITY FOR ANY ERRORS OR INACCURACIES, MAKES NO WARRANTY OF ANY 
+% KIND (EXPRESS, IMPLIED OR STATUTORY) WITH RESPECT TO THIS INFORMATION, 
+% AND EXPRESSLY DISCLAIMS ANY AND ALL WARRANTIES OF MERCHANTABILITY, 
+% FITNESS FOR PARTICULAR PURPOSES AND NONINFRINGEMENT OF THIRD PARTY RIGHTS.
+% ************************************************************************
+%
+
+% This file defines a PostScript procedure called "R" which will
+% reencode a font.  It expects to find three things on the operand stack:
+%
+%    [ array ]  /NewName  /OldName
+%
+% The array should contain pairs of <number> <name>, like "32 /space",
+% each of which will define a slot in the encoding and the name to put
+% in that slot.  Only those names which are needed to over-ride the 
+% existing ones need be specified.  An encoding value (number) may
+% be specified followed by more than one name, like "128 /name1 /name2".
+% In this case, the names will be sequentially stored in the encoding
+% starting at the initial number given (128).
+
+/R {
+    findfont begin currentdict dup length dict begin
+    { %forall
+	1 index /FID ne {def} {pop pop} ifelse
+    } forall
+    /FontName exch def dup length 0 ne { %if
+	/Encoding Encoding 256 array copy def
+	0 exch { %forall
+	    dup type /nametype eq { %ifelse
+		Encoding 2 index 2 index put
+		pop 1 add
+	    }{ %else
+		exch pop
+	    } ifelse
+	} forall
+    } if pop
+    currentdict dup end end
+    /FontName get exch definefont pop
+} bind def
+
+% sample use:
+% [ 8#360 /apple ] /_Symbol /Symbol R
+
+% declare page sizes
+/D {def} bind def
+/B {bind D} bind D
+/E {exch D} B
+/M {moveto} B
+/S {marking {show}
+	    {stringwidth rmoveto
+	     currentpoint pop dup MaxX gt{/MaxX E}{pop}ifelse}
+	    ifelse} B
+/H {marking {currentlinewidth exch true charpath 0.5 setlinewidth
+	     gsave 1 setgray fill grestore stroke setlinewidth}
+	    {stringwidth rmoveto
+	     currentpoint pop dup MaxX gt{/MaxX E}{pop}ifelse}
+	    ifelse} B
+/Stroke {currentpoint pop dup MaxX gt{/MaxX E}{pop}ifelse marking {stroke}if} B
+/W {stringwidth pop} B
+/Short 612 D
+/Long 792 D
+% at this point in the program, the default coordinate system is still in place
+/Shrink where {pop
+Short 1.0 Shrink sub 0.5 mul mul Long 1.0 Shrink sub 0.5 mul mul translate
+Shrink Shrink scale} if
+/margin 36 D
+/logosize 48 D % memo head size is 56.25
+/radius 18 D
+/gap 12 D
+/offset 8 D
+/High 480 D
+/Wide 720 D
+/CenterX 396 D
+/CenterY 336 D
+/Top CenterY High 0.5 mul add D
+/Tsize 36 D
+/Tlead 9 D
+/Tspace Tsize Tlead add D
+/esize 18 D
+/elead 6 D
+/espace esize elead add D
+/tsize 18 D
+/tlead 6 D
+/tspace tsize tlead add D
+/Ssize 6 D
+/Slead 2 D
+/Sspace Ssize Slead add D
+/setline {1 sub /lineno E} B
+/LT  {/lineno exch def lineno Lmax gt {/Lmax lineno def}if} B
+/eT  {/lineno exch def lineno emax gt {/emax lineno def}if} B
+/lT  {/lineno exch def lineno lmax gt {/lmax lineno def}if} B
+/Line  {LT lineno 1 sub Tspace mul Base  exch sub /Y E} B
+/L+    {lineno 1 add LT lineno 1 sub Tspace mul Base  exch sub /Y E} B
+/L+2   {lineno 2 add LT lineno 1 sub Tspace mul Base  exch sub /Y E} B
+/eline {eT lineno 1 sub espace mul ebase exch sub /Y E} B
+/e+    {lineno 1 add eT lineno 1 sub espace mul ebase exch sub /Y E} B
+/e+2   {lineno 2 add eT lineno 1 sub espace mul ebase exch sub /Y E} B
+/line  {lT lineno 1 sub tspace mul base  exch sub /Y E} B
+/l+    {lineno 1 add lT lineno 1 sub tspace mul base  exch sub /Y E} B
+/l+2   {lineno 2 add lT lineno 1 sub tspace mul base  exch sub /Y E} B
+/C1 {col1 Y moveto} B
+/C2 {col2 Y moveto} B
+/C3 {col3 Y moveto} B
+/C4 {col4 Y moveto} B
+/C5 {col5 Y moveto} B
+/C6 {col6 Y moveto} B
+/C7 {col7 Y moveto} B
+/C8 {col8 Y moveto} B
+/C9 {col9 Y moveto} B
+/RC [ 8#375 /copyright /registered /trademark ] def
+RC /_Times-Roman /Times-Roman R
+/foliofont /_Times-Roman findfont logosize offset 3 mul sub scalefont D
+/FO {foliofont setfont} B
+/textsize /_Times-Roman findfont tsize scalefont D
+/TX {textsize setfont} B
+/TXS {currentfont exch TX S setfont} B
+RC /_Times-Italic /Times-Italic R
+/italics /_Times-Italic findfont tsize scalefont D
+/TI {italics setfont} B
+/TIS {currentfont exch TI S setfont} B
+RC /_Times-BoldItalic /Times-BoldItalic R
+/bold_italics /_Times-BoldItalic findfont tsize scalefont D
+/TJ {bold_italics setfont} B
+/TJS {currentfont exch TJ S setfont} B
+RC /_Times-Bold /Times-Bold R
+/boldfont /_Times-Bold findfont tsize scalefont D
+/TB {boldfont setfont} B
+/TBS {currentfont exch TB S setfont} B
+/monospace /Courier-Bold findfont tsize scalefont D
+/CM {monospace setfont} B
+/CMS {currentfont exch CM S setfont} B
+/monolite /Courier findfont tsize scalefont D
+/CR {monolite setfont} B
+/CRS {currentfont exch CR S setfont} B
+/monoitalic /Courier-Oblique findfont tsize scalefont D
+/CI {monoitalic setfont} B
+/CIS {currentfont exch CI S setfont} B
+/monoBI /Courier-BoldOblique findfont tsize scalefont D
+/CJ {monoBI setfont} B
+/CJS {currentfont exch CJ S setfont} B
+/narrowmono /Courier-Bold findfont [.8 tsize mul 0 0 tsize 0 0] makefont D
+/SC {narrowmono setfont} B
+/SCS {currentfont exch SC S setfont} B
+/largesize /_Times-Roman findfont Tsize scalefont D
+/LG {largesize setfont} B
+/LGS {currentfont exch LG S setfont} B
+/smallfont /_Times-Roman findfont Ssize scalefont D
+/SM {smallfont setfont} B
+/SMS {currentfont exch SM S setfont} B
+/symbolfont /Symbol findfont tsize scalefont D
+/SY {symbolfont setfont} B
+/microsymbol /Symbol findfont tsize 0.4 mul scalefont D
+/MY {microsymbol setfont} B
+/pointerfont /ZapfDingbats findfont tsize scalefont D
+/PT {pointerfont setfont} B
+/FNALfont /Logo findfont tsize scalefont D
+/FN {FNALfont setfont} B
+/Item   {currentfont SY(\267)S setfont} B
+/Note   {currentfont PT(-)S    setfont} B
+/Here   {currentfont PT(+)S    setfont} B
+/Gives  {currentfont SY(\336)S setfont} B
+/Moon   {currentfont PT(m)S    setfont} B
+/FNAL   {currentfont FN(F)S    setfont} B
+/Block1 {currentfont PT(y)S    setfont} B
+/Block2 {currentfont PT(z)S    setfont} B
+/Start {currentpoint gsave currentpoint translate MY (\355) stringwidth
+        pop -.5 mul tsize -.5 mul moveto (\255) S grestore moveto } B
+/Mark {currentpoint gsave currentpoint translate MY (\355) stringwidth
+       pop -.5 mul tsize -.5 mul moveto (\335) S grestore moveto } B
+/More {660 108 M currentfont TX ((more)) show setfont} B
+/center {/Text E Long Text stringwidth pop sub 0.5 mul exch moveto
+	Text marking{show}{pop}ifelse} B
+/Center {Long exch sub 0.5 mul exch moveto} B
+/Fickle {Index lineno eq {Here} {Item} ifelse} B
+/RVS {marking  {dup save exch currentpoint newpath moveto
+		1 0 rmoveto true charpath pathbbox
+		1 add /Uy E 1 add /Ux E 1 sub /Ly E 1 sub /Lx E newpath
+		Lx Ux add 0.5 mul Ly moveto
+		Lx Ly Lx Uy 1 arcto pop pop pop pop
+		Lx Uy Ux Uy 1 arcto pop pop pop pop
+		Ux Uy Ux Ly 1 arcto pop pop pop pop
+		Ux Ly Lx Ly 1 arcto pop pop pop pop
+		closepath
+		0 setgray fill restore
+		currentgray exch 1 setgray 1 0 rmoveto show 1 0 rmoveto setgray}
+	      {stringwidth rmoveto 2 0 rmoveto
+	       currentpoint pop dup MaxX gt{/MaxX E}{pop}ifelse}
+	      ifelse} B
+/Frame {
+/ll E /el E /Ll E
+/Lmax 0 D /emax 0 D /lmax 0 D
+/Gaps 1 Ll 1 lt{0 /THght 0 D}{1 /THght Ll Tspace mul Tlead sub D}ifelse add
+	el 1 lt{0 /eHght 0 D}{1 /eHght el espace mul elead sub D}ifelse add
+	ll 1 lt{0 /tHght 0 D}{1 /tHght ll tspace mul tlead sub D}ifelse add D
+/GapSize High THght sub eHght sub tHght sub Gaps div D
+/Base  Top Ll 1 ge{GapSize sub Tsize sub}if D
+/ebase Top Ll 1 ge{GapSize sub THght sub}if
+	   el 1 ge{GapSize sub esize sub}if D
+/base  Top Ll 1 ge{GapSize sub THght sub}if
+	   el 1 ge{GapSize sub eHght sub}if
+	   ll 1 ge{GapSize sub tsize sub}if D
+
+/Rnd {rand 2147483647.0 div mul add} bind def
+
+% size of rounded box allowing for logo at top
+/boxx Long margin dup add sub D
+/boxy Short margin dup add sub logosize sub gap sub D
+% left edge of logo area
+/logox Long margin sub logosize 1.2 mul sub
+/Helvetica-Bold findfont logosize 0.5 mul scalefont setfont (Fermilab)
+	stringwidth pop sub D
+
+% left edge of titling area
+/titlesize logosize 6 div D
+/titlefont /Helvetica-Bold findfont titlesize 1.6 mul scalefont D
+/giverfont /Times-Roman findfont titlesize 0.8 mul scalefont D
+/titlex	logox gap sub
+	titlefont setfont talktitle stringwidth pop
+	giverfont setfont talkgiver stringwidth pop 2 copy lt {exch} if pop
+	talkdept stringwidth pop 2 copy lt {exch} if pop
+	talkaddr stringwidth pop 2 copy lt {exch} if pop
+	talkcopyr stringwidth pop 2 copy lt {exch} if pop
+	sub D
+
+% determine folio box size
+/folioboxx foliofont setfont folio stringwidth pop offset dup add add D
+/folioboxy logosize offset sub D
+
+% determine folio box x origin
+/folioorgx titlex margin add gap sub offset sub folioboxx sub 2 div D
+
+% rotate to landscape orientation
+90 rotate
+
+% move origin to lower left hand corner of sheet
+0 Short neg translate
+
+% draw logo in lower right hand corner
+save
+/DoColor where {pop DoColor {.4 .6 Rnd .2 .8 Rnd .2 .8 Rnd setrgbcolor}if}if
+logox margin translate
+/Logo findfont logosize scalefont setfont 0 0 moveto (F) show
+/DoColor where {pop DoColor {0 setgray}if}if
+/Helvetica-Bold findfont
+	logosize 0.5 mul scalefont setfont
+	logosize 1.2 mul logosize 0.375 mul moveto
+(Fermilab) show
+restore
+
+% add talk data
+save
+titlex margin translate
+0 titlesize 4 mul moveto titlefont setfont talktitle show
+0 titlesize 3 mul moveto giverfont setfont talkgiver show
+0 titlesize 2 mul moveto talkdept show
+0 titlesize       moveto talkaddr show
+0 0               moveto talkcopyr show
+restore
+
+% add folio
+save
+0 setlinecap % square butt ends
+1 setlinejoin % rounded corners
+0.5 setlinewidth % width of line to draw
+/box {1 index 0 rlineto 0 exch rlineto neg 0 rlineto closepath} B
+folioorgx margin translate
+gsave
+	offset 0 translate 0 0 moveto 0 setgray folioboxx folioboxy box fill
+grestore
+gsave
+	0 offset translate
+	0 0 moveto 0.95 setgray folioboxx folioboxy box fill
+	0 0 moveto 0 setgray folioboxx folioboxy box stroke
+grestore
+gsave
+	offset dup dup add translate 0 0 moveto foliofont setfont
+	folio true charpath
+	gsave 1 setgray fill grestore stroke
+
+grestore
+restore
+
+%
+% draw rounded box
+%
+save
+/DoColor where {pop DoColor {0 0 1 setrgbcolor}if}if
+% start a new path
+% line characters
+0 setlinecap % square butt ends
+1 setlinejoin % rounded corners
+3 setlinewidth % width of line to draw
+newpath
+% make lower left corner of the rounded box the origin
+margin margin logosize add gap add translate
+% center of bottom edge
+boxx 0.5 mul 0 moveto
+% draw lower left corner to center of left edge
+0 0 0 boxy mul 0.5 radius arcto pop pop pop pop
+% draw upper left corner to center of top edge
+0 boxy boxx 0.5 mul boxy radius arcto pop pop pop pop
+% draw upper right corner to center of right edge
+boxx boxy boxx boxy 0.5 mul radius arcto pop pop pop pop
+% draw lower left corner to near center of bottom edge
+boxx 0 boxx mul 0.5 6 add 0 radius arcto pop pop pop pop
+% close the path
+closepath
+% draw the box
+stroke
+restore
+
+save
+filenames {756 SM filename stringwidth pop sub 588 moveto filename show}if
+restore} B
+
+/Check {
+filenames {
+	Lmax dup add emax add lmax add 18 lt
+		{Lmax Ll ne emax el ne or lmax ll ne or}
+		{Lmax Ll ne emax el ne or lmax 1 add ll ne or} ifelse
+	{	36 588 moveto SM
+		Lmax =string cvs show (/)show Ll =string cvs show ( )show
+		emax =string cvs show (/)show el =string cvs show ( )show
+		lmax =string cvs show (/)show ll =string cvs show
+	} if
+} if } B
+
+%
+% draw rounded box
+%
+/drbradius tsize 3 div D
+/drb {	/drbtext E /drbxy E /drbxx E
+	marking
+	{	save
+		currentpoint translate
+		0 setlinecap % square butt ends
+		1 setlinejoin % rounded corners
+		0.5 setlinewidth % width of line to draw
+		newpath
+		% the origin is the lower left corner of the rounded box
+		% start drawing the box at the center of the bottom edge
+		drbxx 0.5 mul 0 moveto
+		% draw lower left corner to center of left edge
+		0 0 0 drbxy mul 0.5 drbradius arcto pop pop pop pop
+		% draw upper left corner to center of top edge
+		0 drbxy drbxx 0.5 mul drbxy drbradius arcto pop pop pop pop
+		% draw upper right corner to center of right edge
+		drbxx drbxy drbxx drbxy 0.5 mul drbradius arcto pop pop pop pop
+		% draw lower left corner to near center of bottom edge
+		drbxx 0 drbxx mul 0.5 6 add 0 drbradius arcto pop pop pop pop
+		% close the path
+		closepath
+		% draw the box
+		stroke
+		% place the text
+		drbxx drbtext stringwidth pop sub 0.5 mul
+		drbxy tspace sub 0.5 mul tlead add
+		moveto drbtext show
+		restore
+	}{
+		/drbright currentpoint pop drbxx add 0.25 add D
+		drbright MaxX gt {/MaxX drbright D} if
+	} ifelse
+} B
+
+/PlaceText {
+	/Markings E
+	save /marking false D /MaxX 0 D Markings
+	CenterX MaxX 0.5 mul sub 0 translate
+	/marking true D Markings lmax exch restore /lmax exch def} B
+
+/MeasureText {/Markings E /marking false D /MaxX 0 D /Base Top D /base Top D
+	Markings /OffsetX CenterX MaxX 0.5 mul sub D} B
+
+/MarkText {save OffsetX 0 translate /marking true D Markings restore} B
+
+/marking true D
+/filenames false D
+/OffsetX 90 D
+/col1     0 D
+/col2    30 D
+/col3    60 D
+/col4    90 D
+/col5   120 D
+/col6   150 D
+/col7   180 D
+/col8   210 D
+/col9   240 D
+
+%%
+%% Used to divide the page into two sections divided horizonally
+%%
+
+/Scale 0.625 D
+/SubPageX Short Scale mul D
+/SubPageY Long Scale mul D
+/AdjustX -6 D
+/AdjustUX Long -0.5 mul AdjustX sub SubPageX sub D
+/AdjustLX Long -0.5 mul AdjustX add D
+/AdjustY Short SubPageY sub 0.5 mul D
+
+/Upper{Handout
+	{-90 rotate AdjustUX AdjustY translate Scale Scale scale }if}B
+/Lower{Handout
+	{-90 rotate AdjustLX AdjustY translate Scale Scale scale }if}B
+
+%%
+%% Used to print handout format text
+%%
+/LineBuffer 128 string D
+/in{72 mul}B /mm{2.8346 mul}B /pt{}B /by{}B
+/PageSize{/long E /short E}B
+/land{90 rotate 0 short neg translate /High short D /Wide long D}B
+/port{/High long D /Wide short D}B
+/Offset{/Yoff E /Xoff E Xoff Yoff translate
+  /High High Yoff sub Yoff sub D /Wide Wide Xoff sub Xoff sub D}B
+/LineSize{/Lhigh E /Lwide E
+  /Lvert High Lhigh div cvi D /Lhori Wide Lwide div cvi D}B
+/SetFont{findfont exch /FS E [ .8 FS mul 0 0 FS 0 0 ] makefont setfont}B
+/R3{3 1 roll}B
+/DC{2 index Lhori 1 sub ge
+	{NewPage pop pop 0 Lvert false}
+	{R3 pop Lvert R3 1 add R3}ifelse}B
+/DR{1 index 0 le{DC}if exch 1 sub exch}B
+/T{exch pop true exch 3 index Lwide mul 3 index Lhigh mul M show}B
+/ReadLine {currentfile LineBuffer readline exch /Text E not Text EOF eq or}B
+%
+% Sheet description
+%
+/NoteText{/EOF E Handout
+	{8.5 in by 11 in PageSize land 36 36 Offset
+	 360 pt by 12 pt LineSize 11 /Courier-Bold SetFont
+	 save 0 Lvert false
+	 {ReadLine {exit}{DR Text length 0 ne {Text T}if}ifelse}loop
+	 pop pop pop restore}
+	 {{ReadLine {exit}if}loop}
+	ifelse restore}B
+
+/Viewgraph {save Upper} B
+/EndViewgraph {Check restore} B
+/Notes  {save Lower (EndNotes) NoteText} B
+
+end def
+
+/PageTop {PageFrame begin save 100 dict begin} bind def
+/PageBottom {end restore end} bind def
+/DoColor where {pop}{/DoColor false def}ifelse
+/Handout where {pop}{/Handout false def}ifelse
+% titling data
+/talktitle (Just a little PostScript) def
+/talkgiver (Randolph J. Herber, herber@fnal.fnal.gov, 1 630 840 2966 CDF PK149O)
+	def
+/talkdept  (Computing Division/Operating System Support/CDF Task Force)	def
+/talkaddr  (P.O. Box 500, Mail Stop 234 (WH6W), Batavia, IL 60510) def
+/talkcopyr () def
+
+/filenames true def
+%%EndProlog
+%%Page: Examples12 1
+PageTop
+Viewgraph
+/folio     (Examples) def
+/filename (examples.12) def
+
+
+/@ {transform .5 add floor exch .5 add floor exch itransform} bind def
+/! {dtransform .5 add floor exch .5 add floor exch idtransform} bind def
+1 0 19 Frame
+
+LG 1 Line Y (Many different ways to draw two parallel lines) center
+
+8 line save /showpage {} def 146 Y @ translate .2 dup scale
+gsave newpath 0 0 moveto 612 0 rlineto 0 792 rlineto -612 0 rlineto closepath
+DoColor{0 0 1 setrgbcolor}if stroke grestore
+66 146 @ translate
+2 setlinewidth
+0 0 @ moveto 500 0 ! rlineto stroke
+0 500 @ moveto 500 0 ! rlineto stroke
+showpage
+restore
+
+8 line save /showpage {} def 271 Y @ @ translate .2 dup scale
+gsave newpath 0 0 moveto 612 0 rlineto 0 792 rlineto -612 0 rlineto closepath
+DoColor{0 0 1 setrgbcolor}if stroke grestore
+66 146 @ translate
+2 setlinewidth
+0 0 @ moveto
+gsave
+0 500 @ moveto 500 0 ! rlineto stroke
+grestore
+500 0 ! rlineto stroke
+showpage
+restore
+
+8 line save /showpage {} def 396 Y @ translate .2 dup scale
+gsave newpath 0 0 moveto 612 0 rlineto 0 792 rlineto -612 0 rlineto closepath
+DoColor{0 0 1 setrgbcolor}if stroke grestore
+66 146 @ translate
+2 setlinewidth
+[500] 0 setdash
+0 0 @ moveto 500 0 ! rlineto 0 500 ! rlineto -500 0 ! rlineto closepath stroke
+showpage
+restore
+
+8 line save /showpage {} def 521 Y @ translate .2 dup scale
+gsave newpath 0 0 moveto 612 0 rlineto 0 792 rlineto -612 0 rlineto closepath
+DoColor{0 0 1 setrgbcolor}if stroke grestore
+66 146 @ translate
+2 setlinewidth
+[50] 0 setdash
+0 0 @ moveto 500 0 ! rlineto stroke
+500 500 @ moveto -500 0 ! rlineto stroke
+500 0 @ moveto -500 0 ! rlineto stroke
+0 500 @ moveto 500 0 ! rlineto stroke
+showpage
+restore
+
+16 line save /showpage {} def 146 Y @ translate .2 dup scale
+gsave newpath 0 0 moveto 612 0 rlineto 0 792 rlineto -612 0 rlineto closepath
+DoColor{0 0 1 setrgbcolor}if stroke grestore
+66 146 @ translate
+2 setlinewidth
+[50] 0 setdash
+.2 setgray 0 0 @ moveto 500 0 ! rlineto stroke
+.4 setgray 500 500 @ moveto -500 0 ! rlineto stroke
+.6 setgray 500 0 @ moveto -500 0 ! rlineto stroke
+.8 setgray 0 500 @ moveto 500 0 ! rlineto stroke
+showpage
+restore
+
+16 line save /showpage {} def 271 Y @ translate .2 dup scale
+gsave newpath 0 0 @ moveto 612 0 rlineto 0 792 rlineto -612 0 rlineto closepath
+DoColor{0 0 1 setrgbcolor}if stroke grestore
+66 146 @ translate
+/B {bind def} dup exec
+/E {exch def} B
+/Box {/W E /H E
+   @ moveto W 0 ! rlineto 0 H ! rlineto W neg 0 ! rlineto closepath} B
+0 -1 2 500 Box 0 499 2 500 Box fill
+showpage
+restore
+
+16 line save /showpage {} def 390 Y @ translate .2 dup scale
+gsave newpath 0 0 @ moveto 612 0 rlineto 0 792 rlineto -612 0 rlineto closepath
+DoColor{0 0 1 setrgbcolor}if stroke grestore
+66 146 @ translate
+/B {bind def} dup exec
+/E {exch def} B
+/Box {/W E /H E
+   @ moveto W 0 ! rlineto 0 H ! rlineto W neg 0 ! rlineto closepath} B
+0 -2 504 500 Box fill 1 setgray 0 1 498 500 Box fill
+showpage
+restore
+
+16 line save /showpage {} def 521 Y @ translate .2 dup scale
+gsave newpath 0 0 @ moveto 612 0 rlineto 0 792 rlineto -612 0 rlineto closepath
+DoColor{0 0 1 setrgbcolor}if stroke grestore
+66 146 @ translate
+2 setlinewidth
+[5] 0 setdash
+newpath
+500 0 0 0 -500 0 500 500 -500 0 500 0 500 0 0 500
+4 {@ moveto ! rlineto} bind repeat
+stroke
+showpage
+restore
+
+{
+18 setline TX
+l+ C1(These look alike and have vastly different PostScript language codes.)S
+} PlaceText
+EndViewgraph
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Notes lines should not be longer than 65 characters.        %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Notes
+==> Q1.ps <==
+ %!PS-Adobe-3.0 EPSF-3.0
+ %%BoundingBox: 55 145 557 647
+ %%Pages: 1
+ %%EndComments
+ 66 146 translate 2 setlinewidth
+ 0 0 moveto 500 0 rlineto stroke
+ 0 500 moveto 500 0 rlineto stroke
+ showpage
+
+==> Q2.ps <==
+ %!PS-Adobe-3.0 EPSF-3.0
+ %%BoundingBox: 55 145 557 647
+ %%Pages: 1
+ %%EndComments
+ 66 146 translate 2 setlinewidth
+ 0 0 moveto gsave 0 500 moveto 500 0 rlineto stroke
+ grestore 500 0 rlineto stroke
+ showpage
+
+==> Q3.ps <==
+ %!PS-Adobe-3.0 EPSF-3.0
+ %%BoundingBox: 55 145 557 647
+ %%Pages: 1
+ %%EndComments
+ 66 146 translate 2 setlinewidth [500] 0 setdash
+ 0 0 moveto 500 0 rlineto 0 500 rlineto -500 0 rlineto
+ closepath stroke
+ showpage
+
+==> Q4.ps <==
+ %!PS-Adobe-3.0 EPSF-3.0
+ %%BoundingBox: 55 145 557 647
+ %%Pages: 1
+ %%EndComments
+ 66 146 translate 2 setlinewidth [50] 0 setdash
+ 0 0 moveto 500 0 rlineto stroke
+ 500 500 moveto -500 0 rlineto stroke
+ 500 0 moveto -500 0 rlineto stroke
+ 0 500 moveto 500 0 rlineto stroke
+ showpage
+
+==> Q5.ps <==
+ %!PS-Adobe-3.0 EPSF-3.0
+ %%BoundingBox: 55 145 557 647
+ %%Pages: 1
+ %%EndComments
+ 66 146 translate 2 setlinewidth [50] 0 setdash
+ .2 setgray 0 0 moveto 500 0 rlineto stroke
+ .4 setgray 500 500 moveto -500 0 rlineto stroke
+ .6 setgray 500 0 moveto -500 0 rlineto stroke
+ .8 setgray 0 500 moveto 500 0 rlineto stroke
+ showpage
+
+==> Q6.ps <==
+ %!PS-Adobe-3.0 EPSF-3.0
+ %%BoundingBox: 55 145 557 647
+ %%Pages: 1
+ %%EndComments
+ 66 146 translate /B {bind def} dup exec /E {exch def} B
+ /Box {/W E /H E moveto
+       W 0 rlineto 0 H rlineto W neg 0 rlineto closepath} B
+ 0 -1 2 500 Box 0 499 2 500 Box fill
+ showpage
+
+==> Q7.ps <==
+ %!PS-Adobe-3.0 EPSF-3.0
+ %%BoundingBox: 55 145 557 647
+ %%Pages: 1
+ %%EndComments
+ 66 146 translate /B {bind def} dup exec /E {exch def} B
+ /Box {/W E /H E moveto
+       W 0 rlineto 0 H rlineto W neg 0 rlineto closepath} B
+ 0 -1 502 500 Box fill 1 setgray 0 1 498 500 Box fill
+ showpage
+
+==> Q8.ps <==
+ %!PS-Adobe-3.0 EPSF-3.0
+ %%BoundingBox: 55 145 557 647
+ %%Pages: 1
+ %%EndComments
+ 66 146 translate 2 setlinewidth [5] 0 setdash newpath
+ 500 0 0 0 -500 0 500 500 -500 0 500 0 500 0 0 500
+ 4 {moveto rlineto} bind repeat stroke
+ showpage
+EndNotes
+showpage
+PageBottom
+%%EOF

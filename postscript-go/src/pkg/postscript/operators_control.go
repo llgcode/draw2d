@@ -50,6 +50,14 @@ func foroperator(interpreter *Interpreter) {
 	}
 }
 
+func repeat(interpreter *Interpreter) {
+	proc := NewProcedure(interpreter.PopProcedureDefinition())
+	times := interpreter.PopInt()
+	for i := 0; i <= times; i++  {
+		proc.Execute(interpreter)
+	}
+}
+
 // any stopped bool -> Establish context for catching stop
 func stopped(interpreter *Interpreter) {
 	value := interpreter.Pop()
@@ -67,5 +75,6 @@ func initControlOperators(interpreter *Interpreter) {
 	interpreter.SystemDefine("if", NewOperator(ifoperator))
 	interpreter.SystemDefine("ifelse", NewOperator(ifelse))
 	interpreter.SystemDefine("for", NewOperator(foroperator))
+	interpreter.SystemDefine("repeat", NewOperator(repeat))
 	interpreter.SystemDefine("stopped", NewOperator(stopped))
 }

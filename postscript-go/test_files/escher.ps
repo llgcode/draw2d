@@ -294,14 +294,14 @@ def
 (RHW) show                              % autograph
 
 warp 1 eq {                             % redefine commands to use Xform
-	/moveto { Xform //moveto} def
-	/lineto { Xform //lineto} def
+	/moveto { Xform moveto} bind def
+	/lineto { Xform lineto} bind def
 	/curveto { 
 		Xform 6 -2 roll
 		Xform 6 -2 roll
 		Xform 6 -2 roll
-		//curveto 
-	} def
+		curveto 
+	} bind def
 }if
 
 

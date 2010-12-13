@@ -71,6 +71,15 @@ func rcurveto(interpreter *Interpreter) {
 	interpreter.GetGraphicContext().RCubicCurveTo(cx1, cy1, cx2, cy2, cx3, cy3)
 }
 
+func arc(interpreter *Interpreter) {
+	angle2 := interpreter.PopFloat() * (math.Pi / 180.0)
+	angle1 := interpreter.PopFloat() * (math.Pi / 180.0)
+	r := interpreter.PopFloat()
+	y := interpreter.PopFloat()
+	x := interpreter.PopFloat()
+	interpreter.GetGraphicContext().ArcTo(x, y, r, r, angle1, angle2 - angle1)
+}
+
 func clippath(interpreter *Interpreter) {
 	log.Printf("clippath not yet implemented")
 }
@@ -280,37 +289,135 @@ func matrix(interpreter *Interpreter) {
 	interpreter.Push(draw2d.NewIdentityMatrix())
 }
 
+func initmatrix(interpreter *Interpreter) {
+	interpreter.Push(draw2d.NewIdentityMatrix())
+}
+
+func identmatrix(interpreter *Interpreter) {
+	tr := interpreter.Pop().(draw2d.MatrixTransform)
+	ident := draw2d.NewIdentityMatrix()
+	copy(tr[:], ident[:])
+	interpreter.Push(tr)
+}
+
+func defaultmatrix(interpreter *Interpreter) {
+	tr := interpreter.Pop().(draw2d.MatrixTransform)
+	ident := draw2d.NewIdentityMatrix()
+	copy(tr[:], ident[:])
+	interpreter.Push(tr)
+}
+
+func currentmatrix(interpreter *Interpreter) {
+	tr := interpreter.Pop().(draw2d.MatrixTransform)
+	ctm := interpreter.GetGraphicContext().GetMatrixTransform()
+	copy(tr[:], ctm[:])
+	interpreter.Push(tr)
+}
+
+func setmatrix(interpreter *Interpreter) {
+	tr := interpreter.Pop().(draw2d.MatrixTransform)
+	interpreter.GetGraphicContext().SetMatrixTransform(tr)
+}
+
+func concat(interpreter *Interpreter) {
+	tr := interpreter.Pop().(draw2d.MatrixTransform)
+	interpreter.GetGraphicContext().ComposeMatrixTransform(tr)
+}
+func concatmatrix(interpreter *Interpreter) {
+	tr3 := interpreter.Pop().(draw2d.MatrixTransform)
+	tr2 := interpreter.Pop().(draw2d.MatrixTransform)
+	tr1 := interpreter.Pop().(draw2d.MatrixTransform)
+	result := tr1.Multiply(tr2)
+	copy(tr3[:], result[:])
+	interpreter.Push(tr3)
+}
+
 func transform(interpreter *Interpreter) {
-	y := interpreter.PopFloat()
+	value := interpreter.Pop()
+	matrix, ok := value.(draw2d.MatrixTransform)
+	var y float 
+	if(!ok) {
+		matrix = interpreter.GetGraphicContext().GetMatrixTransform()
+		y = value.(float)
+	} else {
+		y = interpreter.PopFloat()
+	}
 	x := interpreter.PopFloat()
-	interpreter.GetGraphicContext().GetMatrixTransform().Transform(&x, &y)
+	matrix.Transform(&x, &y)
 	interpreter.Push(x)
 	interpreter.Push(y)
 }
 
 func itransform(interpreter *Interpreter) {
-	y := interpreter.PopFloat()
+	value := interpreter.Pop()
+	matrix, ok := value.(draw2d.MatrixTransform)
+	var y float 
+	if(!ok) {
+		matrix = interpreter.GetGraphicContext().GetMatrixTransform()
+		y = value.(float)
+	} else {
+		y = interpreter.PopFloat()
+	}
 	x := interpreter.PopFloat()
-	interpreter.GetGraphicContext().GetMatrixTransform().InverseTransform(&x, &y)
+	matrix.InverseTransform(&x, &y)
 	interpreter.Push(x)
 	interpreter.Push(y)
 }
 
 func translate(interpreter *Interpreter) {
-	y := interpreter.PopFloat()
+	value := interpreter.Pop()
+	matrix, ok := value.(draw2d.MatrixTransform)
+	var y float 
+	if(!ok) {
+		matrix = interpreter.GetGraphicContext().GetMatrixTransform()
+		y = value.(float)
+	} else {
+		y = interpreter.PopFloat()
+	}
 	x := interpreter.PopFloat()
-	interpreter.GetGraphicContext().Translate(x, y)
+	if(!ok) {
+		interpreter.GetGraphicContext().Translate(x, y)
+	} else {
+		matrix = draw2d.NewTranslationMatrix(x, y).Multiply(matrix)
+		interpreter.Push(matrix)
+	}
 }
 
 func rotate(interpreter *Interpreter) {
-	angle := interpreter.PopFloat()
-	interpreter.GetGraphicContext().Rotate(angle * (math.Pi / 180.0))
+	value := interpreter.Pop()
+	matrix, ok := value.(draw2d.MatrixTransform)
+	var angle float 
+	if(!ok) {
+		matrix = interpreter.GetGraphicContext().GetMatrixTransform()
+		angle = value.(float) * math.Pi / 180
+	} else {
+		angle = interpreter.PopFloat() * math.Pi / 180
+	}
+	if(!ok) {
+		interpreter.GetGraphicContext().Rotate(angle)
+	} else {
+		matrix = draw2d.NewRotationMatrix(angle).Multiply(matrix)
+		interpreter.Push(matrix)
+	}
 }
 
 func scale(interpreter *Interpreter) {
-	y := interpreter.PopFloat()
+	value := interpreter.Pop()
+	matrix, ok := value.(draw2d.MatrixTransform)
+	var y float 
+	if(!ok) {
+		matrix = interpreter.GetGraphicContext().GetMatrixTransform()
+		y = value.(float)
+	} else {
+		y = interpreter.PopFloat()
+	}
 	x := interpreter.PopFloat()
-	interpreter.GetGraphicContext().Scale(x, y)
+	if(!ok) {
+		interpreter.GetGraphicContext().Scale(x, y)
+	} else {
+		matrix = draw2d.NewScaleMatrix(x, y).Multiply(matrix)
+		interpreter.Push(matrix)
+	}
 }
 
 
@@ -346,6 +453,14 @@ func initDrawingOperators(interpreter *Interpreter) {
 
 	// Coordinate System and Matrix operators
 	interpreter.SystemDefine("matrix", NewOperator(matrix))
+	interpreter.SystemDefine("initmatrix", NewOperator(initmatrix))
+	interpreter.SystemDefine("identmatrix", NewOperator(identmatrix))
+	interpreter.SystemDefine("defaultmatrix", NewOperator(defaultmatrix))
+	interpreter.SystemDefine("currentmatrix", NewOperator(currentmatrix))
+	interpreter.SystemDefine("setmatrix", NewOperator(setmatrix))
+	interpreter.SystemDefine("concat", NewOperator(concat))
+	interpreter.SystemDefine("concatmatrix", NewOperator(concatmatrix))
+
 	interpreter.SystemDefine("transform", NewOperator(transform))
 	interpreter.SystemDefine("itransform", NewOperator(itransform))
 	interpreter.SystemDefine("translate", NewOperator(translate))
@@ -362,5 +477,6 @@ func initDrawingOperators(interpreter *Interpreter) {
 	interpreter.SystemDefine("rlineto", NewOperator(rlineto))
 	interpreter.SystemDefine("curveto", NewOperator(curveto))
 	interpreter.SystemDefine("rcurveto", NewOperator(rcurveto))
+	interpreter.SystemDefine("arc", NewOperator(arc))
 	interpreter.SystemDefine("clippath", NewOperator(clippath))
 }

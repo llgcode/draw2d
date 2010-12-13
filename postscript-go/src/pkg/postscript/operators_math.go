@@ -91,13 +91,13 @@ func atan(interpreter *Interpreter) {
 }
 //angle cos real -> Return cosine of angle degrees
 func cos(interpreter *Interpreter) {
-	a := interpreter.PopFloat()
-	interpreter.Push(float(math.Cos(float64(a))) * (180.0 / math.Pi))
+	a := interpreter.PopFloat() * math.Pi / 180
+	interpreter.Push(float(math.Cos(float64(a ))))
 }
 //angle sin real -> Return sine of angle degrees
 func sin(interpreter *Interpreter) {
-	a := interpreter.PopFloat()
-	interpreter.Push(float(math.Sin(float64(a))) * (180.0 / math.Pi))
+	a := interpreter.PopFloat() * math.Pi / 180
+	interpreter.Push(float(math.Sin(float64(a))))
 }
 //base  exponent exp real -> Raise base to exponent power
 func exp(interpreter *Interpreter) {
@@ -117,7 +117,7 @@ func log10(interpreter *Interpreter) {
 }
 //– rand int Generate pseudo-random integer
 func randInt(interpreter *Interpreter) {
-	interpreter.Push(rand.Int())
+	interpreter.Push(float(rand.Int()))
 }
 
 var randGenerator *rand.Rand

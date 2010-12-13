@@ -16,14 +16,26 @@ func ne(interpreter *Interpreter) {
 	interpreter.Push(value1 != value2)
 }
 
+func not(interpreter *Interpreter) {
+	b := interpreter.PopBoolean()
+	interpreter.Push(!b)
+}
+
 func lt(interpreter *Interpreter) {
 	f2 := interpreter.PopFloat()
 	f1 := interpreter.PopFloat()
 	interpreter.Push(f1 < f2)
 }
+func gt(interpreter *Interpreter) {
+	f2 := interpreter.PopFloat()
+	f1 := interpreter.PopFloat()
+	interpreter.Push(f1 > f2)
+}
 
 func initRelationalOperators(interpreter *Interpreter) {
 	interpreter.SystemDefine("eq", NewOperator(eq))
 	interpreter.SystemDefine("ne", NewOperator(ne))
+	interpreter.SystemDefine("not", NewOperator(not))
 	interpreter.SystemDefine("lt", NewOperator(lt))
+	interpreter.SystemDefine("gt", NewOperator(gt))
 }
