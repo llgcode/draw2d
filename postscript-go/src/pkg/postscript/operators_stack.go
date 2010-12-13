@@ -19,6 +19,7 @@ func exch(interpreter *Interpreter) {
 func dup(interpreter *Interpreter) {
 	interpreter.Push(interpreter.Peek())
 }
+
 //any1  …  anyn  n copy any1  …  anyn  any1  …  anyn -> Duplicate top n elements
 func copystack(interpreter *Interpreter) {
 	n := interpreter.PopInt()
@@ -77,7 +78,6 @@ func initStackOperator(interpreter *Interpreter) {
 	interpreter.SystemDefine("pop", NewOperator(pop))
 	interpreter.SystemDefine("exch", NewOperator(exch))
 	interpreter.SystemDefine("dup", NewOperator(dup))
-	interpreter.SystemDefine("copy", NewOperator(copystack))
 	interpreter.SystemDefine("index", NewOperator(index))
 	interpreter.SystemDefine("roll", NewOperator(roll))
 	interpreter.SystemDefine("clear", NewOperator(clear))

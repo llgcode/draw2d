@@ -3,6 +3,21 @@
 
 package postscript
 
+import (
+	"log"
+)
+// any exec – Execute arbitrary object
+func exec(interpreter *Interpreter) {
+	value := interpreter.Pop()
+	if pdef, ok := value.(*ProcedureDefinition); ok {
+		NewProcedure(pdef).Execute(interpreter)
+	} else if procedure, ok := value.(*Procedure); ok {
+		procedure.Execute(interpreter)
+	} else {
+		log.Printf("Push value: %v\n", value)
+		interpreter.Push(value)
+	}
+}
 
 func ifoperator(interpreter *Interpreter) {
 	operator := NewProcedure(interpreter.PopProcedureDefinition())
@@ -35,9 +50,22 @@ func foroperator(interpreter *Interpreter) {
 	}
 }
 
+// any stopped bool -> Establish context for catching stop
+func stopped(interpreter *Interpreter) {
+	value := interpreter.Pop()
+	if pdef, ok := value.(*ProcedureDefinition); ok {
+		NewProcedure(pdef).Execute(interpreter)
+	} else {
+		interpreter.Push(value)
+	}
+	interpreter.Push(false)
+}
+
 
 func initControlOperators(interpreter *Interpreter) {
+	interpreter.SystemDefine("exec", NewOperator(exec))
 	interpreter.SystemDefine("if", NewOperator(ifoperator))
 	interpreter.SystemDefine("ifelse", NewOperator(ifelse))
 	interpreter.SystemDefine("for", NewOperator(foroperator))
+	interpreter.SystemDefine("stopped", NewOperator(stopped))
 }

@@ -1,17 +1,15 @@
 // Copyright 2010 The postscript-go Authors. All rights reserved.
 // created: 13/12/2010 by Laurent Le Goff
 
+// Graphics operators
 package postscript
 
 import (
-	"log"
 	"image"
 	"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
 	"math"
+	"log"
 )
-
-
-// begin Primitive Operator implementation
 
 
 //Path Construction Operators
@@ -74,7 +72,7 @@ func rcurveto(interpreter *Interpreter) {
 }
 
 func clippath(interpreter *Interpreter) {
-
+	log.Printf("clippath not yet implemented")
 }
 
 func stroke(interpreter *Interpreter) {
@@ -194,7 +192,7 @@ func setcmybcolor(interpreter *Interpreter) {
 func setdash(interpreter *Interpreter) {
 	offset := interpreter.PopInt()
 	dash := interpreter.PopArray()
-	log.Printf("dash: %v, offset: %d \n", dash, offset)
+	log.Printf("setdash not yet implemented dash: %v, offset: %d \n", dash, offset)
 }
 
 func setlinejoin(interpreter *Interpreter) {
@@ -223,6 +221,7 @@ func setlinecap(interpreter *Interpreter) {
 
 func setmiterlimit(interpreter *Interpreter) {
 	interpreter.PopInt()
+	log.Printf("setmiterlimit not yet implemented")
 }
 
 func setlinewidth(interpreter *Interpreter) {
@@ -230,37 +229,49 @@ func setlinewidth(interpreter *Interpreter) {
 }
 
 func showpage(interpreter *Interpreter) {
-
+	log.Printf("showpage may be an implementation specific, override show page to generate multi page images")
 }
 
 func show(interpreter *Interpreter) {
 	s := interpreter.PopString()
 	interpreter.GetGraphicContext().FillString(s)
+	log.Printf("show not really implemented")
+}
+//ax  ay  string ashow – -> Add (ax , ay) to width of each glyph while showing string
+func ashow(interpreter *Interpreter) {
+	log.Printf("ashow not really implemented")
+	s := interpreter.PopString()
+	interpreter.PopFloat()
+	interpreter.PopFloat()
+	interpreter.GetGraphicContext().FillString(s)
 }
 
 func findfont(interpreter *Interpreter) {
-
+	log.Printf("findfont not yet implemented")
 }
 
 func scalefont(interpreter *Interpreter) {
-
+	log.Printf("scalefont not yet implemented")
 }
 
 func setfont(interpreter *Interpreter) {
-
+	log.Printf("setfont not yet implemented")
 }
 
 func stringwidth(interpreter *Interpreter) {
 	interpreter.Push(10.0)
 	interpreter.Push(10.0)
+	log.Printf("stringwidth not yet implemented")
 }
 
 func setflat(interpreter *Interpreter) {
 	interpreter.Pop()
+	log.Printf("setflat not yet implemented")
 }
 
 func currentflat(interpreter *Interpreter) {
 	interpreter.Push(1.0)
+	log.Printf("currentflat not yet implemented")
 }
 
 
@@ -308,6 +319,7 @@ func initDrawingOperators(interpreter *Interpreter) {
 	interpreter.SystemDefine("stroke", NewOperator(stroke))
 	interpreter.SystemDefine("fill", NewOperator(fill))
 	interpreter.SystemDefine("show", NewOperator(show))
+	interpreter.SystemDefine("ashow", NewOperator(ashow))
 	interpreter.SystemDefine("showpage", NewOperator(showpage))
 
 	interpreter.SystemDefine("findfont", NewOperator(findfont))
@@ -333,7 +345,7 @@ func initDrawingOperators(interpreter *Interpreter) {
 	interpreter.SystemDefine("currentflat", NewOperator(currentflat))
 
 	// Coordinate System and Matrix operators
-	interpreter.SystemDefine("matrix", NewOperator(transform))
+	interpreter.SystemDefine("matrix", NewOperator(matrix))
 	interpreter.SystemDefine("transform", NewOperator(transform))
 	interpreter.SystemDefine("itransform", NewOperator(itransform))
 	interpreter.SystemDefine("translate", NewOperator(translate))

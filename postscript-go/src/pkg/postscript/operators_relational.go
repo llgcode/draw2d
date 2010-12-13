@@ -10,6 +10,12 @@ func eq(interpreter *Interpreter) {
 	interpreter.Push(value1 == value2)
 }
 
+func ne(interpreter *Interpreter) {
+	value1 := interpreter.Pop()
+	value2 := interpreter.Pop()
+	interpreter.Push(value1 != value2)
+}
+
 func lt(interpreter *Interpreter) {
 	f2 := interpreter.PopFloat()
 	f1 := interpreter.PopFloat()
@@ -18,5 +24,6 @@ func lt(interpreter *Interpreter) {
 
 func initRelationalOperators(interpreter *Interpreter) {
 	interpreter.SystemDefine("eq", NewOperator(eq))
+	interpreter.SystemDefine("ne", NewOperator(ne))
 	interpreter.SystemDefine("lt", NewOperator(lt))
 }

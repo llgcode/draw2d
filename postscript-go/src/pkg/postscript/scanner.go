@@ -284,7 +284,7 @@ func (s *Scanner) error(msg string) {
 
 func (s *Scanner) scanIdentifier() int {
 	ch := s.next() // read character after first '_' or letter
-	for ch == '_' || unicode.IsLetter(ch) || unicode.IsDigit(ch) || ch == '.' {
+	for ch == '_' || unicode.IsLetter(ch) || unicode.IsDigit(ch) || ch == '.' || ch == '-' || ch == '`' {
 		ch = s.next()
 	}
 	return ch
@@ -489,7 +489,7 @@ redo:
 	// determine token value
 	tok := ch
 	switch {
-	case unicode.IsLetter(ch) || ch == '_':
+	case unicode.IsLetter(ch) || ch == '_' || ch == '`':
 		if s.Mode&ScanIdents != 0 {
 			tok = Ident
 			ch = s.scanIdentifier()
@@ -499,7 +499,8 @@ redo:
 	case ch == '-': // minus
 		ch = s.next()
 		if !isDecimal(ch) {
-			fmt.Printf("Error may be a digi: %c\n")
+			s.error(fmt.Sprintf("Error may be a digi: %c\n", ch))
+
 		} else {
 			if s.Mode&(ScanInts|ScanFloats) != 0 {
 				tok, ch = s.scanNumber(ch)

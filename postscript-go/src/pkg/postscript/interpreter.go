@@ -77,7 +77,16 @@ func (interpreter *Interpreter) computeReference(ref string) {
 }
 func (interpreter *Interpreter) scan(scanner *Scanner, token int) {
 	if token == Ident {
-		interpreter.computeReference(scanner.TokenText())
+		switch scanner.TokenText() {
+		case "true":
+			interpreter.Push(true)
+		case "false":
+			interpreter.Push(false)
+		case "null":
+			interpreter.Push(nil)
+		default:
+			interpreter.computeReference(scanner.TokenText())
+		}
 	} else if token == '/' {
 		scanner.Scan()
 		interpreter.Push("/" + scanner.TokenText())
@@ -104,7 +113,16 @@ func (interpreter *Interpreter) scanArray(scanner *Scanner) []Value {
 	token := scanner.Scan()
 	for token != EOF && token != ']' {
 		if token == Ident {
-			array = append(array, scanner.TokenText())
+			var v Value = scanner.TokenText()
+			switch scanner.TokenText() {
+			case "true":
+				v = true
+			case "false":
+				v = false
+			case "null":
+				v = nil
+			}
+			array = append(array, v)
 		} else {
 			interpreter.scan(scanner, token)
 			array = append(array, interpreter.Pop())
@@ -119,7 +137,16 @@ func (interpreter *Interpreter) scanProcedure(scanner *Scanner) *ProcedureDefini
 	token := scanner.Scan()
 	for token != EOF && token != '}' {
 		if token == Ident {
-			proceduredef.Add(scanner.TokenText())
+			var v Value = scanner.TokenText()
+			switch scanner.TokenText() {
+			case "true":
+				v = true
+			case "false":
+				v = false
+			case "null":
+				v = nil
+			}
+			proceduredef.Add(v)
 		} else {
 			interpreter.scan(scanner, token)
 			proceduredef.Add(interpreter.Pop())
@@ -146,6 +173,9 @@ func (interpreter *Interpreter) PeekDictionary() Dictionary {
 	stackPointer := len(interpreter.dictionaryStack) - 1
 	return interpreter.dictionaryStack[stackPointer]
 }
+func (interpreter *Interpreter) ClearDictionaries() {
+	interpreter.dictionaryStack = interpreter.dictionaryStack[:2]
+}
 
 func (interpreter *Interpreter) DictionaryStackSize() int {
 	return len(interpreter.dictionaryStack)
@@ -163,6 +193,14 @@ func (interpreter *Interpreter) FindValueInDictionaries(name string) (Value, Dic
 		}
 	}
 	return nil, nil
+}
+
+func (interpreter *Interpreter) UserDictionary() Dictionary {
+	return interpreter.dictionaryStack[0]
+}
+
+func (interpreter *Interpreter) SystemDictionary() Dictionary {
+	return interpreter.dictionaryStack[0]
 }
 
 func (interpreter *Interpreter) Define(name string, value Value) {
@@ -227,8 +265,8 @@ func (interpreter *Interpreter) ClearOperands() {
 func (interpreter *Interpreter) PopFloat() float {
 	operand := interpreter.Pop()
 	if s, ok := operand.(string); ok {
-		log.Printf("Erro this is a string %s\n", s)
-	}
+		log.Printf("String not float: %s", s)
+	} 
 	return operand.(float)
 }
 

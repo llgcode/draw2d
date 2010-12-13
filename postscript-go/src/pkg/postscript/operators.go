@@ -19,9 +19,11 @@ func (o *PrimitiveOperator) Execute(interpreter *Interpreter) {
 
 
 func save(interpreter *Interpreter) {
+	interpreter.Push("VM Snapshot")
 }
 
 func restore(interpreter *Interpreter) {
+	interpreter.Pop()
 }
 
 
@@ -30,8 +32,12 @@ func initSystemOperators(interpreter *Interpreter) {
 	interpreter.SystemDefine("restore", NewOperator(restore))
 	initStackOperator(interpreter)
 	initMathOperators(interpreter)
+	initArrayOperators(interpreter)
 	initDictionaryOperators(interpreter)
 	initRelationalOperators(interpreter)
 	initControlOperators(interpreter)
+	initMiscellaneousOperators(interpreter)
 	initDrawingOperators(interpreter)
+
+	initConflictingOperators(interpreter)
 }
