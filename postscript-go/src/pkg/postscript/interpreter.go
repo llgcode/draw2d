@@ -264,9 +264,6 @@ func (interpreter *Interpreter) ClearOperands() {
 
 func (interpreter *Interpreter) PopFloat() float {
 	operand := interpreter.Pop()
-	if s, ok := operand.(string); ok {
-		log.Printf("String not float: %s", s)
-	} 
 	return operand.(float)
 }
 
