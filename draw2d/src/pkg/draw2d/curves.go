@@ -33,7 +33,7 @@ var (
 			The more this value is the less sharp turns will be cut. 
 			Typically it should not exceed 10-15 degrees.
 */
-func cubicBezier(v VertexConverter, x1, y1, x2, y2, x3, y3, x4, y4, approximationScale, angleTolerance, cuspLimit float) {
+func cubicBezier(v VertexConverter, x1, y1, x2, y2, x3, y3, x4, y4, approximationScale, angleTolerance, cuspLimit float64) {
 	cuspLimit = computeCuspLimit(cuspLimit)
 	distanceToleranceSquare := 0.5 / approximationScale
 	distanceToleranceSquare = distanceToleranceSquare * distanceToleranceSquare
@@ -44,7 +44,7 @@ func cubicBezier(v VertexConverter, x1, y1, x2, y2, x3, y3, x4, y4, approximatio
 /*
  * see cubicBezier comments for approximationScale and angleTolerance definition
  */
-func quadraticBezier(v VertexConverter, x1, y1, x2, y2, x3, y3, approximationScale, angleTolerance float) {
+func quadraticBezier(v VertexConverter, x1, y1, x2, y2, x3, y3, approximationScale, angleTolerance float64) {
 	distanceToleranceSquare := 0.5 / approximationScale
 	distanceToleranceSquare = distanceToleranceSquare * distanceToleranceSquare
 
@@ -52,7 +52,7 @@ func quadraticBezier(v VertexConverter, x1, y1, x2, y2, x3, y3, approximationSca
 }
 
 
-func computeCuspLimit(v float) (r float) {
+func computeCuspLimit(v float64) (r float64) {
 	if v == 0.0 {
 		r = 0.0
 	} else {
@@ -65,7 +65,7 @@ func computeCuspLimit(v float) (r float) {
 /**
  * http://www.antigrain.com/research/adaptive_bezier/index.html
  */
-func recursiveQuadraticBezierBezier(v VertexConverter, x1, y1, x2, y2, x3, y3 float, level int, distanceToleranceSquare, angleTolerance float) {
+func recursiveQuadraticBezierBezier(v VertexConverter, x1, y1, x2, y2, x3, y3 float64, level int, distanceToleranceSquare, angleTolerance float64) {
 	if level > CurveRecursionLimit {
 		return
 	}
@@ -81,7 +81,7 @@ func recursiveQuadraticBezierBezier(v VertexConverter, x1, y1, x2, y2, x3, y3 fl
 
 	dx := x3 - x1
 	dy := y3 - y1
-	d := fabs(((x2-x3)*dy - (y2-y3)*dx))
+	d := math.Fabs(((x2-x3)*dy - (y2-y3)*dx))
 
 	if d > CurveCollinearityEpsilon {
 		// Regular case
@@ -97,7 +97,7 @@ func recursiveQuadraticBezierBezier(v VertexConverter, x1, y1, x2, y2, x3, y3 fl
 
 			// Angle & Cusp Condition
 			//----------------------
-			da := fabs(atan2(y3-y2, x3-x2) - atan2(y2-y1, x2-x1))
+			da := math.Fabs(math.Atan2(y3-y2, x3-x2) - math.Atan2(y2-y1, x2-x1))
 			if da >= math.Pi {
 				da = 2*math.Pi - da
 			}
@@ -145,7 +145,7 @@ func recursiveQuadraticBezierBezier(v VertexConverter, x1, y1, x2, y2, x3, y3 fl
 /**
  * http://www.antigrain.com/research/adaptive_bezier/index.html
  */
-func recursiveCubicBezier(v VertexConverter, x1, y1, x2, y2, x3, y3, x4, y4 float, level int, distanceToleranceSquare, angleTolerance, cuspLimit float) {
+func recursiveCubicBezier(v VertexConverter, x1, y1, x2, y2, x3, y3, x4, y4 float64, level int, distanceToleranceSquare, angleTolerance, cuspLimit float64) {
 	if level > CurveRecursionLimit {
 		return
 	}
@@ -170,8 +170,8 @@ func recursiveCubicBezier(v VertexConverter, x1, y1, x2, y2, x3, y3, x4, y4 floa
 	dx := x4 - x1
 	dy := y4 - y1
 
-	d2 := fabs(((x2-x4)*dy - (y2-y4)*dx))
-	d3 := fabs(((x3-x4)*dy - (y3-y4)*dx))
+	d2 := math.Fabs(((x2-x4)*dy - (y2-y4)*dx))
+	d3 := math.Fabs(((x3-x4)*dy - (y3-y4)*dx))
 
 	switch {
 	case d2 <= CurveCollinearityEpsilon && d3 <= CurveCollinearityEpsilon:
@@ -234,7 +234,7 @@ func recursiveCubicBezier(v VertexConverter, x1, y1, x2, y2, x3, y3, x4, y4 floa
 
 			// Angle Condition
 			//----------------------
-			da1 := fabs(atan2(y4-y3, x4-x3) - atan2(y3-y2, x3-x2))
+			da1 := math.Fabs(math.Atan2(y4-y3, x4-x3) - math.Atan2(y3-y2, x3-x2))
 			if da1 >= math.Pi {
 				da1 = 2*math.Pi - da1
 			}
@@ -265,7 +265,7 @@ func recursiveCubicBezier(v VertexConverter, x1, y1, x2, y2, x3, y3, x4, y4 floa
 
 			// Angle Condition
 			//----------------------
-			da1 := fabs(atan2(y3-y2, x3-x2) - atan2(y2-y1, x2-x1))
+			da1 := math.Fabs(math.Atan2(y3-y2, x3-x2) - math.Atan2(y2-y1, x2-x1))
 			if da1 >= math.Pi {
 				da1 = 2*math.Pi - da1
 			}
@@ -299,9 +299,9 @@ func recursiveCubicBezier(v VertexConverter, x1, y1, x2, y2, x3, y3, x4, y4 floa
 
 			// Angle & Cusp Condition
 			//----------------------
-			k := atan2(y3-y2, x3-x2)
-			da1 := fabs(k - atan2(y2-y1, x2-x1))
-			da2 := fabs(atan2(y4-y3, x4-x3) - k)
+			k := math.Atan2(y3-y2, x3-x2)
+			da1 := math.Fabs(k - math.Atan2(y2-y1, x2-x1))
+			da2 := math.Fabs(math.Atan2(y4-y3, x4-x3) - k)
 			if da1 >= math.Pi {
 				da1 = 2*math.Pi - da1
 			}

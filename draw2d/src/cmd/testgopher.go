@@ -39,7 +39,7 @@ func initGc(w, h int) (image.Image, *draw2d.GraphicContext) {
 
 func saveToPngFile(TestName string, m image.Image) {
 	dt := time.Nanoseconds() - lastTime
-	fmt.Printf("%s during: %f ms\n", TestName, float(dt)*10e-6)
+	fmt.Printf("%s during: %f ms\n", TestName, float64(dt)*10e-6)
 	filePath := folder + TestName + ".png"
 	f, err := os.Open(filePath, os.O_CREAT|os.O_WRONLY, 0600)
 	if err != nil {
@@ -61,7 +61,7 @@ func saveToPngFile(TestName string, m image.Image) {
 	fmt.Printf("Wrote %s OK.\n", filePath)
 }
 
-func gordon(gc *draw2d.GraphicContext, x, y, w, h float) {
+func gordon(gc *draw2d.GraphicContext, x, y, w, h float64) {
 	h23 := (h * 2) / 3
 
 	blf := image.RGBAColor{0, 0, 0, 0xff}

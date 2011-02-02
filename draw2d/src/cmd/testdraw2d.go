@@ -41,7 +41,7 @@ func initGc(w, h int) (image.Image, *draw2d.GraphicContext) {
 
 func saveToPngFile(TestName string, m image.Image) {
 	dt := time.Nanoseconds() - lastTime
-	fmt.Printf("%s during: %f ms\n", TestName, float(dt)*10e-6)
+	fmt.Printf("%s during: %f ms\n", TestName, float64(dt)*10e-6)
 	filePath := folder + TestName + ".png"
 	f, err := os.Open(filePath, os.O_CREAT|os.O_WRONLY, 0600)
 	if err != nil {
@@ -79,12 +79,6 @@ func TestPath() {
 }
 
 
-func cos(f float) float {
-	return float(math.Cos(float64(f)))
-}
-func sin(f float) float {
-	return float(math.Sin(float64(f)))
-}
 /*
   <img src="../test_results/TestDrawArc.png"/>
 */
@@ -106,7 +100,7 @@ func TestDrawArc() {
 	gc.SetLineWidth(6)
 
 	gc.MoveTo(xc, yc)
-	gc.LineTo(xc+cos(startAngle)*radiusX, yc+sin(startAngle)*radiusY)
+	gc.LineTo(xc+math.Cos(startAngle)*radiusX, yc+math.Sin(startAngle)*radiusY)
 	gc.MoveTo(xc, yc)
 	gc.LineTo(xc-radiusX, yc)
 	gc.Stroke()
@@ -137,7 +131,7 @@ func TestDrawArcNegative() {
 	gc.SetLineWidth(6)
 
 	gc.MoveTo(xc, yc)
-	gc.LineTo(xc+cos(startAngle)*radiusX, yc+sin(startAngle)*radiusY)
+	gc.LineTo(xc+math.Cos(startAngle)*radiusX, yc+math.Sin(startAngle)*radiusY)
 	gc.MoveTo(xc, yc)
 	gc.LineTo(xc-radiusX, yc)
 	gc.Stroke()
@@ -235,7 +229,7 @@ func TestDrawCubicCurve() {
 */
 func TestDash() {
 	i, gc := initGc(w, h)
-	gc.SetLineDash([]float{50, 10, 10, 10}, -50.0)
+	gc.SetLineDash([]float64{50, 10, 10, 10}, -50.0)
 	gc.SetLineCap(draw2d.ButtCap)
 	gc.SetLineJoin(draw2d.BevelJoin)
 	gc.SetLineWidth(10)
@@ -487,8 +481,8 @@ func TestTransform() {
 func TestPathTransform() {
 	i, gc := initGc(800, 600)
 	gc.SetLineWidth(20)
-	gc.Scale(1, 5)
-	gc.ArcTo(200, 50, 50, 50, 0, math.Pi*2)
+	gc.Scale(1, 4)
+	gc.ArcTo(200, 80, 50, 50, 0, math.Pi*2)
 	gc.Close()
 	gc.Stroke()
 	saveToPngFile("TestPathTransform", i)

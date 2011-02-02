@@ -22,23 +22,23 @@ const (
 
 type LineStroker struct {
 	Next          VertexConverter
-	HalfLineWidth float
+	HalfLineWidth float64
 	Cap           Cap
 	Join          Join
-	vertices      []float
-	rewind        []float
-	x, y, nx, ny  float
+	vertices      []float64
+	rewind        []float64
+	x, y, nx, ny  float64
 	command       VertexCommand
 }
 
-func NewLineStroker(converter VertexConverter) *LineStroker {
+func NewLineStroker(c Cap, j Join, converter VertexConverter) *LineStroker {
 	l := new(LineStroker)
 	l.Next = converter
 	l.HalfLineWidth = 0.5
-	l.vertices = make([]float, 0)
-	l.rewind = make([]float, 0)
-	l.Cap = ButtCap
-	l.Join = MiterJoin
+	l.vertices = make([]float64, 0)
+	l.rewind = make([]float64, 0)
+	l.Cap = c
+	l.Join = j
 	l.command = VertexNoCommand
 	return l
 }
@@ -62,13 +62,13 @@ func (l *LineStroker) NextCommand(command VertexCommand) {
 		}
 		l.Next.NextCommand(VertexStopCommand)
 		// reinit vertices	
-		l.vertices = make([]float, 0)
-		l.rewind = make([]float, 0)
+		l.vertices = make([]float64, 0)
+		l.rewind = make([]float64, 0)
 		l.x, l.y, l.nx, l.ny = 0, 0, 0, 0
 	}
 }
 
-func (l *LineStroker) Vertex(x, y float) {
+func (l *LineStroker) Vertex(x, y float64) {
 	switch l.command {
 	case VertexNoCommand:
 		l.line(l.x, l.y, x, y)
@@ -92,7 +92,7 @@ func (l *LineStroker) closePolygon() {
 }
 
 
-func (l *LineStroker) line(x1, y1, x2, y2 float) {
+func (l *LineStroker) line(x1, y1, x2, y2 float64) {
 	dx := (x2 - x1)
 	dy := (y2 - y1)
 	d := vectorDistance(dx, dy)
@@ -105,7 +105,7 @@ func (l *LineStroker) line(x1, y1, x2, y2 float) {
 	}
 }
 
-func (l *LineStroker) joinLine(x1, y1, nx1, ny1, x2, y2 float) {
+func (l *LineStroker) joinLine(x1, y1, nx1, ny1, x2, y2 float64) {
 	dx := (x2 - x1)
 	dy := (y2 - y1)
 	d := vectorDistance(dx, dy)

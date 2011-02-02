@@ -47,9 +47,9 @@ func main() {
 			case draw.MouseEvent:
 				if evt.Buttons&1 != 0 {
 					if nbclick%2 == 0 {
-						gc.MoveTo(float(evt.Loc.X), float(evt.Loc.Y))
+						gc.MoveTo(float64(evt.Loc.X), float64(evt.Loc.Y))
 					} else {
-						gc.LineTo(float(evt.Loc.X), float(evt.Loc.Y))
+						gc.LineTo(float64(evt.Loc.X), float64(evt.Loc.Y))
 						gc.Stroke()
 						window.FlushImage()
 					}

@@ -6,13 +6,13 @@ package draw2d
 type DashVertexConverter struct {
 	command        VertexCommand
 	next           VertexConverter
-	x, y, distance float
-	dash           []float
+	x, y, distance float64
+	dash           []float64
 	currentDash    int
-	dashOffset     float
+	dashOffset     float64
 }
 
-func NewDashConverter(dash []float, dashOffset float, converter VertexConverter) *DashVertexConverter {
+func NewDashConverter(dash []float64, dashOffset float64, converter VertexConverter) *DashVertexConverter {
 	var dasher DashVertexConverter
 	dasher.dash = dash
 	dasher.currentDash = 0
@@ -28,7 +28,7 @@ func (dasher *DashVertexConverter) NextCommand(cmd VertexCommand) {
 	}
 }
 
-func (dasher *DashVertexConverter) Vertex(x, y float) {
+func (dasher *DashVertexConverter) Vertex(x, y float64) {
 	switch dasher.command {
 	case VertexStartCommand:
 		dasher.start(x, y)
@@ -38,7 +38,7 @@ func (dasher *DashVertexConverter) Vertex(x, y float) {
 	dasher.command = VertexNoCommand
 }
 
-func (dasher *DashVertexConverter) start(x, y float) {
+func (dasher *DashVertexConverter) start(x, y float64) {
 	dasher.next.NextCommand(VertexStartCommand)
 	dasher.next.Vertex(x, y)
 	dasher.x, dasher.y = x, y
@@ -46,7 +46,7 @@ func (dasher *DashVertexConverter) start(x, y float) {
 	dasher.currentDash = 0
 }
 
-func (dasher *DashVertexConverter) lineTo(x, y float) {
+func (dasher *DashVertexConverter) lineTo(x, y float64) {
 	rest := dasher.dash[dasher.currentDash] - dasher.distance
 	for rest < 0 {
 		dasher.distance = dasher.distance - dasher.dash[dasher.currentDash]

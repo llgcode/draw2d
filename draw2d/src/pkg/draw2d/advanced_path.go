@@ -10,7 +10,7 @@ import (
 //high level path creation
 
 
-func Rect(path Path, x1, y1, x2, y2 float) {
+func Rect(path Path, x1, y1, x2, y2 float64) {
 	path.MoveTo(x1, y1)
 	path.LineTo(x2, y1)
 	path.LineTo(x2, y2)
@@ -18,7 +18,7 @@ func Rect(path Path, x1, y1, x2, y2 float) {
 	path.Close()
 }
 
-func RoundRect(path Path, x1, y1, x2, y2, arcWidth, arcHeight float) {
+func RoundRect(path Path, x1, y1, x2, y2, arcWidth, arcHeight float64) {
 	arcWidth = arcWidth / 2
 	arcHeight = arcHeight / 2
 	path.MoveTo(x1, y1+arcHeight)
@@ -32,12 +32,12 @@ func RoundRect(path Path, x1, y1, x2, y2, arcWidth, arcHeight float) {
 	path.Close()
 }
 
-func Ellipse(path Path, cx, cy, rx, ry float) {
+func Ellipse(path Path, cx, cy, rx, ry float64) {
 	path.ArcTo(cx, cy, rx, ry, 0, -math.Pi*2)
 	path.Close()
 }
 
-func Circle(path Path, cx, cy, radius float) {
+func Circle(path Path, cx, cy, radius float64) {
 	path.ArcTo(cx, cy, radius, radius, 0, -math.Pi*2)
 	path.Close()
 }
