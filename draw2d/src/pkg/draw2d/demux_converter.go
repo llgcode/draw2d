@@ -16,7 +16,7 @@ func (dc *DemuxConverter) NextCommand(cmd VertexCommand) {
 		converter.NextCommand(cmd)
 	}
 }
-func (dc *DemuxConverter) Vertex(x, y float) {
+func (dc *DemuxConverter) Vertex(x, y float64) {
 	for _, converter := range dc.converters {
 		converter.Vertex(x, y)
 	}

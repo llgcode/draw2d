@@ -15,7 +15,7 @@ type VertexAdder struct {
 }
 
 
-func floatToPoint(x, y float) raster.Point {
+func floatToPoint(x, y float64) raster.Point {
 	return raster.Point{raster.Fix32(x * 256), raster.Fix32(y * 256)}
 }
 
@@ -28,7 +28,7 @@ func (vertexAdder *VertexAdder) NextCommand(cmd VertexCommand) {
 	vertexAdder.command = cmd
 }
 
-func (vertexAdder *VertexAdder) Vertex(x, y float) {
+func (vertexAdder *VertexAdder) Vertex(x, y float64) {
 	switch vertexAdder.command {
 	case VertexStartCommand:
 		vertexAdder.adder.Start(floatToPoint(x, y))
@@ -42,7 +42,7 @@ func (vertexAdder *VertexAdder) Vertex(x, y float) {
 type PathAdder struct {
 	adder              raster.Adder
 	lastPoint          raster.Point
-	ApproximationScale float
+	ApproximationScale float64
 }
 
 func NewPathAdder(adder raster.Adder) *PathAdder {
@@ -60,7 +60,7 @@ func (pathAdder *PathAdder) Convert(paths ...*PathStorage) {
 }
 
 
-func (pathAdder *PathAdder) ConvertCommand(cmd PathCmd, vertices ...float) int {
+func (pathAdder *PathAdder) ConvertCommand(cmd PathCmd, vertices ...float64) int {
 	switch cmd {
 	case MoveTo:
 		pathAdder.lastPoint = floatToPoint(vertices[0], vertices[1])

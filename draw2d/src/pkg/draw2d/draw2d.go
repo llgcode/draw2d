@@ -31,16 +31,16 @@ type GraphicContext struct {
 type contextStack struct {
 	tr          MatrixTransform
 	path        *PathStorage
-	lineWidth   float
-	dash        []float
-	dashOffset  float
+	lineWidth   float64
+	dash        []float64
+	dashOffset  float64
 	strokeColor image.Color
 	fillColor   image.Color
 	fillRule    FillRule
 	cap         Cap
 	join        Join
 	previous    *contextStack
-	fontSize    float
+	fontSize    float64
 	fontData    FontData
 }
 
@@ -89,15 +89,15 @@ func (gc *GraphicContext) ComposeMatrixTransform(tr MatrixTransform) {
 	gc.current.tr = tr.Multiply(gc.current.tr)
 }
 
-func (gc *GraphicContext) Rotate(angle float) {
+func (gc *GraphicContext) Rotate(angle float64) {
 	gc.current.tr = NewRotationMatrix(angle).Multiply(gc.current.tr)
 }
 
-func (gc *GraphicContext) Translate(tx, ty float) {
+func (gc *GraphicContext) Translate(tx, ty float64) {
 	gc.current.tr = NewTranslationMatrix(tx, ty).Multiply(gc.current.tr)
 }
 
-func (gc *GraphicContext) Scale(sx, sy float) {
+func (gc *GraphicContext) Scale(sx, sy float64) {
 	gc.current.tr = NewScaleMatrix(sx, sy).Multiply(gc.current.tr)
 }
 
@@ -123,7 +123,7 @@ func (gc *GraphicContext) SetFillRule(f FillRule) {
 	gc.current.fillRule = f
 }
 
-func (gc *GraphicContext) SetLineWidth(lineWidth float) {
+func (gc *GraphicContext) SetLineWidth(lineWidth float64) {
 	gc.current.lineWidth = lineWidth
 }
 
@@ -135,16 +135,16 @@ func (gc *GraphicContext) SetLineJoin(join Join) {
 	gc.current.join = join
 }
 
-func (gc *GraphicContext) SetLineDash(dash []float, dashOffset float) {
+func (gc *GraphicContext) SetLineDash(dash []float64, dashOffset float64) {
 	gc.current.dash = dash
 	gc.current.dashOffset = dashOffset
 }
 
-func (gc *GraphicContext) SetFontSize(fontSize float) {
+func (gc *GraphicContext) SetFontSize(fontSize float64) {
 	gc.current.fontSize = fontSize
 }
 
-func (gc *GraphicContext) GetFontSize() float {
+func (gc *GraphicContext) GetFontSize() float64 {
 	return gc.current.fontSize
 }
 
@@ -193,24 +193,24 @@ func (gc *GraphicContext) Restore() {
 }
 
 func (gc *GraphicContext) DrawImage(image image.Image) {
-	width := raster.Fix32(gc.PaintedImage.Bounds().Dx()* 256)
-	height := raster.Fix32(gc.PaintedImage.Bounds().Dy()* 256)
+	width := raster.Fix32(gc.PaintedImage.Bounds().Dx() * 256)
+	height := raster.Fix32(gc.PaintedImage.Bounds().Dy() * 256)
 
 	painter := raster.NewRGBAPainter(gc.PaintedImage)
 
-	p0 := raster.Point{0,0}
-	p1 := raster.Point{0,0}
-	p2 := raster.Point{0,0}
-	p3 := raster.Point{0,0}
+	p0 := raster.Point{0, 0}
+	p1 := raster.Point{0, 0}
+	p2 := raster.Point{0, 0}
+	p3 := raster.Point{0, 0}
 	var i raster.Fix32 = 0
-	for ; i < width; i+=256 {
+	for ; i < width; i += 256 {
 		var j raster.Fix32 = 0
-		for ; j < height; j+=256 {
+		for ; j < height; j += 256 {
 			p0.X, p0.Y = i, j
-			p1.X, p1.Y = p0.X + 256, p0.Y
-			p2.X, p2.Y = p1.X, p0.Y + 256
+			p1.X, p1.Y = p0.X+256, p0.Y
+			p2.X, p2.Y = p1.X, p0.Y+256
 			p3.X, p3.Y = p0.X, p2.Y
-			
+
 			gc.current.tr.TransformRasterPoint(&p0, &p1, &p2, &p3)
 			gc.fillRasterizer.Start(p0)
 			gc.fillRasterizer.Add1(p1)
@@ -228,51 +228,51 @@ func (gc *GraphicContext) BeginPath() {
 	gc.current.path = new(PathStorage)
 }
 
-func (gc *GraphicContext) IsEmpty() bool{
+func (gc *GraphicContext) IsEmpty() bool {
 	return gc.current.path.IsEmpty()
 }
 
-func (gc *GraphicContext) LastPoint() (float, float){
+func (gc *GraphicContext) LastPoint() (float64, float64) {
 	return gc.current.path.LastPoint()
 }
 
-func (gc *GraphicContext) MoveTo(x, y float) {
+func (gc *GraphicContext) MoveTo(x, y float64) {
 	gc.current.path.MoveTo(x, y)
 }
 
-func (gc *GraphicContext) RMoveTo(dx, dy float) {
+func (gc *GraphicContext) RMoveTo(dx, dy float64) {
 	gc.current.path.RMoveTo(dx, dy)
 }
 
-func (gc *GraphicContext) LineTo(x, y float) {
+func (gc *GraphicContext) LineTo(x, y float64) {
 	gc.current.path.LineTo(x, y)
 }
 
-func (gc *GraphicContext) RLineTo(dx, dy float) {
+func (gc *GraphicContext) RLineTo(dx, dy float64) {
 	gc.current.path.RLineTo(dx, dy)
 }
 
-func (gc *GraphicContext) QuadCurveTo(cx, cy, x, y float) {
+func (gc *GraphicContext) QuadCurveTo(cx, cy, x, y float64) {
 	gc.current.path.QuadCurveTo(cx, cy, x, y)
 }
 
-func (gc *GraphicContext) RQuadCurveTo(dcx, dcy, dx, dy float) {
+func (gc *GraphicContext) RQuadCurveTo(dcx, dcy, dx, dy float64) {
 	gc.current.path.RQuadCurveTo(dcx, dcy, dx, dy)
 }
 
-func (gc *GraphicContext) CubicCurveTo(cx1, cy1, cx2, cy2, x, y float) {
+func (gc *GraphicContext) CubicCurveTo(cx1, cy1, cx2, cy2, x, y float64) {
 	gc.current.path.CubicCurveTo(cx1, cy1, cx2, cy2, x, y)
 }
 
-func (gc *GraphicContext) RCubicCurveTo(dcx1, dcy1, dcx2, dcy2, dx, dy float) {
+func (gc *GraphicContext) RCubicCurveTo(dcx1, dcy1, dcx2, dcy2, dx, dy float64) {
 	gc.current.path.RCubicCurveTo(dcx1, dcy1, dcx2, dcy2, dx, dy)
 }
 
-func (gc *GraphicContext) ArcTo(cx, cy, rx, ry, startAngle, angle float) {
+func (gc *GraphicContext) ArcTo(cx, cy, rx, ry, startAngle, angle float64) {
 	gc.current.path.ArcTo(cx, cy, rx, ry, startAngle, angle)
 }
 
-func (gc *GraphicContext) RArcTo(dcx, dcy, rx, ry, startAngle, angle float) {
+func (gc *GraphicContext) RArcTo(dcx, dcy, rx, ry, startAngle, angle float64) {
 	gc.current.path.RArcTo(dcx, dcy, rx, ry, startAngle, angle)
 }
 
@@ -280,7 +280,7 @@ func (gc *GraphicContext) Close() {
 	gc.current.path.Close()
 }
 
-func (gc *GraphicContext) FillString(text string) (cursor float) {
+func (gc *GraphicContext) FillString(text string) (cursor float64) {
 	gc.freetype.SetSrc(image.NewColorImage(gc.current.strokeColor))
 	// Draw the text.
 	x, y := gc.current.path.LastPoint()
@@ -302,7 +302,7 @@ func (gc *GraphicContext) FillString(text string) (cursor float) {
 		log.Println(err)
 	}
 	x1, _ := gc.current.path.LastPoint()
-	x2, y2 := float(p.X)/256, float(p.Y)/256
+	x2, y2 := float64(p.X)/256, float64(p.Y)/256
 	gc.current.tr.InverseTransform(&x2, &y2)
 	width := x2 - x1
 	return width
@@ -346,7 +346,7 @@ func (gc *GraphicContext) Stroke(paths ...*PathStorage) {
 	paths = append(paths, gc.current.path)
 	gc.strokeRasterizer.UseNonZeroWinding = true
 
-	stroker := NewLineStroker(NewVertexMatrixTransform(gc.current.tr, NewVertexAdder(gc.strokeRasterizer)))
+	stroker := NewLineStroker(gc.current.cap, gc.current.join, NewVertexMatrixTransform(gc.current.tr, NewVertexAdder(gc.strokeRasterizer)))
 	stroker.HalfLineWidth = gc.current.lineWidth / 2
 	var pathConverter *PathConverter
 	if gc.current.dash != nil && len(gc.current.dash) > 0 {
@@ -413,7 +413,7 @@ func (gc *GraphicContext) FillStroke(paths ...*PathStorage) {
 
 	filler := NewVertexMatrixTransform(gc.current.tr, NewVertexAdder(gc.fillRasterizer))
 
-	stroker := NewLineStroker(NewVertexMatrixTransform(gc.current.tr, NewVertexAdder(gc.strokeRasterizer)))
+	stroker := NewLineStroker(gc.current.cap, gc.current.join, NewVertexMatrixTransform(gc.current.tr, NewVertexAdder(gc.strokeRasterizer)))
 	stroker.HalfLineWidth = gc.current.lineWidth / 2
 
 	demux := NewDemuxConverter(filler, stroker)

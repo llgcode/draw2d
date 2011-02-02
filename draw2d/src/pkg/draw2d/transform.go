@@ -5,19 +5,20 @@ package draw2d
 
 import (
 	"freetype-go.googlecode.com/hg/freetype/raster"
+	"math"
 )
 
-type MatrixTransform [6]float
+type MatrixTransform [6]float64
 
 const (
 	epsilon = 1e-6
 )
 
-func (tr MatrixTransform) Determinant() float {
+func (tr MatrixTransform) Determinant() float64 {
 	return tr[0]*tr[3] - tr[1]*tr[2]
 }
 
-func (tr MatrixTransform) Transform(points ...*float) {
+func (tr MatrixTransform) Transform(points ...*float64) {
 	for i, j := 0, 1; j < len(points); i, j = i+2, j+2 {
 		x := *points[i]
 		y := *points[j]
@@ -28,14 +29,14 @@ func (tr MatrixTransform) Transform(points ...*float) {
 
 func (tr MatrixTransform) TransformRasterPoint(points ...*raster.Point) {
 	for _, point := range points {
-		x := float(point.X) / 256
-		y := float(point.Y) / 256
+		x := float64(point.X) / 256
+		y := float64(point.Y) / 256
 		point.X = raster.Fix32((x*tr[0] + y*tr[2] + tr[4]) * 256)
 		point.Y = raster.Fix32((x*tr[1] + y*tr[3] + tr[5]) * 256)
 	}
 }
 
-func (tr MatrixTransform) InverseTransform(points ...*float) {
+func (tr MatrixTransform) InverseTransform(points ...*float64) {
 	d := tr.Determinant() // matrix determinant
 	for i, j := 0, 1; j < len(points); i, j = i+2, j+2 {
 		x := *points[i]
@@ -47,7 +48,7 @@ func (tr MatrixTransform) InverseTransform(points ...*float) {
 
 // ******************** Vector transformations ********************
 
-func (tr MatrixTransform) VectorTransform(points ...*float) {
+func (tr MatrixTransform) VectorTransform(points ...*float64) {
 	for i, j := 0, 1; j < len(points); i, j = i+2, j+2 {
 		x := *points[i]
 		y := *points[j]
@@ -60,42 +61,42 @@ func (tr MatrixTransform) VectorTransform(points ...*float) {
 
 /** Creates an identity transformation. */
 func NewIdentityMatrix() MatrixTransform {
-	return [6]float{1, 0, 0, 1, 0, 0}
+	return [6]float64{1, 0, 0, 1, 0, 0}
 }
 
 /**
  * Creates a transformation with a translation, that,
  * transform point1 into point2.
  */
-func NewTranslationMatrix(tx, ty float) MatrixTransform {
-	return [6]float{1, 0, 0, 1, tx, ty}
+func NewTranslationMatrix(tx, ty float64) MatrixTransform {
+	return [6]float64{1, 0, 0, 1, tx, ty}
 }
 
 /**
  * Creates a transformation with a sx, sy scale factor
  */
-func NewScaleMatrix(sx, sy float) MatrixTransform {
-	return [6]float{sx, 0, 0, sy, 0, 0}
+func NewScaleMatrix(sx, sy float64) MatrixTransform {
+	return [6]float64{sx, 0, 0, sy, 0, 0}
 }
 
 /**
  * Creates a rotation transformation.
  */
-func NewRotationMatrix(angle float) MatrixTransform {
-	c := cos(angle)
-	s := sin(angle)
-	return [6]float{c, s, -s, c, 0, 0}
+func NewRotationMatrix(angle float64) MatrixTransform {
+	c := math.Cos(angle)
+	s := math.Sin(angle)
+	return [6]float64{c, s, -s, c, 0, 0}
 }
 
 /**
  * Creates a transformation, combining a scale and a translation, that transform rectangle1 into rectangle2.
  */
-func NewMatrixTransform(rectangle1, rectangle2 [4]float) MatrixTransform {
+func NewMatrixTransform(rectangle1, rectangle2 [4]float64) MatrixTransform {
 	xScale := (rectangle2[2] - rectangle2[0]) / (rectangle1[2] - rectangle1[0])
 	yScale := (rectangle2[3] - rectangle2[1]) / (rectangle1[3] - rectangle1[1])
 	xOffset := rectangle2[0] - (rectangle1[0] * xScale)
 	yOffset := rectangle2[1] - (rectangle1[1] * yScale)
-	return [6]float{xScale, 0, 0, yScale, xOffset, yOffset}
+	return [6]float64{xScale, 0, 0, yScale, xOffset, yOffset}
 }
 
 // ******************** Transformations operations ********************
@@ -105,7 +106,7 @@ func NewMatrixTransform(rectangle1, rectangle2 [4]float) MatrixTransform {
  */
 func (tr MatrixTransform) GetInverseTransformation() MatrixTransform {
 	d := tr.Determinant() // matrix determinant
-	return [6]float{
+	return [6]float64{
 		tr[3] / d,
 		-tr[1] / d,
 		-tr[2] / d,
@@ -116,7 +117,7 @@ func (tr MatrixTransform) GetInverseTransformation() MatrixTransform {
 
 
 func (tr1 MatrixTransform) Multiply(tr2 MatrixTransform) MatrixTransform {
-	return [6]float{
+	return [6]float64{
 		tr1[0]*tr2[0] + tr1[1]*tr2[2],
 		tr1[1]*tr2[3] + tr1[0]*tr2[1],
 		tr1[2]*tr2[0] + tr1[3]*tr2[2],
@@ -126,7 +127,7 @@ func (tr1 MatrixTransform) Multiply(tr2 MatrixTransform) MatrixTransform {
 }
 
 
-func (tr *MatrixTransform) Scale(sx, sy float) *MatrixTransform {
+func (tr *MatrixTransform) Scale(sx, sy float64) *MatrixTransform {
 	tr[0] = tr[0] * sx
 	tr[1] = tr[1] * sx
 	tr[4] = tr[4] * sx
@@ -136,15 +137,15 @@ func (tr *MatrixTransform) Scale(sx, sy float) *MatrixTransform {
 	return tr
 }
 
-func (tr *MatrixTransform) Translate(tx, ty float) *MatrixTransform {
+func (tr *MatrixTransform) Translate(tx, ty float64) *MatrixTransform {
 	tr[4] = tr[4] + tx
 	tr[5] = tr[5] + ty
 	return tr
 }
 
-func (tr *MatrixTransform) Rotate(angle float) *MatrixTransform {
-	ca := cos(angle)
-	sa := sin(angle)
+func (tr *MatrixTransform) Rotate(angle float64) *MatrixTransform {
+	ca := math.Cos(angle)
+	sa := math.Sin(angle)
 	t0 := tr[0]*ca - tr[1]*sa
 	t2 := tr[1]*ca - tr[3]*sa
 	t4 := tr[4]*ca - tr[5]*sa
@@ -157,26 +158,26 @@ func (tr *MatrixTransform) Rotate(angle float) *MatrixTransform {
 	return tr
 }
 
-func (tr MatrixTransform) GetTranslation() (x, y float) {
+func (tr MatrixTransform) GetTranslation() (x, y float64) {
 	return tr[4], tr[5]
 }
 
-func (tr MatrixTransform) GetScaling() (x, y float) {
+func (tr MatrixTransform) GetScaling() (x, y float64) {
 	return tr[0], tr[3]
 }
 
-func (tr MatrixTransform) GetMaxAbsScaling() (s float) {
-	sx := fabs(tr[0])
-	sy := fabs(tr[3])
+func (tr MatrixTransform) GetMaxAbsScaling() (s float64) {
+	sx := math.Fabs(tr[0])
+	sy := math.Fabs(tr[3])
 	if sx > sy {
 		return sx
 	}
 	return sy
 }
 
-func (tr MatrixTransform) GetMinAbsScaling() (s float) {
-	sx := fabs(tr[0])
-	sy := fabs(tr[3])
+func (tr MatrixTransform) GetMinAbsScaling() (s float64) {
+	sx := math.Fabs(tr[0])
+	sy := math.Fabs(tr[3])
 	if sx > sy {
 		return sy
 	}
@@ -218,8 +219,8 @@ func (tr MatrixTransform) IsTranslation() bool {
  * Compares two floats.
  * return true if the distance between the two floats is less than epsilon, false otherwise
  */
-func fequals(float1, float2 float) bool {
-	return fabs(float1-float2) <= epsilon
+func fequals(float1, float2 float64) bool {
+	return math.Fabs(float1-float2) <= epsilon
 }
 
 // this VertexConverter apply the Matrix transformation tr
@@ -237,7 +238,7 @@ func (vmt *VertexMatrixTransform) NextCommand(command VertexCommand) {
 	vmt.Next.NextCommand(command)
 }
 
-func (vmt *VertexMatrixTransform) Vertex(x, y float) {
+func (vmt *VertexMatrixTransform) Vertex(x, y float64) {
 	vmt.tr.Transform(&x, &y)
 	vmt.Next.Vertex(x, y)
 }

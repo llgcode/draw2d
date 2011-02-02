@@ -9,8 +9,8 @@ import (
 	"image"
 	"time"
 	"image/png"
-	"draw2d"
-	//"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
+	//"draw2d"
+	"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
 )
 
 
@@ -36,7 +36,7 @@ func saveToPngFile(filePath string, m image.Image) {
 }
 
 func loadFromPngFile(filePath string) image.Image {
-	f, err := os.Open(filePath, 0, 0) 
+	f, err := os.Open(filePath, 0, 0)
 	if f == nil {
 		log.Printf("can't open file; err=%s\n", err.String())
 		return nil
@@ -53,7 +53,7 @@ func loadFromPngFile(filePath string) image.Image {
 }
 
 
-func testBubble(gc * draw2d.GraphicContext) {
+func testBubble(gc *draw2d.GraphicContext) {
 	gc.BeginPath()
 	gc.MoveTo(75, 25)
 	gc.QuadCurveTo(25, 25, 25, 62.5)
@@ -67,16 +67,15 @@ func testBubble(gc * draw2d.GraphicContext) {
 
 func main() {
 
-
 	source := loadFromPngFile("../../Varna_Railway_Station_HDR.png")
 	i := image.NewRGBA(1024, 768)
 	gc := draw2d.NewGraphicContext(i)
 	gc.Scale(2, 0.5)
 	//gc.Translate(75, 25)
-	gc.Rotate(30 * math.Pi/180)
+	gc.Rotate(30 * math.Pi / 180)
 	lastTime := time.Nanoseconds()
 	gc.DrawImage(source)
 	dt := time.Nanoseconds() - lastTime
-	fmt.Printf("Draw image: %f ms\n", float(dt)*1e-6)
+	fmt.Printf("Draw image: %f ms\n", float64(dt)*1e-6)
 	saveToPngFile("../../TestDrawImage.png", i)
 }

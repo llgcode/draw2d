@@ -4,30 +4,31 @@ package draw2d
 
 import (
 	"freetype-go.googlecode.com/hg/freetype/raster"
+	"math"
 )
 
-func arc(t VertexConverter, x, y, rx, ry, start, angle, scale float) (lastX, lastY float) {
+func arc(t VertexConverter, x, y, rx, ry, start, angle, scale float64) (lastX, lastY float64) {
 	end := start + angle
 	clockWise := true
 	if angle < 0 {
 		clockWise = false
 	}
-	ra := (fabs(rx) + fabs(ry)) / 2
-	da := acos(ra/(ra+0.125/scale)) * 2
+	ra := (math.Fabs(rx) + math.Fabs(ry)) / 2
+	da := math.Acos(ra/(ra+0.125/scale)) * 2
 	//normalize
 	if !clockWise {
 		da = -da
 	}
 	angle = start + da
-	var curX, curY float
+	var curX, curY float64
 	for {
 		if (angle < end-da/4) != clockWise {
-			curX = x + cos(end)*rx
-			curY = y + sin(end)*ry
+			curX = x + math.Cos(end)*rx
+			curY = y + math.Sin(end)*ry
 			return curX, curY
 		}
-		curX = x + cos(angle)*rx
-		curY = y + sin(angle)*ry
+		curX = x + math.Cos(angle)*rx
+		curY = y + math.Sin(angle)*ry
 
 		angle += da
 		t.Vertex(curX, curY)
@@ -36,28 +37,28 @@ func arc(t VertexConverter, x, y, rx, ry, start, angle, scale float) (lastX, las
 }
 
 
-func arcAdder(adder raster.Adder, x, y, rx, ry, start, angle, scale float) raster.Point {
+func arcAdder(adder raster.Adder, x, y, rx, ry, start, angle, scale float64) raster.Point {
 	end := start + angle
 	clockWise := true
 	if angle < 0 {
 		clockWise = false
 	}
-	ra := (fabs(rx) + fabs(ry)) / 2
-	da := acos(ra/(ra+0.125/scale)) * 2
+	ra := (math.Fabs(rx) + math.Fabs(ry)) / 2
+	da := math.Acos(ra/(ra+0.125/scale)) * 2
 	//normalize
 	if !clockWise {
 		da = -da
 	}
 	angle = start + da
-	var curX, curY float
+	var curX, curY float64
 	for {
 		if (angle < end-da/4) != clockWise {
-			curX = x + cos(end)*rx
-			curY = y + sin(end)*ry
+			curX = x + math.Cos(end)*rx
+			curY = y + math.Sin(end)*ry
 			return floatToPoint(curX, curY)
 		}
-		curX = x + cos(angle)*rx
-		curY = y + sin(angle)*ry
+		curX = x + math.Cos(angle)*rx
+		curY = y + math.Sin(angle)*ry
 
 		angle += da
 		adder.Add1(floatToPoint(curX, curY))

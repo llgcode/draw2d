@@ -4,16 +4,16 @@
 package draw2d
 
 type Path interface {
-	MoveTo(x, y float)
-	RMoveTo(dx, dy float)
-	LineTo(x, y float)
-	RLineTo(dx, dy float)
-	QuadCurveTo(cx, cy, x, y float)
-	RQuadCurveTo(dcx, dcy, dx, dy float)
-	CubicCurveTo(cx1, cy1, cx2, cy2, x, y float)
-	RCubicCurveTo(dcx1, dcy1, dcx2, dcy2, dx, dy float)
-	ArcTo(cx, cy, rx, ry, startAngle, angle float)
-	RArcTo(dcx, dcy, rx, ry, startAngle, angle float)
+	MoveTo(x, y float64)
+	RMoveTo(dx, dy float64)
+	LineTo(x, y float64)
+	RLineTo(dx, dy float64)
+	QuadCurveTo(cx, cy, x, y float64)
+	RQuadCurveTo(dcx, dcy, dx, dy float64)
+	CubicCurveTo(cx1, cy1, cx2, cy2, x, y float64)
+	RCubicCurveTo(dcx1, dcy1, dcx2, dcy2, dx, dy float64)
+	ArcTo(cx, cy, rx, ry, startAngle, angle float64)
+	RArcTo(dcx, dcy, rx, ry, startAngle, angle float64)
 	Close()
 }
 
@@ -30,5 +30,5 @@ const (
 
 type VertexConverter interface {
 	NextCommand(cmd VertexCommand)
-	Vertex(x, y float)
+	Vertex(x, y float64)
 }
