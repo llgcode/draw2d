@@ -27,13 +27,13 @@ func div(interpreter *Interpreter) {
 func idiv(interpreter *Interpreter) {
 	int2 := interpreter.PopInt()
 	int1 := interpreter.PopInt()
-	interpreter.Push(float(int1 / int2))
+	interpreter.Push(float64(int1 / int2))
 }
 //int   int mod remainder -> Return remainder after dividing int  by int
 func mod(interpreter *Interpreter) {
 	int2 := interpreter.PopInt()
 	int1 := interpreter.PopInt()
-	interpreter.Push(float(int1 % int2))
+	interpreter.Push(float64(int1 % int2))
 }
 
 //num1  num2 mul product -> Return num1 times num2
@@ -51,7 +51,7 @@ func sub(interpreter *Interpreter) {
 //num1 abs num2 -> Return absolute value of num1
 func abs(interpreter *Interpreter) {
 	f := interpreter.PopFloat()
-	interpreter.Push(float(math.Fabs(float64(f))))
+	interpreter.Push(math.Fabs(f))
 }
 //num1 neg num2 -> Return negative of num1
 func neg(interpreter *Interpreter) {
@@ -61,63 +61,63 @@ func neg(interpreter *Interpreter) {
 //num1 ceiling num2 -> Return ceiling of num1
 func ceiling(interpreter *Interpreter) {
 	f := interpreter.PopFloat()
-	interpreter.Push(float(int(f + 1)))
+	interpreter.Push(float64(int(f + 1)))
 }
 //num1 ﬂoor num2 -> Return ﬂoor of num1
 func floor(interpreter *Interpreter) {
 	f := interpreter.PopFloat()
-	interpreter.Push(float(math.Floor(float64(f))))
+	interpreter.Push(math.Floor(f))
 }
 //num1 round num2 -> Round num1 to nearest integer
 func round(interpreter *Interpreter) {
 	f := interpreter.PopFloat()
-	interpreter.Push(float(int(f + 0.5)))
+	interpreter.Push(float64(int(f + 0.5)))
 }
 //num1 truncate num2 -> Remove fractional part of num1
 func truncate(interpreter *Interpreter) {
 	f := interpreter.PopFloat()
-	interpreter.Push(float(int(f)))
+	interpreter.Push(float64(int(f)))
 }
 //num sqrt real -> Return square root of num
 func sqrt(interpreter *Interpreter) {
 	f := interpreter.PopFloat()
-	interpreter.Push(float(math.Sqrt(float64(f))))
+	interpreter.Push(float64(math.Sqrt(f)))
 }
 //num  den atan angle -> Return arctangent of num/den in degrees
 func atan(interpreter *Interpreter) {
 	den := interpreter.PopFloat()
 	num := interpreter.PopFloat()
-	interpreter.Push(float(math.Atan2(float64(num), float64(den))) * (180.0 / math.Pi))
+	interpreter.Push(math.Atan2(num, den) * (180.0 / math.Pi))
 }
 //angle cos real -> Return cosine of angle degrees
 func cos(interpreter *Interpreter) {
 	a := interpreter.PopFloat() * math.Pi / 180
-	interpreter.Push(float(math.Cos(float64(a ))))
+	interpreter.Push(math.Cos(a))
 }
 //angle sin real -> Return sine of angle degrees
 func sin(interpreter *Interpreter) {
 	a := interpreter.PopFloat() * math.Pi / 180
-	interpreter.Push(float(math.Sin(float64(a))))
+	interpreter.Push(math.Sin(a))
 }
 //base  exponent exp real -> Raise base to exponent power
 func exp(interpreter *Interpreter) {
 	exponent := interpreter.PopFloat()
 	base := interpreter.PopFloat()
-	interpreter.Push(float(math.Pow(float64(base), float64(exponent))))
+	interpreter.Push(math.Pow(base, exponent))
 }
 //num ln real -> Return natural logarithm (base e)
 func ln(interpreter *Interpreter) {
 	num := interpreter.PopFloat()
-	interpreter.Push(float(math.Log(float64(num))))
+	interpreter.Push(math.Log(num))
 }
 //num log real -> Return common logarithm (base 10)
 func log10(interpreter *Interpreter) {
 	num := interpreter.PopFloat()
-	interpreter.Push(float(math.Log10(float64(num))))
+	interpreter.Push(math.Log10(num))
 }
 //– rand int Generate pseudo-random integer
 func randInt(interpreter *Interpreter) {
-	interpreter.Push(float(rand.Int()))
+	interpreter.Push(float64(rand.Int()))
 }
 
 var randGenerator *rand.Rand
@@ -127,7 +127,7 @@ func srand(interpreter *Interpreter) {
 }
 //– rrand int -> Return random number seed
 func rrand(interpreter *Interpreter) {
-	interpreter.Push(float(randGenerator.Int()))
+	interpreter.Push(float64(randGenerator.Int()))
 }
 
 func initMathOperators(interpreter *Interpreter) {

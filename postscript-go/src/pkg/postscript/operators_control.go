@@ -53,7 +53,7 @@ func foroperator(interpreter *Interpreter) {
 func repeat(interpreter *Interpreter) {
 	proc := NewProcedure(interpreter.PopProcedureDefinition())
 	times := interpreter.PopInt()
-	for i := 0; i <= times; i++  {
+	for i := 0; i <= times; i++ {
 		proc.Execute(interpreter)
 	}
 }

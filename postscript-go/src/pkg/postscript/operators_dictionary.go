@@ -14,12 +14,12 @@ func dict(interpreter *Interpreter) {
 //dict length int -> Return number of entries in dict
 func lengthdict(interpreter *Interpreter) {
 	dictionary := interpreter.Pop().(Dictionary)
-	interpreter.Push(float(len(dictionary)))
+	interpreter.Push(float64(len(dictionary)))
 }
 //dict maxlength int -> Return current capacity of dict
 func maxlength(interpreter *Interpreter) {
 	interpreter.Pop()
-	interpreter.Push(float(999999999)) // push arbitrary value
+	interpreter.Push(float64(999999999)) // push arbitrary value
 }
 //dict begin – -> Push dict on dictionary stack
 func begin(interpreter *Interpreter) {
@@ -133,7 +133,7 @@ func statusdict(interpreter *Interpreter) {
 }
 //– countdictstack int -> Count elements on dictionary stack
 func countdictstack(interpreter *Interpreter) {
-	interpreter.Push(float(interpreter.DictionaryStackSize()))
+	interpreter.Push(float64(interpreter.DictionaryStackSize()))
 }
 //array dictstack subarray -> Copy dictionary stack into array
 func dictstack(interpreter *Interpreter) {

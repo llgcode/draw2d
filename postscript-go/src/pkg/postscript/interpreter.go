@@ -96,7 +96,7 @@ func (interpreter *Interpreter) scan(scanner *Scanner, token int) {
 		// procedure
 		interpreter.Push(interpreter.scanProcedure(scanner))
 	} else if token == Float || token == Int {
-		f, err := strconv.Atof(scanner.TokenText())
+		f, err := strconv.Atof64(scanner.TokenText())
 		if err != nil {
 			log.Printf("Float expected: %s\n", scanner.TokenText())
 			interpreter.Push(scanner.TokenText())
@@ -262,9 +262,9 @@ func (interpreter *Interpreter) ClearOperands() {
 
 // misc pop
 
-func (interpreter *Interpreter) PopFloat() float {
+func (interpreter *Interpreter) PopFloat() float64 {
 	operand := interpreter.Pop()
-	return operand.(float)
+	return operand.(float64)
 }
 
 func (interpreter *Interpreter) PopInt() int {

@@ -71,7 +71,7 @@ func counttomark(interpreter *Interpreter) {
 	for _, ok := value.(Mark); !ok; i++ {
 		value = interpreter.Get(i)
 	}
-	interpreter.Push(float(i))
+	interpreter.Push(float64(i))
 }
 
 func initStackOperator(interpreter *Interpreter) {

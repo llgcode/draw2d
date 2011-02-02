@@ -11,7 +11,7 @@ func array(interpreter *Interpreter) {
 }
 //array length int -> Return number of elements in array
 func lengtharray(interpreter *Interpreter) {
-	interpreter.Push(float(len(interpreter.Pop().([]Value))))
+	interpreter.Push(float64(len(interpreter.Pop().([]Value))))
 }
 //array  index get any -> Return array element indexed by index
 func getarray(interpreter *Interpreter) {

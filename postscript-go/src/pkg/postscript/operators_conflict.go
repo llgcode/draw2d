@@ -9,7 +9,7 @@ import (
 // type dicriminant
 func commonCopy(interpreter *Interpreter) {
 	switch v := interpreter.Peek().(type) {
-	case float:
+	case float64:
 		copystack(interpreter)
 	case Dictionary:
 		copydict(interpreter)

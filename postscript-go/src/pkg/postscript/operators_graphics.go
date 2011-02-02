@@ -77,7 +77,7 @@ func arc(interpreter *Interpreter) {
 	r := interpreter.PopFloat()
 	y := interpreter.PopFloat()
 	x := interpreter.PopFloat()
-	interpreter.GetGraphicContext().ArcTo(x, y, r, r, angle1, angle2 - angle1)
+	interpreter.GetGraphicContext().ArcTo(x, y, r, r, angle1, angle2-angle1)
 }
 
 func clippath(interpreter *Interpreter) {
@@ -116,14 +116,14 @@ func setrgbcolor(interpreter *Interpreter) {
 	interpreter.GetGraphicContext().SetFillColor(color)
 }
 
-func hsbtorgb(hue, saturation, brightness float) (red, green, blue int) {
-	var fr, fg, fb float
+func hsbtorgb(hue, saturation, brightness float64) (red, green, blue int) {
+	var fr, fg, fb float64
 	if saturation == 0 {
 		fr, fg, fb = brightness, brightness, brightness
 	} else {
-		H := (hue - float(math.Floor(float64(hue)))) * 6
-		I := int(math.Floor(float64(H)))
-		F := H - float(I)
+		H := (hue - math.Floor(hue)) * 6
+		I := int(math.Floor(H))
+		F := H - float64(I)
 		M := brightness * (1 - saturation)
 		N := brightness * (1 - saturation*F)
 		K := brightness * (1 - saturation*(1-F))
@@ -335,10 +335,10 @@ func concatmatrix(interpreter *Interpreter) {
 func transform(interpreter *Interpreter) {
 	value := interpreter.Pop()
 	matrix, ok := value.(draw2d.MatrixTransform)
-	var y float 
-	if(!ok) {
+	var y float64
+	if !ok {
 		matrix = interpreter.GetGraphicContext().GetMatrixTransform()
-		y = value.(float)
+		y = value.(float64)
 	} else {
 		y = interpreter.PopFloat()
 	}
@@ -351,10 +351,10 @@ func transform(interpreter *Interpreter) {
 func itransform(interpreter *Interpreter) {
 	value := interpreter.Pop()
 	matrix, ok := value.(draw2d.MatrixTransform)
-	var y float 
-	if(!ok) {
+	var y float64
+	if !ok {
 		matrix = interpreter.GetGraphicContext().GetMatrixTransform()
-		y = value.(float)
+		y = value.(float64)
 	} else {
 		y = interpreter.PopFloat()
 	}
@@ -367,15 +367,15 @@ func itransform(interpreter *Interpreter) {
 func translate(interpreter *Interpreter) {
 	value := interpreter.Pop()
 	matrix, ok := value.(draw2d.MatrixTransform)
-	var y float 
-	if(!ok) {
+	var y float64
+	if !ok {
 		matrix = interpreter.GetGraphicContext().GetMatrixTransform()
-		y = value.(float)
+		y = value.(float64)
 	} else {
 		y = interpreter.PopFloat()
 	}
 	x := interpreter.PopFloat()
-	if(!ok) {
+	if !ok {
 		interpreter.GetGraphicContext().Translate(x, y)
 	} else {
 		matrix = draw2d.NewTranslationMatrix(x, y).Multiply(matrix)
@@ -386,14 +386,14 @@ func translate(interpreter *Interpreter) {
 func rotate(interpreter *Interpreter) {
 	value := interpreter.Pop()
 	matrix, ok := value.(draw2d.MatrixTransform)
-	var angle float 
-	if(!ok) {
+	var angle float64
+	if !ok {
 		matrix = interpreter.GetGraphicContext().GetMatrixTransform()
-		angle = value.(float) * math.Pi / 180
+		angle = value.(float64) * math.Pi / 180
 	} else {
 		angle = interpreter.PopFloat() * math.Pi / 180
 	}
-	if(!ok) {
+	if !ok {
 		interpreter.GetGraphicContext().Rotate(angle)
 	} else {
 		matrix = draw2d.NewRotationMatrix(angle).Multiply(matrix)
@@ -404,15 +404,15 @@ func rotate(interpreter *Interpreter) {
 func scale(interpreter *Interpreter) {
 	value := interpreter.Pop()
 	matrix, ok := value.(draw2d.MatrixTransform)
-	var y float 
-	if(!ok) {
+	var y float64
+	if !ok {
 		matrix = interpreter.GetGraphicContext().GetMatrixTransform()
-		y = value.(float)
+		y = value.(float64)
 	} else {
 		y = interpreter.PopFloat()
 	}
 	x := interpreter.PopFloat()
-	if(!ok) {
+	if !ok {
 		interpreter.GetGraphicContext().Scale(x, y)
 	} else {
 		matrix = draw2d.NewScaleMatrix(x, y).Multiply(matrix)
