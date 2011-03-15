@@ -6,7 +6,9 @@ import (
 	"time"
 	"log"
 	"os"
+	"io/ioutil"
 	"bufio"
+	"strings"
 	"image"
 	"image/png"
 	"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
@@ -43,8 +45,15 @@ func main() {
 	gc.Scale(1, -1)
 	gc.Translate(0, -380)
 	lastTime := time.Nanoseconds()
+	src, err := os.Open("../../test_files/tiger.ps", 0, 0)
+	if err != nil {
+		return 
+	}
+	defer src.Close()
+	bytes, err := ioutil.ReadAll(src)
+	reader := strings.NewReader(string(bytes))
 	interpreter := postscript.NewInterpreter(gc)
-	interpreter.ExecuteFile("../../test_files/tiger.ps")
+	interpreter.Execute(reader)
 	dt := time.Nanoseconds() - lastTime
 	fmt.Printf("Draw image: %f ms\n", float64(dt)*1e-6)
 	saveToPngFile("../../TestPostscript.png", i)

@@ -7,6 +7,7 @@ import (
 	"os"
 	"log"
 	"strconv"
+	"io"
 	"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
 )
 
@@ -47,20 +48,25 @@ func NewDictionary(prealloc int) Dictionary {
 func (interpreter *Interpreter) GetGraphicContext() *draw2d.GraphicContext {
 	return interpreter.gc
 }
-
-func (interpreter *Interpreter) ExecuteFile(filePath string) {
-	src, err := os.Open(filePath, 0, 0)
-	if src == nil {
-		log.Printf("can't open file; err=%s\n", err.String())
-		return
-	}
+func (interpreter *Interpreter) Execute(reader io.Reader) {
 	var scanner Scanner
-	scanner.Init(src)
+	scanner.Init(reader)
 	token := scanner.Scan()
 	for token != EOF {
 		interpreter.scan(&scanner, token)
 		token = scanner.Scan()
 	}
+}
+
+func (interpreter *Interpreter) ExecuteFile(filePath string) os.Error {
+	src, err := os.Open(filePath, 0, 0)
+	if src == nil {
+		log.Printf("can't open file; err=%s\n", err.String())
+		return err
+	}
+	defer src.Close()
+	interpreter.Execute(src)
+	return nil
 }
 func (interpreter *Interpreter) computeReference(ref string) {
 	value, _ := interpreter.FindValueInDictionaries(ref)
