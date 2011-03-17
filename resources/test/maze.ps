@@ -1,0 +1,275 @@
+%!PS
+%%Pages: 1
+%%EndComments
+
+% Yet Another Maze Maker
+% Version 2
+% Written by Peter Sorotokin, 1996-1998
+% This program is in the public domain.
+
+% Note: do not send this job to the printer until you know
+% how to cancel it (it may take a LOT of time on slow printer;
+% it takes couple minutes on my LaserJet 4).
+
+%%BeginSetup
+
+% put your sizes here:
+
+/width  25 def
+/height 25 def
+
+% seed number here:
+
+0 srand % put your seed number instead of 0 (normally not required)
+systemdict /realtime known { realtime srand } if
+
+% initialization
+
+/size  width height mul def
+/zone  size array def
+/zsize size array def
+/vert  width 1 add array def
+/hor   height 1 add array def
+
+/w1 width 1 sub def
+/h1 height 1 sub def
+
+0 1 size 1 sub { dup zsize exch 1 put zone exch dup put } bind for
+0 1 width { vert exch height string 0 1 h1
+    { 1 index exch 255 put } for put } bind for
+0 1 height { hor exch width string 0 1 w1
+    { 1 index exch 255 put } for put } bind for
+
+% define subroutines
+
+/db { dup 20 string cvs = } bind def
+
+/find_set { { zone 1 index get dup 3 1 roll eq {exit} if } loop} bind def
+
+/merge_sets {
+  2 copy zsize exch get
+  exch zsize exch get 2 copy gt
+  3 1 roll add exch
+    { zsize 2 index 3 -1 roll put
+        zone 3 1 roll put  }
+    { zsize 3 index 3 -1 roll put
+        zone 3 1 roll exch put  }
+  ifelse } bind def
+
+%%EndSetup
+
+%%Page: maze 1
+
+% building
+
+size 1 sub
+{
+    {
+        rand 2 mod 0 eq
+        {
+            rand height mod
+            rand w1 mod 2 copy
+            height mul add
+            dup height add
+            find_set exch find_set
+            2 copy eq
+            {
+                pop pop pop pop
+            }
+            {
+                merge_sets vert exch 1 add get exch 0 put exit
+            }
+            ifelse
+        }
+        {
+            rand h1 mod
+            rand width mod 2 copy
+            height mul add
+            dup 1 add
+            find_set exch find_set
+            2 copy eq
+            {
+                pop pop pop pop
+            }
+            {
+                merge_sets exch hor exch 1 add get exch 0 put exit
+            }
+            ifelse
+        }
+        ifelse
+    }
+    loop
+} bind repeat
+
+% make entrance and exit
+
+vert 0     get rand height mod 0 put
+vert width get rand height mod 0 put
+
+% setup output
+
+clippath pathbbox
+2 index sub exch
+3 index sub exch
+4 2 roll translate
+2 copy height 4 add div exch width 4 add div
+2 copy gt {exch} if pop /myscale exch def
+
+myscale height mul sub 2 div exch
+myscale width  mul sub 2 div exch
+translate
+
+myscale myscale scale
+0.05 setlinewidth
+
+newpath
+
+% render the maze
+
+0 1 width { dup 0 moveto vert exch get 0 1 height 1 sub
+ { 1 index exch get 0 eq 0 1 3 -1 roll { rmoveto } { rlineto } ifelse }
+            for pop } bind for
+
+0 1 height { dup 0 exch moveto hor exch get 0 1 width 1 sub
+ { 1 index exch get 0 eq 1 0 3 -1 roll { rmoveto } { rlineto } ifelse }
+            for pop } bind for
+
+stroke
+
+stroke
+
+% Quick hack to solve the maze.
+% This part written by Christian Lehner.
+
+clear
+
+/NORTH 1 def
+/WEST 2 def
+/SOUTH 4 def
+/EAST 8 def
+/CRUMB 16 def
+
+/find_door {% column => index
+	dup 0 1 3 -1 roll length 1 sub {
+		2 copy get 0 eq {
+			exch pop
+			exit
+		} {
+			pop
+		} ifelse
+	} for
+} bind def
+
+/mentrance vert 0 get find_door def
+/mexit vert width get find_door def
+
+/maze [height {[width {0} repeat]} repeat] def
+
+/mget {% row col => int
+	maze 3 -1 roll get exch get
+} bind def
+
+/mset {% row col int => -
+	maze 4 -1 roll get 3 -2 roll put
+} bind def
+
+/initmaze {
+	0 1 height 1 sub {/row exch def
+		/mrow maze row get def
+		0 1 width 1 sub {/col exch def
+			% north
+			hor row 1 add get col get 0 eq {
+				mrow col 2 copy get //NORTH or put
+			} if
+			% west
+			vert col get row get 0 eq {
+				mrow col 2 copy get //WEST or put
+			} if
+			% south
+			hor row get col get 0 eq {
+				mrow col 2 copy get //SOUTH or put
+			} if
+			% east
+			vert col 1 add get row get 0 eq {
+				mrow col 2 copy get //EAST or put
+			} if
+		} for
+	} for
+} bind def
+
+/step {% row col side => row' col'
+	/side exch def
+	/col exch def
+	/row exch def
+	side //NORTH eq {
+		row 1 add col
+	} {
+		side //WEST eq {
+			row col 1 sub
+		} {
+			side //SOUTH eq {
+				row 1 sub col
+			} {
+				side //EAST eq {
+					row col 1 add
+				} {
+					(step: bad side ) print side ==
+				} ifelse
+			} ifelse
+		} ifelse
+	} ifelse
+} bind def
+
+/done false def
+
+/escape {% row col => -
+	/col exch def
+	/row exch def
+	row mexit eq col width 1 sub eq and {
+		(done)==
+		row col
+		/done true store
+	} {
+		row col 2 copy mget //CRUMB or mset
+		row col
+		[//NORTH //WEST //SOUTH //EAST] {/side exch def
+			done {exit} if
+			2 copy mget /val exch def
+			val side and 0 ne {
+				2 copy side step 2 copy
+				mget /val exch def
+				val //CRUMB and 0 eq {
+					escape
+				} {
+					pop pop
+				} ifelse
+			} if
+		} forall
+		done not {
+			pop pop
+		} if
+	} ifelse
+} bind def
+
+/solve {
+	% close the entrance
+	vert 0 get mentrance 1 put
+	initmaze
+	% start the escape
+	/path [mentrance -1 mentrance 0 escape 2 copy 1 add] def
+	% draw the path
+	.5 setgray
+	.5 .5 translate
+	path 1 get path 0 get moveto
+	2 2 path length 1 sub {/i exch def
+		path i 1 add get path i get lineto
+	} for
+	stroke
+	showpage
+} bind def
+
+% eject the page
+
+copypage solve
+
+%%EOF
