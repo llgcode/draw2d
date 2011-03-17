@@ -6,8 +6,7 @@ import (
 	"exp/draw/x11"
 	"image"
 	"math"
-	//"draw2d"
-	"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
+	"draw2d.googlecode.com/hg/draw2d"
 )
 
 func main() {

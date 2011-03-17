@@ -11,8 +11,7 @@ import (
 
 	"image"
 	"image/png"
-	//"draw2d"
-	"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
+	"draw2d.googlecode.com/hg/draw2d"
 )
 
 

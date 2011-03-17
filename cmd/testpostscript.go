@@ -11,9 +11,8 @@ import (
 	"strings"
 	"image"
 	"image/png"
-	"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
-	"postscript"
-	//"postscript-go.googlecode.com/svn/trunk/postscript-go/src/pkg/postscript"
+	"draw2d.googlecode.com/hg/draw2d"
+	"draw2d.googlecode.com/hg/postscript"
 )
 
 
@@ -45,7 +44,7 @@ func main() {
 	gc.Scale(1, -1)
 	gc.Translate(0, -380)
 	lastTime := time.Nanoseconds()
-	src, err := os.Open("../../test_files/tiger.ps", 0, 0)
+	src, err := os.Open("../resource/postscript/tiger.ps", 0, 0)
 	if err != nil {
 		return 
 	}
@@ -56,5 +55,5 @@ func main() {
 	interpreter.Execute(reader)
 	dt := time.Nanoseconds() - lastTime
 	fmt.Printf("Draw image: %f ms\n", float64(dt)*1e-6)
-	saveToPngFile("../../TestPostscript.png", i)
+	saveToPngFile("../resource/result/TestPostscript.png", i)
 }
