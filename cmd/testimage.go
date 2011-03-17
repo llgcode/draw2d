@@ -9,8 +9,7 @@ import (
 	"image"
 	"time"
 	"image/png"
-	//"draw2d"
-	"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
+	"draw2d.googlecode.com/hg/draw2d"
 )
 
 
@@ -67,7 +66,7 @@ func testBubble(gc *draw2d.GraphicContext) {
 
 func main() {
 
-	source := loadFromPngFile("../../Varna_Railway_Station_HDR.png")
+	source := loadFromPngFile("../resource/image/Varna_Railway_Station_HDR.png")
 	i := image.NewRGBA(1024, 768)
 	gc := draw2d.NewGraphicContext(i)
 	gc.Scale(2, 0.5)
@@ -77,5 +76,5 @@ func main() {
 	gc.DrawImage(source)
 	dt := time.Nanoseconds() - lastTime
 	fmt.Printf("Draw image: %f ms\n", float64(dt)*1e-6)
-	saveToPngFile("../../TestDrawImage.png", i)
+	saveToPngFile("../resource/result/TestDrawImage.png", i)
 }

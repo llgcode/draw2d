@@ -85,7 +85,7 @@ func (p *PathStorage) QuadCurveTo(cx, cy, x, y float64) *PathStorage {
 
 func (p *PathStorage) RQuadCurveTo(dcx, dcy, dx, dy float64) *PathStorage {
 	x, y := p.LastPoint()
-	p.RQuadCurveTo(x+dcx, y+dcy, x+dx, y+dy)
+	p.QuadCurveTo(x+dcx, y+dcy, x+dx, y+dy)
 	return p
 }
 
@@ -98,7 +98,7 @@ func (p *PathStorage) CubicCurveTo(cx1, cy1, cx2, cy2, x, y float64) *PathStorag
 
 func (p *PathStorage) RCubicCurveTo(dcx1, dcy1, dcx2, dcy2, dx, dy float64) *PathStorage {
 	x, y := p.LastPoint()
-	p.RCubicCurveTo(x+dcx1, y+dcy1, x+dcx2, y+dcy2, x+dx, y+dy)
+	p.CubicCurveTo(x+dcx1, y+dcy1, x+dcx2, y+dcy2, x+dx, y+dy)
 	return p
 }
 
@@ -133,7 +133,7 @@ func (p *PathStorage) ArcTo(cx, cy, rx, ry, startAngle, angle float64) *PathStor
 
 func (p *PathStorage) RArcTo(dcx, dcy, rx, ry, startAngle, angle float64) *PathStorage {
 	x, y := p.LastPoint()
-	p.RArcTo(x+dcx, y+dcy, rx, ry, startAngle, angle)
+	p.ArcTo(x+dcx, y+dcy, rx, ry, startAngle, angle)
 	return p
 }
 

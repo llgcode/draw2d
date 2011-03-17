@@ -14,7 +14,7 @@ import (
 
 
 var (
-	fontFolder = "../../fonts/"
+	fontFolder = "../resource/font/"
 	fonts      = make(map[string]*truetype.Font)
 )
 

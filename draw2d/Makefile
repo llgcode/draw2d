@@ -1,6 +1,6 @@
 include $(GOROOT)/src/Make.inc
 
-TARG=draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d
+TARG=draw2d.googlecode.com/hg/draw2d
 GOFILES=\
 	arc.go\
 	curves.go\

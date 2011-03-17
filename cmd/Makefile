@@ -1,7 +1,7 @@
 
 include $(GOROOT)/src/Make.inc
 
-TARG=gettingStarted testdraw2d testX11draw testandroid testgopher testpostscript
+TARG=gettingStarted testdraw2d testX11draw testandroid testgopher testimage testpostscript
 
 OFILES=$(TARG:%=%.$O)
 

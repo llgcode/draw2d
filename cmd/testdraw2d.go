@@ -13,8 +13,7 @@ import (
 	"math"
 	"image"
 	"image/png"
-	//"draw2d"
-	"draw2d.googlecode.com/svn/trunk/draw2d/src/pkg/draw2d"
+	"draw2d.googlecode.com/hg/draw2d"
 )
 
 const (
@@ -23,7 +22,7 @@ const (
 
 var (
 	lastTime int64
-	folder   = "../../../../wiki/test_results/"
+	folder   = "../resource/result/"
 )
 
 func initGc(w, h int) (image.Image, *draw2d.GraphicContext) {
@@ -489,7 +488,7 @@ func TestPathTransform() {
 }
 
 func TestFillString() {
-	draw2d.SetFontFolder("../../fonts/")
+	draw2d.SetFontFolder("../resource/font/")
 	i, gc := initGc(100, 100)
 	draw2d.RoundRect(gc, 5, 5, 95, 95, 10, 10)
 	gc.FillStroke()
