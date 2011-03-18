@@ -94,8 +94,8 @@ func TestDrawArc() {
 	gc.ArcTo(xc, yc, radiusX, radiusY, startAngle, angle)
 	gc.Stroke()
 	// fill a circle
-	gc.SetStrokeColor(image.RGBAColor{255, 0x33, 0x33, 0x80})
-	gc.SetFillColor(image.RGBAColor{255, 0x33, 0x33, 0x80})
+	gc.SetStrokeColor(image.NRGBAColor{255, 0x33, 0x33, 0x80})
+	gc.SetFillColor(image.NRGBAColor{255, 0x33, 0x33, 0x80})
 	gc.SetLineWidth(6)
 
 	gc.MoveTo(xc, yc)
@@ -125,8 +125,8 @@ func TestDrawArcNegative() {
 	gc.ArcTo(xc, yc, radiusX, radiusY, startAngle, angle)
 	gc.Stroke()
 	// fill a circle
-	gc.SetStrokeColor(image.RGBAColor{255, 0x33, 0x33, 0x80})
-	gc.SetFillColor(image.RGBAColor{255, 0x33, 0x33, 0x80})
+	gc.SetStrokeColor(image.NRGBAColor{255, 0x33, 0x33, 0x80})
+	gc.SetFillColor(image.NRGBAColor{255, 0x33, 0x33, 0x80})
 	gc.SetLineWidth(6)
 
 	gc.MoveTo(xc, yc)
@@ -187,8 +187,8 @@ func TestCurveRectangle() {
 	}
 	gc.Close()
 
-	gc.SetFillColor(image.RGBAColor{0x80, 0x80, 0xFF, 0xFF})
-	gc.SetStrokeColor(image.RGBAColor{0x80, 0, 0, 0x80})
+	gc.SetFillColor(image.NRGBAColor{0x80, 0x80, 0xFF, 0xFF})
+	gc.SetStrokeColor(image.NRGBAColor{0x80, 0, 0, 0x80})
 	gc.SetLineWidth(10.0)
 	gc.FillStroke()
 
@@ -205,13 +205,13 @@ func TestDrawCubicCurve() {
 	x2, y2 := 153.6, 25.6
 	x3, y3 := 230.4, 128.0
 
-	gc.SetFillColor(image.RGBAColor{0xAA, 0xAA, 0xAA, 0xFF})
+	gc.SetFillColor(image.NRGBAColor{0xAA, 0xAA, 0xAA, 0xFF})
 	gc.SetLineWidth(10)
 	gc.MoveTo(x, y)
 	gc.CubicCurveTo(x1, y1, x2, y2, x3, y3)
 	gc.Stroke()
 
-	gc.SetStrokeColor(image.RGBAColor{0xFF, 0x33, 0x33, 0x88})
+	gc.SetStrokeColor(image.NRGBAColor{0xFF, 0x33, 0x33, 0x88})
 
 	gc.SetLineWidth(6)
 	// draw segment of curve
@@ -262,7 +262,7 @@ func TestFillStroke() {
 	gc.Close()
 
 	gc.SetLineWidth(10.0)
-	gc.SetFillColor(image.RGBAColor{0, 0, 0xFF, 0xFF})
+	gc.SetFillColor(image.NRGBAColor{0, 0, 0xFF, 0xFF})
 	gc.SetStrokeColor(image.Black)
 	gc.FillStroke()
 	saveToPngFile("TestFillStroke", i)
@@ -283,7 +283,7 @@ func TestFillStyle() {
 	wheel2.ArcTo(192, 64, 40, 40, 0, 2*math.Pi)
 
 	gc.SetFillRule(draw2d.FillRuleEvenOdd)
-	gc.SetFillColor(image.RGBAColor{0, 0xB2, 0, 0xFF})
+	gc.SetFillColor(image.NRGBAColor{0, 0xB2, 0, 0xFF})
 
 	gc.SetStrokeColor(image.Black)
 	gc.FillStroke(wheel1, wheel2)
@@ -295,7 +295,7 @@ func TestFillStyle() {
 	wheel2.ArcTo(192, 192, 40, 40, 0, -2*math.Pi)
 
 	gc.SetFillRule(draw2d.FillRuleWinding)
-	gc.SetFillColor(image.RGBAColor{0, 0, 0xE5, 0xFF})
+	gc.SetFillColor(image.NRGBAColor{0, 0, 0xE5, 0xFF})
 	gc.FillStroke(wheel1, wheel2)
 	saveToPngFile("TestFillStyle", i)
 }
@@ -335,8 +335,8 @@ func TestRoundRectangle() {
 	gc.ArcTo(x+radius, y+radius, radius, radius, 180*degrees, 90*degrees)
 	gc.Close()
 
-	gc.SetFillColor(image.RGBAColor{0x80, 0x80, 0xFF, 0xFF})
-	gc.SetStrokeColor(image.RGBAColor{0x80, 0, 0, 0x80})
+	gc.SetFillColor(image.NRGBAColor{0x80, 0x80, 0xFF, 0xFF})
+	gc.SetStrokeColor(image.NRGBAColor{0x80, 0, 0, 0x80})
 	gc.SetLineWidth(10.0)
 	gc.FillStroke()
 
@@ -360,7 +360,7 @@ func TestLineCap() {
 	gc.Stroke()
 
 	/* draw helping lines */
-	gc.SetStrokeColor(image.RGBAColor{0xFF, 0x33, 0x33, 0xFF})
+	gc.SetStrokeColor(image.NRGBAColor{0xFF, 0x33, 0x33, 0xFF})
 	gc.SetLineWidth(2.56)
 	gc.MoveTo(64.0, 50.0)
 	gc.LineTo(64.0, 200.0)
