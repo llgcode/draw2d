@@ -1,9 +1,9 @@
 // Copyright 2010 The draw2d Authors. All rights reserved.
 // created: 21/11/2010 by Laurent Le Goff
-
 package draw2d
 
 type Path interface {
+	LastPoint() (x, y float64)
 	MoveTo(x, y float64)
 	RMoveTo(dx, dy float64)
 	LineTo(x, y float64)
@@ -15,20 +15,4 @@ type Path interface {
 	ArcTo(cx, cy, rx, ry, startAngle, angle float64)
 	RArcTo(dcx, dcy, rx, ry, startAngle, angle float64)
 	Close()
-}
-
-
-type VertexCommand byte
-
-const (
-	VertexNoCommand VertexCommand = iota
-	VertexStartCommand
-	VertexJoinCommand
-	VertexCloseCommand
-	VertexStopCommand
-)
-
-type VertexConverter interface {
-	NextCommand(cmd VertexCommand)
-	Vertex(x, y float64)
 }
