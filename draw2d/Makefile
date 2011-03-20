@@ -16,5 +16,6 @@ GOFILES=\
 	path_storage.go\
 	stroker.go\
 	advanced_path.go\
+	vertex2d.go\
 
 include $(GOROOT)/src/Make.pkg
