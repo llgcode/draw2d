@@ -23,9 +23,9 @@ var (
 	folder   = "../resource/result/"
 )
 
-func initGc(w, h int) (image.Image, *draw2d.GraphicContext) {
+func initGc(w, h int) (image.Image, draw2d.GraphicContext) {
 	i := image.NewRGBA(w, h)
-	gc := draw2d.NewGraphicContext(i)
+	gc := draw2d.NewImageGraphicContext(i)
 	lastTime = time.Nanoseconds()
 
 	gc.SetStrokeColor(image.Black)
@@ -60,7 +60,7 @@ func saveToPngFile(TestName string, m image.Image) {
 	fmt.Printf("Wrote %s OK.\n", filePath)
 }
 
-func android(gc *draw2d.GraphicContext, x, y float64) {
+func android(gc draw2d.GraphicContext, x, y float64) {
 	gc.SetLineCap(draw2d.RoundCap)
 	gc.SetLineWidth(5)
 	gc.ArcTo(x+80, y+70, 50, 50, 180*(math.Pi/180), 360*(math.Pi/180)) // head

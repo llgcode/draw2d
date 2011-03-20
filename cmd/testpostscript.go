@@ -39,12 +39,12 @@ func saveToPngFile(filePath string, m image.Image) {
 
 func main() {
 	i := image.NewRGBA(600, 800)
-	gc := draw2d.NewGraphicContext(i)
+	gc := draw2d.NewImageGraphicContext(i)
 	gc.Translate(0, 380)
 	gc.Scale(1, -1)
 	gc.Translate(0, -380)
 	lastTime := time.Nanoseconds()
-	src, err := os.Open("../resource/postscript/tiger.ps", 0, 0)
+	src, err := os.Open("../resource/postscript/Mand.ps", 0, 0)
 	if err != nil {
 		return 
 	}

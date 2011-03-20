@@ -15,7 +15,7 @@ import (
 type Interpreter struct {
 	valueStack      ValueStack
 	dictionaryStack DictionaryStack
-	gc              *draw2d.GraphicContext
+	gc              draw2d.GraphicContext
 }
 
 type Value interface{}
@@ -30,7 +30,7 @@ type Operator interface {
 	Execute(interpreter *Interpreter)
 }
 
-func NewInterpreter(gc *draw2d.GraphicContext) *Interpreter {
+func NewInterpreter(gc draw2d.GraphicContext) *Interpreter {
 	interpreter := new(Interpreter)
 	interpreter.valueStack = make([]Value, 0, 100)
 	interpreter.dictionaryStack = make([]Dictionary, 2, 10)
@@ -45,7 +45,7 @@ func NewDictionary(prealloc int) Dictionary {
 	return make(Dictionary, prealloc)
 }
 
-func (interpreter *Interpreter) GetGraphicContext() *draw2d.GraphicContext {
+func (interpreter *Interpreter) GetGraphicContext() draw2d.GraphicContext {
 	return interpreter.gc
 }
 func (interpreter *Interpreter) Execute(reader io.Reader) {
