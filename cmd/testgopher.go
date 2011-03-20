@@ -23,9 +23,9 @@ var (
 	folder   = "../resource/result/"
 )
 
-func initGc(w, h int) (image.Image, *draw2d.GraphicContext) {
+func initGc(w, h int) (image.Image, draw2d.GraphicContext) {
 	i := image.NewRGBA(w, h)
-	gc := draw2d.NewGraphicContext(i)
+	gc := draw2d.NewImageGraphicContext(i)
 	lastTime = time.Nanoseconds()
 
 	gc.SetStrokeColor(image.Black)
@@ -60,7 +60,7 @@ func saveToPngFile(TestName string, m image.Image) {
 	fmt.Printf("Wrote %s OK.\n", filePath)
 }
 
-func gordon(gc *draw2d.GraphicContext, x, y, w, h float64) {
+func gordon(gc draw2d.GraphicContext, x, y, w, h float64) {
 	h23 := (h * 2) / 3
 
 	blf := image.RGBAColor{0, 0, 0, 0xff}

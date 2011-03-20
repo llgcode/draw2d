@@ -52,7 +52,7 @@ func loadFromPngFile(filePath string) image.Image {
 }
 
 
-func testBubble(gc *draw2d.GraphicContext) {
+func testBubble(gc draw2d.GraphicContext) {
 	gc.BeginPath()
 	gc.MoveTo(75, 25)
 	gc.QuadCurveTo(25, 25, 25, 62.5)
@@ -68,7 +68,7 @@ func main() {
 
 	source := loadFromPngFile("../resource/image/Varna_Railway_Station_HDR.png")
 	i := image.NewRGBA(1024, 768)
-	gc := draw2d.NewGraphicContext(i)
+	gc := draw2d.NewImageGraphicContext(i)
 	gc.Scale(2, 0.5)
 	//gc.Translate(75, 25)
 	gc.Rotate(30 * math.Pi / 180)

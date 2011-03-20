@@ -17,7 +17,7 @@ func main() {
 	}
 	screen := window.Screen()
 	if rgba, ok := screen.(*image.RGBA); ok {
-		gc := draw2d.NewGraphicContext(rgba)
+		gc := draw2d.NewImageGraphicContext(rgba)
 		gc.SetStrokeColor(image.Black)
 		gc.SetFillColor(image.White)
 		gc.Clear()

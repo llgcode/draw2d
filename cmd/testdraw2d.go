@@ -25,9 +25,9 @@ var (
 	folder   = "../resource/result/"
 )
 
-func initGc(w, h int) (image.Image, *draw2d.GraphicContext) {
+func initGc(w, h int) (image.Image, draw2d.GraphicContext) {
 	i := image.NewRGBA(w, h)
-	gc := draw2d.NewGraphicContext(i)
+	gc := draw2d.NewImageGraphicContext(i)
 	lastTime = time.Nanoseconds()
 
 	gc.SetStrokeColor(image.Black)

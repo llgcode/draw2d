@@ -10,14 +10,7 @@ import (
 	"freetype-go.googlecode.com/hg/freetype/raster"
 )
 
-type FillRule int
-
-const (
-	FillRuleEvenOdd FillRule = iota
-	FillRuleWinding
-)
-
-type GraphicContext struct {
+type ImageGraphicContext struct {
 	PaintedImage     *image.RGBA
 	fillRasterizer   *raster.Rasterizer
 	strokeRasterizer *raster.Rasterizer
@@ -46,8 +39,8 @@ type contextStack struct {
 /**
  * Create a new Graphic context from an image
  */
-func NewGraphicContext(pi *image.RGBA) *GraphicContext {
-	gc := new(GraphicContext)
+func NewImageGraphicContext(pi *image.RGBA) *ImageGraphicContext {
+	gc := new(ImageGraphicContext)
 	gc.PaintedImage = pi
 	width, height := gc.PaintedImage.Bounds().Dx(), gc.PaintedImage.Bounds().Dy()
 	gc.fillRasterizer = raster.NewRasterizer(width, height)
@@ -76,96 +69,96 @@ func NewGraphicContext(pi *image.RGBA) *GraphicContext {
 	return gc
 }
 
-func (gc *GraphicContext) GetMatrixTransform() MatrixTransform {
+func (gc *ImageGraphicContext) GetMatrixTransform() MatrixTransform {
 	return gc.current.tr
 }
 
-func (gc *GraphicContext) SetMatrixTransform(tr MatrixTransform) {
+func (gc *ImageGraphicContext) SetMatrixTransform(tr MatrixTransform) {
 	gc.current.tr = tr
 }
 
-func (gc *GraphicContext) ComposeMatrixTransform(tr MatrixTransform) {
+func (gc *ImageGraphicContext) ComposeMatrixTransform(tr MatrixTransform) {
 	gc.current.tr = tr.Multiply(gc.current.tr)
 }
 
-func (gc *GraphicContext) Rotate(angle float64) {
+func (gc *ImageGraphicContext) Rotate(angle float64) {
 	gc.current.tr = NewRotationMatrix(angle).Multiply(gc.current.tr)
 }
 
-func (gc *GraphicContext) Translate(tx, ty float64) {
+func (gc *ImageGraphicContext) Translate(tx, ty float64) {
 	gc.current.tr = NewTranslationMatrix(tx, ty).Multiply(gc.current.tr)
 }
 
-func (gc *GraphicContext) Scale(sx, sy float64) {
+func (gc *ImageGraphicContext) Scale(sx, sy float64) {
 	gc.current.tr = NewScaleMatrix(sx, sy).Multiply(gc.current.tr)
 }
 
-func (gc *GraphicContext) Clear() {
+func (gc *ImageGraphicContext) Clear() {
 	width, height := gc.PaintedImage.Bounds().Dx(), gc.PaintedImage.Bounds().Dy()
 	gc.ClearRect(0, 0, width, height)
 }
 
-func (gc *GraphicContext) ClearRect(x1, y1, x2, y2 int) {
+func (gc *ImageGraphicContext) ClearRect(x1, y1, x2, y2 int) {
 	imageColor := image.NewColorImage(gc.current.fillColor)
 	draw.Draw(gc.PaintedImage, image.Rect(x1, y1, x2, y2), imageColor, image.ZP)
 }
 
-func (gc *GraphicContext) SetStrokeColor(c image.Color) {
+func (gc *ImageGraphicContext) SetStrokeColor(c image.Color) {
 	gc.current.strokeColor = c
 }
 
-func (gc *GraphicContext) SetFillColor(c image.Color) {
+func (gc *ImageGraphicContext) SetFillColor(c image.Color) {
 	gc.current.fillColor = c
 }
 
-func (gc *GraphicContext) SetFillRule(f FillRule) {
+func (gc *ImageGraphicContext) SetFillRule(f FillRule) {
 	gc.current.fillRule = f
 }
 
-func (gc *GraphicContext) SetLineWidth(lineWidth float64) {
+func (gc *ImageGraphicContext) SetLineWidth(lineWidth float64) {
 	gc.current.lineWidth = lineWidth
 }
 
-func (gc *GraphicContext) SetLineCap(cap Cap) {
+func (gc *ImageGraphicContext) SetLineCap(cap Cap) {
 	gc.current.cap = cap
 }
 
-func (gc *GraphicContext) SetLineJoin(join Join) {
+func (gc *ImageGraphicContext) SetLineJoin(join Join) {
 	gc.current.join = join
 }
 
-func (gc *GraphicContext) SetLineDash(dash []float64, dashOffset float64) {
+func (gc *ImageGraphicContext) SetLineDash(dash []float64, dashOffset float64) {
 	gc.current.dash = dash
 	gc.current.dashOffset = dashOffset
 }
 
-func (gc *GraphicContext) SetFontSize(fontSize float64) {
+func (gc *ImageGraphicContext) SetFontSize(fontSize float64) {
 	gc.current.fontSize = fontSize
 }
 
-func (gc *GraphicContext) GetFontSize() float64 {
+func (gc *ImageGraphicContext) GetFontSize() float64 {
 	return gc.current.fontSize
 }
 
-func (gc *GraphicContext) SetFontData(fontData FontData) {
+func (gc *ImageGraphicContext) SetFontData(fontData FontData) {
 	gc.current.fontData = fontData
 }
 
-func (gc *GraphicContext) GetFontData() FontData {
+func (gc *ImageGraphicContext) GetFontData() FontData {
 	return gc.current.fontData
 }
 
-func (gc *GraphicContext) SetDPI(dpi int) {
+func (gc *ImageGraphicContext) SetDPI(dpi int) {
 	gc.DPI = dpi
 	gc.freetype.SetDPI(dpi)
 }
 
-func (gc *GraphicContext) GetDPI() int {
+func (gc *ImageGraphicContext) GetDPI() int {
 	return gc.DPI
 }
 
 
-func (gc *GraphicContext) Save() {
+func (gc *ImageGraphicContext) Save() {
 	context := new(contextStack)
 	context.fontSize = gc.current.fontSize
 	context.fontData = gc.current.fontData
@@ -183,7 +176,7 @@ func (gc *GraphicContext) Save() {
 	gc.current = context
 }
 
-func (gc *GraphicContext) Restore() {
+func (gc *ImageGraphicContext) Restore() {
 	if gc.current.previous != nil {
 		oldContext := gc.current
 		gc.current = gc.current.previous
@@ -191,7 +184,7 @@ func (gc *GraphicContext) Restore() {
 	}
 }
 
-func (gc *GraphicContext) DrawImage(image image.Image) {
+func (gc *ImageGraphicContext) DrawImage(image image.Image) {
 	width := raster.Fix32(gc.PaintedImage.Bounds().Dx() * 256)
 	height := raster.Fix32(gc.PaintedImage.Bounds().Dy() * 256)
 
@@ -223,63 +216,63 @@ func (gc *GraphicContext) DrawImage(image image.Image) {
 	}
 }
 
-func (gc *GraphicContext) BeginPath() {
+func (gc *ImageGraphicContext) BeginPath() {
 	gc.current.path = new(PathStorage)
 }
 
-func (gc *GraphicContext) IsEmpty() bool {
+func (gc *ImageGraphicContext) IsEmpty() bool {
 	return gc.current.path.IsEmpty()
 }
 
-func (gc *GraphicContext) LastPoint() (float64, float64) {
+func (gc *ImageGraphicContext) LastPoint() (float64, float64) {
 	return gc.current.path.LastPoint()
 }
 
-func (gc *GraphicContext) MoveTo(x, y float64) {
+func (gc *ImageGraphicContext) MoveTo(x, y float64) {
 	gc.current.path.MoveTo(x, y)
 }
 
-func (gc *GraphicContext) RMoveTo(dx, dy float64) {
+func (gc *ImageGraphicContext) RMoveTo(dx, dy float64) {
 	gc.current.path.RMoveTo(dx, dy)
 }
 
-func (gc *GraphicContext) LineTo(x, y float64) {
+func (gc *ImageGraphicContext) LineTo(x, y float64) {
 	gc.current.path.LineTo(x, y)
 }
 
-func (gc *GraphicContext) RLineTo(dx, dy float64) {
+func (gc *ImageGraphicContext) RLineTo(dx, dy float64) {
 	gc.current.path.RLineTo(dx, dy)
 }
 
-func (gc *GraphicContext) QuadCurveTo(cx, cy, x, y float64) {
+func (gc *ImageGraphicContext) QuadCurveTo(cx, cy, x, y float64) {
 	gc.current.path.QuadCurveTo(cx, cy, x, y)
 }
 
-func (gc *GraphicContext) RQuadCurveTo(dcx, dcy, dx, dy float64) {
+func (gc *ImageGraphicContext) RQuadCurveTo(dcx, dcy, dx, dy float64) {
 	gc.current.path.RQuadCurveTo(dcx, dcy, dx, dy)
 }
 
-func (gc *GraphicContext) CubicCurveTo(cx1, cy1, cx2, cy2, x, y float64) {
+func (gc *ImageGraphicContext) CubicCurveTo(cx1, cy1, cx2, cy2, x, y float64) {
 	gc.current.path.CubicCurveTo(cx1, cy1, cx2, cy2, x, y)
 }
 
-func (gc *GraphicContext) RCubicCurveTo(dcx1, dcy1, dcx2, dcy2, dx, dy float64) {
+func (gc *ImageGraphicContext) RCubicCurveTo(dcx1, dcy1, dcx2, dcy2, dx, dy float64) {
 	gc.current.path.RCubicCurveTo(dcx1, dcy1, dcx2, dcy2, dx, dy)
 }
 
-func (gc *GraphicContext) ArcTo(cx, cy, rx, ry, startAngle, angle float64) {
+func (gc *ImageGraphicContext) ArcTo(cx, cy, rx, ry, startAngle, angle float64) {
 	gc.current.path.ArcTo(cx, cy, rx, ry, startAngle, angle)
 }
 
-func (gc *GraphicContext) RArcTo(dcx, dcy, rx, ry, startAngle, angle float64) {
+func (gc *ImageGraphicContext) RArcTo(dcx, dcy, rx, ry, startAngle, angle float64) {
 	gc.current.path.RArcTo(dcx, dcy, rx, ry, startAngle, angle)
 }
 
-func (gc *GraphicContext) Close() {
+func (gc *ImageGraphicContext) Close() {
 	gc.current.path.Close()
 }
 
-func (gc *GraphicContext) FillString(text string) (cursor float64) {
+func (gc *ImageGraphicContext) FillString(text string) (cursor float64) {
 	gc.freetype.SetSrc(image.NewColorImage(gc.current.strokeColor))
 	// Draw the text.
 	x, y := gc.current.path.LastPoint()
@@ -308,7 +301,7 @@ func (gc *GraphicContext) FillString(text string) (cursor float64) {
 }
 
 
-func (gc *GraphicContext) paint(rasterizer *raster.Rasterizer, color image.Color) {
+func (gc *ImageGraphicContext) paint(rasterizer *raster.Rasterizer, color image.Color) {
 	painter := raster.NewRGBAPainter(gc.PaintedImage)
 	painter.SetColor(color)
 	rasterizer.Rasterize(painter)
@@ -317,7 +310,7 @@ func (gc *GraphicContext) paint(rasterizer *raster.Rasterizer, color image.Color
 }
 
 /**** First method ****/
-func (gc *GraphicContext) Stroke2(paths ...*PathStorage) {
+func (gc *ImageGraphicContext) Stroke2(paths ...*PathStorage) {
 	paths = append(paths, gc.current.path)
 	gc.strokeRasterizer.UseNonZeroWinding = true
 
@@ -341,7 +334,7 @@ func (gc *GraphicContext) Stroke2(paths ...*PathStorage) {
 }
 
 /**** second method ****/
-func (gc *GraphicContext) Stroke(paths ...*PathStorage) {
+func (gc *ImageGraphicContext) Stroke(paths ...*PathStorage) {
 	paths = append(paths, gc.current.path)
 	gc.strokeRasterizer.UseNonZeroWinding = true
 
@@ -361,7 +354,7 @@ func (gc *GraphicContext) Stroke(paths ...*PathStorage) {
 }
 
 /**** first method ****/
-func (gc *GraphicContext) Fill2(paths ...*PathStorage) {
+func (gc *ImageGraphicContext) Fill2(paths ...*PathStorage) {
 	paths = append(paths, gc.current.path)
 	gc.fillRasterizer.UseNonZeroWinding = gc.current.fillRule.fillRule()
 
@@ -372,7 +365,7 @@ func (gc *GraphicContext) Fill2(paths ...*PathStorage) {
 }
 
 /**** second method ****/
-func (gc *GraphicContext) Fill(paths ...*PathStorage) {
+func (gc *ImageGraphicContext) Fill(paths ...*PathStorage) {
 	paths = append(paths, gc.current.path)
 	gc.fillRasterizer.UseNonZeroWinding = gc.current.fillRule.fillRule()
 
@@ -383,7 +376,7 @@ func (gc *GraphicContext) Fill(paths ...*PathStorage) {
 	gc.paint(gc.fillRasterizer, gc.current.fillColor)
 }
 
-func (gc *GraphicContext) FillStroke2(paths ...*PathStorage) {
+func (gc *ImageGraphicContext) FillStroke2(paths ...*PathStorage) {
 	paths = append(paths, gc.current.path)
 	gc.fillRasterizer.UseNonZeroWinding = gc.current.fillRule.fillRule()
 	gc.strokeRasterizer.UseNonZeroWinding = true
@@ -406,7 +399,7 @@ func (gc *GraphicContext) FillStroke2(paths ...*PathStorage) {
 }
 
 /* second method */
-func (gc *GraphicContext) FillStroke(paths ...*PathStorage) {
+func (gc *ImageGraphicContext) FillStroke(paths ...*PathStorage) {
 	gc.fillRasterizer.UseNonZeroWinding = gc.current.fillRule.fillRule()
 	gc.strokeRasterizer.UseNonZeroWinding = true
 
