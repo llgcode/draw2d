@@ -18,5 +18,6 @@ GOFILES=\
 	advanced_path.go\
 	vertex2d.go\
 	gc.go\
+	paint.go\
 
 include $(GOROOT)/src/Make.pkg

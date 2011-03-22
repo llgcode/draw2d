@@ -10,8 +10,14 @@ import (
 	"freetype-go.googlecode.com/hg/freetype/raster"
 )
 
+type Painter interface{
+	raster.Painter
+	SetColor(color image.Color)
+}
+
 type ImageGraphicContext struct {
-	PaintedImage     *image.RGBA
+	img     draw.Image
+	painter          Painter
 	fillRasterizer   *raster.Rasterizer
 	strokeRasterizer *raster.Rasterizer
 	freetype         *freetype.Context
@@ -39,10 +45,19 @@ type contextStack struct {
 /**
  * Create a new Graphic context from an image
  */
-func NewImageGraphicContext(pi *image.RGBA) *ImageGraphicContext {
+func NewImageGraphicContext(img draw.Image) *ImageGraphicContext {
 	gc := new(ImageGraphicContext)
-	gc.PaintedImage = pi
-	width, height := gc.PaintedImage.Bounds().Dx(), gc.PaintedImage.Bounds().Dy()
+	gc.img = img
+	switch selectImage := img.(type) {
+	case *image.RGBA:
+		gc.painter = raster.NewRGBAPainter(selectImage)
+	case *image.NRGBA:
+		gc.painter = NewNRGBAPainter(selectImage)
+	default:
+		panic("Image type not supported")
+	}
+	
+	width, height := gc.img.Bounds().Dx(), gc.img.Bounds().Dy()
 	gc.fillRasterizer = raster.NewRasterizer(width, height)
 	gc.strokeRasterizer = raster.NewRasterizer(width, height)
 
@@ -50,8 +65,8 @@ func NewImageGraphicContext(pi *image.RGBA) *ImageGraphicContext {
 	gc.defaultFontData = FontData{"luxi", FontFamilySans, FontStyleNormal}
 	gc.freetype = freetype.NewContext()
 	gc.freetype.SetDPI(gc.DPI)
-	gc.freetype.SetClip(pi.Bounds())
-	gc.freetype.SetDst(pi)
+	gc.freetype.SetClip(img.Bounds())
+	gc.freetype.SetDst(img)
 
 	gc.current = new(contextStack)
 
@@ -94,13 +109,13 @@ func (gc *ImageGraphicContext) Scale(sx, sy float64) {
 }
 
 func (gc *ImageGraphicContext) Clear() {
-	width, height := gc.PaintedImage.Bounds().Dx(), gc.PaintedImage.Bounds().Dy()
+	width, height := gc.img.Bounds().Dx(), gc.img.Bounds().Dy()
 	gc.ClearRect(0, 0, width, height)
 }
 
 func (gc *ImageGraphicContext) ClearRect(x1, y1, x2, y2 int) {
 	imageColor := image.NewColorImage(gc.current.fillColor)
-	draw.Draw(gc.PaintedImage, image.Rect(x1, y1, x2, y2), imageColor, image.ZP)
+	draw.Draw(gc.img, image.Rect(x1, y1, x2, y2), imageColor, image.ZP)
 }
 
 func (gc *ImageGraphicContext) SetStrokeColor(c image.Color) {
@@ -185,10 +200,8 @@ func (gc *ImageGraphicContext) Restore() {
 }
 
 func (gc *ImageGraphicContext) DrawImage(image image.Image) {
-	width := raster.Fix32(gc.PaintedImage.Bounds().Dx() * 256)
-	height := raster.Fix32(gc.PaintedImage.Bounds().Dy() * 256)
-
-	painter := raster.NewRGBAPainter(gc.PaintedImage)
+	width := raster.Fix32(gc.img.Bounds().Dx() * 256)
+	height := raster.Fix32(gc.img.Bounds().Dy() * 256)
 
 	p0 := raster.Point{0, 0}
 	p1 := raster.Point{0, 0}
@@ -209,8 +222,8 @@ func (gc *ImageGraphicContext) DrawImage(image image.Image) {
 			gc.fillRasterizer.Add1(p2)
 			gc.fillRasterizer.Add1(p3)
 			gc.fillRasterizer.Add1(p0)
-			painter.SetColor(image.At(int(i>>8), int(j>>8)))
-			gc.fillRasterizer.Rasterize(painter)
+			gc.painter.SetColor(image.At(int(i>>8), int(j>>8)))
+			gc.fillRasterizer.Rasterize(gc.painter)
 			gc.fillRasterizer.Clear()
 		}
 	}
@@ -302,9 +315,8 @@ func (gc *ImageGraphicContext) FillString(text string) (cursor float64) {
 
 
 func (gc *ImageGraphicContext) paint(rasterizer *raster.Rasterizer, color image.Color) {
-	painter := raster.NewRGBAPainter(gc.PaintedImage)
-	painter.SetColor(color)
-	rasterizer.Rasterize(painter)
+	gc.painter.SetColor(color)
+	rasterizer.Rasterize(gc.painter)
 	rasterizer.Clear()
 	gc.current.path = new(PathStorage)
 }
