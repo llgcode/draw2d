@@ -44,7 +44,7 @@ func main() {
 	gc.Scale(1, -1)
 	gc.Translate(0, -380)
 	lastTime := time.Nanoseconds()
-	src, err := os.Open("../resource/postscript/Mand.ps", 0, 0)
+	src, err := os.Open("../resource/postscript/tiger.ps", 0, 0)
 	if err != nil {
 		return
 	}
