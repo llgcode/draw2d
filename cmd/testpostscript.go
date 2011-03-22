@@ -46,7 +46,7 @@ func main() {
 	lastTime := time.Nanoseconds()
 	src, err := os.Open("../resource/postscript/Mand.ps", 0, 0)
 	if err != nil {
-		return 
+		return
 	}
 	defer src.Close()
 	bytes, err := ioutil.ReadAll(src)
