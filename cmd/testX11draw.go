@@ -16,7 +16,7 @@ func main() {
 		return
 	}
 	screen := window.Screen()
-	gc := draw2d.NewImageGraphicContext(screen)
+	gc := draw2d.NewGraphicContext(screen)
 	gc.SetStrokeColor(image.Black)
 	gc.SetFillColor(image.White)
 	gc.Clear()

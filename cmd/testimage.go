@@ -68,7 +68,7 @@ func main() {
 
 	source := loadFromPngFile("../resource/image/Varna_Railway_Station_HDR.png")
 	i := image.NewRGBA(1024, 768)
-	gc := draw2d.NewImageGraphicContext(i)
+	gc := draw2d.NewGraphicContext(i)
 	gc.Scale(2, 0.5)
 	//gc.Translate(75, 25)
 	gc.Rotate(30 * math.Pi / 180)

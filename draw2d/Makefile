@@ -4,7 +4,7 @@ TARG=draw2d.googlecode.com/hg/draw2d
 GOFILES=\
 	arc.go\
 	curves.go\
-	draw2d.go\
+	image.go\
 	math.go\
 	path.go\
 	transform.go\
@@ -19,5 +19,6 @@ GOFILES=\
 	vertex2d.go\
 	gc.go\
 	paint.go\
+	stack_gc.go\
 
 include $(GOROOT)/src/Make.pkg
