@@ -1,0 +1,76 @@
+%%% Start of L-system definition
+
+/STARTK { FK plusK plusK FK plusK plusK FK} def
+/FK {
+  dup 0 eq
+  { DK }		% if the recursion order ends, draw forward
+  {
+      1 sub		% recurse
+      4 {dup} repeat    % dup the number of parameters (order) needed. 
+      FK minusK FK plusK plusK FK minusK FK }
+  ifelse
+  pop			% pop the dup'd order
+} bind def
+
+/angleK 60 def
+
+/minusK { % rotation to the right 
+  angleK neg rotate
+} bind def
+
+/plusK { % rotation to the left
+  angleK rotate
+} bind def
+
+%%% End of L-System definition
+
+/DK { sizeK  3 orderK exp div 0 rlineto } bind def
+/thicknessK {1 orderK dup mul div} bind def
+
+%%% Scaling factors
+
+/orderK 3 def
+/sizeK 300 def
+
+%%% Draws a Koch's snowflake of radius 180 at 0 0
+
+/Koch180 {
+    gsave
+    newpath
+    thicknessK setlinewidth
+    200 300 60 cos mul add
+    neg
+    200 100 60 sin mul add
+    neg
+    translate
+    200 200 moveto
+    orderK orderK orderK STARTK
+    stroke
+    closepath
+    grestore
+} def % receives nothing
+
+%%% Draws an arbitrary Koch's snowflake
+
+/Koch {
+    /orderK exch store
+    gsave
+    3 1 roll
+    translate
+    180 div dup scale
+    rand 360 mod rotate
+    Koch180
+    grestore
+} def % Receives x y size order
+
+
+%%% Sample, bounded by an arc
+
+  400 400 100 3 Koch
+  newpath
+  400 400 
+  100 0 360 arc
+  stroke
+  closepath
+
+showpage
