@@ -56,22 +56,22 @@ func TestDrawCubicCurve(gc draw2d.GraphicContext) {
 }
 
 var (
-	mh uint32
-	wndBufferHeader uint32
-	wndBuffer wingui.BITMAP
-	hdcWndBuffer uint32
-	ppvBits *image.RGBAColor
-	backBuffer *image.RGBA
+	mh                uint32
+	wndBufferHeader   uint32
+	wndBuffer         wingui.BITMAP
+	hdcWndBuffer      uint32
+	ppvBits           *image.RGBAColor
+	backBuffer        *image.RGBA
 	postscriptContent string
 )
 
 // WinProc called by windows to notify us of all windows events we might be interested in.
 func WndProc(hwnd, msg uint32, wparam, lparam int32) uintptr {
 	var rc int32
-	
+
 	switch msg {
 	case wingui.WM_CREATE:
-		hdc := wingui.GetDC(hwnd);
+		hdc := wingui.GetDC(hwnd)
 		wndBufferHeader = wingui.CreateCompatibleBitmap(hdc, 600, 800)
 		wingui.GetObject(wndBufferHeader, unsafe.Sizeof(wndBuffer), uintptr(unsafe.Pointer(&wndBuffer)))
 		hdcWndBuffer = wingui.CreateCompatibleDC(hdc)
@@ -81,7 +81,7 @@ func WndProc(hwnd, msg uint32, wparam, lparam int32) uintptr {
 		bmp_header.Size = uint32(unsafe.Sizeof(bmp_header))
 		bmp_header.Width = 600
 		bmp_header.Height = 800
-		bmp_header.SizeImage = 0// the api says this must be 0 for BI_RGB images
+		bmp_header.SizeImage = 0 // the api says this must be 0 for BI_RGB images
 		bmp_header.Compression = wingui.BI_RGB
 		bmp_header.BitCount = 32
 		bmp_header.Planes = 1
@@ -100,8 +100,8 @@ func WndProc(hwnd, msg uint32, wparam, lparam int32) uintptr {
 		wingui.GetObject(wndBufferHeader, unsafe.Sizeof(wndBufferHeader), uintptr(unsafe.Pointer(&wndBuffer)))
 		hdcWndBuffer = wingui.CreateCompatibleDC(hdc)
 		wingui.SelectObject(hdcWndBuffer, wndBufferHeader)
-		
-		pixel := (*[600*800]image.RGBAColor)(unsafe.Pointer(ppvBits))
+
+		pixel := (*[600 * 800]image.RGBAColor)(unsafe.Pointer(ppvBits))
 		pixelSlice := pixel[:]
 		backBuffer = &image.RGBA{pixelSlice, 600, image.Rect(0, 0, 600, 800)}
 		fmt.Println("Create windows")
@@ -123,7 +123,7 @@ func WndProc(hwnd, msg uint32, wparam, lparam int32) uintptr {
 		reader := strings.NewReader(postscriptContent)
 		interpreter.Execute(reader)
 		gc.Restore()
-		wingui.BitBlt(hdc, 0, 0 , int(wndBuffer.Width), int(wndBuffer.Height), hdcWndBuffer, 0, 0, wingui.SRCCOPY);
+		wingui.BitBlt(hdc, 0, 0, int(wndBuffer.Width), int(wndBuffer.Height), hdcWndBuffer, 0, 0, wingui.SRCCOPY)
 		wingui.EndPaint(hwnd, &ps)
 		rc = wingui.DefWindowProc(hwnd, msg, wparam, lparam)
 	case wingui.WM_CLOSE:
@@ -218,7 +218,7 @@ func main() {
 	src, err := os.Open("../resource/postscript/tiger.ps", 0, 0)
 	if err != nil {
 		fmt.Println("can't find postscript file.")
-		return 
+		return
 	}
 	defer src.Close()
 	bytes, err := ioutil.ReadAll(src)

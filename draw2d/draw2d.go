@@ -10,13 +10,13 @@ import (
 	"freetype-go.googlecode.com/hg/freetype/raster"
 )
 
-type Painter interface{
+type Painter interface {
 	raster.Painter
 	SetColor(color image.Color)
 }
 
 type ImageGraphicContext struct {
-	img     draw.Image
+	img              draw.Image
 	painter          Painter
 	fillRasterizer   *raster.Rasterizer
 	strokeRasterizer *raster.Rasterizer
@@ -56,7 +56,7 @@ func NewImageGraphicContext(img draw.Image) *ImageGraphicContext {
 	default:
 		panic("Image type not supported")
 	}
-	
+
 	width, height := gc.img.Bounds().Dx(), gc.img.Bounds().Dy()
 	gc.fillRasterizer = raster.NewRasterizer(width, height)
 	gc.strokeRasterizer = raster.NewRasterizer(width, height)

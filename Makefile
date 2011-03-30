@@ -17,3 +17,6 @@ nuke:
 	cd draw2d && make nuke
 	cd postscript && make nuke
 	cd wingui && make nuke
+
+fmt:
+	gofmt -w draw2d postscript wingui cmd
