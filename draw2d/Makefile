@@ -19,5 +19,6 @@ GOFILES=\
 	vertex2d.go\
 	gc.go\
 	paint.go\
+	rgba_interpolation.go\
 
 include $(GOROOT)/src/Make.pkg
