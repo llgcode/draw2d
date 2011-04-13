@@ -6,6 +6,7 @@ import (
 	"exp/draw"
 	"image"
 	"log"
+	"math"
 	"freetype-go.googlecode.com/hg/freetype"
 	"freetype-go.googlecode.com/hg/freetype/raster"
 )
@@ -198,33 +199,103 @@ func (gc *ImageGraphicContext) Restore() {
 		oldContext.previous = nil
 	}
 }
+//see http://pippin.gimp.org/image_processing/chap_resampling.html
+func getColorLinear(img image.Image, x, y float64) image.Color {
+	return img.At(int(x), int(y))
+}
 
-func (gc *ImageGraphicContext) DrawImage(image image.Image) {
-	width := raster.Fix32(gc.img.Bounds().Dx() * 256)
-	height := raster.Fix32(gc.img.Bounds().Dy() * 256)
+func getColorBilinear(img image.Image, x, y float64) image.Color {
+	x0 := math.Floor(x)
+	y0 := math.Floor(y)
+	dx := x - x0
+	dy := y - y0
 
-	p0 := raster.Point{0, 0}
-	p1 := raster.Point{0, 0}
-	p2 := raster.Point{0, 0}
-	p3 := raster.Point{0, 0}
-	var i raster.Fix32 = 0
-	for ; i < width; i += 256 {
-		var j raster.Fix32 = 0
-		for ; j < height; j += 256 {
-			p0.X, p0.Y = i, j
-			p1.X, p1.Y = p0.X+256, p0.Y
-			p2.X, p2.Y = p1.X, p0.Y+256
-			p3.X, p3.Y = p0.X, p2.Y
+	color0 := img.At(int(x0), int(y0))
+	color1 := img.At(int(x0+1), int(y0))
+	color2 := img.At(int(x0+1), int(y0+1))
+	color3 := img.At(int(x0), int(y0+1))
 
-			gc.current.tr.TransformRasterPoint(&p0, &p1, &p2, &p3)
-			gc.fillRasterizer.Start(p0)
-			gc.fillRasterizer.Add1(p1)
-			gc.fillRasterizer.Add1(p2)
-			gc.fillRasterizer.Add1(p3)
-			gc.fillRasterizer.Add1(p0)
-			gc.painter.SetColor(image.At(int(i>>8), int(j>>8)))
-			gc.fillRasterizer.Rasterize(gc.painter)
-			gc.fillRasterizer.Clear()
+	return lerp(lerp(color0, color1, dx), lerp(color3, color2, dx), dy)
+}
+/**
+-- LERP
+-- /lerp/, vi.,n.
+--
+-- Quasi-acronym for Linear Interpolation, used as a verb or noun for
+-- the operation. "Bresenham's algorithm lerps incrementally between the
+-- two endpoints of the line." (From Jargon File (4.4.4, 14 Aug 2003)
+*/
+func lerp(c1, c2 image.Color, ratio float64) image.Color {
+	r1, g1, b1, a1 := c1.RGBA()
+	r2, g2, b2, a2 := c2.RGBA()
+	r := int(float64(r1)*(1-ratio) + float64(r2)*ratio)
+	g := int(float64(g1)*(1-ratio) + float64(g2)*ratio)
+	b := int(float64(b1)*(1-ratio) + float64(b2)*ratio)
+	a := int(float64(a1)*(1-ratio) + float64(a2)*ratio)
+	return image.RGBAColor{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)}
+}
+
+
+func getColorCubicRow(img image.Image, x, y, offset float64) image.Color {
+	c0 := img.At(int(x), int(y))
+	c1 := img.At(int(x+1), int(y))
+	c2 := img.At(int(x+2), int(y))
+	c3 := img.At(int(x+3), int(y))
+	r0, g0, b0, a0 := c0.RGBA()
+	r1, g1, b1, a1 := c1.RGBA()
+	r2, g2, b2, a2 := c2.RGBA()
+	r3, g3, b3, a3 := c3.RGBA()
+	r, g, b, a := cubic(offset,float64(r0),float64(r1),float64(r2),float64(r3)), cubic(offset,float64(g0),float64(g1),float64(g2),float64(g3)), cubic(offset,float64(b0),float64(b1),float64(b2),float64(b3)), cubic(offset,float64(a0),float64(a1),float64(a2),float64(a3))
+  return image.RGBAColor{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)}
+}
+
+func getColorBicubic(img image.Image, x, y float64) image.Color {
+	x0 := math.Floor(x)
+	y0 := math.Floor(y)
+	dx := x - x0
+	dy := y - y0
+
+	c0 := getColorCubicRow(img, x0-1, y0-1, dx)
+	c1 := getColorCubicRow(img, x0-1, y0, dx)
+	c2 := getColorCubicRow(img, x0-1, y0+1, dx)
+	c3 := getColorCubicRow(img, x0-1, y0+2, dx)
+	r0, g0, b0, a0 := c0.RGBA()
+	r1, g1, b1, a1 := c1.RGBA()
+	r2, g2, b2, a2 := c2.RGBA()
+	r3, g3, b3, a3 := c3.RGBA()
+	r, g, b, a := cubic(dy,float64(r0),float64(r1),float64(r2),float64(r3)), cubic(dy,float64(g0),float64(g1),float64(g2),float64(g3)), cubic(dy,float64(b0),float64(b1),float64(b2),float64(b3)), cubic(dy,float64(a0),float64(a1),float64(a2),float64(a3))
+	return image.RGBAColor{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)}
+}
+
+func cubic(offset,v0,v1,v2,v3 float64) uint32{
+  // offset is the offset of the sampled value between v1 and v2
+   return   uint32((((( -7 * v0 + 21 * v1 - 21 * v2 + 7 * v3 ) * offset +
+               ( 15 * v0 - 36 * v1 + 27 * v2 - 6 * v3 ) ) * offset +
+               ( -9 * v0 + 9 * v2 ) ) * offset + (v0 + 16 * v1 + v2) ) / 18.0);
+}
+
+func compose(c1, c2 image.Color) image.Color {
+	r1, g1, b1, a1 := c1.RGBA()
+	r2, g2, b2, a2 := c2.RGBA()
+	ia := M - a2
+	r := ((r1 * ia) / M) + r2
+	g := ((g1 * ia) / M) + g2
+	b := ((b1 * ia) / M) + b2
+	a := ((a1 * ia) / M) + a2
+	return image.RGBAColor{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)}
+}
+
+func (gc *ImageGraphicContext) DrawImage(img image.Image) {
+	width := float64(gc.img.Bounds().Dx())
+	height := float64(gc.img.Bounds().Dy())
+	gc.current.tr.Transform(&width, &height)
+	var x, y, u, v float64
+	for x = 0; x < width; x++ {
+		for y = 0; y < height; y++ {
+			u = x
+			v = y
+			gc.current.tr.InverseTransform(&u, &v)
+			gc.img.Set(int(x), int(y), compose(gc.img.At(int(x), int(y)), getColorLinear(img, u, v)))
 		}
 	}
 }
