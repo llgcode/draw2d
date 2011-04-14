@@ -60,8 +60,9 @@ func main() {
 	tr := draw2d.NewIdentityMatrix()
 	tr.Translate(width/2, height/2)
 	tr.Rotate(30 * math.Pi / 180)
+	//tr.Scale(3, 3)
 	tr.Translate(-width/2, -height/2)
-	tr.Translate(75, 25)
+	tr.Translate(200, 5)
 	lastTime := time.Nanoseconds()
 	draw2d.DrawImage(source, dest, tr, draw.Over, draw2d.BilinearFilter)
 	dt := time.Nanoseconds() - lastTime
