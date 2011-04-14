@@ -25,12 +25,23 @@ func getColorBilinear(img image.Image, x, y float64) image.Color {
 	dx := x - x0
 	dy := y - y0
 
-	color0 := img.At(int(x0), int(y0))
-	color1 := img.At(int(x0+1), int(y0))
-	color2 := img.At(int(x0+1), int(y0+1))
-	color3 := img.At(int(x0), int(y0+1))
-
-	return lerp(lerp(color0, color1, dx), lerp(color3, color2, dx), dy)
+	c0 := img.At(int(x0), int(y0))
+	c1 := img.At(int(x0+1), int(y0))
+	c2 := img.At(int(x0+1), int(y0+1))
+	c3 := img.At(int(x0), int(y0+1))
+	rt, gt, bt, at := c0.RGBA()
+	r0, g0, b0, a0 := float64(rt), float64(gt), float64(bt), float64(at)
+	rt, gt, bt, at = c1.RGBA()
+	r1, g1, b1, a1 := float64(rt), float64(gt), float64(bt), float64(at)
+	rt, gt, bt, at = c2.RGBA()
+	r2, g2, b2, a2 := float64(rt), float64(gt), float64(bt), float64(at)
+	rt, gt, bt, at = c3.RGBA()
+	r3, g3, b3, a3 := float64(rt), float64(gt), float64(bt), float64(at)
+	r := int(lerp(lerp(r0, r1, dx), lerp(r3, r2, dx), dy))
+	g := int(lerp(lerp(g0, g1, dx), lerp(g3, g2, dx), dy))
+	b := int(lerp(lerp(b0, b1, dx), lerp(b3, b2, dx), dy))
+	a := int(lerp(lerp(a0, a1, dx), lerp(a3, a2, dx), dy))
+	return image.RGBAColor{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)}
 }
 /**
 -- LERP
@@ -40,14 +51,8 @@ func getColorBilinear(img image.Image, x, y float64) image.Color {
 -- the operation. "Bresenham's algorithm lerps incrementally between the
 -- two endpoints of the line." (From Jargon File (4.4.4, 14 Aug 2003)
 */
-func lerp(c1, c2 image.Color, ratio float64) image.Color {
-	r1, g1, b1, a1 := c1.RGBA()
-	r2, g2, b2, a2 := c2.RGBA()
-	r := int(float64(r1)*(1-ratio) + float64(r2)*ratio)
-	g := int(float64(g1)*(1-ratio) + float64(g2)*ratio)
-	b := int(float64(b1)*(1-ratio) + float64(b2)*ratio)
-	a := int(float64(a1)*(1-ratio) + float64(a2)*ratio)
-	return image.RGBAColor{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)}
+func lerp(v1, v2, ratio float64) float64 {
+	return v1*(1-ratio) + v2*ratio
 }
 
 
