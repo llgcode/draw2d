@@ -21,7 +21,7 @@ var (
 
 type ImageGraphicContext struct {
 	*StackGraphicContext
-	img     draw.Image
+	img              draw.Image
 	painter          Painter
 	fillRasterizer   *raster.Rasterizer
 	strokeRasterizer *raster.Rasterizer
