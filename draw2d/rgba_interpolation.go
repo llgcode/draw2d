@@ -56,11 +56,11 @@ func getColorCubicRow(img image.Image, x, y, offset float64) image.Color {
 	c1 := img.At(int(x+1), int(y))
 	c2 := img.At(int(x+2), int(y))
 	c3 := img.At(int(x+3), int(y))
-	r0, g0, b0, a0 := c0.RGBA()
-	r1, g1, b1, a1 := c1.RGBA()
-	r2, g2, b2, a2 := c2.RGBA()
-	r3, g3, b3, a3 := c3.RGBA()
-	r, g, b, a := cubic(offset, float64(r0), float64(r1), float64(r2), float64(r3)), cubic(offset, float64(g0), float64(g1), float64(g2), float64(g3)), cubic(offset, float64(b0), float64(b1), float64(b2), float64(b3)), cubic(offset, float64(a0), float64(a1), float64(a2), float64(a3))
+	rt, gt, bt, at := c0.RGBA(); r0, g0, b0, a0 := float64(rt), float64(gt), float64(bt), float64(at)
+	rt, gt, bt, at = c1.RGBA(); r1, g1, b1, a1 := float64(rt), float64(gt), float64(bt), float64(at)
+	rt, gt, bt, at = c2.RGBA(); r2, g2, b2, a2 := float64(rt), float64(gt), float64(bt), float64(at)
+	rt, gt, bt, at = c3.RGBA(); r3, g3, b3, a3 := float64(rt), float64(gt), float64(bt), float64(at)
+	r, g, b, a := cubic(offset, r0, r1, r2, r3), cubic(offset, g0, g1, g2, g3), cubic(offset, b0, b1, b2, b3), cubic(offset, a0, a1, a2, a3)
 	return image.RGBAColor{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)}
 }
 
@@ -69,16 +69,15 @@ func getColorBicubic(img image.Image, x, y float64) image.Color {
 	y0 := math.Floor(y)
 	dx := x - x0
 	dy := y - y0
-
 	c0 := getColorCubicRow(img, x0-1, y0-1, dx)
 	c1 := getColorCubicRow(img, x0-1, y0, dx)
 	c2 := getColorCubicRow(img, x0-1, y0+1, dx)
 	c3 := getColorCubicRow(img, x0-1, y0+2, dx)
-	r0, g0, b0, a0 := c0.RGBA()
-	r1, g1, b1, a1 := c1.RGBA()
-	r2, g2, b2, a2 := c2.RGBA()
-	r3, g3, b3, a3 := c3.RGBA()
-	r, g, b, a := cubic(dy, float64(r0), float64(r1), float64(r2), float64(r3)), cubic(dy, float64(g0), float64(g1), float64(g2), float64(g3)), cubic(dy, float64(b0), float64(b1), float64(b2), float64(b3)), cubic(dy, float64(a0), float64(a1), float64(a2), float64(a3))
+	rt, gt, bt, at := c0.RGBA(); r0, g0, b0, a0 := float64(rt), float64(gt), float64(bt), float64(at)
+	rt, gt, bt, at = c1.RGBA(); r1, g1, b1, a1 := float64(rt), float64(gt), float64(bt), float64(at)
+	rt, gt, bt, at = c2.RGBA(); r2, g2, b2, a2 := float64(rt), float64(gt), float64(bt), float64(at)
+	rt, gt, bt, at = c3.RGBA(); r3, g3, b3, a3 := float64(rt), float64(gt), float64(bt), float64(at)
+	r, g, b, a := cubic(dy, r0, r1, r2, r3), cubic(dy, g0, g1, g2, g3), cubic(dy, b0, b1, b2, b3), cubic(dy, a0, a1, a2, a3)
 	return image.RGBAColor{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)}
 }
 
@@ -115,7 +114,7 @@ func DrawImage(src image.Image, dest draw.Image, tr MatrixTransform, op draw.Op,
 			var c2 image.Color
 			switch filter {
 			case LinearFilter:
-				c2 = getColorLinear(src, u, v)
+				c2 = src.At(int(u), int(v))
 			case BilinearFilter:
 				c2 = getColorBilinear(src, u, v)
 			case BicubicFilter:
