@@ -200,7 +200,7 @@ func (gc *ImageGraphicContext) Restore() {
 }
 
 func (gc *ImageGraphicContext) DrawImage(img image.Image) {
-	DrawImage(img, gc.img, gc.current.tr, draw.Over, linearFilter)
+	DrawImage(img, gc.img, gc.current.tr, draw.Over, BilinearFilter)
 }
 
 func (gc *ImageGraphicContext) BeginPath() {
