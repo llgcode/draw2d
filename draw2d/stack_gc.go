@@ -7,7 +7,7 @@ import (
 )
 
 type StackGraphicContext struct {
-	current          *ContextStack
+	current *ContextStack
 }
 
 type ContextStack struct {
@@ -30,7 +30,7 @@ type ContextStack struct {
 /**
  * Create a new Graphic context from an image
  */
-func NewStackGraphicContext() (*StackGraphicContext){
+func NewStackGraphicContext() *StackGraphicContext {
 	gc := &StackGraphicContext{}
 	gc.current = new(ContextStack)
 	gc.current.Tr = NewIdentityMatrix()

@@ -26,18 +26,15 @@ func getColorBilinear(img image.Image, x, y float64) image.Color {
 	dx := x - x0
 	dy := y - y0
 
-	c0 := img.At(int(x0), int(y0))
-	c1 := img.At(int(x0+1), int(y0))
-	c2 := img.At(int(x0+1), int(y0+1))
-	c3 := img.At(int(x0), int(y0+1))
-	rt, gt, bt, at := c0.RGBA()
+	rt, gt, bt, at := img.At(int(x0), int(y0)).RGBA()
 	r0, g0, b0, a0 := float64(rt), float64(gt), float64(bt), float64(at)
-	rt, gt, bt, at = c1.RGBA()
+	rt, gt, bt, at = img.At(int(x0+1), int(y0)).RGBA()
 	r1, g1, b1, a1 := float64(rt), float64(gt), float64(bt), float64(at)
-	rt, gt, bt, at = c2.RGBA()
+	rt, gt, bt, at = img.At(int(x0+1), int(y0+1)).RGBA()
 	r2, g2, b2, a2 := float64(rt), float64(gt), float64(bt), float64(at)
-	rt, gt, bt, at = c3.RGBA()
+	rt, gt, bt, at = img.At(int(x0), int(y0+1)).RGBA()
 	r3, g3, b3, a3 := float64(rt), float64(gt), float64(bt), float64(at)
+
 	r := int(lerp(lerp(r0, r1, dx), lerp(r3, r2, dx), dy))
 	g := int(lerp(lerp(g0, g1, dx), lerp(g3, g2, dx), dy))
 	b := int(lerp(lerp(b0, b1, dx), lerp(b3, b2, dx), dy))
@@ -102,18 +99,6 @@ func cubic(offset, v0, v1, v2, v3 float64) uint32 {
 		(-9*v0+9*v2))*offset + (v0 + 16*v1 + v2)) / 18.0)
 }
 
-func compose(c1, c2 image.Color) image.Color {
-	r1, g1, b1, a1 := c1.RGBA()
-	r2, g2, b2, a2 := c2.RGBA()
-	ia := M - a2
-	r := ((r1 * ia) / M) + r2
-	g := ((g1 * ia) / M) + g2
-	b := ((b1 * ia) / M) + b2
-	a := ((a1 * ia) / M) + a2
-	return image.RGBAColor{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)}
-}
-
-
 func DrawImage(src image.Image, dest draw.Image, tr MatrixTransform, op draw.Op, filter ImageFilter) {
 	bounds := src.Bounds()
 	x0, y0, x1, y1 := float64(bounds.Min.X), float64(bounds.Min.Y), float64(bounds.Max.X), float64(bounds.Max.Y)
@@ -121,6 +106,7 @@ func DrawImage(src image.Image, dest draw.Image, tr MatrixTransform, op draw.Op,
 	var x, y, u, v float64
 	var c1, c2, cr image.Color
 	var r, g, b, a, ia, r1, g1, b1, a1, r2, g2, b2, a2 uint32
+	var color image.RGBAColor
 	for x = x0; x < x1; x++ {
 		for y = y0; y < y1; y++ {
 			u = x
@@ -144,7 +130,11 @@ func DrawImage(src image.Image, dest draw.Image, tr MatrixTransform, op draw.Op,
 				g = ((g1 * ia) / M) + g2
 				b = ((b1 * ia) / M) + b2
 				a = ((a1 * ia) / M) + a2
-				cr = image.RGBAColor{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)}
+				color.R = uint8(r >> 8)
+				color.G = uint8(g >> 8)
+				color.B = uint8(b >> 8)
+				color.A = uint8(a >> 8)
+				cr = color
 			default:
 				cr = c2
 			}
