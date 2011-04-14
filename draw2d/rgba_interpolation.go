@@ -1,3 +1,4 @@
+// see http://pippin.gimp.org/image_processing/chap_resampling.html
 package draw2d
 
 import (
