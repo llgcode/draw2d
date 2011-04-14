@@ -26,6 +26,23 @@ func (tr MatrixTransform) Transform(points ...*float64) {
 	}
 }
 
+func (tr MatrixTransform) TransformRectangle(x0, y0, x2, y2*float64) {
+	x1 := *x2
+	y1 := *y0
+	x3 := *x0
+	y3 := *y2
+	tr.Transform(x0, y0, &x1, &y1, x2, y2, &x3, &y3)
+	*x0, x1 = minMax(*x0, x1)
+	*x2, x3 = minMax(*x2, x3)
+	*y0, y1 = minMax(*y0, y1)
+	*y2, y3 = minMax(*y2, y3)
+
+	*x0 = min(*x0, *x2)
+	*y0 = min(*y0, *y2)
+	*x2 = max(x1, x3)
+	*y2 = max(y1, y3)
+}
+
 func (tr MatrixTransform) TransformRasterPoint(points ...*raster.Point) {
 	for _, point := range points {
 		x := float64(point.X) / 256
