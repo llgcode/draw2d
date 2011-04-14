@@ -26,7 +26,7 @@ func (tr MatrixTransform) Transform(points ...*float64) {
 	}
 }
 
-func (tr MatrixTransform) TransformRectangle(x0, y0, x2, y2*float64) {
+func (tr MatrixTransform) TransformRectangle(x0, y0, x2, y2 *float64) {
 	x1 := *x2
 	y1 := *y0
 	x3 := *x0
@@ -144,10 +144,10 @@ func (tr1 MatrixTransform) Multiply(tr2 MatrixTransform) MatrixTransform {
 
 
 func (tr *MatrixTransform) Scale(sx, sy float64) *MatrixTransform {
-	tr[0] = sx*tr[0]
-	tr[1] = sx*tr[1]
-	tr[2] = sy*tr[2]
-	tr[3] = sy*tr[3]
+	tr[0] = sx * tr[0]
+	tr[1] = sx * tr[1]
+	tr[2] = sy * tr[2]
+	tr[3] = sy * tr[3]
 	return tr
 }
 
