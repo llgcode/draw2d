@@ -9,6 +9,7 @@ import (
 	"image"
 	"time"
 	"image/png"
+	"exp/draw"
 	"draw2d.googlecode.com/hg/draw2d"
 )
 
@@ -54,18 +55,16 @@ func loadFromPngFile(filePath string) image.Image {
 
 func main() {
 	source := loadFromPngFile("../resource/image/TestAndroid.png")
-	i := image.NewRGBA(1024, 768)
-	gc := draw2d.NewImageGraphicContext(i)
-//	gc.Scale(2, 0.5)
-	gc.Translate(float64(source.Bounds().Dx()/2), float64(source.Bounds().Dy()/2))
-	gc.Rotate(30 * math.Pi / 180)
-	gc.Translate(float64(-source.Bounds().Dx()/2), float64(-source.Bounds().Dy()/2))
-	gc.Translate(75, 25)
+	dest := image.NewRGBA(1024, 768)
+	width, height := float64(source.Bounds().Dx()), float64(source.Bounds().Dy())
+	tr := draw2d.NewIdentityMatrix()
+	tr.Translate(width/2, height/2)
+	tr.Rotate(30 * math.Pi / 180)
+	tr.Translate(-width/2, -height/2)
+	tr.Translate(75, 25)
 	lastTime := time.Nanoseconds()
-	gc.DrawImage(source)
+	draw2d.DrawImage(source, dest, tr, draw.Over, draw2d.BilinearFilter)
 	dt := time.Nanoseconds() - lastTime
 	fmt.Printf("Draw image: %f ms\n", float64(dt)*1e-6)
-	saveToPngFile("../resource/result/TestDrawImage.png", i)
+	saveToPngFile("../resource/result/TestDrawImage.png", dest)
 }
-
-
