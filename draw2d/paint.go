@@ -19,13 +19,6 @@ type NRGBAPainter struct {
 	cr, cg, cb, ca uint32
 }
 
-func min(a, b uint32) uint32 {
-	if a < b {
-		return a
-	}
-	return b
-}
-
 // Paint satisfies the Painter interface by painting ss onto an image.RGBA.
 func (r *NRGBAPainter) Paint(ss []raster.Span, done bool) {
 	b := r.Image.Bounds()
@@ -57,9 +50,9 @@ func (r *NRGBAPainter) Paint(ss []raster.Span, done bool) {
 				a := M - (r.ca*ma)/M
 				da = (da*a + r.ca*ma) / M
 				if da != 0 {
-					dr = min(M, (dr*a+r.cr*ma)/da)
-					dg = min(M, (dg*a+r.cg*ma)/da)
-					db = min(M, (db*a+r.cb*ma)/da)
+					dr = minUint32(M, (dr*a+r.cr*ma)/da)
+					dg = minUint32(M, (dg*a+r.cg*ma)/da)
+					db = minUint32(M, (db*a+r.cb*ma)/da)
 				} else {
 					dr, dg, db = 0, 0, 0
 				}
@@ -71,9 +64,9 @@ func (r *NRGBAPainter) Paint(ss []raster.Span, done bool) {
 				a := M - ma
 				da = (da*a + r.ca*ma) / M
 				if da != 0 {
-					dr = min(M, (dr*a+r.cr*ma)/da)
-					dg = min(M, (dg*a+r.cg*ma)/da)
-					db = min(M, (db*a+r.cb*ma)/da)
+					dr = minUint32(M, (dr*a+r.cr*ma)/da)
+					dg = minUint32(M, (dg*a+r.cg*ma)/da)
+					db = minUint32(M, (db*a+r.cb*ma)/da)
 				} else {
 					dr, dg, db = 0, 0, 0
 				}

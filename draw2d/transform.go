@@ -26,6 +26,23 @@ func (tr MatrixTransform) Transform(points ...*float64) {
 	}
 }
 
+func (tr MatrixTransform) TransformRectangle(x0, y0, x2, y2 *float64) {
+	x1 := *x2
+	y1 := *y0
+	x3 := *x0
+	y3 := *y2
+	tr.Transform(x0, y0, &x1, &y1, x2, y2, &x3, &y3)
+	*x0, x1 = minMax(*x0, x1)
+	*x2, x3 = minMax(*x2, x3)
+	*y0, y1 = minMax(*y0, y1)
+	*y2, y3 = minMax(*y2, y3)
+
+	*x0 = min(*x0, *x2)
+	*y0 = min(*y0, *y2)
+	*x2 = max(x1, x3)
+	*y2 = max(y1, y3)
+}
+
 func (tr MatrixTransform) TransformRasterPoint(points ...*raster.Point) {
 	for _, point := range points {
 		x := float64(point.X) / 256
@@ -127,33 +144,30 @@ func (tr1 MatrixTransform) Multiply(tr2 MatrixTransform) MatrixTransform {
 
 
 func (tr *MatrixTransform) Scale(sx, sy float64) *MatrixTransform {
-	tr[0] = tr[0] * sx
-	tr[1] = tr[1] * sx
-	tr[4] = tr[4] * sx
-	tr[2] = tr[2] * sy
-	tr[3] = tr[3] * sy
-	tr[5] = tr[5] * sy
+	tr[0] = sx * tr[0]
+	tr[1] = sx * tr[1]
+	tr[2] = sy * tr[2]
+	tr[3] = sy * tr[3]
 	return tr
 }
 
 func (tr *MatrixTransform) Translate(tx, ty float64) *MatrixTransform {
-	tr[4] = tr[4] + tx
-	tr[5] = tr[5] + ty
+	tr[4] = tx*tr[0] + ty*tr[2] + tr[4]
+	tr[5] = ty*tr[3] + tx*tr[1] + tr[5]
 	return tr
 }
 
 func (tr *MatrixTransform) Rotate(angle float64) *MatrixTransform {
-	ca := math.Cos(angle)
-	sa := math.Sin(angle)
-	t0 := tr[0]*ca - tr[1]*sa
-	t2 := tr[1]*ca - tr[3]*sa
-	t4 := tr[4]*ca - tr[5]*sa
-	tr[1] = tr[0]*sa + tr[1]*ca
-	tr[3] = tr[2]*sa + tr[3]*ca
-	tr[5] = tr[4]*sa + tr[5]*ca
+	c := math.Cos(angle)
+	s := math.Sin(angle)
+	t0 := c*tr[0] + s*tr[2]
+	t1 := s*tr[3] + c*tr[1]
+	t2 := c*tr[2] - s*tr[0]
+	t3 := c*tr[3] - s*tr[1]
 	tr[0] = t0
+	tr[1] = t1
 	tr[2] = t2
-	tr[4] = t4
+	tr[3] = t3
 	return tr
 }
 
