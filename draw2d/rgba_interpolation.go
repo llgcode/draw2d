@@ -115,17 +115,18 @@ func compose(c1, c2 image.Color) image.Color {
 
 
 func DrawImage(src image.Image, dest draw.Image, tr MatrixTransform, op draw.Op, filter ImageFilter) {
-	b := src.Bounds()
-	x0, y0, x1, y1 := float64(b.Min.X), float64(b.Min.Y), float64(b.Max.X), float64(b.Max.Y)
+	bounds := src.Bounds()
+	x0, y0, x1, y1 := float64(bounds.Min.X), float64(bounds.Min.Y), float64(bounds.Max.X), float64(bounds.Max.Y)
 	tr.TransformRectangle(&x0, &y0, &x1, &y1)
 	var x, y, u, v float64
+	var c1, c2, cr image.Color
+	var r, g, b, a, ia, r1, g1, b1, a1, r2, g2, b2, a2 uint32
 	for x = x0; x < x1; x++ {
 		for y = y0; y < y1; y++ {
 			u = x
 			v = y
 			tr.InverseTransform(&u, &v)
-			c1 := dest.At(int(x), int(y))
-			var c2 image.Color
+			c1 = dest.At(int(x), int(y))
 			switch filter {
 			case LinearFilter:
 				c2 = src.At(int(u), int(v))
@@ -134,16 +135,15 @@ func DrawImage(src image.Image, dest draw.Image, tr MatrixTransform, op draw.Op,
 			case BicubicFilter:
 				c2 = getColorBicubic(src, u, v)
 			}
-			var cr image.Color
 			switch op {
 			case draw.Over:
-				r1, g1, b1, a1 := c1.RGBA()
-				r2, g2, b2, a2 := c2.RGBA()
-				ia := M - a2
-				r := ((r1 * ia) / M) + r2
-				g := ((g1 * ia) / M) + g2
-				b := ((b1 * ia) / M) + b2
-				a := ((a1 * ia) / M) + a2
+				r1, g1, b1, a1 = c1.RGBA()
+				r2, g2, b2, a2 = c2.RGBA()
+				ia = M - a2
+				r = ((r1 * ia) / M) + r2
+				g = ((g1 * ia) / M) + g2
+				b = ((b1 * ia) / M) + b2
+				a = ((a1 * ia) / M) + a2
 				cr = image.RGBAColor{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)}
 			default:
 				cr = c2
