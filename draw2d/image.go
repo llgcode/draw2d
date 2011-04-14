@@ -10,7 +10,7 @@ import (
 	"freetype-go.googlecode.com/hg/freetype/raster"
 )
 
-type Painter interface{
+type Painter interface {
 	raster.Painter
 	SetColor(color image.Color)
 }
@@ -48,7 +48,6 @@ func NewGraphicContext(img draw.Image) *ImageGraphicContext {
 	ftContext.SetDPI(dpi)
 	ftContext.SetClip(img.Bounds())
 	ftContext.SetDst(img)
-	
 	gc := &ImageGraphicContext{
 		NewStackGraphicContext(),
 		img,
@@ -58,7 +57,6 @@ func NewGraphicContext(img draw.Image) *ImageGraphicContext {
 		ftContext,
 		dpi,
 	}
-
 	return gc
 }
 
@@ -82,36 +80,9 @@ func (gc *ImageGraphicContext) ClearRect(x1, y1, x2, y2 int) {
 	draw.Draw(gc.img, image.Rect(x1, y1, x2, y2), imageColor, image.ZP)
 }
 
-func (gc *ImageGraphicContext) DrawImage(image image.Image) {
-	width := raster.Fix32(gc.img.Bounds().Dx() * 256)
-	height := raster.Fix32(gc.img.Bounds().Dy() * 256)
-
-	p0 := raster.Point{0, 0}
-	p1 := raster.Point{0, 0}
-	p2 := raster.Point{0, 0}
-	p3 := raster.Point{0, 0}
-	var i raster.Fix32 = 0
-	for ; i < width; i += 256 {
-		var j raster.Fix32 = 0
-		for ; j < height; j += 256 {
-			p0.X, p0.Y = i, j
-			p1.X, p1.Y = p0.X+256, p0.Y
-			p2.X, p2.Y = p1.X, p0.Y+256
-			p3.X, p3.Y = p0.X, p2.Y
-
-			gc.current.Tr.TransformRasterPoint(&p0, &p1, &p2, &p3)
-			gc.fillRasterizer.Start(p0)
-			gc.fillRasterizer.Add1(p1)
-			gc.fillRasterizer.Add1(p2)
-			gc.fillRasterizer.Add1(p3)
-			gc.fillRasterizer.Add1(p0)
-			gc.painter.SetColor(image.At(int(i>>8), int(j>>8)))
-			gc.fillRasterizer.Rasterize(gc.painter)
-			gc.fillRasterizer.Clear()
-		}
-	}
+func (gc *ImageGraphicContext) DrawImage(img image.Image) {
+	DrawImage(img, gc.img, gc.current.Tr, draw.Over, BilinearFilter)
 }
-
 
 func (gc *ImageGraphicContext) FillString(text string) (cursor float64) {
 	gc.freetype.SetSrc(image.NewColorImage(gc.current.StrokeColor))

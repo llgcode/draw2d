@@ -20,5 +20,6 @@ GOFILES=\
 	gc.go\
 	paint.go\
 	stack_gc.go\
+	rgba_interpolation.go\
 
 include $(GOROOT)/src/Make.pkg
