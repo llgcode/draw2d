@@ -6,6 +6,7 @@ import (
 	"exp/draw"
 	"image"
 	"log"
+	"time"
 	"freetype-go.googlecode.com/hg/freetype"
 	"freetype-go.googlecode.com/hg/freetype/raster"
 )
@@ -184,7 +185,11 @@ func (gc *ImageGraphicContext) Fill(paths ...*PathStorage) {
 	pathConverter := NewPathConverter(NewVertexMatrixTransform(gc.current.Tr, NewVertexAdder(gc.fillRasterizer)))
 	pathConverter.ApproximationScale = gc.current.Tr.GetMaxAbsScaling()
 	pathConverter.Convert(paths...)
+
+	t := time.Nanoseconds()
 	gc.paint(gc.fillRasterizer, gc.current.FillColor)
+	dt := time.Nanoseconds() - t
+	log.Printf("Paint during %f\n", float64(dt)*1e-6)
 }
 
 func (gc *ImageGraphicContext) FillStroke2(paths ...*PathStorage) {

@@ -59,7 +59,7 @@ func (interpreter *Interpreter) Execute(reader io.Reader) {
 }
 
 func (interpreter *Interpreter) ExecuteFile(filePath string) os.Error {
-	src, err := os.Open(filePath, 0, 0)
+	src, err := os.Open(filePath)
 	if src == nil {
 		log.Printf("can't open file; err=%s\n", err.String())
 		return err
