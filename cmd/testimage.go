@@ -15,7 +15,7 @@ import (
 
 
 func saveToPngFile(filePath string, m image.Image) {
-	f, err := os.Open(filePath, os.O_CREAT|os.O_WRONLY, 0600)
+	f, err := os.Create(filePath)
 	if err != nil {
 		log.Println(err)
 		return
@@ -36,7 +36,7 @@ func saveToPngFile(filePath string, m image.Image) {
 }
 
 func loadFromPngFile(filePath string) image.Image {
-	f, err := os.Open(filePath, 0, 0)
+	f, err := os.OpenFile(filePath, 0, 0)
 	if f == nil {
 		log.Printf("can't open file; err=%s\n", err.String())
 		return nil

@@ -38,9 +38,9 @@ func initGc(w, h int) (image.Image, draw2d.GraphicContext) {
 
 func saveToPngFile(TestName string, m image.Image) {
 	dt := time.Nanoseconds() - lastTime
-	fmt.Printf("%s during: %f ms\n", TestName, float64(dt)*10e-6)
+	fmt.Printf("%s during: %f ms\n", TestName, float64(dt)*1e-6)
 	filePath := folder + TestName + ".png"
-	f, err := os.Open(filePath, os.O_CREAT|os.O_WRONLY, 0600)
+	f, err := os.Create(filePath)
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)

@@ -20,10 +20,10 @@ nuke:
 	cd draw2d && make nuke
 	cd draw2dgl && make nuke
 	cd postscript && make nuke
+
 command:
 	cd cmd && make
-	#cd wingui && make nuke
 
 fmt:
-	gofmt -w draw2d postscript wingui cmd
+	gofmt -w . 
 

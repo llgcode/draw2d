@@ -17,7 +17,7 @@ import (
 
 
 func saveToPngFile(filePath string, m image.Image) {
-	f, err := os.Open(filePath, os.O_CREAT|os.O_WRONLY, 0600)
+	f, err := os.Create(filePath)
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
@@ -43,8 +43,7 @@ func main() {
 	gc.Translate(0, 380)
 	gc.Scale(1, -1)
 	gc.Translate(0, -380)
-	lastTime := time.Nanoseconds()
-	src, err := os.Open("../resource/postscript/tiger.ps", 0, 0)
+	src, err := os.OpenFile("../resource/postscript/tiger.ps", 0, 0)
 	if err != nil {
 		return
 	}
@@ -52,6 +51,7 @@ func main() {
 	bytes, err := ioutil.ReadAll(src)
 	reader := strings.NewReader(string(bytes))
 	interpreter := postscript.NewInterpreter(gc)
+	lastTime := time.Nanoseconds()
 	interpreter.Execute(reader)
 	dt := time.Nanoseconds() - lastTime
 	fmt.Printf("Draw image: %f ms\n", float64(dt)*1e-6)

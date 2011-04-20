@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	w, h = 256, 256
+	w, h = 512, 512
 )
 
 var (
@@ -39,10 +39,11 @@ func initGc(w, h int) (image.Image, draw2d.GraphicContext) {
 }
 
 func saveToPngFile(TestName string, m image.Image) {
-	dt := time.Nanoseconds() - lastTime
-	fmt.Printf("%s during: %f ms\n", TestName, float64(dt)*10e-6)
+	t := time.Nanoseconds()
+	dt := t - lastTime
+	fmt.Printf("%s during: %f ms\n", TestName, float64(dt)*1e-6)
 	filePath := folder + TestName + ".png"
-	f, err := os.Open(filePath, os.O_CREAT|os.O_WRONLY, 0600)
+	f, err := os.Create(filePath)
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
@@ -59,7 +60,8 @@ func saveToPngFile(TestName string, m image.Image) {
 		log.Println(err)
 		os.Exit(1)
 	}
-	fmt.Printf("Wrote %s OK.\n", filePath)
+	dt = time.Nanoseconds() - t
+	fmt.Printf("Wrote %s OK in %f ms.\n", filePath, float64(dt)*1e-6)
 }
 
 /*
@@ -496,13 +498,22 @@ func TestFillString() {
 	gc.MoveTo(10, 52)
 	gc.SetFontData(draw2d.FontData{"luxi", draw2d.FontFamilyMono, draw2d.FontStyleBold | draw2d.FontStyleItalic})
 	width := gc.FillString("cou")
-	fmt.Printf("width: %f\n", width)
 	gc.RMoveTo(width+1, 0)
 	gc.FillString("cou")
 	saveToPngFile("TestFillString", i)
 }
 
+func TestBigPicture() {
+	i, gc := initGc(w, h)
+	gc.SetLineWidth(10)
+
+	draw2d.Rect(gc, 0, 0, w, h)
+	gc.Fill()
+	saveToPngFile("TestBigPicture", i)
+}
+
 func main() {
+	t := time.Nanoseconds()
 	TestPath()
 	TestDrawArc()
 	TestDrawArcNegative()
@@ -520,4 +531,7 @@ func main() {
 	TestTransform()
 	TestPathTransform()
 	TestFillString()
+	TestBigPicture()
+	dt := time.Nanoseconds() - t
+	fmt.Printf("All tests during: %f ms\n", float64(dt)*1e-6)
 }

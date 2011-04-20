@@ -12,6 +12,7 @@ import (
 	"image"
 	"io/ioutil"
 	"strings"
+	"time"
 	"draw2d.googlecode.com/hg/draw2d"
 	"draw2d.googlecode.com/hg/postscript"
 	"draw2d.googlecode.com/hg/wingui"
@@ -72,9 +73,9 @@ func WndProc(hwnd, msg uint32, wparam, lparam int32) uintptr {
 	switch msg {
 	case wingui.WM_CREATE:
 		hdc := wingui.GetDC(hwnd)
+		hdcWndBuffer = wingui.CreateCompatibleDC(hdc)
 		wndBufferHeader = wingui.CreateCompatibleBitmap(hdc, 600, 800)
 		wingui.GetObject(wndBufferHeader, unsafe.Sizeof(wndBuffer), uintptr(unsafe.Pointer(&wndBuffer)))
-		hdcWndBuffer = wingui.CreateCompatibleDC(hdc)
 		wingui.SelectObject(hdcWndBuffer, wndBufferHeader)
 
 		var bmp_header wingui.BITMAPINFOHEADER
@@ -113,19 +114,24 @@ func WndProc(hwnd, msg uint32, wparam, lparam int32) uintptr {
 		}
 	case wingui.WM_PAINT:
 		var ps wingui.PAINTSTRUCT
+		lastTime := time.Nanoseconds()
 		hdc := wingui.BeginPaint(hwnd, &ps)
-		gc := draw2d.NewImageGraphicContext(backBuffer)
+		gc := draw2d.NewGraphicContext(backBuffer)
 		gc.SetFillColor(image.RGBAColor{0xFF, 0xFF, 0xFF, 0xFF})
-		gc.Clear()
+	//	gc.Clear()
 		gc.Save()
 		//gc.Translate(0, -380)
 		interpreter := postscript.NewInterpreter(gc)
 		reader := strings.NewReader(postscriptContent)
 		interpreter.Execute(reader)
+		dt := time.Nanoseconds() - lastTime
 		gc.Restore()
-		wingui.BitBlt(hdc, 0, 0, int(wndBuffer.Width), int(wndBuffer.Height), hdcWndBuffer, 0, 0, wingui.SRCCOPY)
+		// back buf in
+
+		wingui.BitBlt(hdc, 0, 0, 100/*int(wndBuffer.Width)*/, 100/*int(wndBuffer.Height)*/, hdcWndBuffer, 0, 0, wingui.SRCCOPY)
 		wingui.EndPaint(hwnd, &ps)
 		rc = wingui.DefWindowProc(hwnd, msg, wparam, lparam)
+		fmt.Printf("Redraw in : %f ms\n", float64(dt)*1e-6)
 	case wingui.WM_CLOSE:
 		wingui.DestroyWindow(hwnd)
 	case wingui.WM_DESTROY:
@@ -165,10 +171,11 @@ func rungui() int {
 	var wc wingui.Wndclassex
 	wc.Size = uint32(unsafe.Sizeof(wc))
 	wc.WndProc = wproc
+	//wc.Style = wingui.CS_HREDRAW | wingui.CS_VREDRAW
 	wc.Instance = mh
 	wc.Icon = myicon
 	wc.Cursor = mycursor
-	wc.Background = wingui.COLOR_BTNFACE + 1
+	wc.Background = 0
 	wc.MenuName = nil
 	wc.ClassName = wcname
 	wc.IconSm = myicon
@@ -215,7 +222,7 @@ func rungui() int {
 }
 
 func main() {
-	src, err := os.Open("../resource/postscript/tiger.ps", 0, 0)
+	src, err := os.OpenFile("../resource/postscript/tiger.ps", 0, 0)
 	if err != nil {
 		fmt.Println("can't find postscript file.")
 		return
