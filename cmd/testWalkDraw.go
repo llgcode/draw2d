@@ -128,7 +128,7 @@ func WndProc(hwnd, msg uint32, wparam, lparam int32) uintptr {
 		gc.Restore()
 		// back buf in
 
-		wingui.BitBlt(hdc, 0, 0, 100/*int(wndBuffer.Width)*/, 100/*int(wndBuffer.Height)*/, hdcWndBuffer, 0, 0, wingui.SRCCOPY)
+		wingui.BitBlt(hdc, 0, 0, int(wndBuffer.Width), int(wndBuffer.Height), hdcWndBuffer, 0, 0, wingui.SRCCOPY)
 		wingui.EndPaint(hwnd, &ps)
 		rc = wingui.DefWindowProc(hwnd, msg, wparam, lparam)
 		fmt.Printf("Redraw in : %f ms\n", float64(dt)*1e-6)
