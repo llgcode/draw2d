@@ -4,8 +4,10 @@ import (
 	"image"
 	"exp/draw"
 	"gl"
+	"unsafe"
 	"freetype-go.googlecode.com/hg/freetype/raster"
 	"draw2d.googlecode.com/hg/draw2d"
+	//"log"
 )
 
 type GLPainter struct {
@@ -14,22 +16,43 @@ type GLPainter struct {
 	// The 16-bit color to paint the spans.
 	cr, cg, cb uint8
 	ca         uint32
+	colors     []uint8
+	vertices   []int32
 }
 
 const M16 uint32 = 1<<16 - 1
 
 // Paint satisfies the Painter interface by painting ss onto an image.RGBA.
 func (p *GLPainter) Paint(ss []raster.Span, done bool) {
-	gl.Begin(gl.LINES)
+	//gl.Begin(gl.LINES)
 	for _, s := range ss {
 		ma := s.A >> 16
 		a := ma * p.ca / M16
-		gl.Color4ub(p.cr, p.cg, p.cb, uint8(a>>8))
+		/*gl.Color4ub(p.cr, p.cg, p.cb, uint8(a>>8))
 		gl.Vertex2i(s.X0, s.Y)
-		gl.Vertex2i(s.X1, s.Y)
+		gl.Vertex2i(s.X1, s.Y)*/
+		p.colors = append(p.colors, p.cr, p.cg, p.cb, uint8(a>>8), p.cr, p.cg, p.cb, uint8(a>>8))
+		p.vertices = append(p.vertices, int32(s.X0), int32(s.Y), int32(s.X1), int32(s.Y))
 	}
-	gl.End()
+	//gl.End()
 }
+
+func (p *GLPainter) Flush() {
+	if len(p.vertices) != 0 {
+		gl.EnableClientState(gl.COLOR_ARRAY)
+		gl.EnableClientState(gl.VERTEX_ARRAY)
+		gl.ColorPointer(4, gl.UNSIGNED_BYTE, 0, unsafe.Pointer(&(p.colors[0])))
+		gl.VertexPointer(2, gl.INT, 0, unsafe.Pointer(&(p.vertices[0])))
+
+		// draw lines
+		gl.DrawArrays(gl.LINES, 0, len(p.vertices)/2)
+		gl.DisableClientState(gl.VERTEX_ARRAY)
+		gl.DisableClientState(gl.COLOR_ARRAY)
+		p.vertices = make([]int32, 0, 1024)
+		p.colors = make([]uint8, 0, 1024)
+	}
+}
+
 
 // SetColor sets the color to paint the spans.
 func (p *GLPainter) SetColor(c image.Color) {
@@ -49,7 +72,10 @@ func (p *GLPainter) SetColor(c image.Color) {
 
 // NewRGBAPainter creates a new RGBAPainter for the given image.
 func NewGLPainter() *GLPainter {
-	return &GLPainter{}
+	p := new(GLPainter)
+	p.vertices = make([]int32, 0, 1024)
+	p.colors = make([]uint8, 0, 1024)
+	return p
 }
 
 type GraphicContext struct {
@@ -102,6 +128,7 @@ func (gc *GraphicContext) paint(rasterizer *raster.Rasterizer, color image.Color
 	gc.painter.SetColor(color)
 	rasterizer.Rasterize(gc.painter)
 	rasterizer.Clear()
+	gc.painter.Flush()
 }
 
 func (gc *GraphicContext) Stroke(paths ...*draw2d.PathStorage) {

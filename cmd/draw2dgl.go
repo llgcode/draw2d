@@ -91,7 +91,7 @@ func display() {
 
 	gc.Translate(380, 400)
 	gc.Scale(1, -1)
-	rotate = (rotate + 10) % 360
+	rotate = (rotate + 1) % 360
 	gc.Rotate(float64(rotate) * math.Pi / 180)
 	gc.Translate(-380, -400)
 	interpreter := postscript.NewInterpreter(gc)
