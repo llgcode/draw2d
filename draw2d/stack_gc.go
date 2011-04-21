@@ -7,7 +7,7 @@ import (
 )
 
 type StackGraphicContext struct {
-	current *ContextStack
+	Current *ContextStack
 }
 
 type ContextStack struct {
@@ -32,168 +32,168 @@ type ContextStack struct {
  */
 func NewStackGraphicContext() *StackGraphicContext {
 	gc := &StackGraphicContext{}
-	gc.current = new(ContextStack)
-	gc.current.Tr = NewIdentityMatrix()
-	gc.current.Path = new(PathStorage)
-	gc.current.LineWidth = 1.0
-	gc.current.StrokeColor = image.Black
-	gc.current.FillColor = image.White
-	gc.current.Cap = RoundCap
-	gc.current.FillRule = FillRuleEvenOdd
-	gc.current.Join = RoundJoin
-	gc.current.FontSize = 10
-	gc.current.FontData = defaultFontData
+	gc.Current = new(ContextStack)
+	gc.Current.Tr = NewIdentityMatrix()
+	gc.Current.Path = new(PathStorage)
+	gc.Current.LineWidth = 1.0
+	gc.Current.StrokeColor = image.Black
+	gc.Current.FillColor = image.White
+	gc.Current.Cap = RoundCap
+	gc.Current.FillRule = FillRuleEvenOdd
+	gc.Current.Join = RoundJoin
+	gc.Current.FontSize = 10
+	gc.Current.FontData = defaultFontData
 	return gc
 }
 
 
 func (gc *StackGraphicContext) GetMatrixTransform() MatrixTransform {
-	return gc.current.Tr
+	return gc.Current.Tr
 }
 
 func (gc *StackGraphicContext) SetMatrixTransform(Tr MatrixTransform) {
-	gc.current.Tr = Tr
+	gc.Current.Tr = Tr
 }
 
 func (gc *StackGraphicContext) ComposeMatrixTransform(Tr MatrixTransform) {
-	gc.current.Tr = Tr.Multiply(gc.current.Tr)
+	gc.Current.Tr = Tr.Multiply(gc.Current.Tr)
 }
 
 func (gc *StackGraphicContext) Rotate(angle float64) {
-	gc.current.Tr = NewRotationMatrix(angle).Multiply(gc.current.Tr)
+	gc.Current.Tr = NewRotationMatrix(angle).Multiply(gc.Current.Tr)
 }
 
 func (gc *StackGraphicContext) Translate(tx, ty float64) {
-	gc.current.Tr = NewTranslationMatrix(tx, ty).Multiply(gc.current.Tr)
+	gc.Current.Tr = NewTranslationMatrix(tx, ty).Multiply(gc.Current.Tr)
 }
 
 func (gc *StackGraphicContext) Scale(sx, sy float64) {
-	gc.current.Tr = NewScaleMatrix(sx, sy).Multiply(gc.current.Tr)
+	gc.Current.Tr = NewScaleMatrix(sx, sy).Multiply(gc.Current.Tr)
 }
 
 func (gc *StackGraphicContext) SetStrokeColor(c image.Color) {
-	gc.current.StrokeColor = c
+	gc.Current.StrokeColor = c
 }
 
 func (gc *StackGraphicContext) SetFillColor(c image.Color) {
-	gc.current.FillColor = c
+	gc.Current.FillColor = c
 }
 
 func (gc *StackGraphicContext) SetFillRule(f FillRule) {
-	gc.current.FillRule = f
+	gc.Current.FillRule = f
 }
 
 func (gc *StackGraphicContext) SetLineWidth(LineWidth float64) {
-	gc.current.LineWidth = LineWidth
+	gc.Current.LineWidth = LineWidth
 }
 
 func (gc *StackGraphicContext) SetLineCap(Cap Cap) {
-	gc.current.Cap = Cap
+	gc.Current.Cap = Cap
 }
 
 func (gc *StackGraphicContext) SetLineJoin(Join Join) {
-	gc.current.Join = Join
+	gc.Current.Join = Join
 }
 
 func (gc *StackGraphicContext) SetLineDash(Dash []float64, DashOffset float64) {
-	gc.current.Dash = Dash
-	gc.current.DashOffset = DashOffset
+	gc.Current.Dash = Dash
+	gc.Current.DashOffset = DashOffset
 }
 
 func (gc *StackGraphicContext) SetFontSize(FontSize float64) {
-	gc.current.FontSize = FontSize
+	gc.Current.FontSize = FontSize
 }
 
 func (gc *StackGraphicContext) GetFontSize() float64 {
-	return gc.current.FontSize
+	return gc.Current.FontSize
 }
 
 func (gc *StackGraphicContext) SetFontData(FontData FontData) {
-	gc.current.FontData = FontData
+	gc.Current.FontData = FontData
 }
 
 func (gc *StackGraphicContext) GetFontData() FontData {
-	return gc.current.FontData
+	return gc.Current.FontData
 }
 
 func (gc *StackGraphicContext) BeginPath() {
-	gc.current.Path = new(PathStorage)
+	gc.Current.Path = new(PathStorage)
 }
 
 func (gc *StackGraphicContext) IsEmpty() bool {
-	return gc.current.Path.IsEmpty()
+	return gc.Current.Path.IsEmpty()
 }
 
 func (gc *StackGraphicContext) LastPoint() (float64, float64) {
-	return gc.current.Path.LastPoint()
+	return gc.Current.Path.LastPoint()
 }
 
 func (gc *StackGraphicContext) MoveTo(x, y float64) {
-	gc.current.Path.MoveTo(x, y)
+	gc.Current.Path.MoveTo(x, y)
 }
 
 func (gc *StackGraphicContext) RMoveTo(dx, dy float64) {
-	gc.current.Path.RMoveTo(dx, dy)
+	gc.Current.Path.RMoveTo(dx, dy)
 }
 
 func (gc *StackGraphicContext) LineTo(x, y float64) {
-	gc.current.Path.LineTo(x, y)
+	gc.Current.Path.LineTo(x, y)
 }
 
 func (gc *StackGraphicContext) RLineTo(dx, dy float64) {
-	gc.current.Path.RLineTo(dx, dy)
+	gc.Current.Path.RLineTo(dx, dy)
 }
 
 func (gc *StackGraphicContext) QuadCurveTo(cx, cy, x, y float64) {
-	gc.current.Path.QuadCurveTo(cx, cy, x, y)
+	gc.Current.Path.QuadCurveTo(cx, cy, x, y)
 }
 
 func (gc *StackGraphicContext) RQuadCurveTo(dcx, dcy, dx, dy float64) {
-	gc.current.Path.RQuadCurveTo(dcx, dcy, dx, dy)
+	gc.Current.Path.RQuadCurveTo(dcx, dcy, dx, dy)
 }
 
 func (gc *StackGraphicContext) CubicCurveTo(cx1, cy1, cx2, cy2, x, y float64) {
-	gc.current.Path.CubicCurveTo(cx1, cy1, cx2, cy2, x, y)
+	gc.Current.Path.CubicCurveTo(cx1, cy1, cx2, cy2, x, y)
 }
 
 func (gc *StackGraphicContext) RCubicCurveTo(dcx1, dcy1, dcx2, dcy2, dx, dy float64) {
-	gc.current.Path.RCubicCurveTo(dcx1, dcy1, dcx2, dcy2, dx, dy)
+	gc.Current.Path.RCubicCurveTo(dcx1, dcy1, dcx2, dcy2, dx, dy)
 }
 
 func (gc *StackGraphicContext) ArcTo(cx, cy, rx, ry, startAngle, angle float64) {
-	gc.current.Path.ArcTo(cx, cy, rx, ry, startAngle, angle)
+	gc.Current.Path.ArcTo(cx, cy, rx, ry, startAngle, angle)
 }
 
 func (gc *StackGraphicContext) RArcTo(dcx, dcy, rx, ry, startAngle, angle float64) {
-	gc.current.Path.RArcTo(dcx, dcy, rx, ry, startAngle, angle)
+	gc.Current.Path.RArcTo(dcx, dcy, rx, ry, startAngle, angle)
 }
 
 func (gc *StackGraphicContext) Close() {
-	gc.current.Path.Close()
+	gc.Current.Path.Close()
 }
 
 func (gc *StackGraphicContext) Save() {
 	context := new(ContextStack)
-	context.FontSize = gc.current.FontSize
-	context.FontData = gc.current.FontData
-	context.LineWidth = gc.current.LineWidth
-	context.StrokeColor = gc.current.StrokeColor
-	context.FillColor = gc.current.FillColor
-	context.FillRule = gc.current.FillRule
-	context.Dash = gc.current.Dash
-	context.DashOffset = gc.current.DashOffset
-	context.Cap = gc.current.Cap
-	context.Join = gc.current.Join
-	context.Path = gc.current.Path.Copy()
-	copy(context.Tr[:], gc.current.Tr[:])
-	context.previous = gc.current
-	gc.current = context
+	context.FontSize = gc.Current.FontSize
+	context.FontData = gc.Current.FontData
+	context.LineWidth = gc.Current.LineWidth
+	context.StrokeColor = gc.Current.StrokeColor
+	context.FillColor = gc.Current.FillColor
+	context.FillRule = gc.Current.FillRule
+	context.Dash = gc.Current.Dash
+	context.DashOffset = gc.Current.DashOffset
+	context.Cap = gc.Current.Cap
+	context.Join = gc.Current.Join
+	context.Path = gc.Current.Path.Copy()
+	copy(context.Tr[:], gc.Current.Tr[:])
+	context.previous = gc.Current
+	gc.Current = context
 }
 
 func (gc *StackGraphicContext) Restore() {
-	if gc.current.previous != nil {
-		oldContext := gc.current
-		gc.current = gc.current.previous
+	if gc.Current.previous != nil {
+		oldContext := gc.Current
+		gc.Current = gc.Current.previous
 		oldContext.previous = nil
 	}
 }
