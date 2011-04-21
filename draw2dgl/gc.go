@@ -155,4 +155,3 @@ func (gc *GraphicContext) FillStroke(paths ...*draw2d.PathStorage) {
 	gc.paint(gc.strokeRasterizer, gc.Current.StrokeColor)
 	gc.Current.Path = new(draw2d.PathStorage)
 }
-
