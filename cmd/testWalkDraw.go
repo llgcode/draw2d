@@ -118,7 +118,7 @@ func WndProc(hwnd, msg uint32, wparam, lparam int32) uintptr {
 		hdc := wingui.BeginPaint(hwnd, &ps)
 		gc := draw2d.NewGraphicContext(backBuffer)
 		gc.SetFillColor(image.RGBAColor{0xFF, 0xFF, 0xFF, 0xFF})
-	//	gc.Clear()
+		//	gc.Clear()
 		gc.Save()
 		//gc.Translate(0, -380)
 		interpreter := postscript.NewInterpreter(gc)

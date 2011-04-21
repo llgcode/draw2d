@@ -60,7 +60,7 @@ func TestDrawCubicCurve(gc draw2d.GraphicContext) {
 
 var (
 	width, height int
-	rotate int
+	rotate        int
 )
 
 func reshape(w, h int) {
