@@ -24,16 +24,49 @@ const M16 uint32 = 1<<16 - 1
 // Paint satisfies the Painter interface by painting ss onto an image.RGBA.
 func (p *GLPainter) Paint(ss []raster.Span, done bool) {
 	//gl.Begin(gl.LINES)
+	sslen := len(ss)
+	clenrequired := sslen * 8
+	vlenrequired := sslen * 4
+	if clenrequired >= (cap(p.colors) - len(p.colors)) {
+		p.Flush()
+
+		if clenrequired >= cap(p.colors) {
+			p.vertices = make([]int32, 0, vlenrequired + (vlenrequired / 2 ))
+			p.colors = make([]uint8, 0, clenrequired + (clenrequired /2))
+		}
+	}
+	vi := len(p.vertices)
+	ci := len(p.colors)
+	p.vertices = p.vertices[0:vi+vlenrequired]
+	p.colors = p.colors[0:ci+clenrequired]
 	for _, s := range ss {
 		ma := s.A >> 16
 		a := ma * p.ca / M16
-		/*gl.Color4ub(p.cr, p.cg, p.cb, uint8(a>>8))
-		gl.Vertex2i(s.X0, s.Y)
-		gl.Vertex2i(s.X1, s.Y)*/
-		p.colors = append(p.colors, p.cr, p.cg, p.cb, uint8(a>>8), p.cr, p.cg, p.cb, uint8(a>>8))
-		p.vertices = append(p.vertices, int32(s.X0), int32(s.Y), int32(s.X1), int32(s.Y))
+		p.colors[ci] = p.cr
+		ci++
+		p.colors[ci] = p.cg
+		ci++
+		p.colors[ci] = p.cb
+		ci++
+		p.colors[ci] = uint8(a>>8)
+		ci++
+		p.colors[ci] = p.cr
+		ci++
+		p.colors[ci] = p.cg
+		ci++
+		p.colors[ci] = p.cb
+		ci++
+		p.colors[ci] = uint8(a>>8)
+		ci++
+		p.vertices[vi] = int32(s.X0)
+		vi++
+		p.vertices[vi] = int32(s.Y)
+		vi++
+		p.vertices[vi] = int32(s.X1)
+		vi++
+		p.vertices[vi] = int32(s.Y)
+		vi++
 	}
-	//gl.End()
 }
 
 func (p *GLPainter) Flush() {
@@ -47,8 +80,8 @@ func (p *GLPainter) Flush() {
 		gl.DrawArrays(gl.LINES, 0, len(p.vertices)/2)
 		gl.DisableClientState(gl.VERTEX_ARRAY)
 		gl.DisableClientState(gl.COLOR_ARRAY)
-		p.vertices = make([]int32, 0, 1024)
-		p.colors = make([]uint8, 0, 1024)
+		p.vertices = p.vertices[0:0]
+		p.colors =  p.colors[0:0]
 	}
 }
 
@@ -147,7 +180,7 @@ func (gc *GraphicContext) Stroke(paths ...*draw2d.PathStorage) {
 	pathConverter.Convert(paths...)
 
 	gc.paint(gc.strokeRasterizer, gc.Current.StrokeColor)
-	gc.Current.Path = new(draw2d.PathStorage)
+	gc.Current.Path.Clear() 
 }
 
 func (gc *GraphicContext) Fill(paths ...*draw2d.PathStorage) {
@@ -159,7 +192,7 @@ func (gc *GraphicContext) Fill(paths ...*draw2d.PathStorage) {
 	pathConverter.Convert(paths...)
 
 	gc.paint(gc.fillRasterizer, gc.Current.FillColor)
-	gc.Current.Path = new(draw2d.PathStorage)
+	gc.Current.Path.Clear()
 }
 
 func (gc *GraphicContext) FillStroke(paths ...*draw2d.PathStorage) {
@@ -179,5 +212,5 @@ func (gc *GraphicContext) FillStroke(paths ...*draw2d.PathStorage) {
 
 	gc.paint(gc.fillRasterizer, gc.Current.FillColor)
 	gc.paint(gc.strokeRasterizer, gc.Current.StrokeColor)
-	gc.Current.Path = new(draw2d.PathStorage)
+	gc.Current.Path = draw2d.NewPathStorage()
 }
