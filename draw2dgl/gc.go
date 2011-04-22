@@ -4,7 +4,6 @@ import (
 	"image"
 	"exp/draw"
 	"gl"
-	"unsafe"
 	"freetype-go.googlecode.com/hg/freetype/raster"
 	"draw2d.googlecode.com/hg/draw2d"
 	//"log"
@@ -41,8 +40,8 @@ func (p *GLPainter) Flush() {
 	if len(p.vertices) != 0 {
 		gl.EnableClientState(gl.COLOR_ARRAY)
 		gl.EnableClientState(gl.VERTEX_ARRAY)
-		gl.ColorPointer(4, gl.UNSIGNED_BYTE, 0, unsafe.Pointer(&(p.colors[0])))
-		gl.VertexPointer(2, gl.INT, 0, unsafe.Pointer(&(p.vertices[0])))
+		gl.ColorPointer(4, 0, p.colors)
+		gl.VertexPointer(2, 0, p.vertices)
 
 		// draw lines
 		gl.DrawArrays(gl.LINES, 0, len(p.vertices)/2)
