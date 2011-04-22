@@ -34,8 +34,8 @@ func NewLineStroker(c Cap, j Join, converter VertexConverter) *LineStroker {
 	l := new(LineStroker)
 	l.Next = converter
 	l.HalfLineWidth = 0.5
-	l.vertices = make([]float64, 0)
-	l.rewind = make([]float64, 0)
+	l.vertices = make([]float64, 0, 256)
+	l.rewind = make([]float64, 0, 256)
 	l.Cap = c
 	l.Join = j
 	l.command = VertexNoCommand
@@ -61,8 +61,8 @@ func (l *LineStroker) NextCommand(command VertexCommand) {
 		}
 		l.Next.NextCommand(VertexStopCommand)
 		// reinit vertices	
-		l.vertices = make([]float64, 0)
-		l.rewind = make([]float64, 0)
+		l.vertices = l.vertices[0:0]
+		l.rewind = l.rewind[0:0]
 		l.x, l.y, l.nx, l.ny = 0, 0, 0, 0
 	}
 }

@@ -34,7 +34,7 @@ func NewStackGraphicContext() *StackGraphicContext {
 	gc := &StackGraphicContext{}
 	gc.Current = new(ContextStack)
 	gc.Current.Tr = NewIdentityMatrix()
-	gc.Current.Path = new(PathStorage)
+	gc.Current.Path = NewPathStorage()
 	gc.Current.LineWidth = 1.0
 	gc.Current.StrokeColor = image.Black
 	gc.Current.FillColor = image.White
@@ -117,7 +117,7 @@ func (gc *StackGraphicContext) GetFontData() FontData {
 }
 
 func (gc *StackGraphicContext) BeginPath() {
-	gc.Current.Path = new(PathStorage)
+	gc.Current.Path.Clear()
 }
 
 func (gc *StackGraphicContext) IsEmpty() bool {
