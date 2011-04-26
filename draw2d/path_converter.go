@@ -30,16 +30,35 @@ func (c *PathConverter) Convert(paths ...*PathStorage) {
 func (c *PathConverter) ConvertCommand(cmd PathCmd, vertices ...float64) int {
 	switch cmd {
 	case MoveTo:
-		c.MoveTo(vertices[0], vertices[1])
+		c.x, c.y = vertices[0], vertices[1]
+		c.startX, c.startY = c.x, c.y
+		c.converter.NextCommand(VertexStopCommand)
+		c.converter.NextCommand(VertexStartCommand)
+		c.converter.Vertex(c.x, c.y)
 		return 2
 	case LineTo:
-		c.LineTo(vertices[0], vertices[1])
+		c.x, c.y = vertices[0], vertices[1]
+		if c.startX == c.x && c.startY == c.y {
+			c.converter.NextCommand(VertexCloseCommand)
+		}
+		c.converter.Vertex(c.x, c.y)
+		c.converter.NextCommand(VertexJoinCommand)
 		return 2
 	case QuadCurveTo:
-		c.QuadCurveTo(vertices[0], vertices[1], vertices[2], vertices[3])
+		quadraticBezier(c.converter, c.x, c.y, vertices[0], vertices[1], vertices[2], vertices[3], c.ApproximationScale, c.AngleTolerance)
+		c.x, c.y = vertices[2], vertices[3]
+		if c.startX == c.x && c.startY == c.y {
+			c.converter.NextCommand(VertexCloseCommand)
+		}
+		c.converter.Vertex(c.x, c.y)
 		return 4
 	case CubicCurveTo:
-		c.CubicCurveTo(vertices[0], vertices[1], vertices[2], vertices[3], vertices[4], vertices[5])
+		cubicBezier(c.converter, c.x, c.y, vertices[0], vertices[1], vertices[2], vertices[3], vertices[4], vertices[5], c.ApproximationScale, c.AngleTolerance, c.CuspLimit)
+		c.x, c.y = vertices[4], vertices[5]
+		if c.startX == c.x && c.startY == c.y {
+			c.converter.NextCommand(VertexCloseCommand)
+		}
+		c.converter.Vertex(c.x, c.y)
 		return 6
 	case ArcTo:
 		c.x, c.y = arc(c.converter, vertices[0], vertices[1], vertices[2], vertices[3], vertices[4], vertices[5], c.ApproximationScale)
@@ -49,7 +68,8 @@ func (c *PathConverter) ConvertCommand(cmd PathCmd, vertices ...float64) int {
 		c.converter.Vertex(c.x, c.y)
 		return 6
 	case Close:
-		c.Close()
+		c.converter.NextCommand(VertexCloseCommand)
+		c.converter.Vertex(c.startX, c.startY)
 		return 0
 	}
 	return 0

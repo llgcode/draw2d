@@ -24,7 +24,7 @@ type PathStorage struct {
 	x, y     float64
 }
 
-func NewPathStorage()  (p *PathStorage) {
+func NewPathStorage() (p *PathStorage) {
 	p = new(PathStorage)
 	p.commands = make([]PathCmd, 0, 256)
 	p.vertices = make([]float64, 0, 256)
@@ -32,24 +32,24 @@ func NewPathStorage()  (p *PathStorage) {
 }
 
 func (p *PathStorage) Clear() {
-	p.commands	 = p.commands[0:0]
+	p.commands = p.commands[0:0]
 	p.vertices = p.vertices[0:0]
 	return
 }
 
 func (p *PathStorage) appendToPath(cmd PathCmd, vertices ...float64) {
-	if cap(p.vertices) <= len(p.vertices) + 6 {
-	   a :=  make([]PathCmd, len(p.commands), cap(p.commands) + 256)
-		b :=  make([]float64, len(p.vertices), cap(p.vertices) + 256)
+	if cap(p.vertices) <= len(p.vertices)+6 {
+		a := make([]PathCmd, len(p.commands), cap(p.commands)+256)
+		b := make([]float64, len(p.vertices), cap(p.vertices)+256)
 		copy(a, p.commands)
 		p.commands = a
 		copy(b, p.vertices)
 		p.vertices = b
 	}
-	p.commands = p.commands[0:len(p.commands)+1]
-	p.commands[len(p.commands) - 1]= cmd
+	p.commands = p.commands[0 : len(p.commands)+1]
+	p.commands[len(p.commands)-1] = cmd
 	copy(p.vertices[len(p.vertices):len(p.vertices)+len(vertices)], vertices)
-	p.vertices = p.vertices[0:len(p.vertices)+ len(vertices)]
+	p.vertices = p.vertices[0 : len(p.vertices)+len(vertices)]
 }
 
 func (src *PathStorage) Copy() (dest *PathStorage) {

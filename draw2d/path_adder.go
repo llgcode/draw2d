@@ -30,9 +30,9 @@ func (vertexAdder *VertexAdder) NextCommand(cmd VertexCommand) {
 func (vertexAdder *VertexAdder) Vertex(x, y float64) {
 	switch vertexAdder.command {
 	case VertexStartCommand:
-		vertexAdder.adder.Start(floatToPoint(x, y))
+		vertexAdder.adder.Start(raster.Point{raster.Fix32(x * 256), raster.Fix32(y * 256)})
 	default:
-		vertexAdder.adder.Add1(floatToPoint(x, y))
+		vertexAdder.adder.Add1(raster.Point{raster.Fix32(x * 256), raster.Fix32(y * 256)})
 	}
 	vertexAdder.command = VertexNoCommand
 }

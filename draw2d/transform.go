@@ -179,6 +179,12 @@ func (tr MatrixTransform) GetScaling() (x, y float64) {
 	return tr[0], tr[3]
 }
 
+func (tr MatrixTransform) GetScale() float64 {
+	x := 0.707106781*tr[0] + 0.707106781*tr[1]
+	y := 0.707106781*tr[2] + 0.707106781*tr[3]
+	return math.Sqrt(x*x + y*y)
+}
+
 func (tr MatrixTransform) GetMaxAbsScaling() (s float64) {
 	sx := math.Fabs(tr[0])
 	sy := math.Fabs(tr[3])
@@ -252,8 +258,9 @@ func (vmt *VertexMatrixTransform) NextCommand(command VertexCommand) {
 }
 
 func (vmt *VertexMatrixTransform) Vertex(x, y float64) {
-	vmt.tr.Transform(&x, &y)
-	vmt.Next.Vertex(x, y)
+	u := x*vmt.tr[0] + y*vmt.tr[2] + vmt.tr[4]
+	v := x*vmt.tr[1] + y*vmt.tr[3] + vmt.tr[5]
+	vmt.Next.Vertex(u, v)
 }
 
 

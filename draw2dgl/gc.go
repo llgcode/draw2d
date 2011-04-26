@@ -31,14 +31,14 @@ func (p *GLPainter) Paint(ss []raster.Span, done bool) {
 		p.Flush()
 
 		if clenrequired >= cap(p.colors) {
-			p.vertices = make([]int32, 0, vlenrequired + (vlenrequired / 2 ))
-			p.colors = make([]uint8, 0, clenrequired + (clenrequired /2))
+			p.vertices = make([]int32, 0, vlenrequired+(vlenrequired/2))
+			p.colors = make([]uint8, 0, clenrequired+(clenrequired/2))
 		}
 	}
 	vi := len(p.vertices)
 	ci := len(p.colors)
-	p.vertices = p.vertices[0:vi+vlenrequired]
-	p.colors = p.colors[0:ci+clenrequired]
+	p.vertices = p.vertices[0 : vi+vlenrequired]
+	p.colors = p.colors[0 : ci+clenrequired]
 	for _, s := range ss {
 		ma := s.A >> 16
 		a := ma * p.ca / M16
@@ -48,7 +48,7 @@ func (p *GLPainter) Paint(ss []raster.Span, done bool) {
 		ci++
 		p.colors[ci] = p.cb
 		ci++
-		p.colors[ci] = uint8(a>>8)
+		p.colors[ci] = uint8(a >> 8)
 		ci++
 		p.colors[ci] = p.cr
 		ci++
@@ -56,7 +56,7 @@ func (p *GLPainter) Paint(ss []raster.Span, done bool) {
 		ci++
 		p.colors[ci] = p.cb
 		ci++
-		p.colors[ci] = uint8(a>>8)
+		p.colors[ci] = uint8(a >> 8)
 		ci++
 		p.vertices[vi] = int32(s.X0)
 		vi++
@@ -81,7 +81,7 @@ func (p *GLPainter) Flush() {
 		gl.DisableClientState(gl.VERTEX_ARRAY)
 		gl.DisableClientState(gl.COLOR_ARRAY)
 		p.vertices = p.vertices[0:0]
-		p.colors =  p.colors[0:0]
+		p.colors = p.colors[0:0]
 	}
 }
 
@@ -176,11 +176,11 @@ func (gc *GraphicContext) Stroke(paths ...*draw2d.PathStorage) {
 	} else {
 		pathConverter = draw2d.NewPathConverter(stroker)
 	}
-	pathConverter.ApproximationScale = gc.Current.Tr.GetMaxAbsScaling()
+	pathConverter.ApproximationScale = gc.Current.Tr.GetScale() // From agg code
 	pathConverter.Convert(paths...)
 
 	gc.paint(gc.strokeRasterizer, gc.Current.StrokeColor)
-	gc.Current.Path.Clear() 
+	gc.Current.Path.Clear()
 }
 
 func (gc *GraphicContext) Fill(paths ...*draw2d.PathStorage) {
@@ -188,7 +188,7 @@ func (gc *GraphicContext) Fill(paths ...*draw2d.PathStorage) {
 	gc.fillRasterizer.UseNonZeroWinding = gc.Current.FillRule.UseNonZeroWinding()
 
 	pathConverter := draw2d.NewPathConverter(draw2d.NewVertexMatrixTransform(gc.Current.Tr, draw2d.NewVertexAdder(gc.fillRasterizer)))
-	pathConverter.ApproximationScale = gc.Current.Tr.GetMaxAbsScaling()
+	pathConverter.ApproximationScale = gc.Current.Tr.GetScale() // From agg code
 	pathConverter.Convert(paths...)
 
 	gc.paint(gc.fillRasterizer, gc.Current.FillColor)
@@ -207,7 +207,7 @@ func (gc *GraphicContext) FillStroke(paths ...*draw2d.PathStorage) {
 	demux := draw2d.NewDemuxConverter(filler, stroker)
 	paths = append(paths, gc.Current.Path)
 	pathConverter := draw2d.NewPathConverter(demux)
-	pathConverter.ApproximationScale = gc.Current.Tr.GetMaxAbsScaling()
+	pathConverter.ApproximationScale = gc.Current.Tr.GetScale() // From agg code
 	pathConverter.Convert(paths...)
 
 	gc.paint(gc.fillRasterizer, gc.Current.FillColor)
