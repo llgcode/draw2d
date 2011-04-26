@@ -110,11 +110,29 @@ func NewGLPainter() *GLPainter {
 	return p
 }
 
+
 type GraphicContext struct {
 	*draw2d.StackGraphicContext
 	painter          *GLPainter
 	fillRasterizer   *raster.Rasterizer
 	strokeRasterizer *raster.Rasterizer
+}
+
+type GLVertex struct {
+	x, y float64
+}
+
+
+func NewGLVertex() *GLVertex {
+	return &GLVertex{}
+}
+
+func (glVertex *GLVertex) NextCommand(cmd draw2d.VertexCommand) {
+
+}
+
+func (glVertex *GLVertex) Vertex(x, y float64) {
+	gl.Vertex2d(x, y)
 }
 
 /**
@@ -150,7 +168,6 @@ func (gc *GraphicContext) DrawImage(img image.Image) {
 
 }
 
-
 func (gc *GraphicContext) FillString(text string) (cursor float64) {
 	return 0
 }
@@ -163,7 +180,7 @@ func (gc *GraphicContext) paint(rasterizer *raster.Rasterizer, color image.Color
 	gc.painter.Flush()
 }
 
-func (gc *GraphicContext) Stroke(paths ...*draw2d.PathStorage) {
+func (gc *GraphicContext) Stroke(paths ...*draw2d.PathStorage){
 	paths = append(paths, gc.Current.Path)
 	gc.strokeRasterizer.UseNonZeroWinding = true
 
@@ -194,6 +211,19 @@ func (gc *GraphicContext) Fill(paths ...*draw2d.PathStorage) {
 	gc.paint(gc.fillRasterizer, gc.Current.FillColor)
 	gc.Current.Path.Clear()
 }
+/*
+func (gc *GraphicContext) Fill(paths ...*draw2d.PathStorage) {
+	paths = append(paths, gc.Current.Path)
+	gc.fillRasterizer.UseNonZeroWinding = gc.Current.FillRule.UseNonZeroWinding()
+
+	pathConverter := draw2d.NewPathAdder(draw2d.NewMatrixTransformAdder(gc.Current.Tr, gc.fillRasterizer))
+	pathConverter.ApproximationScale = gc.Current.Tr.GetScale()
+	pathConverter.Convert(paths...)
+
+	gc.paint(gc.fillRasterizer, gc.Current.FillColor)
+	gc.Current.Path.Clear()
+}
+*/
 
 func (gc *GraphicContext) FillStroke(paths ...*draw2d.PathStorage) {
 	gc.fillRasterizer.UseNonZeroWinding = gc.Current.FillRule.UseNonZeroWinding()

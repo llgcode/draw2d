@@ -26,6 +26,15 @@ func (tr MatrixTransform) Transform(points ...*float64) {
 	}
 }
 
+func (tr MatrixTransform) TransformArray(points []float64) {
+	for i, j := 0, 1; j < len(points); i, j = i+2, j+2 {
+		x := points[i]
+		y := points[j]
+		points[i] = x*tr[0] + y*tr[2] + tr[4]
+		points[j] = x*tr[1] + y*tr[3] + tr[5]
+	}
+}
+
 func (tr MatrixTransform) TransformRectangle(x0, y0, x2, y2 *float64) {
 	x1 := *x2
 	y1 := *y0
