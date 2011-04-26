@@ -139,7 +139,7 @@ func (gc *ImageGraphicContext) Stroke2(paths ...*PathStorage) {
 	pathConverter.Convert(paths...)
 
 	mta := NewMatrixTransformAdder(gc.Current.Tr, gc.strokeRasterizer)
-	raster.Stroke(mta, *rasterPath, raster.Fix32(gc.Current.LineWidth*256), gc.Current.Cap.capper(), gc.Current.Join.joiner())
+	raster.Stroke(mta, *rasterPath, raster.Fix32(gc.Current.LineWidth*256), gc.Current.Cap.Convert(), gc.Current.Join.Convert())
 
 	gc.paint(gc.strokeRasterizer, gc.Current.StrokeColor)
 }
@@ -204,7 +204,7 @@ func (gc *ImageGraphicContext) FillStroke2(paths ...*PathStorage) {
 	pathConverter.Convert(paths...)
 
 	mta := NewMatrixTransformAdder(gc.Current.Tr, gc.strokeRasterizer)
-	raster.Stroke(mta, *rasterPath, raster.Fix32(gc.Current.LineWidth*256), gc.Current.Cap.capper(), gc.Current.Join.joiner())
+	raster.Stroke(mta, *rasterPath, raster.Fix32(gc.Current.LineWidth*256), gc.Current.Cap.Convert(), gc.Current.Join.Convert())
 
 	gc.paint(gc.fillRasterizer, gc.Current.FillColor)
 	gc.paint(gc.strokeRasterizer, gc.Current.StrokeColor)
@@ -241,7 +241,7 @@ func (f FillRule) UseNonZeroWinding() bool {
 	return false
 }
 
-func (c Cap) capper() raster.Capper {
+func (c Cap) Convert() raster.Capper {
 	switch c {
 	case RoundCap:
 		return raster.RoundCapper
@@ -253,7 +253,7 @@ func (c Cap) capper() raster.Capper {
 	return raster.RoundCapper
 }
 
-func (j Join) joiner() raster.Joiner {
+func (j Join) Convert() raster.Joiner {
 	switch j {
 	case RoundJoin:
 		return raster.RoundJoiner
