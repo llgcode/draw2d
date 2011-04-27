@@ -39,33 +39,29 @@ func (p *GLPainter) Paint(ss []raster.Span, done bool) {
 	ci := len(p.colors)
 	p.vertices = p.vertices[0 : vi+vlenrequired]
 	p.colors = p.colors[0 : ci+clenrequired]
+	var (
+		colors     []uint8
+		vertices   []int32
+	)
 	for _, s := range ss {
 		ma := s.A >> 16
-		a := ma * p.ca / M16
-		p.colors[ci] = p.cr
-		ci++
-		p.colors[ci] = p.cg
-		ci++
-		p.colors[ci] = p.cb
-		ci++
-		p.colors[ci] = uint8(a >> 8)
-		ci++
-		p.colors[ci] = p.cr
-		ci++
-		p.colors[ci] = p.cg
-		ci++
-		p.colors[ci] = p.cb
-		ci++
-		p.colors[ci] = uint8(a >> 8)
-		ci++
-		p.vertices[vi] = int32(s.X0)
-		vi++
-		p.vertices[vi] = int32(s.Y)
-		vi++
-		p.vertices[vi] = int32(s.X1)
-		vi++
-		p.vertices[vi] = int32(s.Y)
-		vi++
+		a := uint8((ma * p.ca / M16) >> 8)
+		colors = p.colors[ci:]
+		colors[0] = p.cr
+		colors[1] = p.cg
+		colors[2] = p.cb
+		colors[3] = a
+		colors[4] = p.cr
+		colors[5] = p.cg
+		colors[6] = p.cb
+		colors[7] = a
+		ci += 8
+		vertices = p.vertices[vi:]
+		vertices[0] = int32(s.X0)
+		vertices[1] = int32(s.Y)
+		vertices[2] = int32(s.X1)
+		vertices[3] = int32(s.Y)
+		vi += 4
 	}
 }
 
@@ -180,7 +176,7 @@ func (gc *GraphicContext) paint(rasterizer *raster.Rasterizer, color image.Color
 	gc.painter.Flush()
 }
 
-func (gc *GraphicContext) Stroke(paths ...*draw2d.PathStorage){
+func (gc *GraphicContext) Stroke(paths ...*draw2d.PathStorage) {
 	paths = append(paths, gc.Current.Path)
 	gc.strokeRasterizer.UseNonZeroWinding = true
 
