@@ -1,0 +1,10 @@
+
+syntax:glob
+*.[568ao]
+_obj
+[568a].out
+*.orig
+_test
+
+syntax: regexp
+\.dll$
