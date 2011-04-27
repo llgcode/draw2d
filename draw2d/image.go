@@ -117,31 +117,7 @@ func (gc *ImageGraphicContext) paint(rasterizer *raster.Rasterizer, color image.
 	gc.painter.SetColor(color)
 	rasterizer.Rasterize(gc.painter)
 	rasterizer.Clear()
-	gc.Current.Path = new(PathStorage)
-}
-
-/**** First method ****/
-func (gc *ImageGraphicContext) Stroke2(paths ...*PathStorage) {
-	paths = append(paths, gc.Current.Path)
-	gc.strokeRasterizer.UseNonZeroWinding = true
-
-	rasterPath := new(raster.Path)
-
-	var pathConverter *PathConverter
-	if gc.Current.Dash != nil && len(gc.Current.Dash) > 0 {
-		dasher := NewDashConverter(gc.Current.Dash, gc.Current.DashOffset, NewVertexAdder(rasterPath))
-		pathConverter = NewPathConverter(dasher)
-	} else {
-		pathConverter = NewPathConverter(NewVertexAdder(rasterPath))
-	}
-
-	pathConverter.ApproximationScale = gc.Current.Tr.GetMaxAbsScaling()
-	pathConverter.Convert(paths...)
-
-	mta := NewMatrixTransformAdder(gc.Current.Tr, gc.strokeRasterizer)
-	raster.Stroke(mta, *rasterPath, raster.Fix32(gc.Current.LineWidth*256), gc.Current.Cap.Convert(), gc.Current.Join.Convert())
-
-	gc.paint(gc.strokeRasterizer, gc.Current.StrokeColor)
+	gc.Current.Path.Clear()
 }
 
 /**** second method ****/
@@ -158,21 +134,10 @@ func (gc *ImageGraphicContext) Stroke(paths ...*PathStorage) {
 	} else {
 		pathConverter = NewPathConverter(stroker)
 	}
-	pathConverter.ApproximationScale = gc.Current.Tr.GetMaxAbsScaling()
+	pathConverter.ApproximationScale = gc.Current.Tr.GetScale()
 	pathConverter.Convert(paths...)
 
 	gc.paint(gc.strokeRasterizer, gc.Current.StrokeColor)
-}
-
-/**** first method ****/
-func (gc *ImageGraphicContext) Fill2(paths ...*PathStorage) {
-	paths = append(paths, gc.Current.Path)
-	gc.fillRasterizer.UseNonZeroWinding = gc.Current.FillRule.UseNonZeroWinding()
-
-	pathConverter := NewPathConverter(NewVertexAdder(NewMatrixTransformAdder(gc.Current.Tr, gc.fillRasterizer)))
-	pathConverter.ApproximationScale = gc.Current.Tr.GetMaxAbsScaling()
-	pathConverter.Convert(paths...)
-	gc.paint(gc.fillRasterizer, gc.Current.FillColor)
 }
 
 /**** second method ****/
@@ -182,32 +147,10 @@ func (gc *ImageGraphicContext) Fill(paths ...*PathStorage) {
 
 	/**** first method ****/
 	pathConverter := NewPathConverter(NewVertexMatrixTransform(gc.Current.Tr, NewVertexAdder(gc.fillRasterizer)))
-	pathConverter.ApproximationScale = gc.Current.Tr.GetMaxAbsScaling()
+	pathConverter.ApproximationScale = gc.Current.Tr.GetScale()
 	pathConverter.Convert(paths...)
 
 	gc.paint(gc.fillRasterizer, gc.Current.FillColor)
-}
-
-func (gc *ImageGraphicContext) FillStroke2(paths ...*PathStorage) {
-	paths = append(paths, gc.Current.Path)
-	gc.fillRasterizer.UseNonZeroWinding = gc.Current.FillRule.UseNonZeroWinding()
-	gc.strokeRasterizer.UseNonZeroWinding = true
-
-	filler := NewVertexMatrixTransform(gc.Current.Tr, NewVertexAdder(gc.fillRasterizer))
-	rasterPath := new(raster.Path)
-	stroker := NewVertexAdder(rasterPath)
-
-	demux := NewDemuxConverter(filler, stroker)
-
-	pathConverter := NewPathConverter(demux)
-	pathConverter.ApproximationScale = gc.Current.Tr.GetMaxAbsScaling()
-	pathConverter.Convert(paths...)
-
-	mta := NewMatrixTransformAdder(gc.Current.Tr, gc.strokeRasterizer)
-	raster.Stroke(mta, *rasterPath, raster.Fix32(gc.Current.LineWidth*256), gc.Current.Cap.Convert(), gc.Current.Join.Convert())
-
-	gc.paint(gc.fillRasterizer, gc.Current.FillColor)
-	gc.paint(gc.strokeRasterizer, gc.Current.StrokeColor)
 }
 
 /* second method */
@@ -223,7 +166,7 @@ func (gc *ImageGraphicContext) FillStroke(paths ...*PathStorage) {
 	demux := NewDemuxConverter(filler, stroker)
 	paths = append(paths, gc.Current.Path)
 	pathConverter := NewPathConverter(demux)
-	pathConverter.ApproximationScale = gc.Current.Tr.GetMaxAbsScaling()
+	pathConverter.ApproximationScale = gc.Current.Tr.GetScale()
 	pathConverter.Convert(paths...)
 
 	gc.paint(gc.fillRasterizer, gc.Current.FillColor)
