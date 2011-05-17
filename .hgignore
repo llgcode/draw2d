@@ -15,6 +15,7 @@ core
 _obj
 _test
 out.png
+_testmain.go
 
 syntax:regexp
 ^.*/core.[0-9]*$
