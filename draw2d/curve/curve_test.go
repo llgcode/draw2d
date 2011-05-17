@@ -7,11 +7,10 @@ import (
 
 
 var (
-
-	cf64Test1 = NewCubicCurveFloat64(0, 0, 20000, 0, 0, 20000, 20000, 20000)
+	cf64Test1 = NewCubicCurveFloat64(100, 100, 200, 100, 100, 200, 200, 200)
 )
 
-func BenchmarkCubicCurveCasteljauFloat64(b *testing.B) {
+func BenchmarkCubicCurveCasteljauTest1(b *testing.B) {
 	var s []float64
 	for i := 0; i < b.N; i++ {
         s = cf64Test1.SegmentCasteljau()

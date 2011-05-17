@@ -43,6 +43,8 @@ func (c *CubicCurveFloat64) Subdivide() (c1, c2 *CubicCurveFloat64) {
 	return
 }
 
+// subdivide the curve in straight lines using Casteljau subdivision 
+// and computing minimal distance tolerance
 func (c *CubicCurveFloat64) SegmentCasteljau() []float64{
 	// reinit segments
 	c.segments = make([]float64, 0, 2)
