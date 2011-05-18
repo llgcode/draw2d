@@ -24,8 +24,6 @@ import (
 	"strings"
 	"gl"
 	"glut"
-	"image"
-	"draw2d.googlecode.com/hg/draw2d"
 	"draw2d.googlecode.com/hg/draw2dgl"
 	"draw2d.googlecode.com/hg/postscript"
 	"log"
@@ -33,30 +31,6 @@ import (
 )
 
 var postscriptContent string
-
-func TestDrawCubicCurve(gc draw2d.GraphicContext) {
-	// draw a cubic curve
-	x, y := 25.6, 128.0
-	x1, y1 := 102.4, 230.4
-	x2, y2 := 153.6, 25.6
-	x3, y3 := 230.4, 128.0
-
-	gc.SetStrokeColor(image.NRGBAColor{0, 0, 0, 0xff})
-	gc.SetLineWidth(10)
-	gc.MoveTo(x, y)
-	gc.CubicCurveTo(x1, y1, x2, y2, x3, y3)
-	gc.Stroke()
-
-	gc.SetStrokeColor(image.NRGBAColor{0xFF, 0x33, 0x33, 0x99})
-
-	gc.SetLineWidth(6)
-	// draw segment of curve
-	gc.MoveTo(x, y)
-	gc.LineTo(x1, y1)
-	gc.MoveTo(x2, y2)
-	gc.LineTo(x3, y3)
-	gc.Stroke()
-}
 
 var (
 	width, height int
@@ -79,12 +53,11 @@ func reshape(w, h int) {
 	gl.Translatef(0, float32(-h), 0)              /* Shift origin up to upper-left corner. */
 	gl.Enable(gl.BLEND)
 	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
-
+ 	gl.Disable(gl.DEPTH_TEST);
 	width, height = w, h
 }
 
 func display() {
-
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 	gl.LineWidth(1)
 	gc := draw2dgl.NewGraphicContext(width, height)
@@ -115,7 +88,7 @@ func main() {
 	postscriptContent = string(bytes)
 	glut.Init()
 	glut.InitWindowSize(800, 800)
-	glut.CreateWindow("single triangle")
+	glut.CreateWindow("Show Tiger in Opengl")
 
 	glut.DisplayFunc(display)
 	glut.ReshapeFunc(reshape)
