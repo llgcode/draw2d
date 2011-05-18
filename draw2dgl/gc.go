@@ -40,8 +40,8 @@ func (p *GLPainter) Paint(ss []raster.Span, done bool) {
 	p.vertices = p.vertices[0 : vi+vlenrequired]
 	p.colors = p.colors[0 : ci+clenrequired]
 	var (
-		colors     []uint8
-		vertices   []int32
+		colors   []uint8
+		vertices []int32
 	)
 	for _, s := range ss {
 		ma := s.A >> 16

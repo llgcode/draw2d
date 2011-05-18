@@ -9,8 +9,8 @@ import (
 
 
 type VertexAdder struct {
-	command			  VertexCommand
-	adder				  raster.Adder
+	command VertexCommand
+	adder   raster.Adder
 }
 
 func NewVertexAdder(adder raster.Adder) *VertexAdder {
@@ -34,7 +34,7 @@ func (vertexAdder *VertexAdder) Vertex(x, y float64) {
 
 type PathAdder struct {
 	adder              raster.Adder
-	firstPoint          raster.Point
+	firstPoint         raster.Point
 	ApproximationScale float64
 }
 
@@ -71,5 +71,3 @@ func (pathAdder *PathAdder) Convert(paths ...*PathStorage) {
 		}
 	}
 }
-
-
