@@ -15,7 +15,7 @@ core
 _obj
 _test
 out.png
-_testmain.go
+_test*
 
 syntax: regexp
 \.dll$
