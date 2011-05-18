@@ -82,8 +82,7 @@ func (c *CubicCurveFloat64) EstimateDistance() float64 {
 	return math.Sqrt(dx1*dx1+dy1*dy1) + math.Sqrt(dx2*dx2+dy2*dy2) + math.Sqrt(dx3*dx3+dy3*dy3)
 }
 
-// subdivide the curve in straight lines using straight line approximation and Casteljau recursive subdivision 
-// and computing minimal distance tolerance
+// subdivide the curve in straight lines using line approximation and Casteljau recursive subdivision 
 func (c *CubicCurveFloat64) SegmentRec(segments []float64) []float64 {
 	// reinit segments
 	segments = segments[0 : len(segments)+2]

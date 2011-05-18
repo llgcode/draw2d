@@ -15,7 +15,8 @@ import (
 var (
 	testsFloat64 = []CubicCurveFloat64{
 		CubicCurveFloat64{100, 100, 200, 100, 100, 200, 200, 200},
-		CubicCurveFloat64{100, 100, 300, 200, 200, 200, 200, 100},
+		CubicCurveFloat64{100, 100, 300, 200, 200, 200, 300, 100},
+		CubicCurveFloat64{100, 100, 0, 300, 200, 0, 300, 300},
 	}
 )
 
@@ -56,7 +57,7 @@ func savepng(filePath string, m image.Image) {
 }
 
 
-func TestCubicCurveCasteljauRec(t *testing.T) {
+func TestCubicCurveRec(t *testing.T) {
 	for i, curve := range testsFloat64 {
 		d := curve.EstimateDistance()
 		log.Printf("Distance estimation: %f\n", d)
@@ -71,7 +72,7 @@ func TestCubicCurveCasteljauRec(t *testing.T) {
 	}
 }
 
-func TestCubicCurveCasteljau(t *testing.T) {
+func TestCubicCurve(t *testing.T) {
 	for i, curve := range testsFloat64 {
 		d := curve.EstimateDistance()
 		log.Printf("Distance estimation: %f\n", d)
@@ -87,7 +88,7 @@ func TestCubicCurveCasteljau(t *testing.T) {
 }
 
 
-func BenchmarkCubicCurveCasteljauRec(b *testing.B) {
+func BenchmarkCubicCurveRec(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		for _, curve := range testsFloat64 {
 			d := curve.EstimateDistance()
@@ -98,7 +99,7 @@ func BenchmarkCubicCurveCasteljauRec(b *testing.B) {
 	}
 }
 
-func BenchmarkCubicCurveCasteljau(b *testing.B) {
+func BenchmarkCubicCurve(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		for _, curve := range testsFloat64 {
 			d := curve.EstimateDistance()
