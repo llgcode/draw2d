@@ -27,29 +27,29 @@ func (c *CubicCurveFloat64) ArbitraryPoint(mu float64) (x, y float64) {
 }
 
 func (c *CubicCurveFloat64) SubdivideAt(c1, c2 *CubicCurveFloat64, t float64) {
-  	inv_t := (1 - t) 
-  	c1.X1, c1.Y1 = c.X1, c.Y1
-  	c2.X4, c2.Y4 = c.X4, c.Y4
-  	
-    c1.X2 = inv_t * c.X1 + t * c.X2
-	c1.Y2 = inv_t * c.Y1 + t * c.Y2
-	
-    x23 := inv_t * c.X2 + t * c.X3
-	y23 := inv_t * c.Y2 + t * c.Y3
-	
-    c2.X3 = inv_t * c.X3 + t * c.X4
-	c2.Y3 = inv_t * c.Y3 + t * c.Y4
+	inv_t := (1 - t)
+	c1.X1, c1.Y1 = c.X1, c.Y1
+	c2.X4, c2.Y4 = c.X4, c.Y4
 
-    c1.X3 = inv_t * c1.X2 + t * x23
-	c1.Y3 = inv_t * c1.Y2 + t * y23
-	
-    c2.X2 = inv_t * x23 + t * c2.X3
-	c2.Y2 = inv_t * y23 + t * c2.Y3
-	
-    c1.X4 = inv_t * c1.X3 + t * c2.X2
-	c1.Y4 =  inv_t * c1.Y3 + t * c2.Y2
-	
-    c2.X1, c2.Y1 = c1.X4, c1.Y4
+	c1.X2 = inv_t*c.X1 + t*c.X2
+	c1.Y2 = inv_t*c.Y1 + t*c.Y2
+
+	x23 := inv_t*c.X2 + t*c.X3
+	y23 := inv_t*c.Y2 + t*c.Y3
+
+	c2.X3 = inv_t*c.X3 + t*c.X4
+	c2.Y3 = inv_t*c.Y3 + t*c.Y4
+
+	c1.X3 = inv_t*c1.X2 + t*x23
+	c1.Y3 = inv_t*c1.Y2 + t*y23
+
+	c2.X2 = inv_t*x23 + t*c2.X3
+	c2.Y2 = inv_t*y23 + t*c2.Y3
+
+	c1.X4 = inv_t*c1.X3 + t*c2.X2
+	c1.Y4 = inv_t*c1.Y3 + t*c2.Y2
+
+	c2.X1, c2.Y1 = c1.X4, c1.Y4
 }
 
 func (c *CubicCurveFloat64) Subdivide(c1, c2 *CubicCurveFloat64) {
@@ -121,12 +121,12 @@ func (c *CubicCurveFloat64) segmentRec(segments []float64) []float64 {
 	return segments
 }
 
-func (curve *CubicCurveFloat64) Segment(segments []float64) ([]float64) {
+func (curve *CubicCurveFloat64) Segment(segments []float64) []float64 {
 	// Add the first point
 	segments = segments[0 : len(segments)+2]
 	segments[len(segments)-2] = curve.X1
 	segments[len(segments)-1] = curve.Y1
-	
+
 	var curves [32]CubicCurveFloat64
 	curves[0] = *curve
 	i := 0
@@ -137,21 +137,20 @@ func (curve *CubicCurveFloat64) Segment(segments []float64) ([]float64) {
 		c = &curves[i]
 		dx = c.X4 - c.X1
 		dy = c.Y4 - c.Y1
-	
+
 		d2 = math.Fabs(((c.X2-c.X4)*dy - (c.Y2-c.Y4)*dx))
 		d3 = math.Fabs(((c.X3-c.X4)*dy - (c.Y3-c.Y4)*dx))
 
-		if (d2+d3)*(d2+d3) < flattening_threshold*(dx*dx+dy*dy)  || i == len(curves) - 1 {
-	        segments = segments[0 : len(segments)+2]
+		if (d2+d3)*(d2+d3) < flattening_threshold*(dx*dx+dy*dy) || i == len(curves)-1 {
+			segments = segments[0 : len(segments)+2]
 			segments[len(segments)-2] = c.X4
 			segments[len(segments)-1] = c.Y4
-	        i--;
-	    } else {
-	    	// second half of bezier go lower onto the stack
-	   		c.Subdivide(&curves[i+1], &curves[i])
-	        i++;
-	    }
-    }
-    return segments
+			i--
+		} else {
+			// second half of bezier go lower onto the stack
+			c.Subdivide(&curves[i+1], &curves[i])
+			i++
+		}
+	}
+	return segments
 }
-

@@ -12,6 +12,13 @@ func abs(i int) int {
 	return i
 }
 
+func PolylineBresenham(img draw.Image, c image.Color, s ...float64) image.Image {
+	for i := 2; i < len(s); i += 2 {
+		Bresenham(img, c, int(s[i-2]+0.5), int(s[i-1]+0.5), int(s[i]+0.5), int(s[i+1]+0.5))
+	}
+	return img
+}
+
 func Bresenham(img draw.Image, color image.Color, x0, y0, x1, y1 int) {
 	dx := abs(x1 - x0)
 	dy := abs(y1 - y0)

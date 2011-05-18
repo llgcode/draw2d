@@ -53,7 +53,7 @@ func reshape(w, h int) {
 	gl.Translatef(0, float32(-h), 0)              /* Shift origin up to upper-left corner. */
 	gl.Enable(gl.BLEND)
 	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
- 	gl.Disable(gl.DEPTH_TEST);
+	gl.Disable(gl.DEPTH_TEST)
 	width, height = w, h
 }
 
