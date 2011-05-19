@@ -63,8 +63,6 @@ func (c *CubicCurveFloat64) EstimateDistance() float64 {
 
 // subdivide the curve in straight lines using line approximation and Casteljau recursive subdivision 
 func (c *CubicCurveFloat64) SegmentRec(t LineTracer, flattening_threshold float64) {
-	// reinit segments
-	t.LineTo(c.X1, c.Y1)
 	c.segmentRec(t, flattening_threshold)
 	t.LineTo(c.X4, c.Y4)
 }
@@ -115,7 +113,6 @@ func (c *CubicCurveFloat64) AdaptiveSegmentRec(t LineTracer, approximationScale,
 	cuspLimit = computeCuspLimit(cuspLimit)
 	distanceToleranceSquare := 0.5 / approximationScale
 	distanceToleranceSquare = distanceToleranceSquare * distanceToleranceSquare
-	t.LineTo(c.X1, c.Y1)
 	c.adaptiveSegmentRec(t, 0, distanceToleranceSquare, angleTolerance, cuspLimit)
 	t.LineTo(c.X4, c.Y4)
 }
@@ -314,8 +311,6 @@ func (c *CubicCurveFloat64) adaptiveSegmentRec(t LineTracer, level int, distance
 }
 
 func (curve *CubicCurveFloat64) AdaptiveSegment(t LineTracer, approximationScale, angleTolerance, cuspLimit float64) {
-	// Add the first point
-	t.LineTo(curve.X1, curve.Y1)
 	cuspLimit = computeCuspLimit(cuspLimit)
 	distanceToleranceSquare := 0.5 / approximationScale
 	distanceToleranceSquare = distanceToleranceSquare * distanceToleranceSquare
@@ -529,7 +524,6 @@ func (curve *CubicCurveFloat64) AdaptiveSegment(t LineTracer, approximationScale
 
 
 func (c *CubicCurveFloat64) ParabolicSegment(t LineTracer, flattening_threshold float64) {
-	t.LineTo(c.X1, c.Y1)
 	estimatedIFP := c.numberOfInflectionPoints()
 	if estimatedIFP == 0 {
 		// If no inflection points then apply PA on the full Bezier segment.
