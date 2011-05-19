@@ -40,9 +40,6 @@ func (c *CubicCurveFloat64) Subdivide(c1, c2 *CubicCurveFloat64) (x23, y23 float
 }
 
 func (curve *CubicCurveFloat64) Segment(t LineTracer, flattening_threshold float64) {
-	// Add the first point
-	t.LineTo(curve.X1, curve.Y1)
-
 	var curves [CurveRecursionLimit]CubicCurveFloat64
 	curves[0] = *curve
 	i := 0
