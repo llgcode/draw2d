@@ -8,6 +8,7 @@ import (
 	"bufio"
 	"image"
 	"image/png"
+	"exp/draw"
 	"draw2d.googlecode.com/hg/draw2d/raster"
 )
 
@@ -56,6 +57,22 @@ func savepng(filePath string, m image.Image) {
 	}
 }
 
+func drawPoints(img draw.Image, c image.Color, s ...float64) image.Image {
+	for i := 0; i < len(s); i += 2 {
+		x, y := int(s[i]+0.5), int(s[i+1]+0.5)
+		img.Set(x, y, c)
+		img.Set(x, y+1, c)
+		img.Set(x, y-1, c)
+		img.Set(x+1, y, c)
+		img.Set(x+1, y+1, c)
+		img.Set(x+1, y-1, c)
+		img.Set(x-1, y, c)
+		img.Set(x-1, y+1, c)
+		img.Set(x-1, y-1, c)
+		
+	}
+	return img
+}
 
 func TestCubicCurveRec(t *testing.T) {
 	for i, curve := range testsFloat64 {
@@ -67,7 +84,10 @@ func TestCubicCurveRec(t *testing.T) {
 		s = curve.SegmentRec(s)
 		img := image.NewNRGBA(300, 300)
 		raster.PolylineBresenham(img, image.NRGBAColor{0xff, 0, 0, 0xff}, curve.X1, curve.Y1, curve.X2, curve.Y2, curve.X3, curve.Y3, curve.X4, curve.Y4)
-		savepng(fmt.Sprintf("_testRec%d.png", i), raster.PolylineBresenham(img, image.Black, s...))
+		raster.PolylineBresenham(img, image.Black, s...)
+		drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, curve.X1, curve.Y1, curve.X2, curve.Y2, curve.X3, curve.Y3, curve.X4, curve.Y4)
+		drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, s...)
+		savepng(fmt.Sprintf("_testRec%d.png", i), img)
 		log.Printf("Num of points: %d\n", len(s))
 	}
 }
@@ -82,7 +102,10 @@ func TestCubicCurve(t *testing.T) {
 		s = curve.Segment(s)
 		img := image.NewNRGBA(300, 300)
 		raster.PolylineBresenham(img, image.NRGBAColor{0xff, 0, 0, 0xff}, curve.X1, curve.Y1, curve.X2, curve.Y2, curve.X3, curve.Y3, curve.X4, curve.Y4)
-		savepng(fmt.Sprintf("_test%d.png", i), raster.PolylineBresenham(img, image.Black, s...))
+		raster.PolylineBresenham(img, image.Black, s...)
+		drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, curve.X1, curve.Y1, curve.X2, curve.Y2, curve.X3, curve.Y3, curve.X4, curve.Y4)
+		drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, s...)
+		savepng(fmt.Sprintf("_test%d.png", i), img)
 		log.Printf("Num of points: %d\n", len(s))
 	}
 }
