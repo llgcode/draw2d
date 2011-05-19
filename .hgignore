@@ -9,6 +9,7 @@ syntax:glob
 ._*
 .nfs.*
 [568a].out
+*.exe
 *~
 *.orig
 core
