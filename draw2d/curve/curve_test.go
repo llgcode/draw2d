@@ -14,12 +14,32 @@ import (
 
 
 var (
-	testsFloat64 = []CubicCurveFloat64{
+	flattening_threshold float64 = 0.25
+	testsFloat64         = []CubicCurveFloat64{
 		CubicCurveFloat64{100, 100, 200, 100, 100, 200, 200, 200},
 		CubicCurveFloat64{100, 100, 300, 200, 200, 200, 300, 100},
 		CubicCurveFloat64{100, 100, 0, 300, 200, 0, 300, 300},
+		CubicCurveFloat64{150, 290, 10, 10, 290, 10, 150, 290},
+		CubicCurveFloat64{10, 290, 10, 10, 290, 10, 290, 290},
+		CubicCurveFloat64{100, 290, 290, 10, 10, 10, 200, 290},
 	}
 )
+
+type Path struct {
+	points []float64
+}
+
+func (p *Path) LineTo(x, y float64) {
+	if len(p.points)+2 > cap(p.points) {
+		points := make([]float64, len(p.points)+2, len(p.points)+32)
+		copy(points, p.points)
+		p.points = points
+	} else {
+		p.points = p.points[0 : len(p.points)+2]
+	}
+	p.points[len(p.points)-2] = x
+	p.points[len(p.points)-1] = y
+}
 
 func init() {
 	f, err := os.Create("_test.html")
@@ -31,7 +51,7 @@ func init() {
 	log.Printf("Create html viewer")
 	f.Write([]byte("<html><body>"))
 	for i := 0; i < len(testsFloat64); i++ {
-		f.Write([]byte(fmt.Sprintf("<div><img src='_testRec%d.png'/><img src='_test%d.png'/></div>", i, i)))
+		f.Write([]byte(fmt.Sprintf("<div><img src='_testRec%d.png'/>\n<img src='_test%d.png'/>\n<img src='_testAdaptiveRec%d.png'/>\n<img src='_testAdaptive%d.png'/>\n<img src='_testParabolic%d.png'/>\n</div>\n", i, i, i, i, i)))
 	}
 	f.Write([]byte("</body></html>"))
 
@@ -69,55 +89,91 @@ func drawPoints(img draw.Image, c image.Color, s ...float64) image.Image {
 		img.Set(x-1, y, c)
 		img.Set(x-1, y+1, c)
 		img.Set(x-1, y-1, c)
-		
+
 	}
 	return img
 }
 
 func TestCubicCurveRec(t *testing.T) {
 	for i, curve := range testsFloat64 {
-		d := curve.EstimateDistance()
-		log.Printf("Distance estimation: %f\n", d)
-		numSegments := int(d * 0.25)
-		log.Printf("Max segments estimation: %d\n", numSegments)
-		s := make([]float64, 0, numSegments)
-		s = curve.SegmentRec(s)
+		var p Path
+		curve.SegmentRec(&p, flattening_threshold)
 		img := image.NewNRGBA(300, 300)
 		raster.PolylineBresenham(img, image.NRGBAColor{0xff, 0, 0, 0xff}, curve.X1, curve.Y1, curve.X2, curve.Y2, curve.X3, curve.Y3, curve.X4, curve.Y4)
-		raster.PolylineBresenham(img, image.Black, s...)
-		drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, curve.X1, curve.Y1, curve.X2, curve.Y2, curve.X3, curve.Y3, curve.X4, curve.Y4)
-		drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, s...)
+		raster.PolylineBresenham(img, image.Black, p.points...)
+		//drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, curve.X1, curve.Y1, curve.X2, curve.Y2, curve.X3, curve.Y3, curve.X4, curve.Y4)
+		drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, p.points...)
 		savepng(fmt.Sprintf("_testRec%d.png", i), img)
-		log.Printf("Num of points: %d\n", len(s))
+		log.Printf("Num of points: %d\n", len(p.points))
 	}
+	fmt.Println()
 }
 
 func TestCubicCurve(t *testing.T) {
 	for i, curve := range testsFloat64 {
-		d := curve.EstimateDistance()
-		log.Printf("Distance estimation: %f\n", d)
-		numSegments := int(d * 0.25)
-		log.Printf("Max segments estimation: %d\n", numSegments)
-		s := make([]float64, 0, numSegments)
-		s = curve.Segment(s)
+		var p Path
+		curve.Segment(&p, flattening_threshold)
 		img := image.NewNRGBA(300, 300)
 		raster.PolylineBresenham(img, image.NRGBAColor{0xff, 0, 0, 0xff}, curve.X1, curve.Y1, curve.X2, curve.Y2, curve.X3, curve.Y3, curve.X4, curve.Y4)
-		raster.PolylineBresenham(img, image.Black, s...)
-		drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, curve.X1, curve.Y1, curve.X2, curve.Y2, curve.X3, curve.Y3, curve.X4, curve.Y4)
-		drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, s...)
+		raster.PolylineBresenham(img, image.Black, p.points...)
+		//drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, curve.X1, curve.Y1, curve.X2, curve.Y2, curve.X3, curve.Y3, curve.X4, curve.Y4)
+		drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, p.points...)
 		savepng(fmt.Sprintf("_test%d.png", i), img)
-		log.Printf("Num of points: %d\n", len(s))
+		log.Printf("Num of points: %d\n", len(p.points))
 	}
+	fmt.Println()
 }
 
+func TestCubicCurveAdaptiveRec(t *testing.T) {
+	for i, curve := range testsFloat64 {
+		var p Path
+		curve.AdaptiveSegmentRec(&p, 1, 0, 0)
+		img := image.NewNRGBA(300, 300)
+		raster.PolylineBresenham(img, image.NRGBAColor{0xff, 0, 0, 0xff}, curve.X1, curve.Y1, curve.X2, curve.Y2, curve.X3, curve.Y3, curve.X4, curve.Y4)
+		raster.PolylineBresenham(img, image.Black, p.points...)
+		//drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, curve.X1, curve.Y1, curve.X2, curve.Y2, curve.X3, curve.Y3, curve.X4, curve.Y4)
+		drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, p.points...)
+		savepng(fmt.Sprintf("_testAdaptiveRec%d.png", i), img)
+		log.Printf("Num of points: %d\n", len(p.points))
+	}
+	fmt.Println()
+}
+
+func TestCubicCurveAdaptive(t *testing.T) {
+	for i, curve := range testsFloat64 {
+		var p Path
+		curve.AdaptiveSegment(&p, 1, 0, 0)
+		img := image.NewNRGBA(300, 300)
+		raster.PolylineBresenham(img, image.NRGBAColor{0xff, 0, 0, 0xff}, curve.X1, curve.Y1, curve.X2, curve.Y2, curve.X3, curve.Y3, curve.X4, curve.Y4)
+		raster.PolylineBresenham(img, image.Black, p.points...)
+		//drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, curve.X1, curve.Y1, curve.X2, curve.Y2, curve.X3, curve.Y3, curve.X4, curve.Y4)
+		drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, p.points...)
+		savepng(fmt.Sprintf("_testAdaptive%d.png", i), img)
+		log.Printf("Num of points: %d\n", len(p.points))
+	}
+	fmt.Println()
+}
+
+func TestCubicCurveParabolic(t *testing.T) {
+	for i, curve := range testsFloat64 {
+		var p Path
+		curve.ParabolicSegment(&p, flattening_threshold)
+		img := image.NewNRGBA(300, 300)
+		raster.PolylineBresenham(img, image.NRGBAColor{0xff, 0, 0, 0xff}, curve.X1, curve.Y1, curve.X2, curve.Y2, curve.X3, curve.Y3, curve.X4, curve.Y4)
+		raster.PolylineBresenham(img, image.Black, p.points...)
+		//drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, curve.X1, curve.Y1, curve.X2, curve.Y2, curve.X3, curve.Y3, curve.X4, curve.Y4)
+		drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, p.points...)
+		savepng(fmt.Sprintf("_testParabolic%d.png", i), img)
+		log.Printf("Num of points: %d\n", len(p.points))
+	}
+	fmt.Println()
+}
 
 func BenchmarkCubicCurveRec(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		for _, curve := range testsFloat64 {
-			d := curve.EstimateDistance()
-			numSegments := int(d * 0.25)
-			s := make([]float64, 0, numSegments)
-			curve.SegmentRec(s)
+			p := Path{make([]float64, 0, 32)}
+			curve.SegmentRec(&p, flattening_threshold)
 		}
 	}
 }
@@ -125,10 +181,35 @@ func BenchmarkCubicCurveRec(b *testing.B) {
 func BenchmarkCubicCurve(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		for _, curve := range testsFloat64 {
-			d := curve.EstimateDistance()
-			numSegments := int(d * 0.25)
-			s := make([]float64, 0, numSegments)
-			curve.Segment(s)
+			p := Path{make([]float64, 0, 32)}
+			curve.Segment(&p, flattening_threshold)
+		}
+	}
+}
+
+func BenchmarkCubicCurveAdaptiveRec(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		for _, curve := range testsFloat64 {
+			p := Path{make([]float64, 0, 32)}
+			curve.AdaptiveSegmentRec(&p, 1, 0, 0)
+		}
+	}
+}
+
+func BenchmarkCubicCurveAdaptive(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		for _, curve := range testsFloat64 {
+			p := Path{make([]float64, 0, 32)}
+			curve.AdaptiveSegment(&p, 1, 0, 0)
+		}
+	}
+}
+
+func BenchmarkCubicCurveParabolic(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		for _, curve := range testsFloat64 {
+			p := Path{make([]float64, 0, 32)}
+			curve.ParabolicSegment(&p, flattening_threshold)
 		}
 	}
 }
