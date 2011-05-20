@@ -34,7 +34,7 @@ func (curve *QuadCurveFloat64) Segment(t LineTracer, flattening_threshold float6
 	// current curve
 	var c *QuadCurveFloat64
 	var dx, dy, d float64
-	
+
 	for i >= 0 {
 		c = &curves[i]
 		dx = c.X3 - c.X1

@@ -45,9 +45,9 @@ func (curve *CubicCurveFloat64) Segment(t LineTracer, flattening_threshold float
 	i := 0
 	// current curve
 	var c *CubicCurveFloat64
-	
+
 	var dx, dy, d2, d3 float64
-	
+
 	for i >= 0 {
 		c = &curves[i]
 		dx = c.X4 - c.X1
@@ -55,7 +55,7 @@ func (curve *CubicCurveFloat64) Segment(t LineTracer, flattening_threshold float
 
 		d2 = math.Fabs(((c.X2-c.X4)*dy - (c.Y2-c.Y4)*dx))
 		d3 = math.Fabs(((c.X3-c.X4)*dy - (c.Y3-c.Y4)*dx))
-		
+
 		if (d2+d3)*(d2+d3) < flattening_threshold*(dx*dx+dy*dy) || i == len(curves)-1 {
 			t.LineTo(c.X4, c.Y4)
 			i--
