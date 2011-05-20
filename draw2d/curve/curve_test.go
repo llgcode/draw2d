@@ -89,7 +89,7 @@ func savepng(filePath string, m image.Image) {
 }
 
 func drawPoints(img draw.Image, c image.Color, s ...float64) image.Image {
-	for i := 0; i < len(s); i += 2 {
+	/*for i := 0; i < len(s); i += 2 {
 		x, y := int(s[i]+0.5), int(s[i+1]+0.5)
 		img.Set(x, y, c)
 		img.Set(x, y+1, c)
@@ -101,7 +101,7 @@ func drawPoints(img draw.Image, c image.Color, s ...float64) image.Image {
 		img.Set(x-1, y+1, c)
 		img.Set(x-1, y-1, c)
 
-	}
+	}*/
 	return img
 }
 
