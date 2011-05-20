@@ -14,7 +14,7 @@ import (
 
 
 var (
-	flattening_threshold float64 = 0.25
+	flattening_threshold float64 = 0.5
 	testsCubicFloat64    = []CubicCurveFloat64{
 		CubicCurveFloat64{100, 100, 200, 100, 100, 200, 200, 200},
 		CubicCurveFloat64{100, 100, 300, 200, 200, 200, 300, 100},

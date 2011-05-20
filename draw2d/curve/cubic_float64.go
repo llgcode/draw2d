@@ -47,9 +47,6 @@ func (curve *CubicCurveFloat64) Segment(t LineTracer, flattening_threshold float
 	var c *CubicCurveFloat64
 	
 	var dx, dy, d2, d3 float64
-	var lx, ly float64
-	distance_threshold := flattening_threshold * 5
-	lx, ly = curve.X1, curve.Y1
 	
 	for i >= 0 {
 		c = &curves[i]
@@ -60,11 +57,7 @@ func (curve *CubicCurveFloat64) Segment(t LineTracer, flattening_threshold float
 		d3 = math.Fabs(((c.X3-c.X4)*dy - (c.Y3-c.Y4)*dx))
 		
 		if (d2+d3)*(d2+d3) < flattening_threshold*(dx*dx+dy*dy) || i == len(curves)-1 {
-			if !(math.Fabs(lx - c.X4) < distance_threshold && math.Fabs(ly - c.Y4)< distance_threshold ) {
-				t.LineTo(c.X4, c.Y4)
-				lx, ly = c.X4, c.Y4
-			}
-			
+			t.LineTo(c.X4, c.Y4)
 			i--
 		} else {
 			// second half of bezier go lower onto the stack
