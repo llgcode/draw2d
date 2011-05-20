@@ -34,6 +34,10 @@ func (curve *QuadCurveFloat64) Segment(t LineTracer, flattening_threshold float6
 	// current curve
 	var c *QuadCurveFloat64
 	var dx, dy, d float64
+	var lx, ly float64
+	distance_threshold := flattening_threshold * 5
+	lx, ly = curve.X1, curve.Y1
+	
 	for i >= 0 {
 		c = &curves[i]
 		dx = c.X3 - c.X1
@@ -42,7 +46,11 @@ func (curve *QuadCurveFloat64) Segment(t LineTracer, flattening_threshold float6
 		d = math.Fabs(((c.X2-c.X3)*dy - (c.Y2-c.Y3)*dx))
 
 		if (d*d) < flattening_threshold*(dx*dx+dy*dy) || i == len(curves)-1 {
-			t.LineTo(c.X3, c.Y3)
+			if !(math.Fabs(lx - c.X3) <= distance_threshold && math.Fabs(ly - c.Y3)<= distance_threshold ) {
+				t.LineTo(c.X3, c.Y3)
+				lx, ly = c.X3, c.Y3
+			}
+			
 			i--
 		} else {
 			// second half of bezier go lower onto the stack
