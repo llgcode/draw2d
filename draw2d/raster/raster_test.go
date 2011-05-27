@@ -49,23 +49,6 @@ func (p *Path) LineTo(x, y float64) {
 	p.points[len(p.points)-1] = y
 }
 
-func TestRasterizer8BitsSample(t *testing.T) {
-	img := image.NewRGBA(200, 200)
-	var p Path
-	p.LineTo(10, 190)
-	c := curve.CubicCurveFloat64{10, 190, 10, 10, 190, 10, 190, 190}
-	c.Segment(&p, flattening_threshold)
-	poly := Polygon(p.points)
-	color := image.RGBAColor{0, 0, 0, 0xff}
-	tr := [6]float64{1, 0, 0, 1, 0, 0}
-	r := NewRasterizer8BitsSample(200, 200)
-	//PolylineBresenham(img, image.Black, poly...)
-
-
-	r.RenderEvenOdd(img, &color, &poly, tr)
-	savepng("_testRasterizer8BitsSample.png", img)
-}
-
 func TestFreetype(t *testing.T) {
 	var p Path
 	c := curve.CubicCurveFloat64{10, 190, 10, 10, 190, 10, 190, 190}
@@ -87,7 +70,8 @@ func TestFreetype(t *testing.T) {
 	savepng("_testFreetype.png", img)
 }
 
-func BenchmarkRasterizer8BitsSample(b *testing.B) {
+func TestRasterizer(t *testing.T) {
+	img := image.NewRGBA(200, 200)
 	var p Path
 	p.LineTo(10, 190)
 	c := curve.CubicCurveFloat64{10, 190, 10, 10, 190, 10, 190, 190}
@@ -95,11 +79,29 @@ func BenchmarkRasterizer8BitsSample(b *testing.B) {
 	poly := Polygon(p.points)
 	color := image.RGBAColor{0, 0, 0, 0xff}
 	tr := [6]float64{1, 0, 0, 1, 0, 0}
-	for i := 0; i < b.N; i++ {
-		img := image.NewRGBA(200, 200)
-		rasterizer := NewRasterizer8BitsSample(200, 200)
-		rasterizer.RenderEvenOdd(img, &color, &poly, tr)
-	}
+	r := NewRasterizer8BitsSample(200, 200)
+	//PolylineBresenham(img, image.Black, poly...)
+
+
+	r.RenderEvenOdd(img, &color, &poly, tr)
+	savepng("_testRasterizer.png", img)
+}
+
+func TestRasterizerNonZeroWinding(t *testing.T) {
+	img := image.NewRGBA(200, 200)
+	var p Path
+	p.LineTo(10, 190)
+	c := curve.CubicCurveFloat64{10, 190, 10, 10, 190, 10, 190, 190}
+	c.Segment(&p, flattening_threshold)
+	poly := Polygon(p.points)
+	color := image.RGBAColor{0, 0, 0, 0xff}
+	tr := [6]float64{1, 0, 0, 1, 0, 0}
+	r := NewRasterizer8BitsSample(200, 200)
+	//PolylineBresenham(img, image.Black, poly...)
+
+
+	r.RenderNonZeroWinding(img, &color, &poly, tr)
+	savepng("_testRasterizerNonZeroWinding.png", img)
 }
 
 func BenchmarkFreetype(b *testing.B) {
@@ -122,3 +124,34 @@ func BenchmarkFreetype(b *testing.B) {
 		rasterizer.Rasterize(painter)
 	}
 }
+
+func BenchmarkRasterizerNonZeroWinding(b *testing.B) {
+	var p Path
+	p.LineTo(10, 190)
+	c := curve.CubicCurveFloat64{10, 190, 10, 10, 190, 10, 190, 190}
+	c.Segment(&p, flattening_threshold)
+	poly := Polygon(p.points)
+	color := image.RGBAColor{0, 0, 0, 0xff}
+	tr := [6]float64{1, 0, 0, 1, 0, 0}
+	for i := 0; i < b.N; i++ {
+		img := image.NewRGBA(200, 200)
+		rasterizer := NewRasterizer8BitsSample(200, 200)
+		rasterizer.RenderNonZeroWinding(img, &color, &poly, tr)
+	}
+}
+
+func BenchmarkRasterizer(b *testing.B) {
+	var p Path
+	p.LineTo(10, 190)
+	c := curve.CubicCurveFloat64{10, 190, 10, 10, 190, 10, 190, 190}
+	c.Segment(&p, flattening_threshold)
+	poly := Polygon(p.points)
+	color := image.RGBAColor{0, 0, 0, 0xff}
+	tr := [6]float64{1, 0, 0, 1, 0, 0}
+	for i := 0; i < b.N; i++ {
+		img := image.NewRGBA(200, 200)
+		rasterizer := NewRasterizer8BitsSample(200, 200)
+		rasterizer.RenderEvenOdd(img, &color, &poly, tr)
+	}
+}
+
