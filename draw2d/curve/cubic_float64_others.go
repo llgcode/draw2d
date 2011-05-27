@@ -19,52 +19,52 @@ func (c *CubicCurveFloat64) ArbitraryPoint(mu float64) (x, y float64) {
 	mum13 := mum1 * mum1 * mum1
 	mu3 := mu * mu * mu
 
-	x = mum13*c.X1 + 3*mu*mum1*mum1*c.X2 + 3*mu*mu*mum1*c.X3 + mu3*c.X4
-	y = mum13*c.Y1 + 3*mu*mum1*mum1*c.Y2 + 3*mu*mu*mum1*c.Y3 + mu3*c.Y4
+	x = mum13*c[0] + 3*mu*mum1*mum1*c[2] + 3*mu*mu*mum1*c[4] + mu3*c[6]
+	y = mum13*c[1] + 3*mu*mum1*mum1*c[3] + 3*mu*mu*mum1*c[5] + mu3*c[7]
 	return
 }
 
 func (c *CubicCurveFloat64) SubdivideAt(c1, c2 *CubicCurveFloat64, t float64) (x23, y23 float64) {
 	inv_t := (1 - t)
-	c1.X1, c1.Y1 = c.X1, c.Y1
-	c2.X4, c2.Y4 = c.X4, c.Y4
+	c1[0], c1[1] = c[0], c[1]
+	c2[6], c2[7] = c[6], c[7]
 
-	c1.X2 = inv_t*c.X1 + t*c.X2
-	c1.Y2 = inv_t*c.Y1 + t*c.Y2
+	c1[2] = inv_t*c[0] + t*c[2]
+	c1[3] = inv_t*c[1] + t*c[3]
 
-	x23 = inv_t*c.X2 + t*c.X3
-	y23 = inv_t*c.Y2 + t*c.Y3
+	x23 = inv_t*c[2] + t*c[4]
+	y23 = inv_t*c[3] + t*c[5]
 
-	c2.X3 = inv_t*c.X3 + t*c.X4
-	c2.Y3 = inv_t*c.Y3 + t*c.Y4
+	c2[4] = inv_t*c[4] + t*c[6]
+	c2[5] = inv_t*c[5] + t*c[7]
 
-	c1.X3 = inv_t*c1.X2 + t*x23
-	c1.Y3 = inv_t*c1.Y2 + t*y23
+	c1[4] = inv_t*c1[2] + t*x23
+	c1[5] = inv_t*c1[3] + t*y23
 
-	c2.X2 = inv_t*x23 + t*c2.X3
-	c2.Y2 = inv_t*y23 + t*c2.Y3
+	c2[2] = inv_t*x23 + t*c2[4]
+	c2[3] = inv_t*y23 + t*c2[5]
 
-	c1.X4 = inv_t*c1.X3 + t*c2.X2
-	c1.Y4 = inv_t*c1.Y3 + t*c2.Y2
+	c1[6] = inv_t*c1[4] + t*c2[2]
+	c1[7] = inv_t*c1[5] + t*c2[3]
 
-	c2.X1, c2.Y1 = c1.X4, c1.Y4
+	c2[0], c2[1] = c1[6], c1[7]
 	return
 }
 
 func (c *CubicCurveFloat64) EstimateDistance() float64 {
-	dx1 := c.X2 - c.X1
-	dy1 := c.Y2 - c.Y1
-	dx2 := c.X3 - c.X2
-	dy2 := c.Y3 - c.Y2
-	dx3 := c.X4 - c.X3
-	dy3 := c.Y4 - c.Y3
+	dx1 := c[2] - c[0]
+	dy1 := c[3] - c[1]
+	dx2 := c[4] - c[2]
+	dy2 := c[5] - c[3]
+	dx3 := c[6] - c[4]
+	dy3 := c[7] - c[5]
 	return math.Sqrt(dx1*dx1+dy1*dy1) + math.Sqrt(dx2*dx2+dy2*dy2) + math.Sqrt(dx3*dx3+dy3*dy3)
 }
 
 // subdivide the curve in straight lines using line approximation and Casteljau recursive subdivision 
 func (c *CubicCurveFloat64) SegmentRec(t LineTracer, flattening_threshold float64) {
 	c.segmentRec(t, flattening_threshold)
-	t.LineTo(c.X4, c.Y4)
+	t.LineTo(c[6], c[7])
 }
 
 func (c *CubicCurveFloat64) segmentRec(t LineTracer, flattening_threshold float64) {
@@ -73,14 +73,14 @@ func (c *CubicCurveFloat64) segmentRec(t LineTracer, flattening_threshold float6
 
 	// Try to approximate the full cubic curve by a single straight line
 	//------------------
-	dx := c.X4 - c.X1
-	dy := c.Y4 - c.Y1
+	dx := c[6] - c[0]
+	dy := c[7] - c[1]
 
-	d2 := math.Fabs(((c.X2-c.X4)*dy - (c.Y2-c.Y4)*dx))
-	d3 := math.Fabs(((c.X3-c.X4)*dy - (c.Y3-c.Y4)*dx))
+	d2 := math.Fabs(((c[2]-c[6])*dy - (c[3]-c[7])*dx))
+	d3 := math.Fabs(((c[4]-c[6])*dy - (c[5]-c[7])*dx))
 
 	if (d2+d3)*(d2+d3) < flattening_threshold*(dx*dx+dy*dy) {
-		t.LineTo(c.X4, c.Y4)
+		t.LineTo(c[6], c[7])
 		return
 	}
 	// Continue subdivision
@@ -114,7 +114,7 @@ func (c *CubicCurveFloat64) AdaptiveSegmentRec(t LineTracer, approximationScale,
 	distanceToleranceSquare := 0.5 / approximationScale
 	distanceToleranceSquare = distanceToleranceSquare * distanceToleranceSquare
 	c.adaptiveSegmentRec(t, 0, distanceToleranceSquare, angleTolerance, cuspLimit)
-	t.LineTo(c.X4, c.Y4)
+	t.LineTo(c[6], c[7])
 }
 
 func computeCuspLimit(v float64) (r float64) {
@@ -144,26 +144,26 @@ func (c *CubicCurveFloat64) adaptiveSegmentRec(t LineTracer, level int, distance
 
 	// Try to approximate the full cubic curve by a single straight line
 	//------------------
-	dx := c.X4 - c.X1
-	dy := c.Y4 - c.Y1
+	dx := c[6] - c[0]
+	dy := c[7] - c[1]
 
-	d2 := math.Fabs(((c.X2-c.X4)*dy - (c.Y2-c.Y4)*dx))
-	d3 := math.Fabs(((c.X3-c.X4)*dy - (c.Y3-c.Y4)*dx))
+	d2 := math.Fabs(((c[2]-c[6])*dy - (c[3]-c[7])*dx))
+	d3 := math.Fabs(((c[4]-c[6])*dy - (c[5]-c[7])*dx))
 	switch {
 	case d2 <= CurveCollinearityEpsilon && d3 <= CurveCollinearityEpsilon:
 		// All collinear OR p1==p4
 		//----------------------
 		k := dx*dx + dy*dy
 		if k == 0 {
-			d2 = squareDistance(c.X1, c.Y1, c.X2, c.Y2)
-			d3 = squareDistance(c.X4, c.Y4, c.X3, c.Y3)
+			d2 = squareDistance(c[0], c[1], c[2], c[3])
+			d3 = squareDistance(c[6], c[7], c[4], c[5])
 		} else {
 			k = 1 / k
-			da1 := c.X2 - c.X1
-			da2 := c.Y2 - c.Y1
+			da1 := c[2] - c[0]
+			da2 := c[3] - c[1]
 			d2 = k * (da1*dx + da2*dy)
-			da1 = c.X3 - c.X1
-			da2 = c.Y3 - c.Y1
+			da1 = c[4] - c[0]
+			da2 = c[5] - c[1]
 			d3 = k * (da1*dx + da2*dy)
 			if d2 > 0 && d2 < 1 && d3 > 0 && d3 < 1 {
 				// Simple collinear case, 1---2---3---4
@@ -171,29 +171,29 @@ func (c *CubicCurveFloat64) adaptiveSegmentRec(t LineTracer, level int, distance
 				return
 			}
 			if d2 <= 0 {
-				d2 = squareDistance(c.X2, c.Y2, c.X1, c.Y1)
+				d2 = squareDistance(c[2], c[3], c[0], c[1])
 			} else if d2 >= 1 {
-				d2 = squareDistance(c.X2, c.Y2, c.X4, c.Y4)
+				d2 = squareDistance(c[2], c[3], c[6], c[7])
 			} else {
-				d2 = squareDistance(c.X2, c.Y2, c.X1+d2*dx, c.Y1+d2*dy)
+				d2 = squareDistance(c[2], c[3], c[0]+d2*dx, c[1]+d2*dy)
 			}
 
 			if d3 <= 0 {
-				d3 = squareDistance(c.X3, c.Y3, c.X1, c.Y1)
+				d3 = squareDistance(c[4], c[5], c[0], c[1])
 			} else if d3 >= 1 {
-				d3 = squareDistance(c.X3, c.Y3, c.X4, c.Y4)
+				d3 = squareDistance(c[4], c[5], c[6], c[7])
 			} else {
-				d3 = squareDistance(c.X3, c.Y3, c.X1+d3*dx, c.Y1+d3*dy)
+				d3 = squareDistance(c[4], c[5], c[0]+d3*dx, c[1]+d3*dy)
 			}
 		}
 		if d2 > d3 {
 			if d2 < distanceToleranceSquare {
-				t.LineTo(c.X2, c.Y2)
+				t.LineTo(c[2], c[3])
 				return
 			}
 		} else {
 			if d3 < distanceToleranceSquare {
-				t.LineTo(c.X3, c.Y3)
+				t.LineTo(c[4], c[5])
 				return
 			}
 		}
@@ -209,20 +209,20 @@ func (c *CubicCurveFloat64) adaptiveSegmentRec(t LineTracer, level int, distance
 
 			// Angle Condition
 			//----------------------
-			da1 := math.Fabs(math.Atan2(c.Y4-c.Y3, c.X4-c.X3) - math.Atan2(c.Y3-c.Y2, c.X3-c.X2))
+			da1 := math.Fabs(math.Atan2(c[7]-c[5], c[6]-c[4]) - math.Atan2(c[5]-c[3], c[4]-c[2]))
 			if da1 >= math.Pi {
 				da1 = 2*math.Pi - da1
 			}
 
 			if da1 < angleTolerance {
-				t.LineTo(c.X2, c.Y2)
-				t.LineTo(c.X3, c.Y3)
+				t.LineTo(c[2], c[3])
+				t.LineTo(c[4], c[5])
 				return
 			}
 
 			if cuspLimit != 0.0 {
 				if da1 > cuspLimit {
-					t.LineTo(c.X3, c.Y3)
+					t.LineTo(c[4], c[5])
 					return
 				}
 			}
@@ -239,20 +239,20 @@ func (c *CubicCurveFloat64) adaptiveSegmentRec(t LineTracer, level int, distance
 
 			// Angle Condition
 			//----------------------
-			da1 := math.Fabs(math.Atan2(c.Y3-c.Y2, c.X3-c.X2) - math.Atan2(c.Y2-c.Y1, c.X2-c.X1))
+			da1 := math.Fabs(math.Atan2(c[5]-c[3], c[4]-c[2]) - math.Atan2(c[3]-c[1], c[2]-c[0]))
 			if da1 >= math.Pi {
 				da1 = 2*math.Pi - da1
 			}
 
 			if da1 < angleTolerance {
-				t.LineTo(c.X2, c.Y2)
-				t.LineTo(c.X3, c.Y3)
+				t.LineTo(c[2], c[3])
+				t.LineTo(c[4], c[5])
 				return
 			}
 
 			if cuspLimit != 0.0 {
 				if da1 > cuspLimit {
-					t.LineTo(c.X2, c.Y2)
+					t.LineTo(c[2], c[3])
 					return
 				}
 			}
@@ -272,9 +272,9 @@ func (c *CubicCurveFloat64) adaptiveSegmentRec(t LineTracer, level int, distance
 
 			// Angle & Cusp Condition
 			//----------------------
-			k := math.Atan2(c.Y3-c.Y2, c.X3-c.X2)
-			da1 := math.Fabs(k - math.Atan2(c.Y2-c.Y1, c.X2-c.X1))
-			da2 := math.Fabs(math.Atan2(c.Y4-c.Y3, c.X4-c.X3) - k)
+			k := math.Atan2(c[5]-c[3], c[4]-c[2])
+			da1 := math.Fabs(k - math.Atan2(c[3]-c[1], c[2]-c[0]))
+			da2 := math.Fabs(math.Atan2(c[7]-c[5], c[6]-c[4]) - k)
 			if da1 >= math.Pi {
 				da1 = 2*math.Pi - da1
 			}
@@ -291,12 +291,12 @@ func (c *CubicCurveFloat64) adaptiveSegmentRec(t LineTracer, level int, distance
 
 			if cuspLimit != 0.0 {
 				if da1 > cuspLimit {
-					t.LineTo(c.X2, c.Y2)
+					t.LineTo(c[2], c[3])
 					return
 				}
 
 				if da2 > cuspLimit {
-					t.LineTo(c.X3, c.Y3)
+					t.LineTo(c[4], c[5])
 					return
 				}
 			}
@@ -328,14 +328,14 @@ func (curve *CubicCurveFloat64) AdaptiveSegment(t LineTracer, approximationScale
 
 		// Try to approximate the full cubic curve by a single straight line
 		//------------------
-		dx = c.X4 - c.X1
-		dy = c.Y4 - c.Y1
+		dx = c[6] - c[0]
+		dy = c[7] - c[1]
 
-		d2 = math.Fabs(((c.X2-c.X4)*dy - (c.Y2-c.Y4)*dx))
-		d3 = math.Fabs(((c.X3-c.X4)*dy - (c.Y3-c.Y4)*dx))
+		d2 = math.Fabs(((c[2]-c[6])*dy - (c[3]-c[7])*dx))
+		d3 = math.Fabs(((c[4]-c[6])*dy - (c[5]-c[7])*dx))
 		switch {
 		case i == len(curves)-1:
-			t.LineTo(c.X4, c.Y4)
+			t.LineTo(c[6], c[7])
 			i--
 			continue
 		case d2 <= CurveCollinearityEpsilon && d3 <= CurveCollinearityEpsilon:
@@ -343,15 +343,15 @@ func (curve *CubicCurveFloat64) AdaptiveSegment(t LineTracer, approximationScale
 			//----------------------
 			k = dx*dx + dy*dy
 			if k == 0 {
-				d2 = squareDistance(c.X1, c.Y1, c.X2, c.Y2)
-				d3 = squareDistance(c.X4, c.Y4, c.X3, c.Y3)
+				d2 = squareDistance(c[0], c[1], c[2], c[3])
+				d3 = squareDistance(c[6], c[7], c[4], c[5])
 			} else {
 				k = 1 / k
-				da1 := c.X2 - c.X1
-				da2 := c.Y2 - c.Y1
+				da1 := c[2] - c[0]
+				da2 := c[3] - c[1]
 				d2 = k * (da1*dx + da2*dy)
-				da1 = c.X3 - c.X1
-				da2 = c.Y3 - c.Y1
+				da1 = c[4] - c[0]
+				da2 = c[5] - c[1]
 				d3 = k * (da1*dx + da2*dy)
 				if d2 > 0 && d2 < 1 && d3 > 0 && d3 < 1 {
 					// Simple collinear case, 1---2---3---4
@@ -360,30 +360,30 @@ func (curve *CubicCurveFloat64) AdaptiveSegment(t LineTracer, approximationScale
 					continue
 				}
 				if d2 <= 0 {
-					d2 = squareDistance(c.X2, c.Y2, c.X1, c.Y1)
+					d2 = squareDistance(c[2], c[3], c[0], c[1])
 				} else if d2 >= 1 {
-					d2 = squareDistance(c.X2, c.Y2, c.X4, c.Y4)
+					d2 = squareDistance(c[2], c[3], c[6], c[7])
 				} else {
-					d2 = squareDistance(c.X2, c.Y2, c.X1+d2*dx, c.Y1+d2*dy)
+					d2 = squareDistance(c[2], c[3], c[0]+d2*dx, c[1]+d2*dy)
 				}
 
 				if d3 <= 0 {
-					d3 = squareDistance(c.X3, c.Y3, c.X1, c.Y1)
+					d3 = squareDistance(c[4], c[5], c[0], c[1])
 				} else if d3 >= 1 {
-					d3 = squareDistance(c.X3, c.Y3, c.X4, c.Y4)
+					d3 = squareDistance(c[4], c[5], c[6], c[7])
 				} else {
-					d3 = squareDistance(c.X3, c.Y3, c.X1+d3*dx, c.Y1+d3*dy)
+					d3 = squareDistance(c[4], c[5], c[0]+d3*dx, c[1]+d3*dy)
 				}
 			}
 			if d2 > d3 {
 				if d2 < distanceToleranceSquare {
-					t.LineTo(c.X2, c.Y2)
+					t.LineTo(c[2], c[3])
 					i--
 					continue
 				}
 			} else {
 				if d3 < distanceToleranceSquare {
-					t.LineTo(c.X3, c.Y3)
+					t.LineTo(c[4], c[5])
 					i--
 					continue
 				}
@@ -401,21 +401,21 @@ func (curve *CubicCurveFloat64) AdaptiveSegment(t LineTracer, approximationScale
 
 				// Angle Condition
 				//----------------------
-				da1 := math.Fabs(math.Atan2(c.Y4-c.Y3, c.X4-c.X3) - math.Atan2(c.Y3-c.Y2, c.X3-c.X2))
+				da1 := math.Fabs(math.Atan2(c[7]-c[5], c[6]-c[4]) - math.Atan2(c[5]-c[3], c[4]-c[2]))
 				if da1 >= math.Pi {
 					da1 = 2*math.Pi - da1
 				}
 
 				if da1 < angleTolerance {
-					t.LineTo(c.X2, c.Y2)
-					t.LineTo(c.X3, c.Y3)
+					t.LineTo(c[2], c[3])
+					t.LineTo(c[4], c[5])
 					i--
 					continue
 				}
 
 				if cuspLimit != 0.0 {
 					if da1 > cuspLimit {
-						t.LineTo(c.X3, c.Y3)
+						t.LineTo(c[4], c[5])
 						i--
 						continue
 					}
@@ -434,21 +434,21 @@ func (curve *CubicCurveFloat64) AdaptiveSegment(t LineTracer, approximationScale
 
 				// Angle Condition
 				//----------------------
-				da1 := math.Fabs(math.Atan2(c.Y3-c.Y2, c.X3-c.X2) - math.Atan2(c.Y2-c.Y1, c.X2-c.X1))
+				da1 := math.Fabs(math.Atan2(c[5]-c[3], c[4]-c[2]) - math.Atan2(c[3]-c[1], c[2]-c[0]))
 				if da1 >= math.Pi {
 					da1 = 2*math.Pi - da1
 				}
 
 				if da1 < angleTolerance {
-					t.LineTo(c.X2, c.Y2)
-					t.LineTo(c.X3, c.Y3)
+					t.LineTo(c[2], c[3])
+					t.LineTo(c[4], c[5])
 					i--
 					continue
 				}
 
 				if cuspLimit != 0.0 {
 					if da1 > cuspLimit {
-						t.LineTo(c.X2, c.Y2)
+						t.LineTo(c[2], c[3])
 						i--
 						continue
 					}
@@ -470,9 +470,9 @@ func (curve *CubicCurveFloat64) AdaptiveSegment(t LineTracer, approximationScale
 
 				// Angle & Cusp Condition
 				//----------------------
-				k := math.Atan2(c.Y3-c.Y2, c.X3-c.X2)
-				da1 := math.Fabs(k - math.Atan2(c.Y2-c.Y1, c.X2-c.X1))
-				da2 := math.Fabs(math.Atan2(c.Y4-c.Y3, c.X4-c.X3) - k)
+				k := math.Atan2(c[5]-c[3], c[4]-c[2])
+				da1 := math.Fabs(k - math.Atan2(c[3]-c[1], c[2]-c[0]))
+				da2 := math.Fabs(math.Atan2(c[7]-c[5], c[6]-c[4]) - k)
 				if da1 >= math.Pi {
 					da1 = 2*math.Pi - da1
 				}
@@ -490,13 +490,13 @@ func (curve *CubicCurveFloat64) AdaptiveSegment(t LineTracer, approximationScale
 
 				if cuspLimit != 0.0 {
 					if da1 > cuspLimit {
-						t.LineTo(c.X2, c.Y2)
+						t.LineTo(c[2], c[3])
 						i--
 						continue
 					}
 
 					if da2 > cuspLimit {
-						t.LineTo(c.X3, c.Y3)
+						t.LineTo(c[4], c[5])
 						i--
 						continue
 					}
@@ -509,7 +509,7 @@ func (curve *CubicCurveFloat64) AdaptiveSegment(t LineTracer, approximationScale
 		curves[i+1], curves[i] = c1, c2
 		i++
 	}
-	t.LineTo(curve.X4, curve.Y4)
+	t.LineTo(curve[6], curve[7])
 }
 
 
@@ -569,27 +569,27 @@ func (c *CubicCurveFloat64) ParabolicSegment(t LineTracer, flattening_threshold 
 
 // Find the third control point deviation form the axis
 func (c *CubicCurveFloat64) thirdControlPointDeviation() float64 {
-	dx := c.X2 - c.X1
-	dy := c.Y2 - c.Y1
+	dx := c[2] - c[0]
+	dy := c[3] - c[1]
 	l2 := dx*dx + dy*dy
 	if l2 == 0 {
 		return 0
 	}
 	l := math.Sqrt(l2)
-	r := (c.Y2 - c.Y1) / l
-	s := (c.X1 - c.X2) / l
-	u := (c.X2*c.Y1 - c.X1*c.Y2) / l
-	return math.Fabs(r*c.X3 + s*c.Y3 + u)
+	r := (c[3] - c[1]) / l
+	s := (c[0] - c[2]) / l
+	u := (c[2]*c[1] - c[0]*c[3]) / l
+	return math.Fabs(r*c[4] + s*c[5] + u)
 }
 
 // Find the number of inflection point
 func (c *CubicCurveFloat64) numberOfInflectionPoints() int {
-	dx21 := (c.X2 - c.X1)
-	dy21 := (c.Y2 - c.Y1)
-	dx32 := (c.X3 - c.X2)
-	dy32 := (c.Y3 - c.Y2)
-	dx43 := (c.X4 - c.X3)
-	dy43 := (c.Y4 - c.Y3)
+	dx21 := (c[2] - c[0])
+	dy21 := (c[3] - c[1])
+	dx32 := (c[4] - c[2])
+	dy32 := (c[5] - c[3])
+	dx43 := (c[6] - c[4])
+	dy43 := (c[7] - c[5])
 	if ((dx21*dy32 - dy21*dx32) * (dx32*dy43 - dy32*dx43)) < 0 {
 		return 1 // One inflection point
 	} else if ((dx21*dy32 - dy21*dx32) * (dx21*dy43 - dy21*dx43)) > 0 {
@@ -612,16 +612,16 @@ func (curve *CubicCurveFloat64) doParabolicApproximation(tracer LineTracer, flat
 	c = curve
 	var d, t, dx, dy, d2, d3 float64
 	for {
-		dx = c.X4 - c.X1
-		dy = c.Y4 - c.Y1
+		dx = c[6] - c[0]
+		dy = c[7] - c[1]
 
-		d2 = math.Fabs(((c.X2-c.X4)*dy - (c.Y2-c.Y4)*dx))
-		d3 = math.Fabs(((c.X3-c.X4)*dy - (c.Y3-c.Y4)*dx))
+		d2 = math.Fabs(((c[2]-c[6])*dy - (c[3]-c[7])*dx))
+		d3 = math.Fabs(((c[4]-c[6])*dy - (c[5]-c[7])*dx))
 
 		if (d2+d3)*(d2+d3) < flattening_threshold*(dx*dx+dy*dy) {
 			// If the subsegment deviation satisfy the flatness then store the last
 			// point and stop
-			tracer.LineTo(c.X4, c.Y4)
+			tracer.LineTo(c[6], c[7])
 			break
 		}
 		// Find the third control point deviation and the t values for subdivision
@@ -636,17 +636,17 @@ func (curve *CubicCurveFloat64) doParabolicApproximation(tracer LineTracer, flat
 		var b1, b2 CubicCurveFloat64
 		c.SubdivideAt(&b1, &b2, t)
 		// First subsegment should have its deviation equal to flatness
-		dx = b1.X4 - b1.X1
-		dy = b1.Y4 - b1.Y1
+		dx = b1[6] - b1[0]
+		dy = b1[7] - b1[1]
 
-		d2 = math.Fabs(((b1.X2-b1.X4)*dy - (b1.Y2-b1.Y4)*dx))
-		d3 = math.Fabs(((b1.X3-b1.X4)*dy - (b1.Y3-b1.Y4)*dx))
+		d2 = math.Fabs(((b1[2]-b1[6])*dy - (b1[3]-b1[7])*dx))
+		d3 = math.Fabs(((b1[4]-b1[6])*dy - (b1[5]-b1[7])*dx))
 
 		if (d2+d3)*(d2+d3) > flattening_threshold*(dx*dx+dy*dy) {
 			// if not then use RS to handle any mathematical errors
 			b1.Segment(tracer, flattening_threshold)
 		} else {
-			tracer.LineTo(b1.X4, b1.Y4)
+			tracer.LineTo(b1[6], b1[7])
 		}
 		// repeat the process for the left over subsegment.
 		c = &b2
@@ -661,12 +661,12 @@ func (curve *CubicCurveFloat64) findInflectionPoints() (int, firstIfp, secondIfp
 	// a = (float)(-bez.p1 + 3*bez.p2 - 3*bez.p3 + bez.p4);
 	// b = (float)(3*bez.p1 - 6*bez.p2 + 3*bez.p3);
 	// c = (float)(-3*bez.p1 + 3*bez.p2);
-	ax := (-curve.X1 + 3*curve.X2 - 3*curve.X3 + curve.X4)
-	bx := (3*curve.X1 - 6*curve.X2 + 3*curve.X3)
-	cx := (-3*curve.X1 + 3*curve.X2)
-	ay := (-curve.Y1 + 3*curve.Y2 - 3*curve.Y3 + curve.Y4)
-	by := (3*curve.Y1 - 6*curve.Y2 + 3*curve.Y3)
-	cy := (-3*curve.Y1 + 3*curve.Y2)
+	ax := (-curve[0] + 3*curve[2] - 3*curve[4] + curve[6])
+	bx := (3*curve[0] - 6*curve[2] + 3*curve[4])
+	cx := (-3*curve[0] + 3*curve[2])
+	ay := (-curve[1] + 3*curve[3] - 3*curve[5] + curve[7])
+	by := (3*curve[1] - 6*curve[3] + 3*curve[5])
+	cy := (-3*curve[1] + 3*curve[3])
 	a := (3 * (ay*bx - ax*by))
 	b := (3 * (ay*cx - ax*cy))
 	c := (by*cx - bx*cy)

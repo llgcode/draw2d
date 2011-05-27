@@ -2,7 +2,7 @@ package main
 
 import "draw2d.googlecode.com/hg/draw2d/curve"
 import "testing"
-import __os__ "os"
+import __os__     "os"
 import __regexp__ "regexp"
 
 var tests = []testing.InternalTest{
