@@ -6,6 +6,7 @@ GOFILES=\
 	polygon.go\
 	coverage_table.go\
 	fillerAA.go\
+	fixed_point.go
 	
 
 include $(GOROOT)/src/Make.pkg

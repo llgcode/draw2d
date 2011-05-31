@@ -12,9 +12,9 @@ const (
 	SUBPIXEL_COUNT = 1 << SUBPIXEL_SHIFT
 )
 
-var SUBPIXEL_OFFSETS = SUBPIXEL_OFFSETS_SAMPLE_8_FIXED
+var SUBPIXEL_OFFSETS = SUBPIXEL_OFFSETS_SAMPLE_8
 
-type SUBPIXEL_DATA uint8
+type SUBPIXEL_DATA uint16
 type NON_ZERO_MASK_DATA_UNIT uint8
 
 type Rasterizer8BitsSample struct {
@@ -119,52 +119,17 @@ func (r *Rasterizer8BitsSample) RenderEvenOdd(img *image.RGBA, color *image.RGBA
 
 //! Adds an edge to be used with even-odd fill.
 func (r *Rasterizer8BitsSample) addEvenOddEdge(edge *PolygonEdge) {
-	x := Fix(edge.X * FIXED_FLOAT_COEF)
-	slope := Fix(edge.Slope * FIXED_FLOAT_COEF)
-	slopeFix := Fix(0)
-	if (edge.LastLine - edge.FirstLine >= SLOPE_FIX_STEP) {
-        slopeFix = Fix(edge.Slope * SLOPE_FIX_STEP * FIXED_FLOAT_COEF) - (slope << SLOPE_FIX_SHIFT);
-    }
-    
-	var mask SUBPIXEL_DATA
-	var ySub uint32
+	x := edge.X
+	slope := edge.Slope
+	var ySub, mask SUBPIXEL_DATA
 	var xp, yLine int
 	for y := edge.FirstLine; y <= edge.LastLine; y++ {
-		ySub = uint32(y & (SUBPIXEL_COUNT - 1))
-		xp = int((x + SUBPIXEL_OFFSETS[ySub]) >> FIXED_SHIFT)
+		ySub = SUBPIXEL_DATA(y & (SUBPIXEL_COUNT - 1))
+		xp = (int)(x + SUBPIXEL_OFFSETS[ySub])
 		mask = SUBPIXEL_DATA(1 << ySub)
 		yLine = y >> SUBPIXEL_SHIFT
 		r.MaskBuffer[yLine*r.BufferWidth+xp] ^= mask
 		x += slope
-		if (y & SLOPE_FIX_MASK) == 0 {
-            x += slopeFix;
-        }
-	}
-}
-
-//! Adds an edge to be used with non-zero winding fill.
-func (r *Rasterizer8BitsSample) addNonZeroEdge(edge *PolygonEdge) {
-	x := Fix(edge.X * FIXED_FLOAT_COEF)
-	slope := Fix(edge.Slope * FIXED_FLOAT_COEF)
-	slopeFix := Fix(0)
-	if (edge.LastLine - edge.FirstLine >= SLOPE_FIX_STEP) {
-        slopeFix = Fix(edge.Slope * SLOPE_FIX_STEP * FIXED_FLOAT_COEF) - (slope << SLOPE_FIX_SHIFT);
-    }
-	var mask SUBPIXEL_DATA
-	var ySub uint32
-	var xp, yLine int
-	winding := NON_ZERO_MASK_DATA_UNIT(edge.Winding)
-	for y := edge.FirstLine; y <= edge.LastLine; y++ {
-		ySub = uint32(y & (SUBPIXEL_COUNT - 1))
-		xp = int((x + SUBPIXEL_OFFSETS[ySub]) >> FIXED_SHIFT)
-		mask = SUBPIXEL_DATA(1 << ySub)
-		yLine = y >> SUBPIXEL_SHIFT
-		r.MaskBuffer[yLine*r.BufferWidth+xp] |= mask
-		r.WindingBuffer[(yLine*r.BufferWidth+xp)*SUBPIXEL_COUNT+int(ySub)] += winding
-		x += slope
-		if (y & SLOPE_FIX_MASK) == 0 {
-        	x += slopeFix;
-     	}
 	}
 }
 
@@ -253,6 +218,23 @@ func (r *Rasterizer8BitsSample) RenderNonZeroWinding(img *image.RGBA, color *ima
 	r.fillNonZero(img, color, clipRect)
 }
 
+//! Adds an edge to be used with non-zero winding fill.
+func (r *Rasterizer8BitsSample) addNonZeroEdge(edge *PolygonEdge) {
+	x := edge.X
+	slope := edge.Slope
+	var ySub, mask SUBPIXEL_DATA
+	var xp, yLine int
+	winding := NON_ZERO_MASK_DATA_UNIT(edge.Winding)
+	for y := edge.FirstLine; y <= edge.LastLine; y++ {
+		ySub = SUBPIXEL_DATA(y & (SUBPIXEL_COUNT - 1))
+		xp = (int)(x + SUBPIXEL_OFFSETS[ySub])
+		mask = SUBPIXEL_DATA(1 << ySub)
+		yLine = y >> SUBPIXEL_SHIFT
+		r.MaskBuffer[yLine*r.BufferWidth+xp] |= mask
+		r.WindingBuffer[(yLine*r.BufferWidth+xp)*SUBPIXEL_COUNT+int(ySub)] += winding
+		x += slope
+	}
+}
 
 //! Renders the mask to the canvas with non-zero winding fill.
 func (r *Rasterizer8BitsSample) fillNonZero(img *image.RGBA, color *image.RGBAColor, clipBound [4]float64) {
