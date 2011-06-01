@@ -3,7 +3,7 @@ package raster
 type Fix int32
 
 const (
-	FIXED_SHIFT = 16
+	FIXED_SHIFT      = 16
 	FIXED_FLOAT_COEF = 1 << FIXED_SHIFT
 )
 
@@ -12,6 +12,6 @@ const (
  */
 const (
 	SLOPE_FIX_SHIFT = 8
-	SLOPE_FIX_STEP = 1 << SLOPE_FIX_SHIFT
-	SLOPE_FIX_MASK = SLOPE_FIX_STEP - 1
+	SLOPE_FIX_STEP  = 1 << SLOPE_FIX_SHIFT
+	SLOPE_FIX_MASK  = SLOPE_FIX_STEP - 1
 )

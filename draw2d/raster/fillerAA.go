@@ -109,7 +109,7 @@ func (r *Rasterizer8BitsSample) RenderEvenOdd(img *image.RGBA, color *image.RGBA
 	for p < l {
 		edgeCount := polygon.getEdges(p, 16, edges[:], transform, clipRect)
 		for k := 0; k < edgeCount; k++ {
-			r.addEvenOddEdge(&(edges[k]))
+			r.addEvenOddEdge(&edges[k])
 		}
 		p += 16
 	}
@@ -122,10 +122,10 @@ func (r *Rasterizer8BitsSample) addEvenOddEdge(edge *PolygonEdge) {
 	x := Fix(edge.X * FIXED_FLOAT_COEF)
 	slope := Fix(edge.Slope * FIXED_FLOAT_COEF)
 	slopeFix := Fix(0)
-	if (edge.LastLine - edge.FirstLine >= SLOPE_FIX_STEP) {
-        slopeFix = Fix(edge.Slope * SLOPE_FIX_STEP * FIXED_FLOAT_COEF) - (slope << SLOPE_FIX_SHIFT);
-    }
-    
+	if edge.LastLine-edge.FirstLine >= SLOPE_FIX_STEP {
+		slopeFix = Fix(edge.Slope*SLOPE_FIX_STEP*FIXED_FLOAT_COEF) - slope<<SLOPE_FIX_SHIFT
+	}
+
 	var mask SUBPIXEL_DATA
 	var ySub uint32
 	var xp, yLine int
@@ -136,9 +136,9 @@ func (r *Rasterizer8BitsSample) addEvenOddEdge(edge *PolygonEdge) {
 		yLine = y >> SUBPIXEL_SHIFT
 		r.MaskBuffer[yLine*r.BufferWidth+xp] ^= mask
 		x += slope
-		if (y & SLOPE_FIX_MASK) == 0 {
-            x += slopeFix;
-        }
+		if y&SLOPE_FIX_MASK == 0 {
+			x += slopeFix
+		}
 	}
 }
 
@@ -147,9 +147,9 @@ func (r *Rasterizer8BitsSample) addNonZeroEdge(edge *PolygonEdge) {
 	x := Fix(edge.X * FIXED_FLOAT_COEF)
 	slope := Fix(edge.Slope * FIXED_FLOAT_COEF)
 	slopeFix := Fix(0)
-	if (edge.LastLine - edge.FirstLine >= SLOPE_FIX_STEP) {
-        slopeFix = Fix(edge.Slope * SLOPE_FIX_STEP * FIXED_FLOAT_COEF) - (slope << SLOPE_FIX_SHIFT);
-    }
+	if edge.LastLine-edge.FirstLine >= SLOPE_FIX_STEP {
+		slopeFix = Fix(edge.Slope*SLOPE_FIX_STEP*FIXED_FLOAT_COEF) - slope<<SLOPE_FIX_SHIFT
+	}
 	var mask SUBPIXEL_DATA
 	var ySub uint32
 	var xp, yLine int
@@ -162,9 +162,9 @@ func (r *Rasterizer8BitsSample) addNonZeroEdge(edge *PolygonEdge) {
 		r.MaskBuffer[yLine*r.BufferWidth+xp] |= mask
 		r.WindingBuffer[(yLine*r.BufferWidth+xp)*SUBPIXEL_COUNT+int(ySub)] += winding
 		x += slope
-		if (y & SLOPE_FIX_MASK) == 0 {
-        	x += slopeFix;
-     	}
+		if y&SLOPE_FIX_MASK == 0 {
+			x += slopeFix
+		}
 	}
 }
 
@@ -181,7 +181,7 @@ func (r *Rasterizer8BitsSample) fillEvenOdd(img *image.RGBA, color *image.RGBACo
 	//pixColor :=  (uint32(color.R) << 24) |  (uint32(color.G) << 16) |  (uint32(color.B) << 8) | uint32(color.A)
 	pixColor := (*uint32)(unsafe.Pointer(color))
 	cs1 := *pixColor & 0xff00ff
-	cs2 := (*pixColor >> 8) & 0xff00ff
+	cs2 := *pixColor >> 8 & 0xff00ff
 
 	stride := uint32(img.Stride)
 	var mask SUBPIXEL_DATA
@@ -201,13 +201,13 @@ func (r *Rasterizer8BitsSample) fillEvenOdd(img *image.RGBA, color *image.RGBACo
 			//alpha := uint32(coverageTable[mask & 0xff] + coverageTable[(mask >> 8) & 0xff] + coverageTable[(mask >> 16) & 0xff] + coverageTable[(mask >> 24) & 0xff])
 
 			// alpha is in range of 0 to SUBPIXEL_COUNT
-			invAlpha := uint32(SUBPIXEL_COUNT) - alpha
+			invAlpha := SUBPIXEL_COUNT - alpha
 
-			ct1 := (*p & 0xff00ff) * invAlpha
-			ct2 := ((*p >> 8) & 0xff00ff) * invAlpha
+			ct1 := *p & 0xff00ff * invAlpha
+			ct2 := *p >> 8 & 0xff00ff * invAlpha
 
-			ct1 = ((ct1 + cs1*alpha) >> SUBPIXEL_SHIFT) & 0xff00ff
-			ct2 = ((ct2 + cs2*alpha) << (8 - SUBPIXEL_SHIFT)) & 0xff00ff00
+			ct1 = (ct1 + cs1*alpha) >> SUBPIXEL_SHIFT & 0xff00ff
+			ct2 = (ct2 + cs2*alpha) << (8 - SUBPIXEL_SHIFT) & 0xff00ff00
 
 			*p = ct1 + ct2
 		}
@@ -245,7 +245,7 @@ func (r *Rasterizer8BitsSample) RenderNonZeroWinding(img *image.RGBA, color *ima
 	for p < l {
 		edgeCount := polygon.getEdges(p, 16, edges[:], transform, clipRect)
 		for k := 0; k < edgeCount; k++ {
-			r.addNonZeroEdge(&(edges[k]))
+			r.addNonZeroEdge(&edges[k])
 		}
 		p += 16
 	}
@@ -267,7 +267,7 @@ func (r *Rasterizer8BitsSample) fillNonZero(img *image.RGBA, color *image.RGBACo
 	//pixColor :=  (uint32(color.R) << 24) |  (uint32(color.G) << 16) |  (uint32(color.B) << 8) | uint32(color.A)
 	pixColor := (*uint32)(unsafe.Pointer(color))
 	cs1 := *pixColor & 0xff00ff
-	cs2 := (*pixColor >> 8) & 0xff00ff
+	cs2 := *pixColor >> 8 & 0xff00ff
 
 	stride := uint32(img.Stride)
 	var mask SUBPIXEL_DATA
@@ -287,10 +287,10 @@ func (r *Rasterizer8BitsSample) fillNonZero(img *image.RGBA, color *image.RGBACo
 			if temp != 0 {
 				var bit SUBPIXEL_DATA = 1
 				for n = 0; n < SUBPIXEL_COUNT; n++ {
-					if (temp & bit) != 0 {
+					if temp&bit != 0 {
 						t := values[n]
 						values[n] += r.WindingBuffer[(y*uint32(r.BufferWidth)+x)*SUBPIXEL_COUNT+n]
-						if (t == 0 || values[n] == 0 )&& t != values[n] {
+						if (t == 0 || values[n] == 0) && t != values[n] {
 							mask ^= bit
 						}
 					}
@@ -308,11 +308,11 @@ func (r *Rasterizer8BitsSample) fillNonZero(img *image.RGBA, color *image.RGBACo
 			// alpha is in range of 0 to SUBPIXEL_COUNT
 			invAlpha := uint32(SUBPIXEL_COUNT) - alpha
 
-			ct1 := (*p & 0xff00ff) * invAlpha
-			ct2 := ((*p >> 8) & 0xff00ff) * invAlpha
+			ct1 := *p & 0xff00ff * invAlpha
+			ct2 := *p >> 8 & 0xff00ff * invAlpha
 
-			ct1 = ((ct1 + cs1*alpha) >> SUBPIXEL_SHIFT) & 0xff00ff
-			ct2 = ((ct2 + cs2*alpha) << (8 - SUBPIXEL_SHIFT)) & 0xff00ff00
+			ct1 = (ct1 + cs1*alpha) >> SUBPIXEL_SHIFT & 0xff00ff
+			ct2 = (ct2 + cs2*alpha) << (8 - SUBPIXEL_SHIFT) & 0xff00ff00
 
 			*p = ct1 + ct2
 		}
