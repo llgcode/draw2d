@@ -2,7 +2,7 @@ package draw2dgl
 
 import (
 	"image"
-	"exp/draw"
+	"image/draw"
 	"gl"
 	"freetype-go.googlecode.com/hg/freetype/raster"
 	"draw2d.googlecode.com/hg/draw2d"

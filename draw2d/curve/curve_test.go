@@ -8,7 +8,7 @@ import (
 	"bufio"
 	"image"
 	"image/png"
-	"exp/draw"
+	"image/draw"
 	"draw2d.googlecode.com/hg/draw2d/raster"
 )
 

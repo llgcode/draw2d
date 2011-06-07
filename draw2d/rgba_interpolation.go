@@ -2,7 +2,7 @@
 package draw2d
 
 import (
-	"exp/draw"
+	"image/draw"
 	"image"
 	"math"
 )

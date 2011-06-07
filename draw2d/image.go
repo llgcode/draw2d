@@ -3,7 +3,7 @@
 package draw2d
 
 import (
-	"exp/draw"
+	"image/draw"
 	"image"
 	"log"
 	"freetype-go.googlecode.com/hg/freetype"

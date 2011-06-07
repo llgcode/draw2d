@@ -91,7 +91,7 @@ func android(gc draw2d.GraphicContext, x, y float64) {
 
 func main() {
 	i, gc := initGc(width, height)
-	gc.SetFillColor(image.RGBAColor{0xff, 0x44, 0x44, 0xff})
+	gc.SetFillColor(image.RGBAColor{0x44, 0xff, 0x44, 0xff})
 	gc.SetStrokeColor(image.RGBAColor{0x44, 0x44, 0x44, 0xff})
 	android(gc, 10, 10)
 	saveToPngFile("TestAndroid", i)
