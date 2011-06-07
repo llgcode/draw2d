@@ -3,7 +3,7 @@
 package raster
 
 import (
-	"exp/draw"
+	"image/draw"
 	"image"
 )
 

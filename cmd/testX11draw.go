@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"exp/draw"
-	"exp/draw/x11"
+	"image/draw"
+	"image/draw/x11"
 	"image"
 	"math"
 	"draw2d.googlecode.com/hg/draw2d"

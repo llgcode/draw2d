@@ -3,7 +3,7 @@
 package draw2d
 
 import (
-	"exp/draw"
+	"image/draw"
 	"image"
 	"freetype-go.googlecode.com/hg/freetype/raster"
 )
@@ -40,7 +40,7 @@ func (r *NRGBAPainter) Paint(ss []raster.Span, done bool) {
 		}
 		base := s.Y * r.Image.Stride
 		p := r.Image.Pix[base+s.X0 : base+s.X1]
-		// This code is duplicated from drawGlyphOver in $GOROOT/src/pkg/exp/draw/draw.go.
+		// This code is duplicated from drawGlyphOver in $GOROOT/src/pkg/image/draw/draw.go.
 		// TODO(nigeltao): Factor out common code into a utility function, once the compiler
 		// can inline such function calls.
 		ma := s.A >> 16
