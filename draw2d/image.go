@@ -77,7 +77,7 @@ func (gc *ImageGraphicContext) Clear() {
 
 func (gc *ImageGraphicContext) ClearRect(x1, y1, x2, y2 int) {
 	imageColor := image.NewColorImage(gc.Current.FillColor)
-	draw.Draw(gc.img, image.Rect(x1, y1, x2, y2), imageColor, image.ZP)
+	draw.Draw(gc.img, image.Rect(x1, y1, x2, y2), imageColor, image.ZP, draw.Over)
 }
 
 func (gc *ImageGraphicContext) DrawImage(img image.Image) {
