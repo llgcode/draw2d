@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"image/draw"
-	"image/draw/x11"
+	"exp/gui"
+	"exp/gui/x11"
 	"image"
 	"math"
 	"draw2d.googlecode.com/hg/draw2d"
@@ -37,11 +37,11 @@ func main() {
 	for {
 
 		switch evt := (<-window.EventChan()).(type) {
-		case draw.KeyEvent:
+		case gui.KeyEvent:
 			if evt.Key == 'q' {
 				window.Close()
 			}
-		case draw.MouseEvent:
+		case gui.MouseEvent:
 			if evt.Buttons&1 != 0 {
 				if nbclick%2 == 0 {
 					gc.MoveTo(float64(evt.Loc.X), float64(evt.Loc.Y))

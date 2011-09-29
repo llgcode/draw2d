@@ -1,15 +1,15 @@
 // Copyright 2010 The draw2d Authors. All rights reserved.
 // created: 21/11/2010 by Laurent Le Goff
 package draw2d
-
+/*
 import (
 	"image/draw"
 	"image"
 	"freetype-go.googlecode.com/hg/freetype/raster"
-)
+)*/
 
 const M = 1<<16 - 1
-
+/*
 type NRGBAPainter struct {
 	// The image to compose onto.
 	Image *image.NRGBA
@@ -46,7 +46,7 @@ func (r *NRGBAPainter) Paint(ss []raster.Span, done bool) {
 		ma := s.A >> 16
 		if r.Op == draw.Over {
 			for i, nrgba := range p {
-				dr, dg, db, da := nrgba.RGBA()
+				dr, dg, db, da := nrgba.
 				a := M - (r.ca*ma)/M
 				da = (da*a + r.ca*ma) / M
 				if da != 0 {
@@ -74,6 +74,7 @@ func (r *NRGBAPainter) Paint(ss []raster.Span, done bool) {
 			}
 		}
 	}
+	
 }
 
 // SetColor sets the color to paint the spans.
@@ -85,3 +86,4 @@ func (r *NRGBAPainter) SetColor(c image.Color) {
 func NewNRGBAPainter(m *image.NRGBA) *NRGBAPainter {
 	return &NRGBAPainter{Image: m}
 }
+*/
