@@ -55,7 +55,7 @@ func loadFromPngFile(filePath string) image.Image {
 
 func main() {
 	source := loadFromPngFile("../resource/image/TestAndroid.png")
-	dest := image.NewRGBA(1024, 768)
+	dest := image.NewRGBA(image.Rect(0, 0, 1024, 768))
 	width, height := float64(source.Bounds().Dx()), float64(source.Bounds().Dy())
 	tr := draw2d.NewIdentityMatrix()
 	tr.Translate(width/2, height/2)

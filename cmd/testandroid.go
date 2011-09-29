@@ -24,7 +24,7 @@ var (
 )
 
 func initGc(w, h int) (image.Image, draw2d.GraphicContext) {
-	i := image.NewRGBA(w, h)
+	i := image.NewRGBA(image.Rect(0, 0,w, h))
 	gc := draw2d.NewGraphicContext(i)
 	lastTime = time.Nanoseconds()
 

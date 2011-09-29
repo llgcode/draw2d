@@ -37,7 +37,7 @@ func saveToPngFile(filePath string, m image.Image) {
 }
 
 func main() {
-	i := image.NewRGBA(200, 200)
+	i := image.NewRGBA(image.Rect(0,0,200, 200))
 	gc := draw2d.NewGraphicContext(i)
 	gc.MoveTo(10.0, 10.0)
 	gc.LineTo(100.0, 10.0)
