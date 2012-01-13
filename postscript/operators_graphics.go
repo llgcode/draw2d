@@ -5,12 +5,11 @@
 package postscript
 
 import (
-	"image"
-	"draw2d.googlecode.com/hg/draw2d"
-	"math"
+	"code.google.com/p/draw2d/draw2d"
+	"image/color"
 	"log"
+	"math"
 )
-
 
 //Path Construction Operators
 func newpath(interpreter *Interpreter) {
@@ -102,7 +101,7 @@ func grestore(interpreter *Interpreter) {
 
 func setgray(interpreter *Interpreter) {
 	gray := interpreter.PopFloat()
-	color := image.RGBAColor{uint8(gray * 0xff), uint8(gray * 0xff), uint8(gray * 0xff), 0xff}
+	color := color.RGBA{uint8(gray * 0xff), uint8(gray * 0xff), uint8(gray * 0xff), 0xff}
 	interpreter.GetGraphicContext().SetStrokeColor(color)
 	interpreter.GetGraphicContext().SetFillColor(color)
 }
@@ -111,7 +110,7 @@ func setrgbcolor(interpreter *Interpreter) {
 	blue := interpreter.PopFloat()
 	green := interpreter.PopFloat()
 	red := interpreter.PopFloat()
-	color := image.RGBAColor{uint8(red * 0xff), uint8(green * 0xff), uint8(blue * 0xff), 0xff}
+	color := color.RGBA{uint8(red * 0xff), uint8(green * 0xff), uint8(blue * 0xff), 0xff}
 	interpreter.GetGraphicContext().SetStrokeColor(color)
 	interpreter.GetGraphicContext().SetFillColor(color)
 }
@@ -169,7 +168,7 @@ func sethsbcolor(interpreter *Interpreter) {
 	saturation := interpreter.PopFloat()
 	hue := interpreter.PopFloat()
 	red, green, blue := hsbtorgb(hue, saturation, brightness)
-	color := image.RGBAColor{uint8(red), uint8(green), uint8(blue), 0xff}
+	color := color.RGBA{uint8(red), uint8(green), uint8(blue), 0xff}
 	interpreter.GetGraphicContext().SetStrokeColor(color)
 	interpreter.GetGraphicContext().SetFillColor(color)
 }
@@ -193,7 +192,7 @@ func setcmybcolor(interpreter *Interpreter) {
 	green = (1.0-green)*255.0 + 0.5
 	blue = (1.0-blue)*255.0 + 0.5
 
-	color := image.RGBAColor{uint8(red), uint8(green), uint8(blue), 0xff}
+	color := color.RGBA{uint8(red), uint8(green), uint8(blue), 0xff}
 	interpreter.GetGraphicContext().SetStrokeColor(color)
 	interpreter.GetGraphicContext().SetFillColor(color)
 }
@@ -246,6 +245,7 @@ func show(interpreter *Interpreter) {
 	interpreter.GetGraphicContext().FillString(s)
 	log.Printf("show not really implemented")
 }
+
 //ax  ay  string ashow – -> Add (ax , ay) to width of each glyph while showing string
 func ashow(interpreter *Interpreter) {
 	log.Printf("ashow not really implemented")
@@ -282,7 +282,6 @@ func currentflat(interpreter *Interpreter) {
 	interpreter.Push(1.0)
 	log.Printf("currentflat not yet implemented")
 }
-
 
 // Coordinate System and Matrix operators
 func matrix(interpreter *Interpreter) {
@@ -419,7 +418,6 @@ func scale(interpreter *Interpreter) {
 		interpreter.Push(matrix)
 	}
 }
-
 
 func initDrawingOperators(interpreter *Interpreter) {
 

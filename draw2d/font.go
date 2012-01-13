@@ -2,21 +2,18 @@
 // created: 13/12/2010 by Laurent Le Goff
 package draw2d
 
-
 import (
-	"freetype-go.googlecode.com/hg/freetype"
-	"freetype-go.googlecode.com/hg/freetype/truetype"
-	"path"
-	"log"
+	"code.google.com/p/freetype-go/freetype"
+	"code.google.com/p/freetype-go/freetype/truetype"
 	"io/ioutil"
+	"log"
+	"path"
 )
-
 
 var (
 	fontFolder = "../resource/font/"
 	fonts      = make(map[string]*truetype.Font)
 )
-
 
 type FontStyle byte
 
@@ -34,13 +31,11 @@ const (
 	FontFamilyMono
 )
 
-
 type FontData struct {
 	Name   string
 	Family FontFamily
 	Style  FontStyle
 }
-
 
 func GetFont(fontData FontData) *truetype.Font {
 	fontFileName := fontData.Name

@@ -4,13 +4,12 @@
 package postscript
 
 import (
-	"os"
-	"log"
-	"strconv"
+	"code.google.com/p/draw2d/draw2d"
 	"io"
-	"draw2d.googlecode.com/hg/draw2d"
+	"log"
+	"os"
+	"strconv"
 )
-
 
 type Interpreter struct {
 	valueStack      ValueStack
@@ -58,10 +57,10 @@ func (interpreter *Interpreter) Execute(reader io.Reader) {
 	}
 }
 
-func (interpreter *Interpreter) ExecuteFile(filePath string) os.Error {
+func (interpreter *Interpreter) ExecuteFile(filePath string) error {
 	src, err := os.Open(filePath)
 	if src == nil {
-		log.Printf("can't open file; err=%s\n", err.String())
+		log.Printf("can't open file; err=%s\n", err.Error())
 		return err
 	}
 	defer src.Close()
@@ -102,7 +101,7 @@ func (interpreter *Interpreter) scan(scanner *Scanner, token int) {
 		// procedure
 		interpreter.Push(interpreter.scanProcedure(scanner))
 	} else if token == Float || token == Int {
-		f, err := strconv.Atof64(scanner.TokenText())
+		f, err := strconv.ParseFloat(scanner.TokenText(), 64)
 		if err != nil {
 			log.Printf("Float expected: %s\n", scanner.TokenText())
 			interpreter.Push(scanner.TokenText())
@@ -216,7 +215,6 @@ func (interpreter *Interpreter) Define(name string, value Value) {
 func (interpreter *Interpreter) SystemDefine(name string, value Value) {
 	interpreter.dictionaryStack[0][name] = value
 }
-
 
 //Operand Operation
 

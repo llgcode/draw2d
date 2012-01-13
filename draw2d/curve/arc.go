@@ -3,7 +3,7 @@
 package draw2d
 
 import (
-	"freetype-go.googlecode.com/hg/freetype/raster"
+	"code.google.com/p/freetype-go/freetype/raster"
 	"math"
 )
 
@@ -13,7 +13,7 @@ func SegmentArc(t LineTracer, x, y, rx, ry, start, angle, scale float64) {
 	if angle < 0 {
 		clockWise = false
 	}
-	ra := (math.Fabs(rx) + math.Fabs(ry)) / 2
+	ra := (math.Abs(rx) + math.Abs(ry)) / 2
 	da := math.Acos(ra/(ra+0.125/scale)) * 2
 	//normalize
 	if !clockWise {

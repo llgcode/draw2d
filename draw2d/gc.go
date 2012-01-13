@@ -4,6 +4,7 @@ package draw2d
 
 import (
 	"image"
+	"image/color"
 )
 
 type FillRule int
@@ -22,8 +23,8 @@ type GraphicContext interface {
 	Rotate(angle float64)
 	Translate(tx, ty float64)
 	Scale(sx, sy float64)
-	SetStrokeColor(c image.Color)
-	SetFillColor(c image.Color)
+	SetStrokeColor(c color.Color)
+	SetFillColor(c color.Color)
 	SetFillRule(f FillRule)
 	SetLineWidth(lineWidth float64)
 	SetLineCap(cap Cap)

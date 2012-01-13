@@ -10,9 +10,8 @@ import (
 	"io"
 	"os"
 	"unicode"
-	"utf8"
+	"unicode/utf8"
 )
-
 
 // A source position is represented by a Position value.
 // A position is valid if Line > 0.
@@ -23,10 +22,8 @@ type Position struct {
 	Column   int    // column number, starting at 0 (character count per line)
 }
 
-
 // IsValid returns true if the position is valid.
 func (pos *Position) IsValid() bool { return pos.Line > 0 }
-
 
 func (pos Position) String() string {
 	s := pos.Filename
@@ -41,7 +38,6 @@ func (pos Position) String() string {
 	}
 	return s
 }
-
 
 // Predefined mode bits to control recognition of tokens. For instance,
 // to configure a Scanner such that it only recognizes (Go) identifiers,
@@ -61,7 +57,6 @@ const (
 	GoTokens       = ScanIdents | ScanFloats | ScanChars | ScanStrings | ScanRawStrings | ScanComments | SkipComments
 )
 
-
 // The result of Scan is one of the following tokens or a Unicode character.
 const (
 	EOF = -(iota + 1)
@@ -75,7 +70,6 @@ const (
 	skipComment
 )
 
-
 var tokenString = map[int]string{
 	EOF:       "EOF",
 	Ident:     "Ident",
@@ -87,7 +81,6 @@ var tokenString = map[int]string{
 	Comment:   "Comment",
 }
 
-
 // TokenString returns a (visible) string for a token or Unicode character.
 func TokenString(tok int) string {
 	if s, found := tokenString[tok]; found {
@@ -96,11 +89,9 @@ func TokenString(tok int) string {
 	return fmt.Sprintf("U+%04X", tok)
 }
 
-
 // GoWhitespace is the default value for the Scanner's Whitespace field.
 // Its value selects Go's white space characters.
 const GoWhitespace = 1<<'\t' | 1<<'\n' | 1<<'\r' | 1<<' '
-
 
 const bufLen = 1024 // at least utf8.UTFMax
 
@@ -128,7 +119,7 @@ type Scanner struct {
 	tokEnd int          // token text tail end (srcBuf index)
 
 	// One character look-ahead
-	ch int // character before current srcPos
+	ch rune // character before current srcPos
 
 	// Error is called for each error encountered. If no Error
 	// function is set, the error is reported to os.Stderr.
@@ -153,7 +144,6 @@ type Scanner struct {
 	// Scanner.
 	Position
 }
-
 
 // Init initializes a Scanner with a new source and returns itself.
 // Error is set to nil, ErrorCount is set to 0, Mode is set to GoTokens,
@@ -186,13 +176,12 @@ func (s *Scanner) Init(src io.Reader) *Scanner {
 	return s
 }
 
-
 // next reads and returns the next Unicode character. It is designed such
 // that only a minimal amount of work needs to be done in the common ASCII
 // case (one test to check for both ASCII and end-of-buffer, and one test
 // to check for newlines).
-func (s *Scanner) next() int {
-	ch := int(s.srcBuf[s.srcPos])
+func (s *Scanner) next() rune {
+	ch := rune(s.srcBuf[s.srcPos])
 
 	if ch >= utf8.RuneSelf {
 		// uncommon case: not ASCII or not enough bytes
@@ -216,14 +205,14 @@ func (s *Scanner) next() int {
 				if s.srcEnd == 0 {
 					return EOF
 				}
-				if err != os.EOF {
-					s.error(err.String())
+				if err != io.EOF {
+					s.error(err.Error())
 					break
 				}
 			}
 		}
 		// at least one byte
-		ch = int(s.srcBuf[s.srcPos])
+		ch = rune(s.srcBuf[s.srcPos])
 		if ch >= utf8.RuneSelf {
 			// uncommon case: not ASCII
 			var width int
@@ -249,28 +238,25 @@ func (s *Scanner) next() int {
 	return ch
 }
 
-
 // Next reads and returns the next Unicode character.
 // It returns EOF at the end of the source. It reports
 // a read error by calling s.Error, if set, or else
 // prints an error message to os.Stderr. Next does not
 // update the Scanner's Position field; use Pos() to
 // get the current position.
-func (s *Scanner) Next() int {
+func (s *Scanner) Next() rune {
 	s.tokPos = -1 // don't collect token text
 	ch := s.ch
 	s.ch = s.next()
 	return ch
 }
 
-
 // Peek returns the next Unicode character in the source without advancing
 // the scanner. It returns EOF if the scanner's position is at the last
 // character of the source.
-func (s *Scanner) Peek() int {
+func (s *Scanner) Peek() rune {
 	return s.ch
 }
-
 
 func (s *Scanner) error(msg string) {
 	s.ErrorCount++
@@ -281,8 +267,7 @@ func (s *Scanner) error(msg string) {
 	fmt.Fprintf(os.Stderr, "%s: %s", s.Position, msg)
 }
 
-
-func (s *Scanner) scanIdentifier() int {
+func (s *Scanner) scanIdentifier() rune {
 	ch := s.next() // read character after first '_' or letter
 	for ch == '_' || unicode.IsLetter(ch) || unicode.IsDigit(ch) || ch == '.' || ch == '-' || ch == '`' {
 		ch = s.next()
@@ -290,8 +275,7 @@ func (s *Scanner) scanIdentifier() int {
 	return ch
 }
 
-
-func digitVal(ch int) int {
+func digitVal(ch rune) rune {
 	switch {
 	case '0' <= ch && ch <= '9':
 		return ch - '0'
@@ -303,27 +287,23 @@ func digitVal(ch int) int {
 	return 16 // larger than any legal digit val
 }
 
+func isDecimal(ch rune) bool { return '0' <= ch && ch <= '9' }
 
-func isDecimal(ch int) bool { return '0' <= ch && ch <= '9' }
-
-
-func (s *Scanner) scanMantissa(ch int) int {
+func (s *Scanner) scanMantissa(ch rune) rune {
 	for isDecimal(ch) {
 		ch = s.next()
 	}
 	return ch
 }
 
-
-func (s *Scanner) scanFraction(ch int) int {
+func (s *Scanner) scanFraction(ch rune) rune {
 	if ch == '.' {
 		ch = s.scanMantissa(s.next())
 	}
 	return ch
 }
 
-
-func (s *Scanner) scanExponent(ch int) int {
+func (s *Scanner) scanExponent(ch rune) rune {
 	if ch == 'e' || ch == 'E' {
 		ch = s.next()
 		if ch == '-' || ch == '+' {
@@ -334,8 +314,7 @@ func (s *Scanner) scanExponent(ch int) int {
 	return ch
 }
 
-
-func (s *Scanner) scanNumber(ch int) (int, int) {
+func (s *Scanner) scanNumber(ch rune) (int, rune) {
 	// isDecimal(ch)
 	if ch == '0' {
 		// int or float
@@ -379,9 +358,8 @@ func (s *Scanner) scanNumber(ch int) (int, int) {
 	return Int, ch
 }
 
-
-func (s *Scanner) scanDigits(ch, base, n int) int {
-	for n > 0 && digitVal(ch) < base {
+func (s *Scanner) scanDigits(ch rune, base, n int) rune {
+	for n > 0 && int(digitVal(ch)) < base {
 		ch = s.next()
 		n--
 	}
@@ -391,8 +369,7 @@ func (s *Scanner) scanDigits(ch, base, n int) int {
 	return ch
 }
 
-
-func (s *Scanner) scanEscape(quote int) int {
+func (s *Scanner) scanEscape(quote rune) rune {
 	ch := s.next() // read character after '/'
 	switch ch {
 	case 'a', 'b', 'f', 'n', 'r', 't', 'v', '\\', quote:
@@ -412,8 +389,7 @@ func (s *Scanner) scanEscape(quote int) int {
 	return ch
 }
 
-
-func (s *Scanner) scanString(quote int) (n int) {
+func (s *Scanner) scanString(quote rune) (n int) {
 	ch := s.next() // read character after quote
 	for ch != quote {
 		if ch == '\n' || ch < 0 {
@@ -430,7 +406,6 @@ func (s *Scanner) scanString(quote int) (n int) {
 	return
 }
 
-
 func (s *Scanner) scanRawString() {
 	ch := s.next() // read character after '`'
 	for ch != '`' {
@@ -441,7 +416,6 @@ func (s *Scanner) scanRawString() {
 		ch = s.next()
 	}
 }
-
 
 func (s *Scanner) scanLineComment() {
 	ch := s.next() // read character after "//"
@@ -454,11 +428,9 @@ func (s *Scanner) scanLineComment() {
 	}
 }
 
-
-func (s *Scanner) scanComment(ch int) {
+func (s *Scanner) scanComment(ch rune) {
 	s.scanLineComment()
 }
-
 
 // Scan reads the next token or Unicode character from source and returns it.
 // It only recognizes tokens t for which the respective Mode bit (1<<-t) is set.
@@ -487,7 +459,7 @@ redo:
 	s.Column = s.column
 
 	// determine token value
-	tok := ch
+	tok := int(ch)
 	switch {
 	case unicode.IsLetter(ch) || ch == '_' || ch == '`':
 		if s.Mode&ScanIdents != 0 {
@@ -560,7 +532,6 @@ redo:
 	return tok
 }
 
-
 // Position returns the current source position. If called before Next()
 // or Scan(), it returns the position of the next Unicode character or token
 // returned by these functions. If called afterwards, it returns the position
@@ -574,7 +545,6 @@ func (s *Scanner) Pos() Position {
 		s.column,
 	}
 }
-
 
 // TokenText returns the string corresponding to the most recently scanned token.
 // Valid after calling Scan().

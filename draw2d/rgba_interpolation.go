@@ -2,8 +2,9 @@
 package draw2d
 
 import (
-	"image/draw"
 	"image"
+	"image/color"
+	"image/draw"
 	"math"
 )
 
@@ -16,11 +17,11 @@ const (
 )
 
 //see http://pippin.gimp.org/image_processing/chap_resampling.html
-func getColorLinear(img image.Image, x, y float64) image.Color {
+func getColorLinear(img image.Image, x, y float64) color.Color {
 	return img.At(int(x), int(y))
 }
 
-func getColorBilinear(img image.Image, x, y float64) image.Color {
+func getColorBilinear(img image.Image, x, y float64) color.Color {
 	x0 := math.Floor(x)
 	y0 := math.Floor(y)
 	dx := x - x0
@@ -39,8 +40,9 @@ func getColorBilinear(img image.Image, x, y float64) image.Color {
 	g := int(lerp(lerp(g0, g1, dx), lerp(g3, g2, dx), dy))
 	b := int(lerp(lerp(b0, b1, dx), lerp(b3, b2, dx), dy))
 	a := int(lerp(lerp(a0, a1, dx), lerp(a3, a2, dx), dy))
-	return image.RGBAColor{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)}
+	return color.RGBA{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)}
 }
+
 /**
 -- LERP
 -- /lerp/, vi.,n.
@@ -53,8 +55,7 @@ func lerp(v1, v2, ratio float64) float64 {
 	return v1*(1-ratio) + v2*ratio
 }
 
-
-func getColorCubicRow(img image.Image, x, y, offset float64) image.Color {
+func getColorCubicRow(img image.Image, x, y, offset float64) color.Color {
 	c0 := img.At(int(x), int(y))
 	c1 := img.At(int(x+1), int(y))
 	c2 := img.At(int(x+2), int(y))
@@ -68,10 +69,10 @@ func getColorCubicRow(img image.Image, x, y, offset float64) image.Color {
 	rt, gt, bt, at = c3.RGBA()
 	r3, g3, b3, a3 := float64(rt), float64(gt), float64(bt), float64(at)
 	r, g, b, a := cubic(offset, r0, r1, r2, r3), cubic(offset, g0, g1, g2, g3), cubic(offset, b0, b1, b2, b3), cubic(offset, a0, a1, a2, a3)
-	return image.RGBAColor{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)}
+	return color.RGBA{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)}
 }
 
-func getColorBicubic(img image.Image, x, y float64) image.Color {
+func getColorBicubic(img image.Image, x, y float64) color.Color {
 	x0 := math.Floor(x)
 	y0 := math.Floor(y)
 	dx := x - x0
@@ -89,7 +90,7 @@ func getColorBicubic(img image.Image, x, y float64) image.Color {
 	rt, gt, bt, at = c3.RGBA()
 	r3, g3, b3, a3 := float64(rt), float64(gt), float64(bt), float64(at)
 	r, g, b, a := cubic(dy, r0, r1, r2, r3), cubic(dy, g0, g1, g2, g3), cubic(dy, b0, b1, b2, b3), cubic(dy, a0, a1, a2, a3)
-	return image.RGBAColor{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)}
+	return color.RGBA{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)}
 }
 
 func cubic(offset, v0, v1, v2, v3 float64) uint32 {
@@ -104,9 +105,9 @@ func DrawImage(src image.Image, dest draw.Image, tr MatrixTransform, op draw.Op,
 	x0, y0, x1, y1 := float64(bounds.Min.X), float64(bounds.Min.Y), float64(bounds.Max.X), float64(bounds.Max.Y)
 	tr.TransformRectangle(&x0, &y0, &x1, &y1)
 	var x, y, u, v float64
-	var c1, c2, cr image.Color
+	var c1, c2, cr color.Color
 	var r, g, b, a, ia, r1, g1, b1, a1, r2, g2, b2, a2 uint32
-	var color image.RGBAColor
+	var color color.RGBA
 	for x = x0; x < x1; x++ {
 		for y = y0; y < y1; y++ {
 			u = x

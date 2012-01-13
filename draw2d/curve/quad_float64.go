@@ -5,10 +5,9 @@ package curve
 import (
 	"math"
 )
+
 //X1, Y1, X2, Y2, X3, Y3 float64
 type QuadCurveFloat64 [6]float64
-
-
 
 func (c *QuadCurveFloat64) Subdivide(c1, c2 *QuadCurveFloat64) {
 	// Calculate all the mid-points of the line segments
@@ -25,7 +24,6 @@ func (c *QuadCurveFloat64) Subdivide(c1, c2 *QuadCurveFloat64) {
 	return
 }
 
-
 func (curve *QuadCurveFloat64) Segment(t LineTracer, flattening_threshold float64) {
 	var curves [CurveRecursionLimit]QuadCurveFloat64
 	curves[0] = *curve
@@ -39,7 +37,7 @@ func (curve *QuadCurveFloat64) Segment(t LineTracer, flattening_threshold float6
 		dx = c[4] - c[0]
 		dy = c[5] - c[1]
 
-		d = math.Fabs(((c[2]-c[4])*dy - (c[3]-c[5])*dx))
+		d = math.Abs(((c[2]-c[4])*dy - (c[3]-c[5])*dx))
 
 		if (d*d) < flattening_threshold*(dx*dx+dy*dy) || i == len(curves)-1 {
 			t.LineTo(c[4], c[5])
