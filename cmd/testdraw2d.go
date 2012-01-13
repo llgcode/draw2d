@@ -4,16 +4,17 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
-	"bufio"
 	"time"
 
-	"math"
+	"code.google.com/p/draw2d/draw2d"
 	"image"
+	"image/color"
 	"image/png"
-	"draw2d.googlecode.com/hg/draw2d"
+	"math"
 )
 
 const (
@@ -28,7 +29,7 @@ var (
 func initGc(w, h int) (image.Image, draw2d.GraphicContext) {
 	i := image.NewRGBA(image.Rect(0, 0, w, h))
 	gc := draw2d.NewGraphicContext(i)
-	lastTime = time.Nanoseconds()
+	lastTime = time.Now()
 
 	gc.SetStrokeColor(image.Black)
 	gc.SetFillColor(image.White)
@@ -39,8 +40,8 @@ func initGc(w, h int) (image.Image, draw2d.GraphicContext) {
 }
 
 func saveToPngFile(TestName string, m image.Image) {
-	t := time.Nanoseconds()
-	dt := t - lastTime
+	t := time.Now()
+	dt := t.Sub(lastTime)
 	fmt.Printf("%s during: %f ms\n", TestName, float64(dt)*1e-6)
 	filePath := folder + TestName + ".png"
 	f, err := os.Create(filePath)
@@ -60,7 +61,7 @@ func saveToPngFile(TestName string, m image.Image) {
 		log.Println(err)
 		os.Exit(1)
 	}
-	dt = time.Nanoseconds() - t
+	dt = time.Now().Sub(t)
 	fmt.Printf("Wrote %s OK in %f ms.\n", filePath, float64(dt)*1e-6)
 }
 
@@ -79,7 +80,6 @@ func TestPath() {
 	saveToPngFile("TestPath", i)
 }
 
-
 /*
   <img src="../test_results/TestDrawArc.png"/>
 */
@@ -96,8 +96,8 @@ func TestDrawArc() {
 	gc.ArcTo(xc, yc, radiusX, radiusY, startAngle, angle)
 	gc.Stroke()
 	// fill a circle
-	gc.SetStrokeColor(image.NRGBAColor{255, 0x33, 0x33, 0x80})
-	gc.SetFillColor(image.NRGBAColor{255, 0x33, 0x33, 0x80})
+	gc.SetStrokeColor(color.NRGBA{255, 0x33, 0x33, 0x80})
+	gc.SetFillColor(color.NRGBA{255, 0x33, 0x33, 0x80})
 	gc.SetLineWidth(6)
 
 	gc.MoveTo(xc, yc)
@@ -110,6 +110,7 @@ func TestDrawArc() {
 	gc.Fill()
 	saveToPngFile("TestDrawArc", i)
 }
+
 /*
   <img src="../test_results/TestDrawArc.png"/>
 */
@@ -127,8 +128,8 @@ func TestDrawArcNegative() {
 	gc.ArcTo(xc, yc, radiusX, radiusY, startAngle, angle)
 	gc.Stroke()
 	// fill a circle
-	gc.SetStrokeColor(image.NRGBAColor{255, 0x33, 0x33, 0x80})
-	gc.SetFillColor(image.NRGBAColor{255, 0x33, 0x33, 0x80})
+	gc.SetStrokeColor(color.NRGBA{255, 0x33, 0x33, 0x80})
+	gc.SetFillColor(color.NRGBA{255, 0x33, 0x33, 0x80})
 	gc.SetLineWidth(6)
 
 	gc.MoveTo(xc, yc)
@@ -189,13 +190,14 @@ func TestCurveRectangle() {
 	}
 	gc.Close()
 
-	gc.SetFillColor(image.NRGBAColor{0x80, 0x80, 0xFF, 0xFF})
-	gc.SetStrokeColor(image.NRGBAColor{0x80, 0, 0, 0x80})
+	gc.SetFillColor(color.NRGBA{0x80, 0x80, 0xFF, 0xFF})
+	gc.SetStrokeColor(color.NRGBA{0x80, 0, 0, 0x80})
 	gc.SetLineWidth(10.0)
 	gc.FillStroke()
 
 	saveToPngFile("TestCurveRectangle", i)
 }
+
 /*
   <img src="../test_results/TestDrawCubicCurve.png"/>
 */
@@ -207,13 +209,13 @@ func TestDrawCubicCurve() {
 	x2, y2 := 153.6, 25.6
 	x3, y3 := 230.4, 128.0
 
-	gc.SetFillColor(image.NRGBAColor{0xAA, 0xAA, 0xAA, 0xFF})
+	gc.SetFillColor(color.NRGBA{0xAA, 0xAA, 0xAA, 0xFF})
 	gc.SetLineWidth(10)
 	gc.MoveTo(x, y)
 	gc.CubicCurveTo(x1, y1, x2, y2, x3, y3)
 	gc.Stroke()
 
-	gc.SetStrokeColor(image.NRGBAColor{0xFF, 0x33, 0x33, 0x88})
+	gc.SetStrokeColor(color.NRGBA{0xFF, 0x33, 0x33, 0x88})
 
 	gc.SetLineWidth(6)
 	// draw segment of curve
@@ -245,7 +247,6 @@ func TestDash() {
 	saveToPngFile("TestDash", i)
 }
 
-
 /*
   <img src="../test_results/TestFillStroke.png"/>
 */
@@ -264,7 +265,7 @@ func TestFillStroke() {
 	gc.Close()
 
 	gc.SetLineWidth(10.0)
-	gc.SetFillColor(image.NRGBAColor{0, 0, 0xFF, 0xFF})
+	gc.SetFillColor(color.NRGBA{0, 0, 0xFF, 0xFF})
 	gc.SetStrokeColor(image.Black)
 	gc.FillStroke()
 	saveToPngFile("TestFillStroke", i)
@@ -285,7 +286,7 @@ func TestFillStyle() {
 	wheel2.ArcTo(192, 64, 40, 40, 0, 2*math.Pi)
 
 	gc.SetFillRule(draw2d.FillRuleEvenOdd)
-	gc.SetFillColor(image.NRGBAColor{0, 0xB2, 0, 0xFF})
+	gc.SetFillColor(color.NRGBA{0, 0xB2, 0, 0xFF})
 
 	gc.SetStrokeColor(image.Black)
 	gc.FillStroke(wheel1, wheel2)
@@ -297,7 +298,7 @@ func TestFillStyle() {
 	wheel2.ArcTo(192, 192, 40, 40, 0, -2*math.Pi)
 
 	gc.SetFillRule(draw2d.FillRuleWinding)
-	gc.SetFillColor(image.NRGBAColor{0, 0, 0xE5, 0xFF})
+	gc.SetFillColor(color.NRGBA{0, 0, 0xE5, 0xFF})
 	gc.FillStroke(wheel1, wheel2)
 	saveToPngFile("TestFillStyle", i)
 }
@@ -319,7 +320,6 @@ func TestMultiSegmentCaps() {
 	saveToPngFile("TestMultiSegmentCaps", i)
 }
 
-
 func TestRoundRectangle() {
 	i, gc := initGc(w, h)
 	/* a custom shape that could be wrapped in a function */
@@ -337,8 +337,8 @@ func TestRoundRectangle() {
 	gc.ArcTo(x+radius, y+radius, radius, radius, 180*degrees, 90*degrees)
 	gc.Close()
 
-	gc.SetFillColor(image.NRGBAColor{0x80, 0x80, 0xFF, 0xFF})
-	gc.SetStrokeColor(image.NRGBAColor{0x80, 0, 0, 0x80})
+	gc.SetFillColor(color.NRGBA{0x80, 0x80, 0xFF, 0xFF})
+	gc.SetStrokeColor(color.NRGBA{0x80, 0, 0, 0x80})
 	gc.SetLineWidth(10.0)
 	gc.FillStroke()
 
@@ -362,7 +362,7 @@ func TestLineCap() {
 	gc.Stroke()
 
 	/* draw helping lines */
-	gc.SetStrokeColor(image.NRGBAColor{0xFF, 0x33, 0x33, 0xFF})
+	gc.SetStrokeColor(color.NRGBA{0xFF, 0x33, 0x33, 0xFF})
 	gc.SetLineWidth(2.56)
 	gc.MoveTo(64.0, 50.0)
 	gc.LineTo(64.0, 200.0)
@@ -513,7 +513,7 @@ func TestBigPicture() {
 }
 
 func main() {
-	t := time.Nanoseconds()
+	t := time.Now()
 	TestPath()
 	TestDrawArc()
 	TestDrawArcNegative()
@@ -532,6 +532,6 @@ func main() {
 	TestPathTransform()
 	TestFillString()
 	TestBigPicture()
-	dt := time.Nanoseconds() - t
+	dt := time.Now().Sub(t)
 	fmt.Printf("All tests during: %f ms\n", float64(dt)*1e-6)
 }

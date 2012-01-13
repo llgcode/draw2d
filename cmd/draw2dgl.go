@@ -18,15 +18,15 @@
 package main
 
 import (
-	"os"
-	"math"
-	"io/ioutil"
-	"strings"
+	"code.google.com/p/draw2d/draw2dgl"
+	"code.google.com/p/draw2d/postscript"
 	"gl"
 	"glut"
-	"draw2d.googlecode.com/hg/draw2dgl"
-	"draw2d.googlecode.com/hg/postscript"
+	"io/ioutil"
 	"log"
+	"math"
+	"os"
+	"strings"
 	"time"
 )
 
@@ -69,9 +69,9 @@ func display() {
 	gc.Translate(-380, -400)
 	interpreter := postscript.NewInterpreter(gc)
 	reader := strings.NewReader(postscriptContent)
-	lastTime := time.Nanoseconds()
+	lastTime := time.Now()
 	interpreter.Execute(reader)
-	dt := time.Nanoseconds() - lastTime
+	dt := time.Now().Sub(lastTime)
 	log.Printf("Redraw in : %f ms\n", float64(dt)*1e-6)
 	gl.Flush() /* Single buffered, so needs a flush. */
 	glut.PostRedisplay()

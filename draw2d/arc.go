@@ -3,7 +3,7 @@
 package draw2d
 
 import (
-	"freetype-go.googlecode.com/hg/freetype/raster"
+	"code.google.com/p/freetype-go/freetype/raster"
 	"math"
 )
 
@@ -13,7 +13,7 @@ func arc(t VertexConverter, x, y, rx, ry, start, angle, scale float64) (lastX, l
 	if angle < 0 {
 		clockWise = false
 	}
-	ra := (math.Fabs(rx) + math.Fabs(ry)) / 2
+	ra := (math.Abs(rx) + math.Abs(ry)) / 2
 	da := math.Acos(ra/(ra+0.125/scale)) * 2
 	//normalize
 	if !clockWise {
@@ -36,14 +36,13 @@ func arc(t VertexConverter, x, y, rx, ry, start, angle, scale float64) (lastX, l
 	return curX, curY
 }
 
-
 func arcAdder(adder raster.Adder, x, y, rx, ry, start, angle, scale float64) raster.Point {
 	end := start + angle
 	clockWise := true
 	if angle < 0 {
 		clockWise = false
 	}
-	ra := (math.Fabs(rx) + math.Fabs(ry)) / 2
+	ra := (math.Abs(rx) + math.Abs(ry)) / 2
 	da := math.Acos(ra/(ra+0.125/scale)) * 2
 	//normalize
 	if !clockWise {

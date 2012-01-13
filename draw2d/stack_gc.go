@@ -4,6 +4,7 @@ package draw2d
 
 import (
 	"image"
+	"image/color"
 )
 
 type StackGraphicContext struct {
@@ -16,8 +17,8 @@ type ContextStack struct {
 	LineWidth   float64
 	Dash        []float64
 	DashOffset  float64
-	StrokeColor image.Color
-	FillColor   image.Color
+	StrokeColor color.Color
+	FillColor   color.Color
 	FillRule    FillRule
 	Cap         Cap
 	Join        Join
@@ -25,7 +26,6 @@ type ContextStack struct {
 	FontData    FontData
 	previous    *ContextStack
 }
-
 
 /**
  * Create a new Graphic context from an image
@@ -45,7 +45,6 @@ func NewStackGraphicContext() *StackGraphicContext {
 	gc.Current.FontData = defaultFontData
 	return gc
 }
-
 
 func (gc *StackGraphicContext) GetMatrixTransform() MatrixTransform {
 	return gc.Current.Tr
@@ -71,11 +70,11 @@ func (gc *StackGraphicContext) Scale(sx, sy float64) {
 	gc.Current.Tr = NewScaleMatrix(sx, sy).Multiply(gc.Current.Tr)
 }
 
-func (gc *StackGraphicContext) SetStrokeColor(c image.Color) {
+func (gc *StackGraphicContext) SetStrokeColor(c color.Color) {
 	gc.Current.StrokeColor = c
 }
 
-func (gc *StackGraphicContext) SetFillColor(c image.Color) {
+func (gc *StackGraphicContext) SetFillColor(c color.Color) {
 	gc.Current.FillColor = c
 }
 

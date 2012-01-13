@@ -1,18 +1,17 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"os"
 	"bufio"
-	"math"
+	"code.google.com/p/draw2d/draw2d"
+	"fmt"
 	"image"
-	"time"
-	"image/png"
 	"image/draw"
-	"draw2d.googlecode.com/hg/draw2d"
+	"image/png"
+	"log"
+	"math"
+	"os"
+	"time"
 )
-
 
 func saveToPngFile(filePath string, m image.Image) {
 	f, err := os.Create(filePath)
@@ -52,7 +51,6 @@ func loadFromPngFile(filePath string) image.Image {
 	return i
 }
 
-
 func main() {
 	source := loadFromPngFile("../resource/image/TestAndroid.png")
 	dest := image.NewRGBA(image.Rect(0, 0, 1024, 768))
@@ -63,9 +61,9 @@ func main() {
 	//tr.Scale(3, 3)
 	tr.Translate(-width/2, -height/2)
 	tr.Translate(200, 5)
-	lastTime := time.Nanoseconds()
+	lastTime := time.Now()
 	draw2d.DrawImage(source, dest, tr, draw.Over, draw2d.BilinearFilter)
-	dt := time.Nanoseconds() - lastTime
+	dt := time.Now().Sub(lastTime)
 	fmt.Printf("Draw image: %f ms\n", float64(dt)*1e-6)
 	saveToPngFile("../resource/result/TestDrawImage.png", dest)
 }

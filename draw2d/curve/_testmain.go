@@ -1,6 +1,6 @@
 package main
 
-import "draw2d.googlecode.com/hg/draw2d/curve"
+import "code.google.com/p/draw2d/draw2d/curve"
 import "testing"
 import __os__ "os"
 import __regexp__ "regexp"
@@ -14,7 +14,7 @@ var tests = []testing.InternalTest{
 	{"curve.TestQuadCurve", curve.TestQuadCurve},
 }
 
-var benchmarks = []testing.InternalBenchmark{	{"curve.BenchmarkCubicCurveRec", curve.BenchmarkCubicCurveRec},
+var benchmarks = []testing.InternalBenchmark{{"curve.BenchmarkCubicCurveRec", curve.BenchmarkCubicCurveRec},
 	{"curve.BenchmarkCubicCurve", curve.BenchmarkCubicCurve},
 	{"curve.BenchmarkCubicCurveAdaptiveRec", curve.BenchmarkCubicCurveAdaptiveRec},
 	{"curve.BenchmarkCubicCurveAdaptive", curve.BenchmarkCubicCurveAdaptive},

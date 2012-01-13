@@ -5,17 +5,18 @@
 package main
 
 import (
+	"code.google.com/p/draw2d/draw2d"
+	"code.google.com/p/draw2d/postscript"
+	"code.google.com/p/draw2d/wingui"
 	"fmt"
-	"syscall"
-	"os"
-	"unsafe"
 	"image"
+	"image/color"
 	"io/ioutil"
+	"os"
 	"strings"
+	"syscall"
 	"time"
-	"draw2d.googlecode.com/hg/draw2d"
-	"draw2d.googlecode.com/hg/postscript"
-	"draw2d.googlecode.com/hg/wingui"
+	"unsafe"
 )
 
 // some help functions
@@ -31,7 +32,6 @@ func abortErrNo(funcname string, err int) {
 
 // global vars
 
-
 func TestDrawCubicCurve(gc draw2d.GraphicContext) {
 	// draw a cubic curve
 	x, y := 25.6, 128.0
@@ -39,13 +39,13 @@ func TestDrawCubicCurve(gc draw2d.GraphicContext) {
 	x2, y2 := 153.6, 25.6
 	x3, y3 := 230.4, 128.0
 
-	gc.SetFillColor(image.NRGBAColor{0xAA, 0xAA, 0xAA, 0xFF})
+	gc.SetFillColor(color.NRGBA{0xAA, 0xAA, 0xAA, 0xFF})
 	gc.SetLineWidth(10)
 	gc.MoveTo(x, y)
 	gc.CubicCurveTo(x1, y1, x2, y2, x3, y3)
 	gc.Stroke()
 
-	gc.SetStrokeColor(image.NRGBAColor{0xFF, 0x33, 0x33, 0x88})
+	gc.SetStrokeColor(color.NRGBA{0xFF, 0x33, 0x33, 0x88})
 
 	gc.SetLineWidth(6)
 	// draw segment of curve
@@ -61,7 +61,7 @@ var (
 	wndBufferHeader   uint32
 	wndBuffer         wingui.BITMAP
 	hdcWndBuffer      uint32
-	ppvBits           *image.RGBAColor
+	ppvBits           *color.RGBA
 	backBuffer        *image.RGBA
 	postscriptContent string
 )
@@ -102,7 +102,7 @@ func WndProc(hwnd, msg uint32, wparam, lparam int32) uintptr {
 		hdcWndBuffer = wingui.CreateCompatibleDC(hdc)
 		wingui.SelectObject(hdcWndBuffer, wndBufferHeader)
 
-		pixel := (*[600 * 800]image.RGBAColor)(unsafe.Pointer(ppvBits))
+		pixel := (*[600 * 800]color.RGBA)(unsafe.Pointer(ppvBits))
 		pixelSlice := pixel[:]
 		backBuffer = &image.RGBA{pixelSlice, 600, image.Rect(0, 0, 600, 800)}
 		fmt.Println("Create windows")
@@ -114,17 +114,17 @@ func WndProc(hwnd, msg uint32, wparam, lparam int32) uintptr {
 		}
 	case wingui.WM_PAINT:
 		var ps wingui.PAINTSTRUCT
-		lastTime := time.Nanoseconds()
+		lastTime := time.Now()
 		hdc := wingui.BeginPaint(hwnd, &ps)
 		gc := draw2d.NewGraphicContext(backBuffer)
-		gc.SetFillColor(image.RGBAColor{0xFF, 0xFF, 0xFF, 0xFF})
+		gc.SetFillColor(color.RGBA{0xFF, 0xFF, 0xFF, 0xFF})
 		//	gc.Clear()
 		gc.Save()
 		//gc.Translate(0, -380)
 		interpreter := postscript.NewInterpreter(gc)
 		reader := strings.NewReader(postscriptContent)
 		interpreter.Execute(reader)
-		dt := time.Nanoseconds() - lastTime
+		dt := time.Now().Sub(lastTime)
 		gc.Restore()
 		// back buf in
 

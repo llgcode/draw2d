@@ -3,16 +3,17 @@
 package draw2d
 
 import (
-	"image/draw"
+	"code.google.com/p/freetype-go/freetype"
+	"code.google.com/p/freetype-go/freetype/raster"
 	"image"
+	"image/color"
+	"image/draw"
 	"log"
-	"freetype-go.googlecode.com/hg/freetype"
-	"freetype-go.googlecode.com/hg/freetype/raster"
 )
 
 type Painter interface {
 	raster.Painter
-	SetColor(color image.Color)
+	SetColor(color color.Color)
 }
 
 var (
@@ -60,7 +61,6 @@ func NewGraphicContext(img draw.Image) *ImageGraphicContext {
 	return gc
 }
 
-
 func (gc *ImageGraphicContext) SetDPI(dpi int) {
 	gc.DPI = dpi
 	gc.freetype.SetDPI(dpi)
@@ -76,7 +76,7 @@ func (gc *ImageGraphicContext) Clear() {
 }
 
 func (gc *ImageGraphicContext) ClearRect(x1, y1, x2, y2 int) {
-	imageColor := image.NewColorImage(gc.Current.FillColor)
+	imageColor := image.NewUniform(gc.Current.FillColor)
 	draw.Draw(gc.img, image.Rect(x1, y1, x2, y2), imageColor, image.ZP, draw.Over)
 }
 
@@ -85,7 +85,7 @@ func (gc *ImageGraphicContext) DrawImage(img image.Image) {
 }
 
 func (gc *ImageGraphicContext) FillString(text string) (cursor float64) {
-	gc.freetype.SetSrc(image.NewColorImage(gc.Current.StrokeColor))
+	gc.freetype.SetSrc(image.NewUniform(gc.Current.StrokeColor))
 	// Draw the text.
 	x, y := gc.Current.Path.LastPoint()
 	gc.Current.Tr.Transform(&x, &y)
@@ -112,8 +112,7 @@ func (gc *ImageGraphicContext) FillString(text string) (cursor float64) {
 	return width
 }
 
-
-func (gc *ImageGraphicContext) paint(rasterizer *raster.Rasterizer, color image.Color) {
+func (gc *ImageGraphicContext) paint(rasterizer *raster.Rasterizer, color color.Color) {
 	gc.painter.SetColor(color)
 	rasterizer.Rasterize(gc.painter)
 	rasterizer.Clear()
@@ -172,7 +171,6 @@ func (gc *ImageGraphicContext) FillStroke(paths ...*PathStorage) {
 	gc.paint(gc.fillRasterizer, gc.Current.FillColor)
 	gc.paint(gc.strokeRasterizer, gc.Current.StrokeColor)
 }
-
 
 func (f FillRule) UseNonZeroWinding() bool {
 	switch f {

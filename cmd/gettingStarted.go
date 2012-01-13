@@ -4,16 +4,15 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
-	"bufio"
 
+	"code.google.com/p/draw2d/draw2d"
 	"image"
 	"image/png"
-	"draw2d.googlecode.com/hg/draw2d"
 )
-
 
 func saveToPngFile(filePath string, m image.Image) {
 	f, err := os.Create(filePath)
@@ -37,7 +36,7 @@ func saveToPngFile(filePath string, m image.Image) {
 }
 
 func main() {
-	i := image.NewRGBA(image.Rect(0,0,200, 200))
+	i := image.NewRGBA(image.Rect(0, 0, 200, 200))
 	gc := draw2d.NewGraphicContext(i)
 	gc.MoveTo(10.0, 10.0)
 	gc.LineTo(100.0, 10.0)

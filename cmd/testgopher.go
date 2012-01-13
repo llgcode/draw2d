@@ -1,17 +1,17 @@
 package main
 
-
 import (
+	"bufio"
 	"fmt"
 	"log"
-	"os"
-	"bufio"
-	"time"
 	"math"
+	"os"
+	"time"
 
+	"code.google.com/p/draw2d/draw2d"
 	"image"
+	"image/color"
 	"image/png"
-	"draw2d.googlecode.com/hg/draw2d"
 )
 
 const (
@@ -26,7 +26,7 @@ var (
 func initGc(w, h int) (image.Image, draw2d.GraphicContext) {
 	i := image.NewRGBA(image.Rect(0, 0, w, h))
 	gc := draw2d.NewGraphicContext(i)
-	lastTime = time.Nanoseconds()
+	lastTime = time.Now()
 
 	gc.SetStrokeColor(image.Black)
 	gc.SetFillColor(image.White)
@@ -37,7 +37,7 @@ func initGc(w, h int) (image.Image, draw2d.GraphicContext) {
 }
 
 func saveToPngFile(TestName string, m image.Image) {
-	dt := time.Nanoseconds() - lastTime
+	dt := time.Now().Sub(lastTime)
 	fmt.Printf("%s during: %f ms\n", TestName, float64(dt)*1e-6)
 	filePath := folder + TestName + ".png"
 	f, err := os.Create(filePath)
@@ -63,11 +63,11 @@ func saveToPngFile(TestName string, m image.Image) {
 func gordon(gc draw2d.GraphicContext, x, y, w, h float64) {
 	h23 := (h * 2) / 3
 
-	blf := image.RGBAColor{0, 0, 0, 0xff}
-	wf := image.RGBAColor{0xff, 0xff, 0xff, 0xff}
-	nf := image.RGBAColor{0x8B, 0x45, 0x13, 0xff}
-	brf := image.RGBAColor{0x8B, 0x45, 0x13, 0x99}
-	brb := image.RGBAColor{0x8B, 0x45, 0x13, 0xBB}
+	blf := color.RGBA{0, 0, 0, 0xff}
+	wf := color.RGBA{0xff, 0xff, 0xff, 0xff}
+	nf := color.RGBA{0x8B, 0x45, 0x13, 0xff}
+	brf := color.RGBA{0x8B, 0x45, 0x13, 0x99}
+	brb := color.RGBA{0x8B, 0x45, 0x13, 0xBB}
 
 	gc.MoveTo(x, y+h)
 	gc.CubicCurveTo(x, y+h, x+w/2, y-h, x+w, y+h)

@@ -1,17 +1,17 @@
 package main
 
-
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
-	"bufio"
 	"time"
 
-	"math"
+	"code.google.com/p/draw2d/draw2d"
 	"image"
+	"image/color"
 	"image/png"
-	"draw2d.googlecode.com/hg/draw2d"
+	"math"
 )
 
 const (
@@ -24,9 +24,9 @@ var (
 )
 
 func initGc(w, h int) (image.Image, draw2d.GraphicContext) {
-	i := image.NewRGBA(image.Rect(0, 0,w, h))
+	i := image.NewRGBA(image.Rect(0, 0, w, h))
 	gc := draw2d.NewGraphicContext(i)
-	lastTime = time.Nanoseconds()
+	lastTime = time.Now()
 
 	gc.SetStrokeColor(image.Black)
 	gc.SetFillColor(image.White)
@@ -37,7 +37,7 @@ func initGc(w, h int) (image.Image, draw2d.GraphicContext) {
 }
 
 func saveToPngFile(TestName string, m image.Image) {
-	dt := time.Nanoseconds() - lastTime
+	dt := time.Now().Sub(lastTime)
 	fmt.Printf("%s during: %f ms\n", TestName, float64(dt)*1e-6)
 	filePath := folder + TestName + ".png"
 	f, err := os.Create(filePath)
@@ -88,11 +88,10 @@ func android(gc draw2d.GraphicContext, x, y float64) {
 	gc.FillStroke()
 }
 
-
 func main() {
 	i, gc := initGc(width, height)
-	gc.SetFillColor(image.RGBAColor{0x44, 0xff, 0x44, 0xff})
-	gc.SetStrokeColor(image.RGBAColor{0x44, 0x44, 0x44, 0xff})
+	gc.SetFillColor(color.RGBA{0x44, 0xff, 0x44, 0xff})
+	gc.SetStrokeColor(color.RGBA{0x44, 0x44, 0x44, 0xff})
 	android(gc, 10, 10)
 	saveToPngFile("TestAndroid", i)
 }

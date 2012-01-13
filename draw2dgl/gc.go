@@ -1,11 +1,12 @@
 package draw2dgl
 
 import (
-	"image"
-	"image/draw"
+	"code.google.com/p/draw2d/draw2d"
+	"code.google.com/p/freetype-go/freetype/raster"
 	"gl"
-	"freetype-go.googlecode.com/hg/freetype/raster"
-	"draw2d.googlecode.com/hg/draw2d"
+	"image"
+	"image/color"
+	"image/draw"
 	//"log"
 )
 
@@ -81,9 +82,8 @@ func (p *GLPainter) Flush() {
 	}
 }
 
-
 // SetColor sets the color to paint the spans.
-func (p *GLPainter) SetColor(c image.Color) {
+func (p *GLPainter) SetColor(c color.Color) {
 	r, g, b, a := c.RGBA()
 	if a == 0 {
 		p.cr = 0
@@ -106,7 +106,6 @@ func NewGLPainter() *GLPainter {
 	return p
 }
 
-
 type GraphicContext struct {
 	*draw2d.StackGraphicContext
 	painter          *GLPainter
@@ -117,7 +116,6 @@ type GraphicContext struct {
 type GLVertex struct {
 	x, y float64
 }
-
 
 func NewGLVertex() *GLVertex {
 	return &GLVertex{}
@@ -168,8 +166,7 @@ func (gc *GraphicContext) FillString(text string) (cursor float64) {
 	return 0
 }
 
-
-func (gc *GraphicContext) paint(rasterizer *raster.Rasterizer, color image.Color) {
+func (gc *GraphicContext) paint(rasterizer *raster.Rasterizer, color color.Color) {
 	gc.painter.SetColor(color)
 	rasterizer.Rasterize(gc.painter)
 	rasterizer.Clear()
@@ -207,6 +204,7 @@ func (gc *GraphicContext) Fill(paths ...*draw2d.PathStorage) {
 	gc.paint(gc.fillRasterizer, gc.Current.FillColor)
 	gc.Current.Path.Clear()
 }
+
 /*
 func (gc *GraphicContext) Fill(paths ...*draw2d.PathStorage) {
 	paths = append(paths, gc.Current.Path)

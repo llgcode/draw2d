@@ -3,7 +3,7 @@
 package draw2d
 
 import (
-	"freetype-go.googlecode.com/hg/freetype/raster"
+	"code.google.com/p/freetype-go/freetype/raster"
 	"math"
 )
 
@@ -140,7 +140,6 @@ func (tr MatrixTransform) GetInverseTransformation() MatrixTransform {
 		(tr[1]*tr[4] - tr[0]*tr[5]) / d}
 }
 
-
 func (tr1 MatrixTransform) Multiply(tr2 MatrixTransform) MatrixTransform {
 	return [6]float64{
 		tr1[0]*tr2[0] + tr1[1]*tr2[2],
@@ -150,7 +149,6 @@ func (tr1 MatrixTransform) Multiply(tr2 MatrixTransform) MatrixTransform {
 		tr1[4]*tr2[0] + tr1[5]*tr2[2] + tr2[4],
 		tr1[5]*tr2[3] + tr1[4]*tr2[1] + tr2[5]}
 }
-
 
 func (tr *MatrixTransform) Scale(sx, sy float64) *MatrixTransform {
 	tr[0] = sx * tr[0]
@@ -195,8 +193,8 @@ func (tr MatrixTransform) GetScale() float64 {
 }
 
 func (tr MatrixTransform) GetMaxAbsScaling() (s float64) {
-	sx := math.Fabs(tr[0])
-	sy := math.Fabs(tr[3])
+	sx := math.Abs(tr[0])
+	sy := math.Abs(tr[3])
 	if sx > sy {
 		return sx
 	}
@@ -204,8 +202,8 @@ func (tr MatrixTransform) GetMaxAbsScaling() (s float64) {
 }
 
 func (tr MatrixTransform) GetMinAbsScaling() (s float64) {
-	sx := math.Fabs(tr[0])
-	sy := math.Fabs(tr[3])
+	sx := math.Abs(tr[0])
+	sy := math.Abs(tr[3])
 	if sx > sy {
 		return sy
 	}
@@ -248,7 +246,7 @@ func (tr MatrixTransform) IsTranslation() bool {
  * return true if the distance between the two floats is less than epsilon, false otherwise
  */
 func fequals(float1, float2 float64) bool {
-	return math.Fabs(float1-float2) <= epsilon
+	return math.Abs(float1-float2) <= epsilon
 }
 
 // this VertexConverter apply the Matrix transformation tr
@@ -272,7 +270,6 @@ func (vmt *VertexMatrixTransform) Vertex(x, y float64) {
 	vmt.Next.Vertex(u, v)
 }
 
-
 // this adder apply a Matrix transformation to points
 type MatrixTransformAdder struct {
 	tr   MatrixTransform
@@ -282,7 +279,6 @@ type MatrixTransformAdder struct {
 func NewMatrixTransformAdder(tr MatrixTransform, adder raster.Adder) *MatrixTransformAdder {
 	return &MatrixTransformAdder{tr, adder}
 }
-
 
 // Start starts a new curve at the given point.
 func (mta MatrixTransformAdder) Start(a raster.Point) {

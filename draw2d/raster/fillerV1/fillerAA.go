@@ -4,6 +4,7 @@ package raster
 
 import (
 	"image"
+	"image/color"
 	"unsafe"
 )
 
@@ -87,7 +88,7 @@ func intersect(r1, r2 [4]float64) [4]float64 {
 	return r1
 }
 
-func (r *Rasterizer8BitsSample) RenderEvenOdd(img *image.RGBA, color *image.RGBAColor, polygon *Polygon, tr [6]float64) {
+func (r *Rasterizer8BitsSample) RenderEvenOdd(img *image.RGBA, color *color.RGBA, polygon *Polygon, tr [6]float64) {
 	// memset 0 the mask buffer
 	r.MaskBuffer = make([]SUBPIXEL_DATA, r.BufferWidth*r.Height)
 
@@ -134,7 +135,7 @@ func (r *Rasterizer8BitsSample) addEvenOddEdge(edge *PolygonEdge) {
 }
 
 // Renders the mask to the canvas with even-odd fill.
-func (r *Rasterizer8BitsSample) fillEvenOdd(img *image.RGBA, color *image.RGBAColor, clipBound [4]float64) {
+func (r *Rasterizer8BitsSample) fillEvenOdd(img *image.RGBA, color *color.RGBA, clipBound [4]float64) {
 	var x, y uint32
 
 	minX := uint32(clipBound[0])
@@ -186,7 +187,7 @@ func (r *Rasterizer8BitsSample) fillEvenOdd(img *image.RGBA, color *image.RGBACo
  *  param aColor the color to be used for rendering.
  *  param aTransformation the transformation matrix.
  */
-func (r *Rasterizer8BitsSample) RenderNonZeroWinding(img *image.RGBA, color *image.RGBAColor, polygon *Polygon, tr [6]float64) {
+func (r *Rasterizer8BitsSample) RenderNonZeroWinding(img *image.RGBA, color *color.RGBA, polygon *Polygon, tr [6]float64) {
 
 	r.MaskBuffer = make([]SUBPIXEL_DATA, r.BufferWidth*r.Height)
 	r.WindingBuffer = make([]NON_ZERO_MASK_DATA_UNIT, r.BufferWidth*r.Height*SUBPIXEL_COUNT)
@@ -237,7 +238,7 @@ func (r *Rasterizer8BitsSample) addNonZeroEdge(edge *PolygonEdge) {
 }
 
 //! Renders the mask to the canvas with non-zero winding fill.
-func (r *Rasterizer8BitsSample) fillNonZero(img *image.RGBA, color *image.RGBAColor, clipBound [4]float64) {
+func (r *Rasterizer8BitsSample) fillNonZero(img *image.RGBA, color *color.RGBA, clipBound [4]float64) {
 	var x, y uint32
 
 	minX := uint32(clipBound[0])

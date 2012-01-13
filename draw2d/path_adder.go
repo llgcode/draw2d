@@ -2,11 +2,9 @@
 // created: 13/12/2010 by Laurent Le Goff
 package draw2d
 
-
 import (
-	"freetype-go.googlecode.com/hg/freetype/raster"
+	"code.google.com/p/freetype-go/freetype/raster"
 )
-
 
 type VertexAdder struct {
 	command VertexCommand
@@ -31,7 +29,6 @@ func (vertexAdder *VertexAdder) Vertex(x, y float64) {
 	vertexAdder.command = VertexNoCommand
 }
 
-
 type PathAdder struct {
 	adder              raster.Adder
 	firstPoint         raster.Point
@@ -41,7 +38,6 @@ type PathAdder struct {
 func NewPathAdder(adder raster.Adder) *PathAdder {
 	return &PathAdder{adder, raster.Point{0, 0}, 1}
 }
-
 
 func (pathAdder *PathAdder) Convert(paths ...*PathStorage) {
 	for _, path := range paths {

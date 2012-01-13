@@ -1,21 +1,21 @@
 package curve
 
 import (
-	"testing"
-	"log"
-	"fmt"
-	"os"
 	"bufio"
+	"code.google.com/p/draw2d/draw2d/raster"
+	"fmt"
 	"image"
-	"image/png"
+	"image/color"
 	"image/draw"
-	"draw2d.googlecode.com/hg/draw2d/raster"
+	"image/png"
+	"log"
+	"os"
+	"testing"
 )
-
 
 var (
 	flattening_threshold float64 = 0.5
-	testsCubicFloat64    = []CubicCurveFloat64{
+	testsCubicFloat64            = []CubicCurveFloat64{
 		CubicCurveFloat64{100, 100, 200, 100, 100, 200, 200, 200},
 		CubicCurveFloat64{100, 100, 300, 200, 200, 200, 300, 100},
 		CubicCurveFloat64{100, 100, 0, 300, 200, 0, 300, 300},
@@ -88,7 +88,7 @@ func savepng(filePath string, m image.Image) {
 	}
 }
 
-func drawPoints(img draw.Image, c image.Color, s ...float64) image.Image {
+func drawPoints(img draw.Image, c color.Color, s ...float64) image.Image {
 	/*for i := 0; i < len(s); i += 2 {
 		x, y := int(s[i]+0.5), int(s[i+1]+0.5)
 		img.Set(x, y, c)
@@ -110,11 +110,11 @@ func TestCubicCurveRec(t *testing.T) {
 		var p Path
 		p.LineTo(curve[0], curve[1])
 		curve.SegmentRec(&p, flattening_threshold)
-		img := image.NewNRGBA(300, 300)
-		raster.PolylineBresenham(img, image.NRGBAColor{0xff, 0, 0, 0xff}, curve[:]...)
+		img := image.NewNRGBA(image.Rect(0, 0, 300, 300))
+		raster.PolylineBresenham(img, color.NRGBA{0xff, 0, 0, 0xff}, curve[:]...)
 		raster.PolylineBresenham(img, image.Black, p.points...)
 		//drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, curve[:]...)
-		drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, p.points...)
+		drawPoints(img, color.NRGBA{0, 0, 0, 0xff}, p.points...)
 		savepng(fmt.Sprintf("_testRec%d.png", i), img)
 		log.Printf("Num of points: %d\n", len(p.points))
 	}
@@ -126,11 +126,11 @@ func TestCubicCurve(t *testing.T) {
 		var p Path
 		p.LineTo(curve[0], curve[1])
 		curve.Segment(&p, flattening_threshold)
-		img := image.NewNRGBA(300, 300)
-		raster.PolylineBresenham(img, image.NRGBAColor{0xff, 0, 0, 0xff}, curve[:]...)
+		img := image.NewNRGBA(image.Rect(0, 0, 300, 300))
+		raster.PolylineBresenham(img, color.NRGBA{0xff, 0, 0, 0xff}, curve[:]...)
 		raster.PolylineBresenham(img, image.Black, p.points...)
 		//drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, curve[:]...)
-		drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, p.points...)
+		drawPoints(img, color.NRGBA{0, 0, 0, 0xff}, p.points...)
 		savepng(fmt.Sprintf("_test%d.png", i), img)
 		log.Printf("Num of points: %d\n", len(p.points))
 	}
@@ -142,11 +142,11 @@ func TestCubicCurveAdaptiveRec(t *testing.T) {
 		var p Path
 		p.LineTo(curve[0], curve[1])
 		curve.AdaptiveSegmentRec(&p, 1, 0, 0)
-		img := image.NewNRGBA(300, 300)
-		raster.PolylineBresenham(img, image.NRGBAColor{0xff, 0, 0, 0xff}, curve[:]...)
+		img := image.NewNRGBA(image.Rect(0, 0, 300, 300))
+		raster.PolylineBresenham(img, color.NRGBA{0xff, 0, 0, 0xff}, curve[:]...)
 		raster.PolylineBresenham(img, image.Black, p.points...)
 		//drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, curve[:]...)
-		drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, p.points...)
+		drawPoints(img, color.NRGBA{0, 0, 0, 0xff}, p.points...)
 		savepng(fmt.Sprintf("_testAdaptiveRec%d.png", i), img)
 		log.Printf("Num of points: %d\n", len(p.points))
 	}
@@ -158,11 +158,11 @@ func TestCubicCurveAdaptive(t *testing.T) {
 		var p Path
 		p.LineTo(curve[0], curve[1])
 		curve.AdaptiveSegment(&p, 1, 0, 0)
-		img := image.NewNRGBA(300, 300)
-		raster.PolylineBresenham(img, image.NRGBAColor{0xff, 0, 0, 0xff}, curve[:]...)
+		img := image.NewNRGBA(image.Rect(0, 0, 300, 300))
+		raster.PolylineBresenham(img, color.NRGBA{0xff, 0, 0, 0xff}, curve[:]...)
 		raster.PolylineBresenham(img, image.Black, p.points...)
 		//drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, curve[:]...)
-		drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, p.points...)
+		drawPoints(img, color.NRGBA{0, 0, 0, 0xff}, p.points...)
 		savepng(fmt.Sprintf("_testAdaptive%d.png", i), img)
 		log.Printf("Num of points: %d\n", len(p.points))
 	}
@@ -174,28 +174,27 @@ func TestCubicCurveParabolic(t *testing.T) {
 		var p Path
 		p.LineTo(curve[0], curve[1])
 		curve.ParabolicSegment(&p, flattening_threshold)
-		img := image.NewNRGBA(300, 300)
-		raster.PolylineBresenham(img, image.NRGBAColor{0xff, 0, 0, 0xff}, curve[:]...)
+		img := image.NewNRGBA(image.Rect(0, 0, 300, 300))
+		raster.PolylineBresenham(img, color.NRGBA{0xff, 0, 0, 0xff}, curve[:]...)
 		raster.PolylineBresenham(img, image.Black, p.points...)
 		//drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, curve[:]...)
-		drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, p.points...)
+		drawPoints(img, color.NRGBA{0, 0, 0, 0xff}, p.points...)
 		savepng(fmt.Sprintf("_testParabolic%d.png", i), img)
 		log.Printf("Num of points: %d\n", len(p.points))
 	}
 	fmt.Println()
 }
 
-
 func TestQuadCurve(t *testing.T) {
 	for i, curve := range testsQuadFloat64 {
 		var p Path
 		p.LineTo(curve[0], curve[1])
 		curve.Segment(&p, flattening_threshold)
-		img := image.NewNRGBA(300, 300)
-		raster.PolylineBresenham(img, image.NRGBAColor{0xff, 0, 0, 0xff}, curve[:]...)
+		img := image.NewNRGBA(image.Rect(0, 0, 300, 300))
+		raster.PolylineBresenham(img, color.NRGBA{0xff, 0, 0, 0xff}, curve[:]...)
 		raster.PolylineBresenham(img, image.Black, p.points...)
 		//drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, curve[:]...)
-		drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, p.points...)
+		drawPoints(img, color.NRGBA{0, 0, 0, 0xff}, p.points...)
 		savepng(fmt.Sprintf("_testQuad%d.png", i), img)
 		log.Printf("Num of points: %d\n", len(p.points))
 	}

@@ -1,6 +1,6 @@
 include $(GOROOT)/src/Make.inc
 
-TARG=draw2d.googlecode.com/hg/postscript
+TARG=code.google.com/p/draw2d/postscript
 GOFILES=operators_array.go\
 	operators_dictionary.go\
 	operators_misc.go\
