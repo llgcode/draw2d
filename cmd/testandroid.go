@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
 
 	"code.google.com/p/draw2d/draw2d"
 	"image"
@@ -26,7 +25,6 @@ var (
 func initGc(w, h int) (image.Image, draw2d.GraphicContext) {
 	i := image.NewRGBA(image.Rect(0, 0, w, h))
 	gc := draw2d.NewGraphicContext(i)
-	lastTime = time.Now()
 
 	gc.SetStrokeColor(image.Black)
 	gc.SetFillColor(image.White)
@@ -37,8 +35,6 @@ func initGc(w, h int) (image.Image, draw2d.GraphicContext) {
 }
 
 func saveToPngFile(TestName string, m image.Image) {
-	dt := time.Now().Sub(lastTime)
-	fmt.Printf("%s during: %f ms\n", TestName, float64(dt)*1e-6)
 	filePath := folder + TestName + ".png"
 	f, err := os.Create(filePath)
 	if err != nil {

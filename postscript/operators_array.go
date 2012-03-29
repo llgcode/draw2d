@@ -3,22 +3,25 @@
 
 package postscript
 
-
 import ()
+
 //int array array -> Create array of length int
 func array(interpreter *Interpreter) {
 	interpreter.Push(make([]Value, interpreter.PopInt()))
 }
+
 //array length int -> Return number of elements in array
 func lengtharray(interpreter *Interpreter) {
 	interpreter.Push(float64(len(interpreter.Pop().([]Value))))
 }
+
 //array  index get any -> Return array element indexed by index
 func getarray(interpreter *Interpreter) {
 	index := interpreter.PopInt()
 	array := interpreter.Pop().([]Value)
 	interpreter.Push(array[index])
 }
+
 //array  index  any put – -> Put any into array at index
 func putarray(interpreter *Interpreter) {
 	value := interpreter.Pop()
@@ -26,6 +29,7 @@ func putarray(interpreter *Interpreter) {
 	array := interpreter.Pop().([]Value)
 	array[index] = value
 }
+
 //array  index  count getinterval subarray -> Return subarray of array starting at index for count elements
 func getinterval(interpreter *Interpreter) {
 	count := interpreter.PopInt()
@@ -35,6 +39,7 @@ func getinterval(interpreter *Interpreter) {
 	copy(subarray, array[index:index+count])
 	interpreter.Push(subarray)
 }
+
 //array1  index  array2 putinterval – Replace subarray of array1 starting at index by array2|packedarray2
 func putinterval(interpreter *Interpreter) {
 	array2 := interpreter.Pop().([]Value)
@@ -44,6 +49,7 @@ func putinterval(interpreter *Interpreter) {
 		array1[i+index] = v
 	}
 }
+
 // any0 … anyn−1  array  astore  array
 // stores the objects any0 to anyn−1 from the operand stack into array, where n is the length of array
 func astore(interpreter *Interpreter) {
@@ -53,6 +59,7 @@ func astore(interpreter *Interpreter) {
 		array[i] = interpreter.Pop()
 	}
 }
+
 //array aload any0 … any-1   array 
 //Push all elements of array on stack
 func aload(interpreter *Interpreter) {
@@ -62,6 +69,7 @@ func aload(interpreter *Interpreter) {
 	}
 	interpreter.Push(array)
 }
+
 //array  proc forall – Execute proc for each element of array
 func forallarray(interpreter *Interpreter) {
 	proc := NewProcedure(interpreter.PopProcedureDefinition())

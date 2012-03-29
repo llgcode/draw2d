@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
 
 	"code.google.com/p/draw2d/draw2d"
 	"image"
@@ -29,7 +28,6 @@ var (
 func initGc(w, h int) (image.Image, draw2d.GraphicContext) {
 	i := image.NewRGBA(image.Rect(0, 0, w, h))
 	gc := draw2d.NewGraphicContext(i)
-	lastTime = time.Now()
 
 	gc.SetStrokeColor(image.Black)
 	gc.SetFillColor(image.White)
@@ -40,9 +38,6 @@ func initGc(w, h int) (image.Image, draw2d.GraphicContext) {
 }
 
 func saveToPngFile(TestName string, m image.Image) {
-	t := time.Now()
-	dt := t.Sub(lastTime)
-	fmt.Printf("%s during: %f ms\n", TestName, float64(dt)*1e-6)
 	filePath := folder + TestName + ".png"
 	f, err := os.Create(filePath)
 	if err != nil {
@@ -61,8 +56,7 @@ func saveToPngFile(TestName string, m image.Image) {
 		log.Println(err)
 		os.Exit(1)
 	}
-	dt = time.Now().Sub(t)
-	fmt.Printf("Wrote %s OK in %f ms.\n", filePath, float64(dt)*1e-6)
+	fmt.Printf("Wrote %s OK.\n", filePath)
 }
 
 /*
@@ -513,7 +507,6 @@ func TestBigPicture() {
 }
 
 func main() {
-	t := time.Now()
 	TestPath()
 	TestDrawArc()
 	TestDrawArcNegative()
@@ -532,6 +525,4 @@ func main() {
 	TestPathTransform()
 	TestFillString()
 	TestBigPicture()
-	dt := time.Now().Sub(t)
-	fmt.Printf("All tests during: %f ms\n", float64(dt)*1e-6)
 }

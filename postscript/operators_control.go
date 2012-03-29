@@ -6,6 +6,7 @@ package postscript
 import (
 	"log"
 )
+
 // any exec – Execute arbitrary object
 func exec(interpreter *Interpreter) {
 	value := interpreter.Pop()
@@ -68,7 +69,6 @@ func stopped(interpreter *Interpreter) {
 	}
 	interpreter.Push(false)
 }
-
 
 func initControlOperators(interpreter *Interpreter) {
 	interpreter.SystemDefine("exec", NewOperator(exec))

@@ -1,6 +1,7 @@
 // Copyright 2010 The draw2d Authors. All rights reserved.
 // created: 21/11/2010 by Laurent Le Goff
 package draw2d
+
 /*
 import (
 	"image/draw"
@@ -9,6 +10,7 @@ import (
 )*/
 
 const M = 1<<16 - 1
+
 /*
 type NRGBAPainter struct {
 	// The image to compose onto.
@@ -74,7 +76,7 @@ func (r *NRGBAPainter) Paint(ss []raster.Span, done bool) {
 			}
 		}
 	}
-	
+
 }
 
 // SetColor sets the color to paint the spans.
