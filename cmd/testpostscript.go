@@ -11,7 +11,6 @@ import (
 	"log"
 	"os"
 	"strings"
-	"time"
 )
 
 func saveToPngFile(filePath string, m image.Image) {
@@ -49,9 +48,6 @@ func main() {
 	bytes, err := ioutil.ReadAll(src)
 	reader := strings.NewReader(string(bytes))
 	interpreter := postscript.NewInterpreter(gc)
-	lastTime := time.Now()
 	interpreter.Execute(reader)
-	dt := time.Now().Sub(lastTime)
-	fmt.Printf("Draw image: %f ms\n", float64(dt)*1e-6)
 	saveToPngFile("../resource/result/TestPostscript.png", i)
 }

@@ -3,32 +3,37 @@
 
 package postscript
 
-
 import (
 	"log"
 )
+
 //int dict dict -> Create dictionary with capacity for int elements
 func dict(interpreter *Interpreter) {
 	interpreter.Push(NewDictionary(interpreter.PopInt()))
 }
+
 //dict length int -> Return number of entries in dict
 func lengthdict(interpreter *Interpreter) {
 	dictionary := interpreter.Pop().(Dictionary)
 	interpreter.Push(float64(len(dictionary)))
 }
+
 //dict maxlength int -> Return current capacity of dict
 func maxlength(interpreter *Interpreter) {
 	interpreter.Pop()
 	interpreter.Push(float64(999999999)) // push arbitrary value
 }
+
 //dict begin – -> Push dict on dictionary stack
 func begin(interpreter *Interpreter) {
 	interpreter.PushDictionary(interpreter.Pop().(Dictionary))
 }
+
 //– end – -> Pop current dictionary off dictionary stack
 func end(interpreter *Interpreter) {
 	interpreter.PopDictionary()
 }
+
 //key  value def – -> Associate key and value in current dictionary
 func def(interpreter *Interpreter) {
 	value := interpreter.Pop()
@@ -38,6 +43,7 @@ func def(interpreter *Interpreter) {
 	}
 	interpreter.Define(name, value)
 }
+
 //key load value -> Search dictionary stack for key and return associated value
 func load(interpreter *Interpreter) {
 	name := interpreter.PopName()
@@ -47,6 +53,7 @@ func load(interpreter *Interpreter) {
 	}
 	interpreter.Push(value)
 }
+
 //key  value store – -> Replace topmost deﬁnition of key
 func store(interpreter *Interpreter) {
 	value := interpreter.Pop()
@@ -56,12 +63,14 @@ func store(interpreter *Interpreter) {
 		dictionary[key] = value
 	}
 }
+
 //dict  key get any -> Return value associated with key in dict
 func getdict(interpreter *Interpreter) {
 	key := interpreter.PopName()
 	dictionary := interpreter.Pop().(Dictionary)
 	interpreter.Push(dictionary[key])
 }
+
 //dict  key  value put – -> Associate key with value in dict
 func putdict(interpreter *Interpreter) {
 	value := interpreter.Pop()
@@ -69,18 +78,21 @@ func putdict(interpreter *Interpreter) {
 	dictionary := interpreter.Pop().(Dictionary)
 	dictionary[key] = value
 }
+
 //dict  key undef – Remove key and its value from dict
 func undef(interpreter *Interpreter) {
 	key := interpreter.PopName()
 	dictionary := interpreter.Pop().(Dictionary)
 	dictionary[key] = nil
 }
+
 //dict  key known bool -> Test whether key is in dict
 func known(interpreter *Interpreter) {
 	key := interpreter.PopName()
 	dictionary := interpreter.Pop().(Dictionary)
 	interpreter.Push(dictionary[key] != nil)
 }
+
 //key where (dict  true) or false -> Find dictionary in which key is deﬁned
 func where(interpreter *Interpreter) {
 	key := interpreter.PopName()
@@ -92,6 +104,7 @@ func where(interpreter *Interpreter) {
 		interpreter.Push(true)
 	}
 }
+
 // dict1  dict2 copy dict2 -> Copy contents of dict1 to dict2
 func copydict(interpreter *Interpreter) {
 	dict2 := interpreter.Pop().(Dictionary)
@@ -101,6 +114,7 @@ func copydict(interpreter *Interpreter) {
 	}
 	interpreter.Push(dict2)
 }
+
 //dict  proc forall – -> Execute proc for each entry in dict
 func foralldict(interpreter *Interpreter) {
 	proc := NewProcedure(interpreter.PopProcedureDefinition())
@@ -111,34 +125,42 @@ func foralldict(interpreter *Interpreter) {
 		proc.Execute(interpreter)
 	}
 }
+
 //– currentdict dict -> Return current dictionary
 func currentdict(interpreter *Interpreter) {
 	interpreter.Push(interpreter.PeekDictionary())
 }
+
 //– systemdict dict -> Return system dictionary
 func systemdict(interpreter *Interpreter) {
 	interpreter.Push(interpreter.SystemDictionary())
 }
+
 //– userdict dict -> Return writeable dictionary in local VM
 func userdict(interpreter *Interpreter) {
 	interpreter.Push(interpreter.UserDictionary())
 }
+
 //– globaldict dict -> Return writeable dictionary in global VM
 func globaldict(interpreter *Interpreter) {
 	interpreter.Push(interpreter.UserDictionary())
 }
+
 //– statusdict dict -> Return product-dependent dictionary
 func statusdict(interpreter *Interpreter) {
 	interpreter.Push(interpreter.UserDictionary())
 }
+
 //– countdictstack int -> Count elements on dictionary stack
 func countdictstack(interpreter *Interpreter) {
 	interpreter.Push(float64(interpreter.DictionaryStackSize()))
 }
+
 //array dictstack subarray -> Copy dictionary stack into array
 func dictstack(interpreter *Interpreter) {
 	panic("No yet implemenented")
 }
+
 //– cleardictstack – -> Pop all nonpermanent dictionaries off dictionary stack
 func cleardictstack(interpreter *Interpreter) {
 	interpreter.ClearDictionaries()

@@ -8,6 +8,7 @@ package postscript
 func pop(interpreter *Interpreter) {
 	interpreter.Pop()
 }
+
 //any1  any2 exch any2  any1 -> Exchange top two elements
 func exch(interpreter *Interpreter) {
 	value1 := interpreter.Pop()
@@ -15,6 +16,7 @@ func exch(interpreter *Interpreter) {
 	interpreter.Push(value1)
 	interpreter.Push(value2)
 }
+
 //any dup any  any -> Duplicate top element
 func dup(interpreter *Interpreter) {
 	interpreter.Push(interpreter.Peek())
@@ -28,11 +30,13 @@ func copystack(interpreter *Interpreter) {
 		interpreter.Push(value)
 	}
 }
+
 //anyn  …  any0  n index anyn …  any0  anyn -> Duplicate arbitrary element
 func index(interpreter *Interpreter) {
 	f := interpreter.PopInt()
 	interpreter.Push(interpreter.Get(int(f)))
 }
+
 //anyn−1  …  any0  n  j roll any(j−1) mod n  …  any0  anyn−1  …  anyj mod n -> Roll n elements up j times
 func roll(interpreter *Interpreter) {
 	j := interpreter.PopInt()
@@ -43,20 +47,25 @@ func roll(interpreter *Interpreter) {
 		interpreter.Push(values[(n+i-j)%n])
 	}
 }
+
 //any1  …  anyn clear -> Discard all elements
 func clear(interpreter *Interpreter) {
 	interpreter.ClearOperands()
 }
+
 //any1  …  anyn count any1  …  anyn  n -> Count elements on stack
 func count(interpreter *Interpreter) {
 	interpreter.Push(interpreter.OperandSize())
 }
+
 //Mark
 type Mark struct{}
+
 //– mark mark -> Push mark on stack
 func mark(interpreter *Interpreter) {
 	interpreter.Push(Mark{})
 }
+
 //mark  obj 1  …  obj n cleartomark – -> Discard elements down through mark
 func cleartomark(interpreter *Interpreter) {
 	value := interpreter.Pop()
@@ -64,6 +73,7 @@ func cleartomark(interpreter *Interpreter) {
 		value = interpreter.Pop()
 	}
 }
+
 //mark  obj 1  …  obj n counttomark mark  obj 1  …  obj n  n -> Count elements down to mark
 func counttomark(interpreter *Interpreter) {
 	i := 0

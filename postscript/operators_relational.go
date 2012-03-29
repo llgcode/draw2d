@@ -3,7 +3,6 @@
 
 package postscript
 
-
 func eq(interpreter *Interpreter) {
 	value1 := interpreter.Pop()
 	value2 := interpreter.Pop()

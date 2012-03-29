@@ -26,7 +26,6 @@ func (c *PathConverter) Convert(paths ...*PathStorage) {
 	}
 }
 
-
 func (c *PathConverter) ConvertCommand(cmd PathCmd, vertices ...float64) int {
 	switch cmd {
 	case MoveTo:

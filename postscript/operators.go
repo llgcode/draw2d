@@ -17,7 +17,6 @@ func (o *PrimitiveOperator) Execute(interpreter *Interpreter) {
 	o.f(interpreter)
 }
 
-
 func save(interpreter *Interpreter) {
 	interpreter.Push("VM Snapshot")
 }
@@ -25,7 +24,6 @@ func save(interpreter *Interpreter) {
 func restore(interpreter *Interpreter) {
 	interpreter.Pop()
 }
-
 
 func initSystemOperators(interpreter *Interpreter) {
 	interpreter.SystemDefine("save", NewOperator(save))

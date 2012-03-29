@@ -10,7 +10,6 @@ import (
 	"log"
 	"math"
 	"os"
-	"time"
 )
 
 func saveToPngFile(filePath string, m image.Image) {
@@ -37,7 +36,7 @@ func saveToPngFile(filePath string, m image.Image) {
 func loadFromPngFile(filePath string) image.Image {
 	f, err := os.OpenFile(filePath, 0, 0)
 	if f == nil {
-		log.Printf("can't open file; err=%s\n", err.String())
+		log.Printf("can't open file; err=%s\n", err)
 		return nil
 	}
 	defer f.Close()
@@ -61,9 +60,6 @@ func main() {
 	//tr.Scale(3, 3)
 	tr.Translate(-width/2, -height/2)
 	tr.Translate(200, 5)
-	lastTime := time.Now()
 	draw2d.DrawImage(source, dest, tr, draw.Over, draw2d.BilinearFilter)
-	dt := time.Now().Sub(lastTime)
-	fmt.Printf("Draw image: %f ms\n", float64(dt)*1e-6)
 	saveToPngFile("../resource/result/TestDrawImage.png", dest)
 }

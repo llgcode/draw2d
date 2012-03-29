@@ -4,12 +4,11 @@
 package wingui
 
 import (
-	"syscall"
-	"unsafe"
 	"fmt"
 	"os"
+	"syscall"
+	"unsafe"
 )
-
 
 func abortf(format string, a ...interface{}) {
 	fmt.Fprintf(os.Stdout, format, a...)

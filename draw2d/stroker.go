@@ -18,7 +18,6 @@ const (
 	MiterJoin
 )
 
-
 type LineStroker struct {
 	Next          VertexConverter
 	HalfLineWidth float64
@@ -41,7 +40,6 @@ func NewLineStroker(c Cap, j Join, converter VertexConverter) *LineStroker {
 	l.command = VertexNoCommand
 	return l
 }
-
 
 func (l *LineStroker) NextCommand(command VertexCommand) {
 	l.command = command
@@ -106,7 +104,6 @@ func (l *LineStroker) closePolygon() {
 		l.appendVertex(l.vertices[0], l.vertices[1], l.rewind[0], l.rewind[1])
 	}
 }
-
 
 func (l *LineStroker) line(x1, y1, x2, y2 float64) {
 	dx := (x2 - x1)

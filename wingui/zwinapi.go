@@ -1,6 +1,5 @@
 package wingui
 
-
 import "unsafe"
 import "syscall"
 

@@ -12,7 +12,6 @@ const (
 
 type Polygon []float64
 
-
 type PolygonEdge struct {
 	X, Slope            float64
 	FirstLine, LastLine int
@@ -166,7 +165,6 @@ func (p Polygon) getEdges(startIndex, vertexCount int, edges []PolygonEdge, tr [
 	return edgeCount
 }
 
-
 //! Creates a polygon edge between two vectors.
 /*! Clips the edge vertically to the clip rectangle. Returns true for edges that
  *  should be rendered, false for others.
@@ -228,7 +226,6 @@ func getEdge(x0, y0, x1, y1 float64, edge *PolygonEdge, clipBound [4]float64) bo
 	return true
 }
 
-
 //! Creates a vertical polygon edge between two y values.
 /*! Clips the edge vertically to the clip rectangle. Returns true for edges that
  *  should be rendered, false for others.
@@ -277,12 +274,12 @@ func getVerticalEdge(startY, endY, x float64, edge *PolygonEdge, clipBound [4]fl
 	return true
 }
 
-
 type VertexData struct {
 	X, Y      float64
 	ClipFlags int
 	Line      int
 }
+
 //! Calculates the edges of the polygon with transformation and clipping to edges array.
 /*! Note that this may return upto three times the amount of edges that the polygon has vertices,
  *  in the unlucky case where both left and right side get clipped for all edges.
