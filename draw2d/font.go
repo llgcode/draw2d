@@ -37,6 +37,10 @@ type FontData struct {
 	Style  FontStyle
 }
 
+func RegisterFont(fontfilename string, font *truetype.Font) {
+	fonts[fontfilename] = font
+}
+
 func GetFont(fontData FontData) *truetype.Font {
 	fontFileName := fontData.Name
 	switch fontData.Family {
