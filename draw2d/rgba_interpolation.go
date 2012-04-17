@@ -1,4 +1,7 @@
+// Copyright 2010 The draw2d Authors. All rights reserved.
+// created: 21/11/2010 by Laurent Le Goff
 // see http://pippin.gimp.org/image_processing/chap_resampling.html
+
 package draw2d
 
 import (
