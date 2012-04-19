@@ -44,6 +44,10 @@ func NewDictionary(prealloc int) Dictionary {
 	return make(Dictionary, prealloc)
 }
 
+func (interpreter *Interpreter) SetGraphicContext(gc draw2d.GraphicContext)  {
+	interpreter.gc = gc
+}
+
 func (interpreter *Interpreter) GetGraphicContext() draw2d.GraphicContext {
 	return interpreter.gc
 }

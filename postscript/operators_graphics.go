@@ -80,7 +80,7 @@ func arc(interpreter *Interpreter) {
 }
 
 func clippath(interpreter *Interpreter) {
-	log.Printf("clippath not yet implemented")
+	//log.Printf("clippath not yet implemented")
 }
 
 func stroke(interpreter *Interpreter) {
@@ -198,9 +198,9 @@ func setcmybcolor(interpreter *Interpreter) {
 }
 
 func setdash(interpreter *Interpreter) {
-	offset := interpreter.PopInt()
-	dash := interpreter.PopArray()
-	log.Printf("setdash not yet implemented dash: %v, offset: %d \n", dash, offset)
+	interpreter.PopInt() // offset
+	interpreter.PopArray() // dash
+	//log.Printf("setdash not yet implemented dash: %v, offset: %d \n", dash, offset)
 }
 
 func setlinejoin(interpreter *Interpreter) {
@@ -229,7 +229,7 @@ func setlinecap(interpreter *Interpreter) {
 
 func setmiterlimit(interpreter *Interpreter) {
 	interpreter.PopInt()
-	log.Printf("setmiterlimit not yet implemented")
+	//log.Printf("setmiterlimit not yet implemented")
 }
 
 func setlinewidth(interpreter *Interpreter) {
@@ -237,7 +237,7 @@ func setlinewidth(interpreter *Interpreter) {
 }
 
 func showpage(interpreter *Interpreter) {
-	log.Printf("showpage may be an implementation specific, override show page to generate multi page images")
+	//log.Printf("showpage may be an implementation specific, override show page to generate multi page images")
 }
 
 func show(interpreter *Interpreter) {
@@ -275,12 +275,12 @@ func stringwidth(interpreter *Interpreter) {
 
 func setflat(interpreter *Interpreter) {
 	interpreter.Pop()
-	log.Printf("setflat not yet implemented")
+	//log.Printf("setflat not yet implemented")
 }
 
 func currentflat(interpreter *Interpreter) {
 	interpreter.Push(1.0)
-	log.Printf("currentflat not yet implemented")
+	//log.Printf("currentflat not yet implemented")
 }
 
 // Coordinate System and Matrix operators

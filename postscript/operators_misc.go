@@ -5,7 +5,7 @@
 package postscript
 
 import (
-	"log"
+	//"log"
 )
 
 //proc bind proc Replace operator names in proc with operators; perform idiom recognition
@@ -19,7 +19,7 @@ func bind(interpreter *Interpreter) {
 				v, _ := interpreter.FindValueInDictionaries(s)
 				operator, isOperator := v.(Operator)
 				if v == nil {
-					log.Printf("Can't find def: %s\n", s)
+					// log.Printf("Can't find def: %s\n", s)
 				}
 				if isOperator {
 					values[i] = operator
