@@ -6,14 +6,14 @@ package main
 
 import (
 	"code.google.com/p/draw2d/draw2d"
-	"code.google.com/p/draw2d/postscript"
 	"code.google.com/p/draw2d/wingui"
+	"code.google.com/p/draw2d/postscript"
 	"fmt"
 	"image"
-	"image/color"
 	"io/ioutil"
-	"os"
+	"image/color"
 	"strings"
+	"os"
 	"syscall"
 	"time"
 	"unsafe"
@@ -26,8 +26,8 @@ func abortf(format string, a ...interface{}) {
 	os.Exit(1)
 }
 
-func abortErrNo(funcname string, err int) {
-	abortf("%s failed: %d %s\n", funcname, err, syscall.Errstr(err))
+func abortErrNo(funcname string, err error) {
+	abortf("%s failed: %d %s\n", funcname, err, err)
 }
 
 // global vars
@@ -39,13 +39,13 @@ func TestDrawCubicCurve(gc draw2d.GraphicContext) {
 	x2, y2 := 153.6, 25.6
 	x3, y3 := 230.4, 128.0
 
-	gc.SetFillColor(color.NRGBA{0xAA, 0xAA, 0xAA, 0xFF})
+	gc.SetStrokeColor(color.NRGBA{0, 0, 0, 0xFF})
 	gc.SetLineWidth(10)
 	gc.MoveTo(x, y)
 	gc.CubicCurveTo(x1, y1, x2, y2, x3, y3)
 	gc.Stroke()
 
-	gc.SetStrokeColor(color.NRGBA{0xFF, 0x33, 0x33, 0x88})
+	gc.SetStrokeColor(color.NRGBA{0xFF, 0, 0, 0xFF})
 
 	gc.SetLineWidth(6)
 	// draw segment of curve
@@ -56,20 +56,35 @@ func TestDrawCubicCurve(gc draw2d.GraphicContext) {
 	gc.Stroke()
 }
 
+func DrawTiger(gc draw2d.GraphicContext){
+	if postscriptContent == "" {
+		src, err := os.OpenFile("../../resource/postscript/tiger.ps", 0, 0)
+		if err != nil {
+			fmt.Println("can't find postscript file.")
+			return
+		}
+		defer src.Close()
+		bytes, err := ioutil.ReadAll(src)
+		postscriptContent = string(bytes)
+	}
+	interpreter := postscript.NewInterpreter(gc)
+	reader := strings.NewReader(postscriptContent)
+	interpreter.Execute(reader)
+}
+
 var (
-	mh                uint32
-	wndBufferHeader   uint32
+	mh              syscall.Handle
+	hdcWndBuffer    syscall.Handle
+	wndBufferHeader syscall.Handle
 	wndBuffer         wingui.BITMAP
-	hdcWndBuffer      uint32
-	ppvBits           *color.RGBA
-	backBuffer        *image.RGBA
+	ppvBits         *uint8
+	backBuffer      *image.RGBA
 	postscriptContent string
 )
 
 // WinProc called by windows to notify us of all windows events we might be interested in.
-func WndProc(hwnd, msg uint32, wparam, lparam int32) uintptr {
-	var rc int32
-
+func WndProc(hwnd syscall.Handle, msg uint32, wparam, lparam uintptr) (rc uintptr) {
+	_ = make([]int, 100000)
 	switch msg {
 	case wingui.WM_CREATE:
 		hdc := wingui.GetDC(hwnd)
@@ -102,35 +117,41 @@ func WndProc(hwnd, msg uint32, wparam, lparam int32) uintptr {
 		hdcWndBuffer = wingui.CreateCompatibleDC(hdc)
 		wingui.SelectObject(hdcWndBuffer, wndBufferHeader)
 
-		pixel := (*[600 * 800]color.RGBA)(unsafe.Pointer(ppvBits))
+		pixel := (*[600 * 800 * 4]uint8)(unsafe.Pointer(ppvBits))
 		pixelSlice := pixel[:]
-		backBuffer = &image.RGBA{pixelSlice, 600, image.Rect(0, 0, 600, 800)}
+		backBuffer = &image.RGBA{pixelSlice, 4*600, image.Rect(0, 0, 600, 800)}
 		fmt.Println("Create windows")
 		rc = wingui.DefWindowProc(hwnd, msg, wparam, lparam)
 	case wingui.WM_COMMAND:
-		switch uint32(lparam) {
+		switch syscall.Handle(lparam) {
 		default:
 			rc = wingui.DefWindowProc(hwnd, msg, wparam, lparam)
 		}
 	case wingui.WM_PAINT:
 		var ps wingui.PAINTSTRUCT
-		lastTime := time.Now()
 		hdc := wingui.BeginPaint(hwnd, &ps)
+		t := time.Now()
 		gc := draw2d.NewGraphicContext(backBuffer)
-		gc.SetFillColor(color.RGBA{0xFF, 0xFF, 0xFF, 0xFF})
-		//	gc.Clear()
+		/*gc.SetFillColor(color.RGBA{0xFF, 0xFF, 0xFF, 0xFF})
+		gc.Clear()*/
+		for i := 0; i < len(backBuffer.Pix); i+=1 {
+			backBuffer.Pix[i] = 0xff
+		}
 		gc.Save()
 		//gc.Translate(0, -380)
-		interpreter := postscript.NewInterpreter(gc)
-		reader := strings.NewReader(postscriptContent)
-		interpreter.Execute(reader)
-		dt := time.Now().Sub(lastTime)
+		DrawTiger(gc)
 		gc.Restore()
 		// back buf in
-
+		var tmp uint8
+		for i := 0; i < len(backBuffer.Pix); i+=4 {
+			tmp = backBuffer.Pix[i]
+			backBuffer.Pix[i] = backBuffer.Pix[i+2]
+			backBuffer.Pix[i+2] = tmp
+		}
 		wingui.BitBlt(hdc, 0, 0, int(wndBuffer.Width), int(wndBuffer.Height), hdcWndBuffer, 0, 0, wingui.SRCCOPY)
 		wingui.EndPaint(hwnd, &ps)
 		rc = wingui.DefWindowProc(hwnd, msg, wparam, lparam)
+		dt := time.Now().Sub(t)
 		fmt.Printf("Redraw in : %f ms\n", float64(dt)*1e-6)
 	case wingui.WM_CLOSE:
 		wingui.DestroyWindow(hwnd)
@@ -139,27 +160,27 @@ func WndProc(hwnd, msg uint32, wparam, lparam int32) uintptr {
 	default:
 		rc = wingui.DefWindowProc(hwnd, msg, wparam, lparam)
 	}
-	return uintptr(rc)
+	return
 }
 
 func rungui() int {
-	var e int
+	var e error
 
 	// GetModuleHandle
 	mh, e = wingui.GetModuleHandle(nil)
-	if e != 0 {
+	if e != nil {
 		abortErrNo("GetModuleHandle", e)
 	}
 
 	// Get icon we're going to use.
 	myicon, e := wingui.LoadIcon(0, wingui.IDI_APPLICATION)
-	if e != 0 {
+	if e != nil {
 		abortErrNo("LoadIcon", e)
 	}
 
 	// Get cursor we're going to use.
 	mycursor, e := wingui.LoadCursor(0, wingui.IDC_ARROW)
-	if e != 0 {
+	if e != nil {
 		abortErrNo("LoadCursor", e)
 	}
 
@@ -167,19 +188,18 @@ func rungui() int {
 	wproc := syscall.NewCallback(WndProc)
 
 	// RegisterClassEx
-	wcname := syscall.StringToUTF16Ptr("Test Draw2d")
+	wcname := syscall.StringToUTF16Ptr("myWindowClass")
 	var wc wingui.Wndclassex
 	wc.Size = uint32(unsafe.Sizeof(wc))
 	wc.WndProc = wproc
-	//wc.Style = wingui.CS_HREDRAW | wingui.CS_VREDRAW
 	wc.Instance = mh
 	wc.Icon = myicon
 	wc.Cursor = mycursor
-	wc.Background = 0
+	wc.Background = wingui.COLOR_BTNFACE + 1
 	wc.MenuName = nil
 	wc.ClassName = wcname
 	wc.IconSm = myicon
-	if _, e := wingui.RegisterClassEx(&wc); e != 0 {
+	if _, e := wingui.RegisterClassEx(&wc); e != nil {
 		abortErrNo("RegisterClassEx", e)
 	}
 
@@ -191,7 +211,7 @@ func rungui() int {
 		wingui.WS_OVERLAPPEDWINDOW,
 		wingui.CW_USEDEFAULT, wingui.CW_USEDEFAULT, 600, 800,
 		0, 0, mh, 0)
-	if e != 0 {
+	if e != nil {
 		abortErrNo("CreateWindowEx", e)
 	}
 	fmt.Printf("main window handle is %x\n", wh)
@@ -200,7 +220,7 @@ func rungui() int {
 	wingui.ShowWindow(wh, wingui.SW_SHOWDEFAULT)
 
 	// UpdateWindow
-	if e := wingui.UpdateWindow(wh); e != 0 {
+	if e := wingui.UpdateWindow(wh); e != nil {
 		abortErrNo("UpdateWindow", e)
 	}
 
@@ -208,7 +228,7 @@ func rungui() int {
 	var m wingui.Msg
 	for {
 		r, e := wingui.GetMessage(&m, 0, 0, 0)
-		if e != 0 {
+		if e != nil {
 			abortErrNo("GetMessage", e)
 		}
 		if r == 0 {
@@ -222,14 +242,6 @@ func rungui() int {
 }
 
 func main() {
-	src, err := os.OpenFile("../resource/postscript/tiger.ps", 0, 0)
-	if err != nil {
-		fmt.Println("can't find postscript file.")
-		return
-	}
-	defer src.Close()
-	bytes, err := ioutil.ReadAll(src)
-	postscriptContent = string(bytes)
 	rc := rungui()
 	os.Exit(rc)
 }
