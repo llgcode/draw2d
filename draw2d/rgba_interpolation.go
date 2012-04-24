@@ -116,33 +116,35 @@ func DrawImage(src image.Image, dest draw.Image, tr MatrixTransform, op draw.Op,
 			u = x
 			v = y
 			tr.InverseTransform(&u, &v)
-			c1 = dest.At(int(x), int(y))
-			switch filter {
-			case LinearFilter:
-				c2 = src.At(int(u), int(v))
-			case BilinearFilter:
-				c2 = getColorBilinear(src, u, v)
-			case BicubicFilter:
-				c2 = getColorBicubic(src, u, v)
+			if bounds.Min.X <= int(u) && bounds.Max.X > int(u) &&  bounds.Min.Y <= int(v) && bounds.Max.Y > int(v) {
+				c1 = dest.At(int(x), int(y))
+				switch filter {
+				case LinearFilter:
+					c2 = src.At(int(u), int(v))
+				case BilinearFilter:
+					c2 = getColorBilinear(src, u, v)
+				case BicubicFilter:
+					c2 = getColorBicubic(src, u, v)
+				}
+				switch op {
+				case draw.Over:
+					r1, g1, b1, a1 = c1.RGBA()
+					r2, g2, b2, a2 = c2.RGBA()
+					ia = M - a2
+					r = ((r1 * ia) / M) + r2
+					g = ((g1 * ia) / M) + g2
+					b = ((b1 * ia) / M) + b2
+					a = ((a1 * ia) / M) + a2
+					color.R = uint8(r >> 8)
+					color.G = uint8(g >> 8)
+					color.B = uint8(b >> 8)
+					color.A = uint8(a >> 8)
+					cr = color
+				default:
+					cr = c2
+				}
+				dest.Set(int(x), int(y), cr)
 			}
-			switch op {
-			case draw.Over:
-				r1, g1, b1, a1 = c1.RGBA()
-				r2, g2, b2, a2 = c2.RGBA()
-				ia = M - a2
-				r = ((r1 * ia) / M) + r2
-				g = ((g1 * ia) / M) + g2
-				b = ((b1 * ia) / M) + b2
-				a = ((a1 * ia) / M) + a2
-				color.R = uint8(r >> 8)
-				color.G = uint8(g >> 8)
-				color.B = uint8(b >> 8)
-				color.A = uint8(a >> 8)
-				cr = color
-			default:
-				cr = c2
-			}
-			dest.Set(int(x), int(y), cr)
 		}
 	}
 }
