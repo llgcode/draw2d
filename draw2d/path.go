@@ -16,7 +16,7 @@ type Path interface {
 	// Add a line to the current subpath 
 	// relative to the current point
 	RLineTo(dx, dy float64)
-	
+
 	QuadCurveTo(cx, cy, x, y float64)
 	RQuadCurveTo(dcx, dcy, dx, dy float64)
 	CubicCurveTo(cx1, cy1, cx2, cy2, x, y float64)

@@ -116,7 +116,7 @@ func DrawImage(src image.Image, dest draw.Image, tr MatrixTransform, op draw.Op,
 			u = x
 			v = y
 			tr.InverseTransform(&u, &v)
-			if bounds.Min.X <= int(u) && bounds.Max.X > int(u) &&  bounds.Min.Y <= int(v) && bounds.Max.Y > int(v) {
+			if bounds.Min.X <= int(u) && bounds.Max.X > int(u) && bounds.Min.Y <= int(v) && bounds.Max.Y > int(v) {
 				c1 = dest.At(int(x), int(y))
 				switch filter {
 				case LinearFilter:

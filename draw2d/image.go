@@ -39,11 +39,29 @@ func NewGraphicContext(img draw.Image) *ImageGraphicContext {
 	switch selectImage := img.(type) {
 	case *image.RGBA:
 		painter = raster.NewRGBAPainter(selectImage)
-	//case *image.NRGBA:
-	//	painter = NewNRGBAPainter(selectImage)
 	default:
 		panic("Image type not supported")
 	}
+	width, height := img.Bounds().Dx(), img.Bounds().Dy()
+	dpi := 92
+	ftContext := freetype.NewContext()
+	ftContext.SetDPI(dpi)
+	ftContext.SetClip(img.Bounds())
+	ftContext.SetDst(img)
+	gc := &ImageGraphicContext{
+		NewStackGraphicContext(),
+		img,
+		painter,
+		raster.NewRasterizer(width, height),
+		raster.NewRasterizer(width, height),
+		ftContext,
+		dpi,
+	}
+	return gc
+}
+
+// Create a new Graphic context from an image and a Painter (see Freetype-go)
+func NewGraphicContextWithPainter(img draw.Image, painter Painter) *ImageGraphicContext {
 	width, height := img.Bounds().Dx(), img.Bounds().Dy()
 	dpi := 92
 	ftContext := freetype.NewContext()
