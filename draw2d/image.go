@@ -45,7 +45,7 @@ func NewGraphicContext(img draw.Image) *ImageGraphicContext {
 	width, height := img.Bounds().Dx(), img.Bounds().Dy()
 	dpi := 92
 	ftContext := freetype.NewContext()
-	ftContext.SetDPI(dpi)
+	ftContext.SetDPI(float64(dpi))
 	ftContext.SetClip(img.Bounds())
 	ftContext.SetDst(img)
 	gc := &ImageGraphicContext{
@@ -65,7 +65,7 @@ func NewGraphicContextWithPainter(img draw.Image, painter Painter) *ImageGraphic
 	width, height := img.Bounds().Dx(), img.Bounds().Dy()
 	dpi := 92
 	ftContext := freetype.NewContext()
-	ftContext.SetDPI(dpi)
+	ftContext.SetDPI(float64(dpi))
 	ftContext.SetClip(img.Bounds())
 	ftContext.SetDst(img)
 	gc := &ImageGraphicContext{
@@ -82,7 +82,7 @@ func NewGraphicContextWithPainter(img draw.Image, painter Painter) *ImageGraphic
 
 func (gc *ImageGraphicContext) SetDPI(dpi int) {
 	gc.DPI = dpi
-	gc.freetype.SetDPI(dpi)
+	gc.freetype.SetDPI(float64(dpi))
 }
 
 func (gc *ImageGraphicContext) GetDPI() int {
