@@ -4,6 +4,7 @@
 package draw2d
 
 import (
+	"code.google.com/p/freetype-go/freetype/truetype"
 	"image"
 	"image/color"
 )
@@ -25,7 +26,13 @@ type ContextStack struct {
 	Join        Join
 	FontSize    float64
 	FontData    FontData
-	previous    *ContextStack
+
+	font *truetype.Font
+	// fontSize and dpi are used to calculate scale. scale is the number of
+	// 26.6 fixed point units in 1 em.
+	scale int32
+
+	previous *ContextStack
 }
 
 /**
@@ -185,6 +192,8 @@ func (gc *StackGraphicContext) Save() {
 	context.Cap = gc.Current.Cap
 	context.Join = gc.Current.Join
 	context.Path = gc.Current.Path.Copy()
+	context.font = gc.Current.font
+	context.scale = gc.Current.scale
 	copy(context.Tr[:], gc.Current.Tr[:])
 	context.previous = gc.Current
 	gc.Current = context

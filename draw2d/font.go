@@ -4,7 +4,6 @@
 package draw2d
 
 import (
-	"code.google.com/p/freetype-go/freetype"
 	"code.google.com/p/freetype-go/freetype/truetype"
 	"io/ioutil"
 	"log"
@@ -89,7 +88,7 @@ func loadFont(fontFileName string) *truetype.Font {
 		log.Println(err)
 		return nil
 	}
-	font, err := freetype.ParseFont(fontBytes)
+	font, err := truetype.Parse(fontBytes)
 	if err != nil {
 		log.Println(err)
 		return nil
