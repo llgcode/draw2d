@@ -31,7 +31,7 @@ func initGc(w, h int) (image.Image, draw2d.GraphicContext) {
 
 	gc.SetStrokeColor(image.Black)
 	gc.SetFillColor(image.White)
-	// fill the background 
+	// fill the background
 	//gc.Clear()
 
 	return i, gc
@@ -488,12 +488,13 @@ func TestFillString() {
 	i, gc := initGc(100, 100)
 	draw2d.RoundRect(gc, 5, 5, 95, 95, 10, 10)
 	gc.FillStroke()
+	gc.SetFillColor(image.Black)
 	gc.SetFontSize(18)
-	gc.MoveTo(10, 52)
+	gc.Translate(6, 52)
 	gc.SetFontData(draw2d.FontData{"luxi", draw2d.FontFamilyMono, draw2d.FontStyleBold | draw2d.FontStyleItalic})
 	width := gc.FillString("cou")
-	gc.RMoveTo(width+1, 0)
-	gc.FillString("cou")
+	gc.Translate(width+1, 0)
+	gc.StrokeString("cou")
 	saveToPngFile("TestFillString", i)
 }
 
