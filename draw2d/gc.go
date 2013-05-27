@@ -43,8 +43,11 @@ type GraphicContext interface {
 	ClearRect(x1, y1, x2, y2 int)
 	SetDPI(dpi int)
 	GetDPI() int
+	CreateStringPath(text string, x, y float64) (cursor float64)
 	FillString(text string) (cursor float64)
+	FillStringAt(text string, x, y float64) (cursor float64)
 	StrokeString(text string) (cursor float64)
+	StrokeStringAt(text string, x, y float64) (cursor float64)
 	Stroke(paths ...*PathStorage)
 	Fill(paths ...*PathStorage)
 	FillStroke(paths ...*PathStorage)
