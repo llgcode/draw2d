@@ -11,6 +11,7 @@ import (
 	"image/color"
 	"image/draw"
 	"log"
+	"math"
 )
 
 type Painter interface {
@@ -100,27 +101,17 @@ func (gc *ImageGraphicContext) StrokeStringAt(text string, x, y float64) (cursor
 	return width
 }
 
-// CreateStringPath creates a path from the string s at x, y, and returns the string width.
-// The text is placed so that the left edge of the em square of the first character of s
-// and the baseline intersect at x, y. The majority of the affected pixels will be
-// above and to the right of the point, but some may be below or to the left.
-// For example, drawing a string that starts with a 'J' in an italic font may
-// affect pixels below and left of the point.
-func (gc *ImageGraphicContext) CreateStringPath(text string, x, y float64) (width float64) {
+func (gc *ImageGraphicContext) loadCurrentFont() (*truetype.Font, error) {
 	font := GetFont(gc.Current.FontData)
 	if font == nil {
 		font = GetFont(defaultFontData)
 	}
 	if font == nil {
-		return 0
+		return nil, errors.New("No font set, and no default font available.")
 	}
 	gc.SetFont(font)
 	gc.SetFontSize(gc.Current.FontSize)
-	width, err := gc._createStringPath(text, 0, 0)
-	if err != nil {
-		log.Println(err)
-	}
-	return width
+	return font, nil
 }
 
 func fUnitsToFloat64(x int32) float64 {
@@ -183,10 +174,17 @@ func (gc *ImageGraphicContext) drawGlyph(glyph truetype.Index, dx, dy float64) e
 	return nil
 }
 
-func (gc *ImageGraphicContext) _createStringPath(s string, x, y float64) (float64, error) {
-	font := gc.Current.font
-	if font == nil {
-		return 0.0, errors.New("draw2d: CreateStringPath called with a nil font")
+// CreateStringPath creates a path from the string s at x, y, and returns the string width.
+// The text is placed so that the left edge of the em square of the first character of s
+// and the baseline intersect at x, y. The majority of the affected pixels will be
+// above and to the right of the point, but some may be below or to the left.
+// For example, drawing a string that starts with a 'J' in an italic font may
+// affect pixels below and left of the point.
+func (gc *ImageGraphicContext) CreateStringPath(s string, x, y float64) float64 {
+	font, err := gc.loadCurrentFont()
+	if err != nil {
+		log.Println(err)
+		return 0.0
 	}
 	startx := x
 	prev, hasPrev := truetype.Index(0), false
@@ -197,12 +195,52 @@ func (gc *ImageGraphicContext) _createStringPath(s string, x, y float64) (float6
 		}
 		err := gc.drawGlyph(index, x, y)
 		if err != nil {
-			return startx - x, err
+			log.Println(err)
+			return startx - x
 		}
 		x += fUnitsToFloat64(font.HMetric(gc.Current.scale, index).AdvanceWidth)
 		prev, hasPrev = index, true
 	}
-	return x - startx, nil
+	return x - startx
+}
+
+// GetStringBounds returns the approximate pixel bounds of the string s at x, y.
+// The the left edge of the em square of the first character of s
+// and the baseline intersect at 0, 0 in the returned coordinates.
+// Therefore the top and left coordinates may well be negative.
+func (gc *ImageGraphicContext) GetStringBounds(s string) (left, top, right, bottom float64) {
+	font, err := gc.loadCurrentFont()
+	if err != nil {
+		log.Println(err)
+		return 0, 0, 0, 0
+	}
+	top, left, bottom, right = 10e6, 10e6, -10e6, -10e6
+	cursor := 0.0
+	prev, hasPrev := truetype.Index(0), false
+	for _, rune := range s {
+		index := font.Index(rune)
+		if hasPrev {
+			cursor += fUnitsToFloat64(font.Kerning(gc.Current.scale, prev, index))
+		}
+		if err := gc.glyphBuf.Load(gc.Current.font, gc.Current.scale, index, nil); err != nil {
+			log.Println(err)
+			return 0, 0, 0, 0
+		}
+		e0 := 0
+		for _, e1 := range gc.glyphBuf.End {
+			ps := gc.glyphBuf.Point[e0:e1]
+			for _, p := range ps {
+				x, y := pointToF64Point(p)
+				top = math.Min(top, y)
+				bottom = math.Max(bottom, y)
+				left = math.Min(left, x+cursor)
+				right = math.Max(right, x+cursor)
+			}
+		}
+		cursor += fUnitsToFloat64(font.HMetric(gc.Current.scale, index).AdvanceWidth)
+		prev, hasPrev = index, true
+	}
+	return left, top, right, bottom
 }
 
 // recalc recalculates scale and bounds values from the font size, screen

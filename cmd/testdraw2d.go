@@ -494,6 +494,13 @@ func TestFillString() {
 	gc.SetFontData(draw2d.FontData{"luxi", draw2d.FontFamilyMono, draw2d.FontStyleBold | draw2d.FontStyleItalic})
 	width := gc.FillString("cou")
 	gc.Translate(width+1, 0)
+	left, top, right, bottom := gc.GetStringBounds("cou")
+	gc.SetStrokeColor(color.NRGBA{255, 0x33, 0x33, 0x80})
+	draw2d.Rect(gc, left, top, right, bottom)
+	gc.SetLineWidth(3.0)
+	gc.Stroke()
+	gc.SetStrokeColor(image.Black)
+	gc.SetLineWidth(1.0)
 	gc.StrokeString("cou")
 	saveToPngFile("TestFillString", i)
 }
