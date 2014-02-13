@@ -163,7 +163,7 @@ func (gc *ImageGraphicContext) drawContour(ps []truetype.Point, dx, dy float64) 
 }
 
 func (gc *ImageGraphicContext) drawGlyph(glyph truetype.Index, dx, dy float64) error {
-	if err := gc.glyphBuf.Load(gc.Current.font, gc.Current.scale, glyph, nil); err != nil {
+	if err := gc.glyphBuf.Load(gc.Current.font, gc.Current.scale, glyph, truetype.NoHinting); err != nil {
 		return err
 	}
 	e0 := 0
@@ -222,7 +222,7 @@ func (gc *ImageGraphicContext) GetStringBounds(s string) (left, top, right, bott
 		if hasPrev {
 			cursor += fUnitsToFloat64(font.Kerning(gc.Current.scale, prev, index))
 		}
-		if err := gc.glyphBuf.Load(gc.Current.font, gc.Current.scale, index, nil); err != nil {
+		if err := gc.glyphBuf.Load(gc.Current.font, gc.Current.scale, index, truetype.NoHinting); err != nil {
 			log.Println(err)
 			return 0, 0, 0, 0
 		}
