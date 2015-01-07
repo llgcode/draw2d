@@ -1,9 +1,8 @@
 // Copyright 2010 The draw2d Authors. All rights reserved.
 // created: 21/11/2010 by Laurent Le Goff
-package draw2d
+package curve
 
 import (
-	"code.google.com/p/freetype-go/freetype/raster"
 	"math"
 )
 
@@ -25,7 +24,7 @@ func SegmentArc(t LineTracer, x, y, rx, ry, start, angle, scale float64) {
 		if (angle < end-da/4) != clockWise {
 			curX = x + math.Cos(end)*rx
 			curY = y + math.Sin(end)*ry
-			return curX, curY
+			break;
 		}
 		curX = x + math.Cos(angle)*rx
 		curY = y + math.Sin(angle)*ry
