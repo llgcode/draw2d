@@ -1,15 +1,19 @@
 package draw2dgl
 
 import (
-	"gl"
 	"image"
 	"image/color"
 	"image/draw"
+	"runtime"
 
 	"code.google.com/p/freetype-go/freetype/raster"
+	"github.com/go-gl/gl/v2.1/gl"
 	"github.com/llgcode/draw2d/draw2d"
-	//"log"
 )
+
+func init() {
+	runtime.LockOSThread()
+}
 
 type GLPainter struct {
 	// The Porter-Duff composition operator.
@@ -71,11 +75,11 @@ func (p *GLPainter) Flush() {
 	if len(p.vertices) != 0 {
 		gl.EnableClientState(gl.COLOR_ARRAY)
 		gl.EnableClientState(gl.VERTEX_ARRAY)
-		gl.ColorPointer(4, 0, p.colors)
-		gl.VertexPointer(2, 0, p.vertices)
+		gl.ColorPointer(4, gl.UNSIGNED_BYTE, 0, gl.Ptr(p.colors))
+		gl.VertexPointer(2, gl.INT, 0, gl.Ptr(p.vertices))
 
 		// draw lines
-		gl.DrawArrays(gl.LINES, 0, len(p.vertices)/2)
+		gl.DrawArrays(gl.LINES, 0, int32(len(p.vertices)/2))
 		gl.DisableClientState(gl.VERTEX_ARRAY)
 		gl.DisableClientState(gl.COLOR_ARRAY)
 		p.vertices = p.vertices[0:0]
@@ -141,6 +145,28 @@ func NewGraphicContext(width, height int) *GraphicContext {
 		raster.NewRasterizer(width, height),
 	}
 	return gc
+}
+
+func (gc *GraphicContext) CreateStringPath(s string, x, y float64) float64 {
+	panic("not implemented")
+}
+
+func (gc *GraphicContext) FillStringAt(text string, x, y float64) (cursor float64) {
+	panic("not implemented")
+}
+
+func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom float64) {
+	panic("not implemented")
+}
+
+func (gc *GraphicContext) StrokeString(text string) (cursor float64) {
+	return gc.StrokeStringAt(text, 0, 0)
+}
+
+func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (cursor float64) {
+	width := gc.CreateStringPath(text, x, y)
+	gc.Stroke()
+	return width
 }
 
 func (gc *GraphicContext) SetDPI(dpi int) {

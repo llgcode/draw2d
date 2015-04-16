@@ -18,15 +18,16 @@
 package main
 
 import (
-	"gl"
-	"glut"
 	"io/ioutil"
 	"log"
 	"math"
 	"os"
+	"runtime"
 	"strings"
 	"time"
 
+	"github.com/go-gl/gl/v2.1/gl"
+	"github.com/go-gl/glfw/v3.1/glfw"
 	"github.com/llgcode/draw2d/draw2dgl"
 	"github.com/llgcode/draw2d/postscript"
 )
@@ -36,9 +37,10 @@ var postscriptContent string
 var (
 	width, height int
 	rotate        int
+	window        *glfw.Window
 )
 
-func reshape(w, h int) {
+func reshape(window *glfw.Window, w, h int) {
 	/* Because Gil specified "screen coordinates" (presumably with an
 	   upper-left origin), this short bit of code sets up the coordinate
 	   system to correspond to actual window coodrinates.  This code
@@ -46,7 +48,7 @@ func reshape(w, h int) {
 	   coordinate system. */
 	gl.ClearColor(1, 1, 1, 1)
 	//fmt.Println(gl.GetString(gl.EXTENSIONS))
-	gl.Viewport(0, 0, w, h)                       /* Establish viewing area to cover entire window. */
+	gl.Viewport(0, 0, int32(w), int32(h))         /* Establish viewing area to cover entire window. */
 	gl.MatrixMode(gl.PROJECTION)                  /* Start modifying the projection matrix. */
 	gl.LoadIdentity()                             /* Reset project matrix. */
 	gl.Ortho(0, float64(w), 0, float64(h), -1, 1) /* Map abstract coords directly to window coords. */
@@ -75,7 +77,7 @@ func display() {
 	dt := time.Now().Sub(lastTime)
 	log.Printf("Redraw in : %f ms\n", float64(dt)*1e-6)
 	gl.Flush() /* Single buffered, so needs a flush. */
-	glut.PostRedisplay()
+	window.SwapBuffers()
 }
 
 func main() {
@@ -87,11 +89,44 @@ func main() {
 	defer src.Close()
 	bytes, err := ioutil.ReadAll(src)
 	postscriptContent = string(bytes)
-	glut.Init()
-	glut.InitWindowSize(800, 800)
-	glut.CreateWindow("Show Tiger in Opengl")
+	err = glfw.Init()
+	if err != nil {
+		panic(err)
+	}
+	defer glfw.Terminate()
 
-	glut.DisplayFunc(display)
-	glut.ReshapeFunc(reshape)
-	glut.MainLoop()
+	window, err = glfw.CreateWindow(800, 800, "Show Tiger in OpenGL", nil, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	window.MakeContextCurrent()
+	window.SetSizeCallback(reshape)
+	window.SetKeyCallback(onKey)
+
+	glfw.SwapInterval(1)
+
+	err = gl.Init()
+	if err != nil {
+		panic(err)
+	}
+
+	for !window.ShouldClose() {
+		display()
+		glfw.PollEvents()
+		window.SwapBuffers()
+		//		time.Sleep(2 * time.Second)
+	}
+}
+
+func onKey(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
+	switch {
+	case key == glfw.KeyEscape && action == glfw.Press,
+		key == glfw.KeyQ && action == glfw.Press:
+		w.SetShouldClose(true)
+	}
+}
+
+func init() {
+	runtime.LockOSThread()
 }
