@@ -5,18 +5,19 @@
 package main
 
 import (
-	"github.com/llgcode/draw2d/draw2d"
-	"github.com/llgcode/draw2d/wingui"
-	"github.com/llgcode/draw2d/postscript"
 	"fmt"
 	"image"
-	"io/ioutil"
 	"image/color"
-	"strings"
+	"io/ioutil"
 	"os"
+	"strings"
 	"syscall"
 	"time"
 	"unsafe"
+
+	"github.com/llgcode/draw2d/draw2d"
+	"github.com/llgcode/draw2d/postscript"
+	"github.com/llgcode/draw2d/wingui"
 )
 
 // some help functions
@@ -56,7 +57,7 @@ func TestDrawCubicCurve(gc draw2d.GraphicContext) {
 	gc.Stroke()
 }
 
-func DrawTiger(gc draw2d.GraphicContext){
+func DrawTiger(gc draw2d.GraphicContext) {
 	if postscriptContent == "" {
 		src, err := os.OpenFile("../../resource/postscript/tiger.ps", 0, 0)
 		if err != nil {
@@ -73,12 +74,12 @@ func DrawTiger(gc draw2d.GraphicContext){
 }
 
 var (
-	mh              syscall.Handle
-	hdcWndBuffer    syscall.Handle
-	wndBufferHeader syscall.Handle
+	mh                syscall.Handle
+	hdcWndBuffer      syscall.Handle
+	wndBufferHeader   syscall.Handle
 	wndBuffer         wingui.BITMAP
-	ppvBits         *uint8
-	backBuffer      *image.RGBA
+	ppvBits           *uint8
+	backBuffer        *image.RGBA
 	postscriptContent string
 )
 
@@ -119,7 +120,7 @@ func WndProc(hwnd syscall.Handle, msg uint32, wparam, lparam uintptr) (rc uintpt
 
 		pixel := (*[600 * 800 * 4]uint8)(unsafe.Pointer(ppvBits))
 		pixelSlice := pixel[:]
-		backBuffer = &image.RGBA{pixelSlice, 4*600, image.Rect(0, 0, 600, 800)}
+		backBuffer = &image.RGBA{pixelSlice, 4 * 600, image.Rect(0, 0, 600, 800)}
 		fmt.Println("Create windows")
 		rc = wingui.DefWindowProc(hwnd, msg, wparam, lparam)
 	case wingui.WM_COMMAND:
@@ -134,7 +135,7 @@ func WndProc(hwnd syscall.Handle, msg uint32, wparam, lparam uintptr) (rc uintpt
 		gc := draw2d.NewGraphicContext(backBuffer)
 		/*gc.SetFillColor(color.RGBA{0xFF, 0xFF, 0xFF, 0xFF})
 		gc.Clear()*/
-		for i := 0; i < len(backBuffer.Pix); i+=1 {
+		for i := 0; i < len(backBuffer.Pix); i += 1 {
 			backBuffer.Pix[i] = 0xff
 		}
 		gc.Save()
@@ -143,7 +144,7 @@ func WndProc(hwnd syscall.Handle, msg uint32, wparam, lparam uintptr) (rc uintpt
 		gc.Restore()
 		// back buf in
 		var tmp uint8
-		for i := 0; i < len(backBuffer.Pix); i+=4 {
+		for i := 0; i < len(backBuffer.Pix); i += 4 {
 			tmp = backBuffer.Pix[i]
 			backBuffer.Pix[i] = backBuffer.Pix[i+2]
 			backBuffer.Pix[i+2] = tmp

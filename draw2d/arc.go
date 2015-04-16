@@ -4,8 +4,9 @@
 package draw2d
 
 import (
-	"code.google.com/p/freetype-go/freetype/raster"
 	"math"
+
+	"code.google.com/p/freetype-go/freetype/raster"
 )
 
 func arc(t VertexConverter, x, y, rx, ry, start, angle, scale float64) (lastX, lastY float64) {

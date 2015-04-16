@@ -6,12 +6,12 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"image"
+	"image/png"
 	"log"
 	"os"
 
 	"github.com/llgcode/draw2d/draw2d"
-	"image"
-	"image/png"
 )
 
 func saveToPngFile(filePath string, m image.Image) {

@@ -4,10 +4,11 @@
 package draw2d
 
 import (
-	"code.google.com/p/freetype-go/freetype/truetype"
 	"io/ioutil"
 	"log"
 	"path"
+
+	"code.google.com/p/freetype-go/freetype/truetype"
 )
 
 var (

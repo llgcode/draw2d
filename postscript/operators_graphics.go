@@ -5,10 +5,11 @@
 package postscript
 
 import (
-	"github.com/llgcode/draw2d/draw2d"
 	"image/color"
 	"log"
 	"math"
+
+	"github.com/llgcode/draw2d/draw2d"
 )
 
 //Path Construction Operators
@@ -179,9 +180,9 @@ func setcmybcolor(interpreter *Interpreter) {
 	magenta := interpreter.PopFloat()
 	cyan := interpreter.PopFloat()
 
-	/*  cyan = cyan / 255.0;   
-	    magenta = magenta / 255.0;   
-	    yellow = yellow / 255.0;   
+	/*  cyan = cyan / 255.0;
+	    magenta = magenta / 255.0;
+	    yellow = yellow / 255.0;
 	    black = black / 255.0;   */
 
 	red := cyan*(1.0-black) + black
@@ -198,7 +199,7 @@ func setcmybcolor(interpreter *Interpreter) {
 }
 
 func setdash(interpreter *Interpreter) {
-	interpreter.PopInt() // offset
+	interpreter.PopInt()   // offset
 	interpreter.PopArray() // dash
 	//log.Printf("setdash not yet implemented dash: %v, offset: %d \n", dash, offset)
 }

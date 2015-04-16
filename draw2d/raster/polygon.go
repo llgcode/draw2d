@@ -510,7 +510,7 @@ func (p Polygon) getScanEdges(edges []PolygonScanEdge, tr [6]float64, clipBound 
 				}
 
 				// Generate the edges from start - clip top and clip bottom - end
-				// Clip top and clip bottom may be the same vertex if there is only one 
+				// Clip top and clip bottom may be the same vertex if there is only one
 				// clipped vertex.
 
 				// Check that the line is different for the vertices.

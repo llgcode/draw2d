@@ -3,14 +3,14 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"image"
+	"image/color"
+	"image/png"
 	"log"
 	"math"
 	"os"
 
 	"github.com/llgcode/draw2d/draw2d"
-	"image"
-	"image/color"
-	"image/png"
 )
 
 const (
@@ -28,7 +28,7 @@ func initGc(w, h int) (image.Image, draw2d.GraphicContext) {
 
 	gc.SetStrokeColor(image.Black)
 	gc.SetFillColor(image.White)
-	// fill the background 
+	// fill the background
 	//gc.Clear()
 
 	return i, gc

@@ -4,10 +4,6 @@
 // Miscellaneous Operators
 package postscript
 
-import (
-	//"log"
-)
-
 //proc bind proc Replace operator names in proc with operators; perform idiom recognition
 func bind(interpreter *Interpreter) {
 	pdef := interpreter.PopProcedureDefinition()

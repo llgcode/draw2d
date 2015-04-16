@@ -2,7 +2,6 @@ package curve
 
 import (
 	"bufio"
-	"github.com/llgcode/draw2d/draw2d/raster"
 	"fmt"
 	"image"
 	"image/color"
@@ -11,6 +10,8 @@ import (
 	"log"
 	"os"
 	"testing"
+
+	"github.com/llgcode/draw2d/draw2d/raster"
 )
 
 var (

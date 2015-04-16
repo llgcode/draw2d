@@ -59,7 +59,7 @@ func (l *LineStroker) NextCommand(command VertexCommand) {
 			l.Next.Vertex(l.vertices[0], l.vertices[1])
 		}
 		l.Next.NextCommand(VertexStopCommand)
-		// reinit vertices	
+		// reinit vertices
 		l.vertices = l.vertices[0:0]
 		l.rewind = l.rewind[0:0]
 		l.x, l.y, l.nx, l.ny = 0, 0, 0, 0
