@@ -9,7 +9,7 @@ import (
 	"log"
 	"os"
 
-	"code.google.com/p/draw2d/draw2d"
+	"github.com/llgcode/draw2d/draw2d"
 	"image"
 	"image/png"
 )

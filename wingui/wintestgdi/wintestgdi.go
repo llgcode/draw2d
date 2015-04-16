@@ -5,9 +5,9 @@
 package main
 
 import (
-	"code.google.com/p/draw2d/draw2d"
-	"code.google.com/p/draw2d/wingui"
-	"code.google.com/p/draw2d/postscript"
+	"github.com/llgcode/draw2d/draw2d"
+	"github.com/llgcode/draw2d/wingui"
+	"github.com/llgcode/draw2d/postscript"
 	"fmt"
 	"image"
 	"io/ioutil"

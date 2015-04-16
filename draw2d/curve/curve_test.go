@@ -2,7 +2,7 @@ package curve
 
 import (
 	"bufio"
-	"code.google.com/p/draw2d/draw2d/raster"
+	"github.com/llgcode/draw2d/draw2d/raster"
 	"fmt"
 	"image"
 	"image/color"

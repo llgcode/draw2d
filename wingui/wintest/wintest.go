@@ -5,7 +5,7 @@ import (
         "os"
         "syscall"
         "unsafe"
-        . "code.google.com/p/draw2d/wingui"
+        . "github.com/llgcode/draw2d/wingui"
 )
 
 // some help functions

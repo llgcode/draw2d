@@ -2,7 +2,7 @@ package raster
 
 import (
 	"bufio"
-	"code.google.com/p/draw2d/draw2d/curve"
+	"github.com/llgcode/draw2d/draw2d/curve"
 	"code.google.com/p/freetype-go/freetype/raster"
 	"image"
 	"image/color"

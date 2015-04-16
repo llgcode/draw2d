@@ -1,6 +1,6 @@
 package main
 
-import "code.google.com/p/draw2d/draw2d/curve"
+import "github.com/llgcode/draw2d/draw2d/curve"
 import "testing"
 import __os__ "os"
 import __regexp__ "regexp"

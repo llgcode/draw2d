@@ -18,8 +18,8 @@
 package main
 
 import (
-	"code.google.com/p/draw2d/draw2dgl"
-	"code.google.com/p/draw2d/postscript"
+	"github.com/llgcode/draw2d/draw2dgl"
+	"github.com/llgcode/draw2d/postscript"
 	"gl"
 	"glut"
 	"io/ioutil"
