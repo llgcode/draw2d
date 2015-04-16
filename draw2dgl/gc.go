@@ -118,25 +118,7 @@ type GraphicContext struct {
 	strokeRasterizer *raster.Rasterizer
 }
 
-type Vertex struct {
-	x, y float64
-}
-
-func NewVertex() *Vertex {
-	return &Vertex{}
-}
-
-func (*Vertex) NextCommand(cmd draw2d.VertexCommand) {
-
-}
-
-func (*Vertex) Vertex(x, y float64) {
-	gl.Vertex2d(x, y)
-}
-
-/**
- * Create a new Graphic context from an image
- */
+// NewGraphicContext creates a new Graphic context from an image.
 func NewGraphicContext(width, height int) *GraphicContext {
 	gc := &GraphicContext{
 		draw2d.NewStackGraphicContext(),
