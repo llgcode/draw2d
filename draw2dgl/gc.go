@@ -15,7 +15,7 @@ func init() {
 	runtime.LockOSThread()
 }
 
-type GLPainter struct {
+type Painter struct {
 	// The Porter-Duff composition operator.
 	Op draw.Op
 	// The 16-bit color to paint the spans.
@@ -28,7 +28,7 @@ type GLPainter struct {
 const M16 uint32 = 1<<16 - 1
 
 // Paint satisfies the Painter interface by painting ss onto an image.RGBA.
-func (p *GLPainter) Paint(ss []raster.Span, done bool) {
+func (p *Painter) Paint(ss []raster.Span, done bool) {
 	//gl.Begin(gl.LINES)
 	sslen := len(ss)
 	clenrequired := sslen * 8
@@ -71,7 +71,7 @@ func (p *GLPainter) Paint(ss []raster.Span, done bool) {
 	}
 }
 
-func (p *GLPainter) Flush() {
+func (p *Painter) Flush() {
 	if len(p.vertices) != 0 {
 		gl.EnableClientState(gl.COLOR_ARRAY)
 		gl.EnableClientState(gl.VERTEX_ARRAY)
@@ -88,7 +88,7 @@ func (p *GLPainter) Flush() {
 }
 
 // SetColor sets the color to paint the spans.
-func (p *GLPainter) SetColor(c color.Color) {
+func (p *Painter) SetColor(c color.Color) {
 	r, g, b, a := c.RGBA()
 	if a == 0 {
 		p.cr = 0
@@ -104,8 +104,8 @@ func (p *GLPainter) SetColor(c color.Color) {
 }
 
 // NewRGBAPainter creates a new RGBAPainter for the given image.
-func NewGLPainter() *GLPainter {
-	p := new(GLPainter)
+func NewPainter() *Painter {
+	p := new(Painter)
 	p.vertices = make([]int32, 0, 1024)
 	p.colors = make([]uint8, 0, 1024)
 	return p
@@ -113,24 +113,24 @@ func NewGLPainter() *GLPainter {
 
 type GraphicContext struct {
 	*draw2d.StackGraphicContext
-	painter          *GLPainter
+	painter          *Painter
 	fillRasterizer   *raster.Rasterizer
 	strokeRasterizer *raster.Rasterizer
 }
 
-type GLVertex struct {
+type Vertex struct {
 	x, y float64
 }
 
-func NewGLVertex() *GLVertex {
-	return &GLVertex{}
+func NewVertex() *Vertex {
+	return &Vertex{}
 }
 
-func (glVertex *GLVertex) NextCommand(cmd draw2d.VertexCommand) {
+func (*Vertex) NextCommand(cmd draw2d.VertexCommand) {
 
 }
 
-func (glVertex *GLVertex) Vertex(x, y float64) {
+func (*Vertex) Vertex(x, y float64) {
 	gl.Vertex2d(x, y)
 }
 
@@ -140,7 +140,7 @@ func (glVertex *GLVertex) Vertex(x, y float64) {
 func NewGraphicContext(width, height int) *GraphicContext {
 	gc := &GraphicContext{
 		draw2d.NewStackGraphicContext(),
-		NewGLPainter(),
+		NewPainter(),
 		raster.NewRasterizer(width, height),
 		raster.NewRasterizer(width, height),
 	}
