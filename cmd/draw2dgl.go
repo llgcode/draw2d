@@ -41,11 +41,6 @@ var (
 )
 
 func reshape(window *glfw.Window, w, h int) {
-	/* Because Gil specified "screen coordinates" (presumably with an
-	   upper-left origin), this short bit of code sets up the coordinate
-	   system to correspond to actual window coodrinates.  This code
-	   wouldn't be required if you chose a (more typical in 3D) abstract
-	   coordinate system. */
 	gl.ClearColor(1, 1, 1, 1)
 	//fmt.Println(gl.GetString(gl.EXTENSIONS))
 	gl.Viewport(0, 0, int32(w), int32(h))         /* Establish viewing area to cover entire window. */
@@ -61,7 +56,10 @@ func reshape(window *glfw.Window, w, h int) {
 }
 
 func display() {
+
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
+	lastTime := time.Now()
 	gl.LineWidth(1)
 	gc := draw2dgl.NewGraphicContext(width, height)
 
@@ -70,14 +68,14 @@ func display() {
 	rotate = (rotate + 1) % 360
 	gc.Rotate(float64(rotate) * math.Pi / 180)
 	gc.Translate(-380, -400)
+
 	interpreter := ps.NewInterpreter(gc)
 	reader := strings.NewReader(postscriptContent)
-	lastTime := time.Now()
+
 	interpreter.Execute(reader)
 	dt := time.Now().Sub(lastTime)
 	log.Printf("Redraw in : %f ms\n", float64(dt)*1e-6)
 	gl.Flush() /* Single buffered, so needs a flush. */
-	window.SwapBuffers()
 }
 
 func main() {
@@ -110,11 +108,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
+	reshape(window, 800, 800)
 	for !window.ShouldClose() {
 		display()
+		//window.SwapBuffers()
 		glfw.PollEvents()
-		window.SwapBuffers()
 		//		time.Sleep(2 * time.Second)
 	}
 }
