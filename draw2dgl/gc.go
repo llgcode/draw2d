@@ -1,17 +1,21 @@
 package draw2dgl
 
 import (
-	"gl"
 	"image"
 	"image/color"
 	"image/draw"
+	"runtime"
 
 	"code.google.com/p/freetype-go/freetype/raster"
+	"github.com/go-gl/gl/v2.1/gl"
 	"github.com/llgcode/draw2d/draw2d"
-	//"log"
 )
 
-type GLPainter struct {
+func init() {
+	runtime.LockOSThread()
+}
+
+type Painter struct {
 	// The Porter-Duff composition operator.
 	Op draw.Op
 	// The 16-bit color to paint the spans.
@@ -24,7 +28,7 @@ type GLPainter struct {
 const M16 uint32 = 1<<16 - 1
 
 // Paint satisfies the Painter interface by painting ss onto an image.RGBA.
-func (p *GLPainter) Paint(ss []raster.Span, done bool) {
+func (p *Painter) Paint(ss []raster.Span, done bool) {
 	//gl.Begin(gl.LINES)
 	sslen := len(ss)
 	clenrequired := sslen * 8
@@ -67,15 +71,15 @@ func (p *GLPainter) Paint(ss []raster.Span, done bool) {
 	}
 }
 
-func (p *GLPainter) Flush() {
+func (p *Painter) Flush() {
 	if len(p.vertices) != 0 {
 		gl.EnableClientState(gl.COLOR_ARRAY)
 		gl.EnableClientState(gl.VERTEX_ARRAY)
-		gl.ColorPointer(4, 0, p.colors)
-		gl.VertexPointer(2, 0, p.vertices)
+		gl.ColorPointer(4, gl.UNSIGNED_BYTE, 0, gl.Ptr(p.colors))
+		gl.VertexPointer(2, gl.INT, 0, gl.Ptr(p.vertices))
 
 		// draw lines
-		gl.DrawArrays(gl.LINES, 0, len(p.vertices)/2)
+		gl.DrawArrays(gl.LINES, 0, int32(len(p.vertices)/2))
 		gl.DisableClientState(gl.VERTEX_ARRAY)
 		gl.DisableClientState(gl.COLOR_ARRAY)
 		p.vertices = p.vertices[0:0]
@@ -84,7 +88,7 @@ func (p *GLPainter) Flush() {
 }
 
 // SetColor sets the color to paint the spans.
-func (p *GLPainter) SetColor(c color.Color) {
+func (p *Painter) SetColor(c color.Color) {
 	r, g, b, a := c.RGBA()
 	if a == 0 {
 		p.cr = 0
@@ -100,8 +104,8 @@ func (p *GLPainter) SetColor(c color.Color) {
 }
 
 // NewRGBAPainter creates a new RGBAPainter for the given image.
-func NewGLPainter() *GLPainter {
-	p := new(GLPainter)
+func NewPainter() *Painter {
+	p := new(Painter)
 	p.vertices = make([]int32, 0, 1024)
 	p.colors = make([]uint8, 0, 1024)
 	return p
@@ -109,38 +113,42 @@ func NewGLPainter() *GLPainter {
 
 type GraphicContext struct {
 	*draw2d.StackGraphicContext
-	painter          *GLPainter
+	painter          *Painter
 	fillRasterizer   *raster.Rasterizer
 	strokeRasterizer *raster.Rasterizer
 }
 
-type GLVertex struct {
-	x, y float64
-}
-
-func NewGLVertex() *GLVertex {
-	return &GLVertex{}
-}
-
-func (glVertex *GLVertex) NextCommand(cmd draw2d.VertexCommand) {
-
-}
-
-func (glVertex *GLVertex) Vertex(x, y float64) {
-	gl.Vertex2d(x, y)
-}
-
-/**
- * Create a new Graphic context from an image
- */
+// NewGraphicContext creates a new Graphic context from an image.
 func NewGraphicContext(width, height int) *GraphicContext {
 	gc := &GraphicContext{
 		draw2d.NewStackGraphicContext(),
-		NewGLPainter(),
+		NewPainter(),
 		raster.NewRasterizer(width, height),
 		raster.NewRasterizer(width, height),
 	}
 	return gc
+}
+
+func (gc *GraphicContext) CreateStringPath(s string, x, y float64) float64 {
+	panic("not implemented")
+}
+
+func (gc *GraphicContext) FillStringAt(text string, x, y float64) (cursor float64) {
+	panic("not implemented")
+}
+
+func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom float64) {
+	panic("not implemented")
+}
+
+func (gc *GraphicContext) StrokeString(text string) (cursor float64) {
+	return gc.StrokeStringAt(text, 0, 0)
+}
+
+func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (cursor float64) {
+	width := gc.CreateStringPath(text, x, y)
+	gc.Stroke()
+	return width
 }
 
 func (gc *GraphicContext) SetDPI(dpi int) {
