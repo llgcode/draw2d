@@ -15,22 +15,22 @@ var (
 
 /*
 	The function has the following parameters:
-		approximationScale : 
-			Eventually determines the approximation accuracy. In practice we need to transform points from the World coordinate system to the Screen one. 
-			It always has some scaling coefficient. 
-			The curves are usually processed in the World coordinates, while the approximation accuracy should be eventually in pixels. 
-			Usually it looks as follows: 
-			curved.approximationScale(transform.scale()); 
+		approximationScale :
+			Eventually determines the approximation accuracy. In practice we need to transform points from the World coordinate system to the Screen one.
+			It always has some scaling coefficient.
+			The curves are usually processed in the World coordinates, while the approximation accuracy should be eventually in pixels.
+			Usually it looks as follows:
+			curved.approximationScale(transform.scale());
 			where transform is the affine matrix that includes all the transformations, including viewport and zoom.
 		angleTolerance :
-			You set it in radians. 
-			The less this value is the more accurate will be the approximation at sharp turns. 
+			You set it in radians.
+			The less this value is the more accurate will be the approximation at sharp turns.
 			But 0 means that we don't consider angle conditions at all.
 		cuspLimit :
-			An angle in radians. 
-			If 0, only the real cusps will have bevel cuts. 
-			If more than 0, it will restrict the sharpness. 
-			The more this value is the less sharp turns will be cut. 
+			An angle in radians.
+			If 0, only the real cusps will have bevel cuts.
+			If more than 0, it will restrict the sharpness.
+			The more this value is the less sharp turns will be cut.
 			Typically it should not exceed 10-15 degrees.
 */
 func cubicBezier(v VertexConverter, x1, y1, x2, y2, x3, y3, x4, y4, approximationScale, angleTolerance, cuspLimit float64) {

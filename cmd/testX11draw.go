@@ -1,12 +1,13 @@
 package main
 
 import (
-	"code.google.com/p/draw2d/draw2d"
 	"exp/gui"
 	"exp/gui/x11"
 	"fmt"
 	"image"
 	"math"
+
+	"github.com/llgcode/draw2d/draw2d"
 )
 
 func main() {

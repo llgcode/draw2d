@@ -4,9 +4,10 @@
 package draw2d
 
 import (
-	"code.google.com/p/freetype-go/freetype/truetype"
 	"image"
 	"image/color"
+
+	"code.google.com/p/freetype-go/freetype/truetype"
 )
 
 type StackGraphicContext struct {

@@ -2,14 +2,15 @@ package raster
 
 import (
 	"bufio"
-	"code.google.com/p/draw2d/draw2d/curve"
-	"code.google.com/p/freetype-go/freetype/raster"
 	"image"
 	"image/color"
 	"image/png"
 	"log"
 	"os"
 	"testing"
+
+	"code.google.com/p/freetype-go/freetype/raster"
+	"github.com/llgcode/draw2d/draw2d/curve"
 )
 
 var flattening_threshold float64 = 0.5

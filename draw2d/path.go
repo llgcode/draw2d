@@ -8,12 +8,12 @@ type Path interface {
 	LastPoint() (x, y float64)
 	// Create a new subpath that start at the specified point
 	MoveTo(x, y float64)
-	// Create a new subpath that start at the specified point 
+	// Create a new subpath that start at the specified point
 	// relative to the current point
 	RMoveTo(dx, dy float64)
 	// Add a line to the current subpath
 	LineTo(x, y float64)
-	// Add a line to the current subpath 
+	// Add a line to the current subpath
 	// relative to the current point
 	RLineTo(dx, dy float64)
 

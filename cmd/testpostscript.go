@@ -2,8 +2,6 @@ package main
 
 import (
 	"bufio"
-	"code.google.com/p/draw2d/draw2d"
-	"code.google.com/p/draw2d/postscript"
 	"fmt"
 	"image"
 	"image/png"
@@ -11,6 +9,9 @@ import (
 	"log"
 	"os"
 	"strings"
+
+	"github.com/llgcode/draw2d/draw2d"
+	"github.com/llgcode/draw2d/postscript"
 )
 
 func saveToPngFile(filePath string, m image.Image) {

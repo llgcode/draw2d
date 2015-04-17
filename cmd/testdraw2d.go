@@ -6,14 +6,14 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
-	"os"
-
-	"code.google.com/p/draw2d/draw2d"
 	"image"
 	"image/color"
 	"image/png"
+	"log"
 	"math"
+	"os"
+
+	"github.com/llgcode/draw2d/draw2d"
 )
 
 const (

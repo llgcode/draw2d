@@ -60,7 +60,7 @@ func (c *CubicCurveFloat64) EstimateDistance() float64 {
 	return math.Sqrt(dx1*dx1+dy1*dy1) + math.Sqrt(dx2*dx2+dy2*dy2) + math.Sqrt(dx3*dx3+dy3*dy3)
 }
 
-// subdivide the curve in straight lines using line approximation and Casteljau recursive subdivision 
+// subdivide the curve in straight lines using line approximation and Casteljau recursive subdivision
 func (c *CubicCurveFloat64) SegmentRec(t LineTracer, flattening_threshold float64) {
 	c.segmentRec(t, flattening_threshold)
 	t.LineTo(c[6], c[7])
@@ -90,22 +90,22 @@ func (c *CubicCurveFloat64) segmentRec(t LineTracer, flattening_threshold float6
 
 /*
 	The function has the following parameters:
-		approximationScale : 
-			Eventually determines the approximation accuracy. In practice we need to transform points from the World coordinate system to the Screen one. 
-			It always has some scaling coefficient. 
-			The curves are usually processed in the World coordinates, while the approximation accuracy should be eventually in pixels. 
-			Usually it looks as follows: 
-			curved.approximationScale(transform.scale()); 
+		approximationScale :
+			Eventually determines the approximation accuracy. In practice we need to transform points from the World coordinate system to the Screen one.
+			It always has some scaling coefficient.
+			The curves are usually processed in the World coordinates, while the approximation accuracy should be eventually in pixels.
+			Usually it looks as follows:
+			curved.approximationScale(transform.scale());
 			where transform is the affine matrix that includes all the transformations, including viewport and zoom.
 		angleTolerance :
-			You set it in radians. 
-			The less this value is the more accurate will be the approximation at sharp turns. 
+			You set it in radians.
+			The less this value is the more accurate will be the approximation at sharp turns.
 			But 0 means that we don't consider angle conditions at all.
 		cuspLimit :
-			An angle in radians. 
-			If 0, only the real cusps will have bevel cuts. 
-			If more than 0, it will restrict the sharpness. 
-			The more this value is the less sharp turns will be cut. 
+			An angle in radians.
+			If 0, only the real cusps will have bevel cuts.
+			If more than 0, it will restrict the sharpness.
+			The more this value is the less sharp turns will be cut.
 			Typically it should not exceed 10-15 degrees.
 */
 func (c *CubicCurveFloat64) AdaptiveSegmentRec(t LineTracer, approximationScale, angleTolerance, cuspLimit float64) {

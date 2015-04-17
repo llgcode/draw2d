@@ -3,8 +3,6 @@
 
 package postscript
 
-import ()
-
 //int array array -> Create array of length int
 func array(interpreter *Interpreter) {
 	interpreter.Push(make([]Value, interpreter.PopInt()))
@@ -60,7 +58,7 @@ func astore(interpreter *Interpreter) {
 	}
 }
 
-//array aload any0 … any-1   array 
+//array aload any0 … any-1   array
 //Push all elements of array on stack
 func aload(interpreter *Interpreter) {
 	array := interpreter.Pop().([]Value)

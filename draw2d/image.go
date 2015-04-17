@@ -4,14 +4,15 @@
 package draw2d
 
 import (
-	"code.google.com/p/freetype-go/freetype/raster"
-	"code.google.com/p/freetype-go/freetype/truetype"
 	"errors"
 	"image"
 	"image/color"
 	"image/draw"
 	"log"
 	"math"
+
+	"code.google.com/p/freetype-go/freetype/raster"
+	"code.google.com/p/freetype-go/freetype/truetype"
 )
 
 type Painter interface {
