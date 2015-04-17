@@ -16,8 +16,8 @@ import (
 	"unsafe"
 
 	"github.com/llgcode/draw2d/draw2d"
-	"github.com/llgcode/draw2d/postscript"
 	"github.com/llgcode/draw2d/wingui"
+	"github.com/llgcode/ps"
 )
 
 // some help functions
@@ -59,7 +59,7 @@ func TestDrawCubicCurve(gc draw2d.GraphicContext) {
 
 func DrawTiger(gc draw2d.GraphicContext) {
 	if postscriptContent == "" {
-		src, err := os.OpenFile("../../resource/postscript/tiger.ps", 0, 0)
+		src, err := os.OpenFile("../../../ps/samples/tiger.ps", 0, 0)
 		if err != nil {
 			fmt.Println("can't find postscript file.")
 			return
@@ -68,7 +68,7 @@ func DrawTiger(gc draw2d.GraphicContext) {
 		bytes, err := ioutil.ReadAll(src)
 		postscriptContent = string(bytes)
 	}
-	interpreter := postscript.NewInterpreter(gc)
+	interpreter := ps.NewInterpreter(gc)
 	reader := strings.NewReader(postscriptContent)
 	interpreter.Execute(reader)
 }

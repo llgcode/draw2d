@@ -28,7 +28,7 @@ import (
 	"time"
 
 	"github.com/llgcode/draw2d/draw2dgl"
-	"github.com/llgcode/draw2d/postscript"
+	"github.com/llgcode/ps"
 )
 
 var postscriptContent string
@@ -68,7 +68,7 @@ func display() {
 	rotate = (rotate + 1) % 360
 	gc.Rotate(float64(rotate) * math.Pi / 180)
 	gc.Translate(-380, -400)
-	interpreter := postscript.NewInterpreter(gc)
+	interpreter := ps.NewInterpreter(gc)
 	reader := strings.NewReader(postscriptContent)
 	lastTime := time.Now()
 	interpreter.Execute(reader)
@@ -79,7 +79,7 @@ func display() {
 }
 
 func main() {
-	src, err := os.OpenFile("../resource/postscript/tiger.ps", 0, 0)
+	src, err := os.OpenFile("../../ps/samples/tiger.ps", 0, 0)
 	if err != nil {
 		log.Println("can't find postscript file.")
 		return
