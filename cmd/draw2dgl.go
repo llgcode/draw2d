@@ -111,7 +111,7 @@ func main() {
 	reshape(window, 800, 800)
 	for !window.ShouldClose() {
 		display()
-		//window.SwapBuffers()
+		window.SwapBuffers()
 		glfw.PollEvents()
 		//		time.Sleep(2 * time.Second)
 	}
