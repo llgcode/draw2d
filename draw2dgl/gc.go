@@ -214,20 +214,6 @@ func (gc *GraphicContext) Fill(paths ...*draw2d.PathStorage) {
 	gc.Current.Path.Clear()
 }
 
-/*
-func (gc *GraphicContext) Fill(paths ...*draw2d.PathStorage) {
-	paths = append(paths, gc.Current.Path)
-	gc.fillRasterizer.UseNonZeroWinding = gc.Current.FillRule.UseNonZeroWinding()
-
-	pathConverter := draw2d.NewPathAdder(draw2d.NewMatrixTransformAdder(gc.Current.Tr, gc.fillRasterizer))
-	pathConverter.ApproximationScale = gc.Current.Tr.GetScale()
-	pathConverter.Convert(paths...)
-
-	gc.paint(gc.fillRasterizer, gc.Current.FillColor)
-	gc.Current.Path.Clear()
-}
-*/
-
 func (gc *GraphicContext) FillStroke(paths ...*draw2d.PathStorage) {
 	gc.fillRasterizer.UseNonZeroWinding = gc.Current.FillRule.UseNonZeroWinding()
 	gc.strokeRasterizer.UseNonZeroWinding = true
