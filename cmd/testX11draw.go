@@ -7,7 +7,7 @@ import (
 	"image"
 	"math"
 
-	"github.com/llgcode/draw2d/draw2d"
+	"github.com/llgcode/draw2d"
 )
 
 func main() {

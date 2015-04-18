@@ -13,7 +13,7 @@ import (
 	"math"
 	"os"
 
-	"github.com/llgcode/draw2d/draw2d"
+	"github.com/llgcode/draw2d"
 )
 
 const (

@@ -24,7 +24,7 @@ import (
 
 	"github.com/go-gl/gl/v2.1/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
-	"github.com/llgcode/draw2d/draw2d"
+	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/draw2dgl"
 )
 

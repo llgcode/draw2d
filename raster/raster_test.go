@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"code.google.com/p/freetype-go/freetype/raster"
-	"github.com/llgcode/draw2d/draw2d/curve"
+	"github.com/llgcode/draw2d/curve"
 )
 
 var flattening_threshold float64 = 0.5
