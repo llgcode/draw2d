@@ -1,3 +1,5 @@
+// +build ignore
+
 // Ported from GLUT's samples.  Original copyright below applies.
 
 /* Copyright (c) Mark J. Kilgard, 1996. */
