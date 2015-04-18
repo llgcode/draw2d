@@ -4,14 +4,10 @@
 all:	install test
 
 install:
-	go install
-	go install ./draw2dgl
-#	cd wingui && make install
+	go install ./...
 
 build:
-	go build
-	go build ./draw2dgl
-#	cd wingui && make build
+	go build ./...
 
 test:
 	cd cmd && go build draw2dgl.go
@@ -25,9 +21,6 @@ test:
 clean:
 	go clean ./...
 #	cd wingui && make clean
-
-command:
-	cd cmd && make
 
 fmt:
 	gofmt -w . 
