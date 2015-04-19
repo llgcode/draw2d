@@ -4,14 +4,10 @@
 all:	install test
 
 install:
-	cd draw2d && go install
-	cd draw2dgl && go install
-#	cd wingui && make install
+	go install ./...
 
 build:
-	cd draw2d && go build
-	cd draw2dgl && go build
-#	cd wingui && make build
+	go build ./...
 
 test:
 	cd cmd && go build draw2dgl.go
@@ -23,13 +19,8 @@ test:
 	#cd cmd && go build testX11draw.go
 
 clean:
-	cd draw2d && go clean
-#	cd draw2dgl && make clean
-	cd cmd && go clean
+	go clean ./...
 #	cd wingui && make clean
-
-command:
-	cd cmd && make
 
 fmt:
 	gofmt -w . 

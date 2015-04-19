@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// +build ignore
+
 package main
 
 import (
@@ -15,7 +17,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/llgcode/draw2d/draw2d"
+	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/wingui"
 	"github.com/llgcode/ps"
 )

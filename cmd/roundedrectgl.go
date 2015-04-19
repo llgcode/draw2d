@@ -1,3 +1,5 @@
+// +build ignore
+
 // Ported from GLUT's samples.  Original copyright below applies.
 
 /* Copyright (c) Mark J. Kilgard, 1996. */
@@ -24,7 +26,7 @@ import (
 
 	"github.com/go-gl/gl/v2.1/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
-	"github.com/llgcode/draw2d/draw2d"
+	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/draw2dgl"
 )
 

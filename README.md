@@ -12,7 +12,7 @@ Some algorithms have been translated from the [antigrain.com](http://www.antigra
 Once you have Go installed, to install `draw2d`:
 
 ```sh
-$ go get github.com/llgcode/draw2d/draw2d
+$ go get github.com/llgcode/draw2d
 ```
 
 a good starting point is the [getting started](http://github.com/llgcode/draw2d/wiki/GettingStarted) wiki page.

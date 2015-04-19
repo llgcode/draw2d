@@ -11,7 +11,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/llgcode/draw2d/draw2d/raster"
+	"github.com/llgcode/draw2d/raster"
 )
 
 var (
