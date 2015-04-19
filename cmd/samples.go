@@ -62,9 +62,9 @@ func saveToPngFile(TestName string, m image.Image) {
 }
 
 /*
-  <img src="../test_results/TestPath.png"/>
+  <img src="../test_results/TestRectangle.png"/>
 */
-func TestPath() {
+func TestRectangle() {
 	i, gc := initGc(w, h)
 	gc.Translate(10, 10)
 	gc.MoveTo(0.0, 0.0)
@@ -73,7 +73,7 @@ func TestPath() {
 	gc.LineTo(0.0, 100.0)
 	gc.LineTo(0.0, 0.0)
 	gc.FillStroke()
-	saveToPngFile("TestPath", i)
+	saveToPngFile("TestRectangle", i)
 }
 
 /*
