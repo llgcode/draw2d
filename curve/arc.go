@@ -1,12 +1,14 @@
 // Copyright 2010 The draw2d Authors. All rights reserved.
 // created: 21/11/2010 by Laurent Le Goff
+
 package curve
 
 import (
 	"math"
 )
 
-func SegmentArc(t LineTracer, x, y, rx, ry, start, angle, scale float64) {
+// TraceArc trace an arc using a LineTracer
+func TraceArc(t LineTracer, x, y, rx, ry, start, angle, scale float64) {
 	end := start + angle
 	clockWise := true
 	if angle < 0 {
