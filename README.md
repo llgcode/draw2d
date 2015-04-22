@@ -10,18 +10,17 @@ The package depends on [freetype-go](http://code.google.com/p/freetype-go) packa
 Using
 -----
 
-Install [golang](http://golang.org) and get `draw2d` 
+Install [golang](http://golang.org/doc/install) and get `draw2d` 
 
 ```
 go get github.com/llgcode/draw2d
 ```
 
-and start coding using one of the samples here.
+and start coding using one of the [Samples](https://github.com/llgcode/draw2d.samples).
 
-Some usages of draw2d [Samples](https://github.com/llgcode/draw2d.samples)
 
-Known Softwares and Packages using draw2d
----------------------------------------
+Softwares and Packages using draw2d
+-----------------------------------
 
  - [golang postscript interpreter](https://github.com/llgcode/ps)
  - [gonum plot](https://github.com/gonum/plot)
