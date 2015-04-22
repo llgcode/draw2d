@@ -12,7 +12,7 @@ Using
 
 Install [golang](http://golang.org) and get `draw2d` 
 
-```sh
+```
 go get github.com/llgcode/draw2d
 ```
 
@@ -20,13 +20,13 @@ and start coding using one of the samples here.
 
 Some usages of draw2d [Samples](https://github.com/llgcode/draw2d.samples)
 
-Known Software or Packages using draw2d
+Known Softwares and Packages using draw2d
 ---------------------------------------
 
  - [golang postscript interpreter](https://github.com/llgcode/ps)
- - [golang postscript interpreter](https://github.com/gonum/plot)
+ - [gonum plot](https://github.com/gonum/plot)
 
-Reference
+References
 ---------
 
  - [antigrain.com](http://www.antigrain.com)
