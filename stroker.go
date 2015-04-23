@@ -27,7 +27,6 @@ type LineStroker struct {
 	vertices      []float64
 	rewind        []float64
 	x, y, nx, ny  float64
-	command       LineMarker
 }
 
 func NewLineStroker(c Cap, j Join, converter LineBuilder) *LineStroker {
@@ -41,8 +40,34 @@ func NewLineStroker(c Cap, j Join, converter LineBuilder) *LineStroker {
 	return l
 }
 
-func (l *LineStroker) NextCommand(command LineMarker) {
-	l.command = command
+func (l *LineStroker) MoveTo(x, y float64) {
+	l.x, l.y = x, y
+}
+
+func (l *LineStroker) LineTo(x, y float64) {
+	l.line(l.x, l.y, x, y)
+}
+
+func (l *LineStroker) LineJoin() {
+
+}
+
+func (l *LineStroker) line(x1, y1, x2, y2 float64) {
+	dx := (x2 - x1)
+	dy := (y2 - y1)
+	d := vectorDistance(dx, dy)
+	if d != 0 {
+		nx := dy * l.HalfLineWidth / d
+		ny := -(dx * l.HalfLineWidth / d)
+		l.appendVertex(x1+nx, y1+ny, x2+nx, y2+ny, x1-nx, y1-ny, x2-nx, y2-ny)
+		l.x, l.y, l.nx, l.ny = x2, y2, nx, ny
+	}
+}
+
+func (l *LineStroker) Close() {
+	if len(l.vertices) > 1 {
+		l.appendVertex(l.vertices[0], l.vertices[1], l.rewind[0], l.rewind[1])
+	}
 }
 
 func (l *LineStroker) End() {
@@ -66,55 +91,8 @@ func (l *LineStroker) End() {
 
 }
 
-func (l *LineStroker) MoveTo(x, y float64) {
-	l.x, l.y = x, y
-}
-
-func (l *LineStroker) LineTo(x, y float64) {
-	switch l.command {
-	case LineJoinMarker:
-		l.joinLine(l.x, l.y, l.nx, l.ny, x, y)
-	default:
-		l.line(l.x, l.y, x, y)
-	}
-}
-
-func (l *LineStroker) Close() {
-	if len(l.vertices) > 1 {
-		l.appendVertex(l.vertices[0], l.vertices[1], l.rewind[0], l.rewind[1])
-	}
-}
-
 func (l *LineStroker) appendVertex(vertices ...float64) {
 	s := len(vertices) / 2
 	l.vertices = append(l.vertices, vertices[:s]...)
 	l.rewind = append(l.rewind, vertices[s:]...)
-}
-
-func (l *LineStroker) line(x1, y1, x2, y2 float64) {
-	dx := (x2 - x1)
-	dy := (y2 - y1)
-	d := vectorDistance(dx, dy)
-	if d != 0 {
-		nx := dy * l.HalfLineWidth / d
-		ny := -(dx * l.HalfLineWidth / d)
-		l.appendVertex(x1+nx, y1+ny, x2+nx, y2+ny, x1-nx, y1-ny, x2-nx, y2-ny)
-		l.x, l.y, l.nx, l.ny = x2, y2, nx, ny
-	}
-}
-
-func (l *LineStroker) joinLine(x1, y1, nx1, ny1, x2, y2 float64) {
-	dx := (x2 - x1)
-	dy := (y2 - y1)
-	d := vectorDistance(dx, dy)
-
-	if d != 0 {
-		nx := dy * l.HalfLineWidth / d
-		ny := -(dx * l.HalfLineWidth / d)
-		/*	l.join(x1, y1, x1 + nx, y1 - ny, nx, ny, x1 + ny2, y1 + nx2, nx2, ny2)
-			l.join(x1, y1, x1 - ny1, y1 - nx1, nx1, ny1, x1 - ny2, y1 - nx2, nx2, ny2)*/
-
-		l.appendVertex(x1+nx, y1+ny, x2+nx, y2+ny, x1-nx, y1-ny, x2-nx, y2-ny)
-		l.x, l.y, l.nx, l.ny = x2, y2, nx, ny
-	}
 }

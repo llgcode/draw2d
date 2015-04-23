@@ -4,7 +4,6 @@
 package draw2d
 
 type DashVertexConverter struct {
-	command        LineMarker
 	next           LineBuilder
 	x, y, distance float64
 	dash           []float64
@@ -21,10 +20,6 @@ func NewDashConverter(dash []float64, dashOffset float64, converter LineBuilder)
 	return &dasher
 }
 
-func (dasher *DashVertexConverter) NextCommand(cmd LineMarker) {
-	dasher.command = cmd
-}
-
 func (dasher *DashVertexConverter) LineTo(x, y float64) {
 	dasher.lineTo(x, y)
 }
@@ -34,6 +29,10 @@ func (dasher *DashVertexConverter) MoveTo(x, y float64) {
 	dasher.x, dasher.y = x, y
 	dasher.distance = dasher.dashOffset
 	dasher.currentDash = 0
+}
+
+func (dasher *DashVertexConverter) LineJoin() {
+	dasher.next.LineJoin()
 }
 
 func (dasher *DashVertexConverter) Close() {

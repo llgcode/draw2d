@@ -15,16 +15,15 @@ func NewVertexAdder(adder raster.Adder) *VertexAdder {
 	return &VertexAdder{adder}
 }
 
-func (vertexAdder *VertexAdder) NextCommand(cmd LineMarker) {
-
-}
-
 func (vertexAdder *VertexAdder) MoveTo(x, y float64) {
 	vertexAdder.adder.Start(raster.Point{raster.Fix32(x * 256), raster.Fix32(y * 256)})
 }
 
 func (vertexAdder *VertexAdder) LineTo(x, y float64) {
 	vertexAdder.adder.Add1(raster.Point{raster.Fix32(x * 256), raster.Fix32(y * 256)})
+}
+
+func (vertexAdder *VertexAdder) LineJoin() {
 }
 
 func (vertexAdder *VertexAdder) Close() {

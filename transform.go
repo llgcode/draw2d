@@ -261,11 +261,6 @@ func NewVertexMatrixTransform(tr MatrixTransform, converter LineBuilder) *Vertex
 	return &VertexMatrixTransform{tr, converter}
 }
 
-// Vertex Matrix Transform
-func (vmt *VertexMatrixTransform) NextCommand(command LineMarker) {
-	vmt.Next.NextCommand(command)
-}
-
 func (vmt *VertexMatrixTransform) MoveTo(x, y float64) {
 	u := x*vmt.tr[0] + y*vmt.tr[2] + vmt.tr[4]
 	v := x*vmt.tr[1] + y*vmt.tr[3] + vmt.tr[5]
@@ -276,6 +271,10 @@ func (vmt *VertexMatrixTransform) LineTo(x, y float64) {
 	u := x*vmt.tr[0] + y*vmt.tr[2] + vmt.tr[4]
 	v := x*vmt.tr[1] + y*vmt.tr[3] + vmt.tr[5]
 	vmt.Next.LineTo(u, v)
+}
+
+func (vmt *VertexMatrixTransform) LineJoin() {
+	vmt.Next.LineJoin()
 }
 
 func (vmt *VertexMatrixTransform) Close() {

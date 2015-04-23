@@ -34,7 +34,7 @@ func (c *PathConverter) Convert(paths ...*PathStorage) {
 			case LineTo:
 				c.x, c.y = path.vertices[i], path.vertices[i+1]
 				c.converter.LineTo(c.x, c.y)
-				c.converter.NextCommand(LineJoinMarker)
+				c.converter.LineJoin()
 				i += 2
 			case QuadCurveTo:
 				curve.TraceQuad(c.converter, path.vertices[i-2:], 0.5)
@@ -79,7 +79,7 @@ func (c *PathConverter) RMoveTo(dx, dy float64) *PathConverter {
 func (c *PathConverter) LineTo(x, y float64) *PathConverter {
 	c.x, c.y = x, y
 	c.converter.LineTo(c.x, c.y)
-	c.converter.NextCommand(LineJoinMarker)
+	c.converter.LineJoin()
 	return c
 }
 
