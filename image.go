@@ -317,7 +317,7 @@ func (gc *ImageGraphicContext) FillStroke(paths ...*PathStorage) {
 	stroker := NewLineStroker(gc.Current.Cap, gc.Current.Join, NewVertexMatrixTransform(gc.Current.Tr, NewVertexAdder(gc.strokeRasterizer)))
 	stroker.HalfLineWidth = gc.Current.LineWidth / 2
 
-	demux := NewDemuxConverter(filler, stroker)
+	demux := NewLineBuilders(filler, stroker)
 	paths = append(paths, gc.Current.Path)
 	pathConverter := NewPathConverter(demux)
 	pathConverter.ApproximationScale = gc.Current.Tr.GetScale()

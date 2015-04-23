@@ -21,11 +21,12 @@ func NewDashConverter(dash []float64, dashOffset float64, converter LineBuilder)
 	return &dasher
 }
 
+func (dasher *DashVertexConverter) End() {
+	dasher.next.End()
+}
+
 func (dasher *DashVertexConverter) NextCommand(cmd LineMarker) {
 	dasher.command = cmd
-	if dasher.command == LineEndMarker {
-		dasher.next.NextCommand(LineEndMarker)
-	}
 }
 
 func (dasher *DashVertexConverter) LineTo(x, y float64) {
@@ -57,7 +58,7 @@ func (dasher *DashVertexConverter) lineTo(x, y float64) {
 			dasher.next.LineTo(lx, ly)
 		} else {
 			// gap
-			dasher.next.NextCommand(LineEndMarker)
+			dasher.next.End()
 			dasher.next.MoveTo(lx, ly)
 		}
 		d = d - rest
@@ -71,7 +72,7 @@ func (dasher *DashVertexConverter) lineTo(x, y float64) {
 		dasher.next.LineTo(x, y)
 	} else {
 		// gap
-		dasher.next.NextCommand(LineEndMarker)
+		dasher.next.End()
 		dasher.next.MoveTo(x, y)
 	}
 	if dasher.distance >= dasher.dash[dasher.currentDash] {

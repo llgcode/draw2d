@@ -27,6 +27,9 @@ func (vertexAdder *VertexAdder) LineTo(x, y float64) {
 	vertexAdder.adder.Add1(raster.Point{raster.Fix32(x * 256), raster.Fix32(y * 256)})
 }
 
+func (vertexAdder *VertexAdder) End() {
+}
+
 type PathAdder struct {
 	adder              raster.Adder
 	firstPoint         raster.Point

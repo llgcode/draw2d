@@ -223,7 +223,7 @@ func (gc *GraphicContext) FillStroke(paths ...*draw2d.PathStorage) {
 	stroker := draw2d.NewLineStroker(gc.Current.Cap, gc.Current.Join, draw2d.NewVertexMatrixTransform(gc.Current.Tr, draw2d.NewVertexAdder(gc.strokeRasterizer)))
 	stroker.HalfLineWidth = gc.Current.LineWidth / 2
 
-	demux := draw2d.NewDemuxConverter(filler, stroker)
+	demux := draw2d.NewLineBuilders(filler, stroker)
 	paths = append(paths, gc.Current.Path)
 	pathConverter := draw2d.NewPathConverter(demux)
 	pathConverter.ApproximationScale = gc.Current.Tr.GetScale() // From agg code

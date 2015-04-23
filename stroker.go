@@ -44,28 +44,30 @@ func NewLineStroker(c Cap, j Join, converter LineBuilder) *LineStroker {
 
 func (l *LineStroker) NextCommand(command LineMarker) {
 	l.command = command
-	if command == LineEndMarker {
-		if len(l.vertices) > 1 {
-			l.Next.MoveTo(l.vertices[0], l.vertices[1])
-			for i, j := 2, 3; j < len(l.vertices); i, j = i+2, j+2 {
-				l.Next.LineTo(l.vertices[i], l.vertices[j])
-				l.Next.NextCommand(LineNoneMarker)
-			}
-		}
-		for i, j := len(l.rewind)-2, len(l.rewind)-1; j > 0; i, j = i-2, j-2 {
+}
+
+func (l *LineStroker) End() {
+	if len(l.vertices) > 1 {
+		l.Next.MoveTo(l.vertices[0], l.vertices[1])
+		for i, j := 2, 3; j < len(l.vertices); i, j = i+2, j+2 {
+			l.Next.LineTo(l.vertices[i], l.vertices[j])
 			l.Next.NextCommand(LineNoneMarker)
-			l.Next.LineTo(l.rewind[i], l.rewind[j])
 		}
-		if len(l.vertices) > 1 {
-			l.Next.NextCommand(LineNoneMarker)
-			l.Next.LineTo(l.vertices[0], l.vertices[1])
-		}
-		l.Next.NextCommand(LineEndMarker)
-		// reinit vertices
-		l.vertices = l.vertices[0:0]
-		l.rewind = l.rewind[0:0]
-		l.x, l.y, l.nx, l.ny = 0, 0, 0, 0
 	}
+	for i, j := len(l.rewind)-2, len(l.rewind)-1; j > 0; i, j = i-2, j-2 {
+		l.Next.NextCommand(LineNoneMarker)
+		l.Next.LineTo(l.rewind[i], l.rewind[j])
+	}
+	if len(l.vertices) > 1 {
+		l.Next.NextCommand(LineNoneMarker)
+		l.Next.LineTo(l.vertices[0], l.vertices[1])
+	}
+	l.Next.End()
+	// reinit vertices
+	l.vertices = l.vertices[0:0]
+	l.rewind = l.rewind[0:0]
+	l.x, l.y, l.nx, l.ny = 0, 0, 0, 0
+
 }
 
 func (l *LineStroker) MoveTo(x, y float64) {

@@ -27,7 +27,7 @@ func (c *PathConverter) Convert(paths ...*PathStorage) {
 				c.x, c.y = path.vertices[i], path.vertices[i+1]
 				c.startX, c.startY = c.x, c.y
 				if i != 0 {
-					c.converter.NextCommand(LineEndMarker)
+					c.converter.End()
 				}
 				c.converter.MoveTo(c.x, c.y)
 				i += 2
@@ -67,7 +67,7 @@ func (c *PathConverter) Convert(paths ...*PathStorage) {
 				c.converter.LineTo(c.startX, c.startY)
 			}
 		}
-		c.converter.NextCommand(LineEndMarker)
+		c.converter.End()
 	}
 }
 
@@ -78,7 +78,7 @@ func (c *PathConverter) convertCommand(cmd PathCmd, vertices ...float64) int {
 func (c *PathConverter) MoveTo(x, y float64) *PathConverter {
 	c.x, c.y = x, y
 	c.startX, c.startY = c.x, c.y
-	c.converter.NextCommand(LineEndMarker)
+	c.converter.End()
 	c.converter.MoveTo(c.x, c.y)
 	return c
 }
