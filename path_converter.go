@@ -18,7 +18,7 @@ func NewPathConverter(converter LineBuilder) *PathConverter {
 	return &PathConverter{converter, 1, 0, 0, 0, 0}
 }
 
-func (c *PathConverter) Convert(paths ...*PathStorage) {
+func (c *PathConverter) Convert(paths ...*Path) {
 	for _, path := range paths {
 		i := 0
 		for _, cmd := range path.commands {

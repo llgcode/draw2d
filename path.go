@@ -4,7 +4,7 @@
 package draw2d
 
 // PathBuilder define method that create path
-type Path interface {
+type PathBuilder interface {
 	// Return the current point of the current path
 	LastPoint() (x, y float64)
 

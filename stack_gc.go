@@ -16,7 +16,7 @@ type StackGraphicContext struct {
 
 type ContextStack struct {
 	Tr          MatrixTransform
-	Path        *PathStorage
+	Path        *Path
 	LineWidth   float64
 	Dash        []float64
 	DashOffset  float64

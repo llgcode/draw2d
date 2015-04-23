@@ -42,7 +42,7 @@ func NewPathAdder(adder raster.Adder) *PathAdder {
 	return &PathAdder{adder, raster.Point{0, 0}, 1}
 }
 
-func (pathAdder *PathAdder) Convert(paths ...*PathStorage) {
+func (pathAdder *PathAdder) Convert(paths ...*Path) {
 	for _, path := range paths {
 		j := 0
 		for _, cmd := range path.commands {

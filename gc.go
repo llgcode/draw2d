@@ -16,7 +16,7 @@ const (
 )
 
 type GraphicContext interface {
-	Path
+	PathBuilder
 	// Create a new path
 	BeginPath()
 	GetMatrixTransform() MatrixTransform
@@ -49,7 +49,7 @@ type GraphicContext interface {
 	FillStringAt(text string, x, y float64) (cursor float64)
 	StrokeString(text string) (cursor float64)
 	StrokeStringAt(text string, x, y float64) (cursor float64)
-	Stroke(paths ...*PathStorage)
-	Fill(paths ...*PathStorage)
-	FillStroke(paths ...*PathStorage)
+	Stroke(paths ...*Path)
+	Fill(paths ...*Path)
+	FillStroke(paths ...*Path)
 }

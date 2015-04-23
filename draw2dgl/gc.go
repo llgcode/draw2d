@@ -182,7 +182,7 @@ func (gc *GraphicContext) paint(rasterizer *raster.Rasterizer, color color.Color
 	gc.painter.Flush()
 }
 
-func (gc *GraphicContext) Stroke(paths ...*draw2d.PathStorage) {
+func (gc *GraphicContext) Stroke(paths ...*draw2d.Path) {
 	paths = append(paths, gc.Current.Path)
 	gc.strokeRasterizer.UseNonZeroWinding = true
 
@@ -202,7 +202,7 @@ func (gc *GraphicContext) Stroke(paths ...*draw2d.PathStorage) {
 	gc.Current.Path.Clear()
 }
 
-func (gc *GraphicContext) Fill(paths ...*draw2d.PathStorage) {
+func (gc *GraphicContext) Fill(paths ...*draw2d.Path) {
 	paths = append(paths, gc.Current.Path)
 	gc.fillRasterizer.UseNonZeroWinding = gc.Current.FillRule.UseNonZeroWinding()
 
@@ -214,7 +214,7 @@ func (gc *GraphicContext) Fill(paths ...*draw2d.PathStorage) {
 	gc.Current.Path.Clear()
 }
 
-func (gc *GraphicContext) FillStroke(paths ...*draw2d.PathStorage) {
+func (gc *GraphicContext) FillStroke(paths ...*draw2d.Path) {
 	gc.fillRasterizer.UseNonZeroWinding = gc.Current.FillRule.UseNonZeroWinding()
 	gc.strokeRasterizer.UseNonZeroWinding = true
 
