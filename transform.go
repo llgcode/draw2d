@@ -278,6 +278,10 @@ func (vmt *VertexMatrixTransform) LineTo(x, y float64) {
 	vmt.Next.LineTo(u, v)
 }
 
+func (vmt *VertexMatrixTransform) Close() {
+	vmt.Next.Close()
+}
+
 func (vmt *VertexMatrixTransform) End() {
 	vmt.Next.End()
 }
