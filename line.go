@@ -6,9 +6,8 @@ package draw2d
 type LineMarker byte
 
 const (
-	LineNoneMarker LineMarker = iota
 	// Mark the current point of the line as a join to it can draw some specific join Bevel, Miter, Rount
-	LineJoinMarker
+	LineJoinMarker LineMarker = iota
 )
 
 type LineBuilder interface {

@@ -27,7 +27,6 @@ func (dasher *DashVertexConverter) NextCommand(cmd LineMarker) {
 
 func (dasher *DashVertexConverter) LineTo(x, y float64) {
 	dasher.lineTo(x, y)
-	dasher.command = LineNoneMarker
 }
 
 func (dasher *DashVertexConverter) MoveTo(x, y float64) {

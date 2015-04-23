@@ -38,7 +38,6 @@ func NewLineStroker(c Cap, j Join, converter LineBuilder) *LineStroker {
 	l.rewind = make([]float64, 0, 256)
 	l.Cap = c
 	l.Join = j
-	l.command = LineNoneMarker
 	return l
 }
 
@@ -51,15 +50,12 @@ func (l *LineStroker) End() {
 		l.Next.MoveTo(l.vertices[0], l.vertices[1])
 		for i, j := 2, 3; j < len(l.vertices); i, j = i+2, j+2 {
 			l.Next.LineTo(l.vertices[i], l.vertices[j])
-			l.Next.NextCommand(LineNoneMarker)
 		}
 	}
 	for i, j := len(l.rewind)-2, len(l.rewind)-1; j > 0; i, j = i-2, j-2 {
-		l.Next.NextCommand(LineNoneMarker)
 		l.Next.LineTo(l.rewind[i], l.rewind[j])
 	}
 	if len(l.vertices) > 1 {
-		l.Next.NextCommand(LineNoneMarker)
 		l.Next.LineTo(l.vertices[0], l.vertices[1])
 	}
 	l.Next.End()
@@ -85,7 +81,6 @@ func (l *LineStroker) LineTo(x, y float64) {
 	default:
 		l.line(l.x, l.y, x, y)
 	}
-	l.command = LineNoneMarker
 }
 
 func (l *LineStroker) Close() {
