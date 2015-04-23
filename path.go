@@ -3,25 +3,26 @@
 
 package draw2d
 
+// PathBuilder define method that create path
 type Path interface {
-	// Return the current point of the path
+	// Return the current point of the current path
 	LastPoint() (x, y float64)
-	// Create a new subpath that start at the specified point
-	MoveTo(x, y float64)
-	// Create a new subpath that start at the specified point
-	// relative to the current point
-	RMoveTo(dx, dy float64)
-	// Add a line to the current subpath
-	LineTo(x, y float64)
-	// Add a line to the current subpath
-	// relative to the current point
-	RLineTo(dx, dy float64)
 
+	// MoveTo start a new path at (x, y) position
+	MoveTo(x, y float64)
+
+	// LineTo add a line to the current path
+	LineTo(x, y float64)
+
+	// QuadCurveTo add a quadratic curve to the current path
 	QuadCurveTo(cx, cy, x, y float64)
-	RQuadCurveTo(dcx, dcy, dx, dy float64)
+
+	// CubicCurveTo add a cubic bezier curve to the current path
 	CubicCurveTo(cx1, cy1, cx2, cy2, x, y float64)
-	RCubicCurveTo(dcx1, dcy1, dcx2, dcy2, dx, dy float64)
+
+	// ArcTo add an arc to the path
 	ArcTo(cx, cy, rx, ry, startAngle, angle float64)
-	RArcTo(dcx, dcy, rx, ry, startAngle, angle float64)
+
+	// Close the current path
 	Close()
 }
