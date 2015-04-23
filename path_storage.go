@@ -60,74 +60,65 @@ func (p *PathStorage) IsEmpty() bool {
 	return len(p.commands) == 0
 }
 
-func (p *PathStorage) Close() *PathStorage {
+func (p *PathStorage) Close() {
 	p.appendToPath(Close)
-	return p
 }
 
-func (p *PathStorage) MoveTo(x, y float64) *PathStorage {
+func (p *PathStorage) MoveTo(x, y float64) {
 	p.appendToPath(MoveTo, x, y)
 
 	p.x = x
 	p.y = y
-	return p
 }
 
-func (p *PathStorage) RMoveTo(dx, dy float64) *PathStorage {
+func (p *PathStorage) RMoveTo(dx, dy float64) {
 	x, y := p.LastPoint()
 	p.MoveTo(x+dx, y+dy)
-	return p
 }
 
-func (p *PathStorage) LineTo(x, y float64) *PathStorage {
+func (p *PathStorage) LineTo(x, y float64) {
 	if len(p.commands) == 0 { //special case when no move has been done
 		p.MoveTo(0, 0)
 	}
 	p.appendToPath(LineTo, x, y)
 	p.x = x
 	p.y = y
-	return p
 }
 
-func (p *PathStorage) RLineTo(dx, dy float64) *PathStorage {
+func (p *PathStorage) RLineTo(dx, dy float64) {
 	x, y := p.LastPoint()
 	p.LineTo(x+dx, y+dy)
-	return p
 }
 
-func (p *PathStorage) QuadCurveTo(cx, cy, x, y float64) *PathStorage {
+func (p *PathStorage) QuadCurveTo(cx, cy, x, y float64) {
 	if len(p.commands) == 0 { //special case when no move has been done
 		p.MoveTo(0, 0)
 	}
 	p.appendToPath(QuadCurveTo, cx, cy, x, y)
 	p.x = x
 	p.y = y
-	return p
 }
 
-func (p *PathStorage) RQuadCurveTo(dcx, dcy, dx, dy float64) *PathStorage {
+func (p *PathStorage) RQuadCurveTo(dcx, dcy, dx, dy float64) {
 	x, y := p.LastPoint()
 	p.QuadCurveTo(x+dcx, y+dcy, x+dx, y+dy)
-	return p
 }
 
-func (p *PathStorage) CubicCurveTo(cx1, cy1, cx2, cy2, x, y float64) *PathStorage {
+func (p *PathStorage) CubicCurveTo(cx1, cy1, cx2, cy2, x, y float64) {
 	if len(p.commands) == 0 { //special case when no move has been done
 		p.MoveTo(0, 0)
 	}
 	p.appendToPath(CubicCurveTo, cx1, cy1, cx2, cy2, x, y)
 	p.x = x
 	p.y = y
-	return p
 }
 
-func (p *PathStorage) RCubicCurveTo(dcx1, dcy1, dcx2, dcy2, dx, dy float64) *PathStorage {
+func (p *PathStorage) RCubicCurveTo(dcx1, dcy1, dcx2, dcy2, dx, dy float64) {
 	x, y := p.LastPoint()
 	p.CubicCurveTo(x+dcx1, y+dcy1, x+dcx2, y+dcy2, x+dx, y+dy)
-	return p
 }
 
-func (p *PathStorage) ArcTo(cx, cy, rx, ry, startAngle, angle float64) *PathStorage {
+func (p *PathStorage) ArcTo(cx, cy, rx, ry, startAngle, angle float64) {
 	endAngle := startAngle + angle
 	clockWise := true
 	if angle < 0 {
@@ -153,13 +144,11 @@ func (p *PathStorage) ArcTo(cx, cy, rx, ry, startAngle, angle float64) *PathStor
 	p.appendToPath(ArcTo, cx, cy, rx, ry, startAngle, angle)
 	p.x = cx + math.Cos(endAngle)*rx
 	p.y = cy + math.Sin(endAngle)*ry
-	return p
 }
 
-func (p *PathStorage) RArcTo(dcx, dcy, rx, ry, startAngle, angle float64) *PathStorage {
+func (p *PathStorage) RArcTo(dcx, dcy, rx, ry, startAngle, angle float64) {
 	x, y := p.LastPoint()
 	p.ArcTo(x+dcx, y+dcy, rx, ry, startAngle, angle)
-	return p
 }
 
 func (p *PathStorage) String() string {

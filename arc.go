@@ -9,7 +9,7 @@ import (
 	"code.google.com/p/freetype-go/freetype/raster"
 )
 
-func arc(t VertexConverter, x, y, rx, ry, start, angle, scale float64) (lastX, lastY float64) {
+func arc(t LineBuilder, x, y, rx, ry, start, angle, scale float64) (lastX, lastY float64) {
 	end := start + angle
 	clockWise := true
 	if angle < 0 {
@@ -33,7 +33,7 @@ func arc(t VertexConverter, x, y, rx, ry, start, angle, scale float64) (lastX, l
 		curY = y + math.Sin(angle)*ry
 
 		angle += da
-		t.AddPoint(curX, curY)
+		t.LineTo(curX, curY)
 	}
 	return curX, curY
 }

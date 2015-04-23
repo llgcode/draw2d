@@ -3,17 +3,21 @@
 
 package draw2d
 
-type VertexCommand byte
+type LineMarker byte
 
 const (
-	VertexNoCommand VertexCommand = iota
-	VertexStartCommand
-	VertexJoinCommand
-	VertexCloseCommand
-	VertexStopCommand
+	LineNoneMarker LineMarker = iota
+	// Mark the current point of the line as a join to it can draw some specific join Bevel, Miter, Rount
+	LineJoinMarker
+	// Mark the current point of the line as closed so it draw a line from the current
+	// position to the point specified by the last start marker.
+	LineCloseMarker
+	// Mark the current point of the line as finished. This ending maker allow caps to be drawn
+	LineEndMarker
 )
 
-type VertexConverter interface {
-	NextCommand(cmd VertexCommand)
-	AddPoint(x, y float64)
+type LineBuilder interface {
+	NextCommand(cmd LineMarker)
+	MoveTo(x, y float64)
+	LineTo(x, y float64)
 }

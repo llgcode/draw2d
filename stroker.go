@@ -20,17 +20,17 @@ const (
 )
 
 type LineStroker struct {
-	Next          VertexConverter
+	Next          LineBuilder
 	HalfLineWidth float64
 	Cap           Cap
 	Join          Join
 	vertices      []float64
 	rewind        []float64
 	x, y, nx, ny  float64
-	command       VertexCommand
+	command       LineMarker
 }
 
-func NewLineStroker(c Cap, j Join, converter VertexConverter) *LineStroker {
+func NewLineStroker(c Cap, j Join, converter LineBuilder) *LineStroker {
 	l := new(LineStroker)
 	l.Next = converter
 	l.HalfLineWidth = 0.5
@@ -38,27 +38,29 @@ func NewLineStroker(c Cap, j Join, converter VertexConverter) *LineStroker {
 	l.rewind = make([]float64, 0, 256)
 	l.Cap = c
 	l.Join = j
-	l.command = VertexNoCommand
+	l.command = LineNoneMarker
 	return l
 }
 
-func (l *LineStroker) NextCommand(command VertexCommand) {
+func (l *LineStroker) NextCommand(command LineMarker) {
 	l.command = command
-	if command == VertexStopCommand {
-		l.Next.NextCommand(VertexStartCommand)
-		for i, j := 0, 1; j < len(l.vertices); i, j = i+2, j+2 {
-			l.Next.AddPoint(l.vertices[i], l.vertices[j])
-			l.Next.NextCommand(VertexNoCommand)
+	if command == LineEndMarker {
+		if len(l.vertices) > 1 {
+			l.Next.MoveTo(l.vertices[0], l.vertices[1])
+			for i, j := 2, 3; j < len(l.vertices); i, j = i+2, j+2 {
+				l.Next.LineTo(l.vertices[i], l.vertices[j])
+				l.Next.NextCommand(LineNoneMarker)
+			}
 		}
 		for i, j := len(l.rewind)-2, len(l.rewind)-1; j > 0; i, j = i-2, j-2 {
-			l.Next.NextCommand(VertexNoCommand)
-			l.Next.AddPoint(l.rewind[i], l.rewind[j])
+			l.Next.NextCommand(LineNoneMarker)
+			l.Next.LineTo(l.rewind[i], l.rewind[j])
 		}
 		if len(l.vertices) > 1 {
-			l.Next.NextCommand(VertexNoCommand)
-			l.Next.AddPoint(l.vertices[0], l.vertices[1])
+			l.Next.NextCommand(LineNoneMarker)
+			l.Next.LineTo(l.vertices[0], l.vertices[1])
 		}
-		l.Next.NextCommand(VertexStopCommand)
+		l.Next.NextCommand(LineEndMarker)
 		// reinit vertices
 		l.vertices = l.vertices[0:0]
 		l.rewind = l.rewind[0:0]
@@ -66,20 +68,22 @@ func (l *LineStroker) NextCommand(command VertexCommand) {
 	}
 }
 
-func (l *LineStroker) AddPoint(x, y float64) {
+func (l *LineStroker) MoveTo(x, y float64) {
+	l.x, l.y = x, y
+}
+
+func (l *LineStroker) LineTo(x, y float64) {
 	switch l.command {
-	case VertexNoCommand:
-		l.line(l.x, l.y, x, y)
-	case VertexJoinCommand:
+	case LineJoinMarker:
 		l.joinLine(l.x, l.y, l.nx, l.ny, x, y)
-	case VertexStartCommand:
-		l.x, l.y = x, y
-	case VertexCloseCommand:
+	case LineCloseMarker:
 		l.line(l.x, l.y, x, y)
 		l.joinLine(l.x, l.y, l.nx, l.ny, x, y)
 		l.closePolygon()
+	default:
+		l.line(l.x, l.y, x, y)
 	}
-	l.command = VertexNoCommand
+	l.command = LineNoneMarker
 }
 
 func (l *LineStroker) appendVertex(vertices ...float64) {

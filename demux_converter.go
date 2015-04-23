@@ -4,20 +4,27 @@
 package draw2d
 
 type DemuxConverter struct {
-	converters []VertexConverter
+	converters []LineBuilder
 }
 
-func NewDemuxConverter(converters ...VertexConverter) *DemuxConverter {
+func NewDemuxConverter(converters ...LineBuilder) *DemuxConverter {
 	return &DemuxConverter{converters}
 }
 
-func (dc *DemuxConverter) NextCommand(cmd VertexCommand) {
+func (dc *DemuxConverter) NextCommand(cmd LineMarker) {
 	for _, converter := range dc.converters {
 		converter.NextCommand(cmd)
 	}
 }
-func (dc *DemuxConverter) AddPoint(x, y float64) {
+
+func (dc *DemuxConverter) MoveTo(x, y float64) {
 	for _, converter := range dc.converters {
-		converter.AddPoint(x, y)
+		converter.MoveTo(x, y)
+	}
+}
+
+func (dc *DemuxConverter) LineTo(x, y float64) {
+	for _, converter := range dc.converters {
+		converter.LineTo(x, y)
 	}
 }

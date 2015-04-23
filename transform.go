@@ -254,22 +254,28 @@ func fequals(float1, float2 float64) bool {
 // this VertexConverter apply the Matrix transformation tr
 type VertexMatrixTransform struct {
 	tr   MatrixTransform
-	Next VertexConverter
+	Next LineBuilder
 }
 
-func NewVertexMatrixTransform(tr MatrixTransform, converter VertexConverter) *VertexMatrixTransform {
+func NewVertexMatrixTransform(tr MatrixTransform, converter LineBuilder) *VertexMatrixTransform {
 	return &VertexMatrixTransform{tr, converter}
 }
 
 // Vertex Matrix Transform
-func (vmt *VertexMatrixTransform) NextCommand(command VertexCommand) {
+func (vmt *VertexMatrixTransform) NextCommand(command LineMarker) {
 	vmt.Next.NextCommand(command)
 }
 
-func (vmt *VertexMatrixTransform) AddPoint(x, y float64) {
+func (vmt *VertexMatrixTransform) MoveTo(x, y float64) {
 	u := x*vmt.tr[0] + y*vmt.tr[2] + vmt.tr[4]
 	v := x*vmt.tr[1] + y*vmt.tr[3] + vmt.tr[5]
-	vmt.Next.AddPoint(u, v)
+	vmt.Next.MoveTo(u, v)
+}
+
+func (vmt *VertexMatrixTransform) LineTo(x, y float64) {
+	u := x*vmt.tr[0] + y*vmt.tr[2] + vmt.tr[4]
+	v := x*vmt.tr[1] + y*vmt.tr[3] + vmt.tr[5]
+	vmt.Next.LineTo(u, v)
 }
 
 // this adder apply a Matrix transformation to points

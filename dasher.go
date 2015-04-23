@@ -4,15 +4,15 @@
 package draw2d
 
 type DashVertexConverter struct {
-	command        VertexCommand
-	next           VertexConverter
+	command        LineMarker
+	next           LineBuilder
 	x, y, distance float64
 	dash           []float64
 	currentDash    int
 	dashOffset     float64
 }
 
-func NewDashConverter(dash []float64, dashOffset float64, converter VertexConverter) *DashVertexConverter {
+func NewDashConverter(dash []float64, dashOffset float64, converter LineBuilder) *DashVertexConverter {
 	var dasher DashVertexConverter
 	dasher.dash = dash
 	dasher.currentDash = 0
@@ -21,26 +21,20 @@ func NewDashConverter(dash []float64, dashOffset float64, converter VertexConver
 	return &dasher
 }
 
-func (dasher *DashVertexConverter) NextCommand(cmd VertexCommand) {
+func (dasher *DashVertexConverter) NextCommand(cmd LineMarker) {
 	dasher.command = cmd
-	if dasher.command == VertexStopCommand {
-		dasher.next.NextCommand(VertexStopCommand)
+	if dasher.command == LineEndMarker {
+		dasher.next.NextCommand(LineEndMarker)
 	}
 }
 
-func (dasher *DashVertexConverter) AddPoint(x, y float64) {
-	switch dasher.command {
-	case VertexStartCommand:
-		dasher.start(x, y)
-	default:
-		dasher.lineTo(x, y)
-	}
-	dasher.command = VertexNoCommand
+func (dasher *DashVertexConverter) LineTo(x, y float64) {
+	dasher.lineTo(x, y)
+	dasher.command = LineNoneMarker
 }
 
-func (dasher *DashVertexConverter) start(x, y float64) {
-	dasher.next.NextCommand(VertexStartCommand)
-	dasher.next.AddPoint(x, y)
+func (dasher *DashVertexConverter) MoveTo(x, y float64) {
+	dasher.next.MoveTo(x, y)
 	dasher.x, dasher.y = x, y
 	dasher.distance = dasher.dashOffset
 	dasher.currentDash = 0
@@ -60,12 +54,11 @@ func (dasher *DashVertexConverter) lineTo(x, y float64) {
 		ly := dasher.y + k*(y-dasher.y)
 		if dasher.currentDash%2 == 0 {
 			// line
-			dasher.next.AddPoint(lx, ly)
+			dasher.next.LineTo(lx, ly)
 		} else {
 			// gap
-			dasher.next.NextCommand(VertexStopCommand)
-			dasher.next.NextCommand(VertexStartCommand)
-			dasher.next.AddPoint(lx, ly)
+			dasher.next.NextCommand(LineEndMarker)
+			dasher.next.MoveTo(lx, ly)
 		}
 		d = d - rest
 		dasher.x, dasher.y = lx, ly
@@ -75,12 +68,11 @@ func (dasher *DashVertexConverter) lineTo(x, y float64) {
 	dasher.distance = d
 	if dasher.currentDash%2 == 0 {
 		// line
-		dasher.next.AddPoint(x, y)
+		dasher.next.LineTo(x, y)
 	} else {
 		// gap
-		dasher.next.NextCommand(VertexStopCommand)
-		dasher.next.NextCommand(VertexStartCommand)
-		dasher.next.AddPoint(x, y)
+		dasher.next.NextCommand(LineEndMarker)
+		dasher.next.MoveTo(x, y)
 	}
 	if dasher.distance >= dasher.dash[dasher.currentDash] {
 		dasher.distance = dasher.distance - dasher.dash[dasher.currentDash]

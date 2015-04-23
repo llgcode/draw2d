@@ -29,9 +29,9 @@ func SubdivideQuad(c, c1, c2 []float64) {
 	return
 }
 
-// Trace generate lines subdividing the curve using a LineTracer
+// Trace generate lines subdividing the curve using a LineBuilder
 // flattening_threshold helps determines the flattening expectation of the curve
-func TraceQuad(t LineTracer, quad []float64, flattening_threshold float64) {
+func TraceQuad(t LineBuilder, quad []float64, flattening_threshold float64) {
 	// Allocates curves stack
 	var curves [CurveRecursionLimit * 6]float64
 	copy(curves[0:6], quad[0:6])
@@ -49,7 +49,7 @@ func TraceQuad(t LineTracer, quad []float64, flattening_threshold float64) {
 
 		// if it's flat then trace a line
 		if (d*d) < flattening_threshold*(dx*dx+dy*dy) || i == len(curves)-1 {
-			t.AddPoint(c[4], c[5])
+			t.LineTo(c[4], c[5])
 			i--
 		} else {
 			// second half of bezier go lower onto the stack

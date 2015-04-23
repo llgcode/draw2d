@@ -46,9 +46,9 @@ func SubdivideCubic(c, c1, c2 []float64) {
 	c2[0], c2[1] = c1[6], c1[7]
 }
 
-// TraceCubic generate lines subdividing the cubic curve using a LineTracer
+// TraceCubic generate lines subdividing the cubic curve using a LineBuilder
 // flattening_threshold helps determines the flattening expectation of the curve
-func TraceCubic(t LineTracer, cubic []float64, flattening_threshold float64) {
+func TraceCubic(t LineBuilder, cubic []float64, flattening_threshold float64) {
 	// Allocation curves
 	var curves [CurveRecursionLimit * 8]float64
 	copy(curves[0:8], cubic[0:8])
@@ -69,7 +69,7 @@ func TraceCubic(t LineTracer, cubic []float64, flattening_threshold float64) {
 
 		// if it's flat then trace a line
 		if (d2+d3)*(d2+d3) < flattening_threshold*(dx*dx+dy*dy) || i == len(curves)-1 {
-			t.AddPoint(c[6], c[7])
+			t.LineTo(c[6], c[7])
 			i--
 		} else {
 			// second half of bezier go lower onto the stack

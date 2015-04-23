@@ -38,7 +38,11 @@ type Path struct {
 	points []float64
 }
 
-func (p *Path) AddPoint(x, y float64) {
+func (p *Path) MoveTo(x, y float64) {
+	p.points = append(p.points, x, y)
+}
+
+func (p *Path) LineTo(x, y float64) {
 	p.points = append(p.points, x, y)
 }
 
@@ -82,7 +86,7 @@ func drawPoints(img draw.Image, c color.Color, s ...float64) image.Image {
 func TestCubicCurve(t *testing.T) {
 	for i := 0; i < len(testsCubicFloat64); i += 8 {
 		var p Path
-		p.AddPoint(testsCubicFloat64[i], testsCubicFloat64[i+1])
+		p.MoveTo(testsCubicFloat64[i], testsCubicFloat64[i+1])
 		TraceCubic(&p, testsCubicFloat64[i:], flattening_threshold)
 		img := image.NewNRGBA(image.Rect(0, 0, 300, 300))
 		raster.PolylineBresenham(img, color.NRGBA{0xff, 0, 0, 0xff}, testsCubicFloat64[i:i+8]...)
@@ -98,7 +102,7 @@ func TestCubicCurve(t *testing.T) {
 func TestQuadCurve(t *testing.T) {
 	for i := 0; i < len(testsQuadFloat64); i += 6 {
 		var p Path
-		p.AddPoint(testsQuadFloat64[i], testsQuadFloat64[i+1])
+		p.MoveTo(testsQuadFloat64[i], testsQuadFloat64[i+1])
 		TraceQuad(&p, testsQuadFloat64[i:], flattening_threshold)
 		img := image.NewNRGBA(image.Rect(0, 0, 300, 300))
 		raster.PolylineBresenham(img, color.NRGBA{0xff, 0, 0, 0xff}, testsQuadFloat64[i:i+6]...)
@@ -115,7 +119,7 @@ func BenchmarkCubicCurve(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		for i := 0; i < len(testsCubicFloat64); i += 8 {
 			var p Path
-			p.AddPoint(testsCubicFloat64[i], testsCubicFloat64[i+1])
+			p.MoveTo(testsCubicFloat64[i], testsCubicFloat64[i+1])
 			TraceCubic(&p, testsCubicFloat64[i:], flattening_threshold)
 		}
 	}

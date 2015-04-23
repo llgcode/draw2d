@@ -7,8 +7,8 @@ import (
 	"math"
 )
 
-// TraceArc trace an arc using a LineTracer
-func TraceArc(t LineTracer, x, y, rx, ry, start, angle, scale float64) {
+// TraceArc trace an arc using a LineBuilder
+func TraceArc(t LineBuilder, x, y, rx, ry, start, angle, scale float64) {
 	end := start + angle
 	clockWise := true
 	if angle < 0 {
@@ -32,7 +32,7 @@ func TraceArc(t LineTracer, x, y, rx, ry, start, angle, scale float64) {
 		curY = y + math.Sin(angle)*ry
 
 		angle += da
-		t.AddPoint(curX, curY)
+		t.LineTo(curX, curY)
 	}
-	t.AddPoint(curX, curY)
+	t.LineTo(curX, curY)
 }
