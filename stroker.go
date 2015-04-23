@@ -74,10 +74,6 @@ func (l *LineStroker) LineTo(x, y float64) {
 	switch l.command {
 	case LineJoinMarker:
 		l.joinLine(l.x, l.y, l.nx, l.ny, x, y)
-	// case LineCloseMarker:
-	// 	l.line(l.x, l.y, x, y)
-	// 	l.joinLine(l.x, l.y, l.nx, l.ny, x, y)
-	// 	l.closePolygon()
 	default:
 		l.line(l.x, l.y, x, y)
 	}
@@ -91,20 +87,8 @@ func (l *LineStroker) Close() {
 
 func (l *LineStroker) appendVertex(vertices ...float64) {
 	s := len(vertices) / 2
-	if len(l.vertices)+s >= cap(l.vertices) {
-		v := make([]float64, len(l.vertices), cap(l.vertices)+128)
-		copy(v, l.vertices)
-		l.vertices = v
-		v = make([]float64, len(l.rewind), cap(l.rewind)+128)
-		copy(v, l.rewind)
-		l.rewind = v
-	}
-
-	copy(l.vertices[len(l.vertices):len(l.vertices)+s], vertices[:s])
-	l.vertices = l.vertices[0 : len(l.vertices)+s]
-	copy(l.rewind[len(l.rewind):len(l.rewind)+s], vertices[s:])
-	l.rewind = l.rewind[0 : len(l.rewind)+s]
-
+	l.vertices = append(l.vertices, vertices[:s]...)
+	l.rewind = append(l.rewind, vertices[s:]...)
 }
 
 func (l *LineStroker) line(x1, y1, x2, y2 float64) {
