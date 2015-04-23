@@ -266,10 +266,10 @@ func (vmt *VertexMatrixTransform) NextCommand(command VertexCommand) {
 	vmt.Next.NextCommand(command)
 }
 
-func (vmt *VertexMatrixTransform) Vertex(x, y float64) {
+func (vmt *VertexMatrixTransform) AddPoint(x, y float64) {
 	u := x*vmt.tr[0] + y*vmt.tr[2] + vmt.tr[4]
 	v := x*vmt.tr[1] + y*vmt.tr[3] + vmt.tr[5]
-	vmt.Next.Vertex(u, v)
+	vmt.Next.AddPoint(u, v)
 }
 
 // this adder apply a Matrix transformation to points

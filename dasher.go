@@ -28,7 +28,7 @@ func (dasher *DashVertexConverter) NextCommand(cmd VertexCommand) {
 	}
 }
 
-func (dasher *DashVertexConverter) Vertex(x, y float64) {
+func (dasher *DashVertexConverter) AddPoint(x, y float64) {
 	switch dasher.command {
 	case VertexStartCommand:
 		dasher.start(x, y)
@@ -40,7 +40,7 @@ func (dasher *DashVertexConverter) Vertex(x, y float64) {
 
 func (dasher *DashVertexConverter) start(x, y float64) {
 	dasher.next.NextCommand(VertexStartCommand)
-	dasher.next.Vertex(x, y)
+	dasher.next.AddPoint(x, y)
 	dasher.x, dasher.y = x, y
 	dasher.distance = dasher.dashOffset
 	dasher.currentDash = 0
@@ -60,12 +60,12 @@ func (dasher *DashVertexConverter) lineTo(x, y float64) {
 		ly := dasher.y + k*(y-dasher.y)
 		if dasher.currentDash%2 == 0 {
 			// line
-			dasher.next.Vertex(lx, ly)
+			dasher.next.AddPoint(lx, ly)
 		} else {
 			// gap
 			dasher.next.NextCommand(VertexStopCommand)
 			dasher.next.NextCommand(VertexStartCommand)
-			dasher.next.Vertex(lx, ly)
+			dasher.next.AddPoint(lx, ly)
 		}
 		d = d - rest
 		dasher.x, dasher.y = lx, ly
@@ -75,12 +75,12 @@ func (dasher *DashVertexConverter) lineTo(x, y float64) {
 	dasher.distance = d
 	if dasher.currentDash%2 == 0 {
 		// line
-		dasher.next.Vertex(x, y)
+		dasher.next.AddPoint(x, y)
 	} else {
 		// gap
 		dasher.next.NextCommand(VertexStopCommand)
 		dasher.next.NextCommand(VertexStartCommand)
-		dasher.next.Vertex(x, y)
+		dasher.next.AddPoint(x, y)
 	}
 	if dasher.distance >= dasher.dash[dasher.currentDash] {
 		dasher.distance = dasher.distance - dasher.dash[dasher.currentDash]

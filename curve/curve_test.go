@@ -1,35 +1,36 @@
 package curve
 
 import (
+	"bufio"
 	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
+	"image/png"
 	"log"
 	"os"
 	"testing"
 
-	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/raster"
 )
 
 var (
 	flattening_threshold float64 = 0.5
-	testsCubicFloat64            = []CubicCurveFloat64{
-		CubicCurveFloat64{100, 100, 200, 100, 100, 200, 200, 200},
-		CubicCurveFloat64{100, 100, 300, 200, 200, 200, 300, 100},
-		CubicCurveFloat64{100, 100, 0, 300, 200, 0, 300, 300},
-		CubicCurveFloat64{150, 290, 10, 10, 290, 10, 150, 290},
-		CubicCurveFloat64{10, 290, 10, 10, 290, 10, 290, 290},
-		CubicCurveFloat64{100, 290, 290, 10, 10, 10, 200, 290},
+	testsCubicFloat64            = []float64{
+		100, 100, 200, 100, 100, 200, 200, 200,
+		100, 100, 300, 200, 200, 200, 300, 100,
+		100, 100, 0, 300, 200, 0, 300, 300,
+		150, 290, 10, 10, 290, 10, 150, 290,
+		10, 290, 10, 10, 290, 10, 290, 290,
+		100, 290, 290, 10, 10, 10, 200, 290,
 	}
-	testsQuadFloat64 = []QuadCurveFloat64{
-		QuadCurveFloat64{100, 100, 200, 100, 200, 200},
-		QuadCurveFloat64{100, 100, 290, 200, 290, 100},
-		QuadCurveFloat64{100, 100, 0, 290, 200, 290},
-		QuadCurveFloat64{150, 290, 10, 10, 290, 290},
-		QuadCurveFloat64{10, 290, 10, 10, 290, 290},
-		QuadCurveFloat64{100, 290, 290, 10, 120, 290},
+	testsQuadFloat64 = []float64{
+		100, 100, 200, 100, 200, 200,
+		100, 100, 290, 200, 290, 100,
+		100, 100, 0, 290, 200, 290,
+		150, 290, 10, 10, 290, 290,
+		10, 290, 10, 10, 290, 290,
+		100, 290, 290, 10, 120, 290,
 	}
 )
 
@@ -37,16 +38,8 @@ type Path struct {
 	points []float64
 }
 
-func (p *Path) LineTo(x, y float64) {
-	if len(p.points)+2 > cap(p.points) {
-		points := make([]float64, len(p.points)+2, len(p.points)+32)
-		copy(points, p.points)
-		p.points = points
-	} else {
-		p.points = p.points[0 : len(p.points)+2]
-	}
-	p.points[len(p.points)-2] = x
-	p.points[len(p.points)-1] = y
+func (p *Path) AddPoint(x, y float64) {
+	p.points = append(p.points, x, y)
 }
 
 func init() {
@@ -59,7 +52,7 @@ func init() {
 	defer f.Close()
 	log.Printf("Create html viewer")
 	f.Write([]byte("<html><body>"))
-	for i := 0; i < len(testsCubicFloat64); i++ {
+	for i := 0; i < len(testsCubicFloat64)/8; i++ {
 		f.Write([]byte(fmt.Sprintf("<div><img src='_test%d.png'/></div>\n", i)))
 	}
 	for i := 0; i < len(testsQuadFloat64); i++ {
@@ -87,32 +80,32 @@ func drawPoints(img draw.Image, c color.Color, s ...float64) image.Image {
 }
 
 func TestCubicCurve(t *testing.T) {
-	for i, curve := range testsCubicFloat64 {
+	for i := 0; i < len(testsCubicFloat64); i += 8 {
 		var p Path
-		p.LineTo(curve[0], curve[1])
-		curve.Trace(&p, flattening_threshold)
+		p.AddPoint(testsCubicFloat64[i], testsCubicFloat64[i+1])
+		TraceCubic(&p, testsCubicFloat64[i:], flattening_threshold)
 		img := image.NewNRGBA(image.Rect(0, 0, 300, 300))
-		raster.PolylineBresenham(img, color.NRGBA{0xff, 0, 0, 0xff}, curve[:]...)
+		raster.PolylineBresenham(img, color.NRGBA{0xff, 0, 0, 0xff}, testsCubicFloat64[i:i+8]...)
 		raster.PolylineBresenham(img, image.Black, p.points...)
 		//drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, curve[:]...)
 		drawPoints(img, color.NRGBA{0, 0, 0, 0xff}, p.points...)
-		draw2d.SaveToPngFile(fmt.Sprintf("test_results/_test%d.png", i), img)
+		SaveToPngFile(fmt.Sprintf("test_results/_test%d.png", i/8), img)
 		log.Printf("Num of points: %d\n", len(p.points))
 	}
 	fmt.Println()
 }
 
 func TestQuadCurve(t *testing.T) {
-	for i, curve := range testsQuadFloat64 {
+	for i := 0; i < len(testsQuadFloat64); i += 6 {
 		var p Path
-		p.LineTo(curve[0], curve[1])
-		curve.Trace(&p, flattening_threshold)
+		p.AddPoint(testsQuadFloat64[i], testsQuadFloat64[i+1])
+		TraceQuad(&p, testsQuadFloat64[i:], flattening_threshold)
 		img := image.NewNRGBA(image.Rect(0, 0, 300, 300))
-		raster.PolylineBresenham(img, color.NRGBA{0xff, 0, 0, 0xff}, curve[:]...)
+		raster.PolylineBresenham(img, color.NRGBA{0xff, 0, 0, 0xff}, testsQuadFloat64[i:i+6]...)
 		raster.PolylineBresenham(img, image.Black, p.points...)
 		//drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, curve[:]...)
 		drawPoints(img, color.NRGBA{0, 0, 0, 0xff}, p.points...)
-		draw2d.SaveToPngFile(fmt.Sprintf("test_results/_testQuad%d.png", i), img)
+		SaveToPngFile(fmt.Sprintf("test_results/_testQuad%d.png", i), img)
 		log.Printf("Num of points: %d\n", len(p.points))
 	}
 	fmt.Println()
@@ -120,10 +113,32 @@ func TestQuadCurve(t *testing.T) {
 
 func BenchmarkCubicCurve(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		for _, curve := range testsCubicFloat64 {
-			p := Path{make([]float64, 0, 32)}
-			p.LineTo(curve[0], curve[1])
-			curve.Trace(&p, flattening_threshold)
+		for i := 0; i < len(testsCubicFloat64); i += 8 {
+			var p Path
+			p.AddPoint(testsCubicFloat64[i], testsCubicFloat64[i+1])
+			TraceCubic(&p, testsCubicFloat64[i:], flattening_threshold)
 		}
 	}
+}
+
+// SaveToPngFile create and save an image to a file using PNG format
+func SaveToPngFile(filePath string, m image.Image) error {
+	// Create the file
+	f, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	// Create Writer from file
+	b := bufio.NewWriter(f)
+	// Write the image into the buffer
+	err = png.Encode(b, m)
+	if err != nil {
+		return err
+	}
+	err = b.Flush()
+	if err != nil {
+		return err
+	}
+	return nil
 }

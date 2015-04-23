@@ -47,16 +47,16 @@ func (l *LineStroker) NextCommand(command VertexCommand) {
 	if command == VertexStopCommand {
 		l.Next.NextCommand(VertexStartCommand)
 		for i, j := 0, 1; j < len(l.vertices); i, j = i+2, j+2 {
-			l.Next.Vertex(l.vertices[i], l.vertices[j])
+			l.Next.AddPoint(l.vertices[i], l.vertices[j])
 			l.Next.NextCommand(VertexNoCommand)
 		}
 		for i, j := len(l.rewind)-2, len(l.rewind)-1; j > 0; i, j = i-2, j-2 {
 			l.Next.NextCommand(VertexNoCommand)
-			l.Next.Vertex(l.rewind[i], l.rewind[j])
+			l.Next.AddPoint(l.rewind[i], l.rewind[j])
 		}
 		if len(l.vertices) > 1 {
 			l.Next.NextCommand(VertexNoCommand)
-			l.Next.Vertex(l.vertices[0], l.vertices[1])
+			l.Next.AddPoint(l.vertices[0], l.vertices[1])
 		}
 		l.Next.NextCommand(VertexStopCommand)
 		// reinit vertices
@@ -66,7 +66,7 @@ func (l *LineStroker) NextCommand(command VertexCommand) {
 	}
 }
 
-func (l *LineStroker) Vertex(x, y float64) {
+func (l *LineStroker) AddPoint(x, y float64) {
 	switch l.command {
 	case VertexNoCommand:
 		l.line(l.x, l.y, x, y)

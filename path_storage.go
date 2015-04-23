@@ -39,18 +39,8 @@ func (p *PathStorage) Clear() {
 }
 
 func (p *PathStorage) appendToPath(cmd PathCmd, vertices ...float64) {
-	if cap(p.vertices) <= len(p.vertices)+6 {
-		a := make([]PathCmd, len(p.commands), cap(p.commands)+256)
-		b := make([]float64, len(p.vertices), cap(p.vertices)+256)
-		copy(a, p.commands)
-		p.commands = a
-		copy(b, p.vertices)
-		p.vertices = b
-	}
-	p.commands = p.commands[0 : len(p.commands)+1]
-	p.commands[len(p.commands)-1] = cmd
-	copy(p.vertices[len(p.vertices):len(p.vertices)+len(vertices)], vertices)
-	p.vertices = p.vertices[0 : len(p.vertices)+len(vertices)]
+	p.commands = append(p.commands, cmd)
+	p.vertices = append(p.vertices, vertices...)
 }
 
 func (src *PathStorage) Copy() (dest *PathStorage) {
@@ -77,6 +67,7 @@ func (p *PathStorage) Close() *PathStorage {
 
 func (p *PathStorage) MoveTo(x, y float64) *PathStorage {
 	p.appendToPath(MoveTo, x, y)
+
 	p.x = x
 	p.y = y
 	return p
@@ -89,6 +80,9 @@ func (p *PathStorage) RMoveTo(dx, dy float64) *PathStorage {
 }
 
 func (p *PathStorage) LineTo(x, y float64) *PathStorage {
+	if len(p.commands) == 0 { //special case when no move has been done
+		p.MoveTo(0, 0)
+	}
 	p.appendToPath(LineTo, x, y)
 	p.x = x
 	p.y = y
@@ -102,6 +96,9 @@ func (p *PathStorage) RLineTo(dx, dy float64) *PathStorage {
 }
 
 func (p *PathStorage) QuadCurveTo(cx, cy, x, y float64) *PathStorage {
+	if len(p.commands) == 0 { //special case when no move has been done
+		p.MoveTo(0, 0)
+	}
 	p.appendToPath(QuadCurveTo, cx, cy, x, y)
 	p.x = x
 	p.y = y
@@ -115,6 +112,9 @@ func (p *PathStorage) RQuadCurveTo(dcx, dcy, dx, dy float64) *PathStorage {
 }
 
 func (p *PathStorage) CubicCurveTo(cx1, cy1, cx2, cy2, x, y float64) *PathStorage {
+	if len(p.commands) == 0 { //special case when no move has been done
+		p.MoveTo(0, 0)
+	}
 	p.appendToPath(CubicCurveTo, cx1, cy1, cx2, cy2, x, y)
 	p.x = x
 	p.y = y

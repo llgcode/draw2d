@@ -33,7 +33,7 @@ func arc(t VertexConverter, x, y, rx, ry, start, angle, scale float64) (lastX, l
 		curY = y + math.Sin(angle)*ry
 
 		angle += da
-		t.Vertex(curX, curY)
+		t.AddPoint(curX, curY)
 	}
 	return curX, curY
 }

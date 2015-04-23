@@ -15,5 +15,5 @@ const (
 
 type VertexConverter interface {
 	NextCommand(cmd VertexCommand)
-	Vertex(x, y float64)
+	AddPoint(x, y float64)
 }

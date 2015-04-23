@@ -20,7 +20,7 @@ func (vertexAdder *VertexAdder) NextCommand(cmd VertexCommand) {
 	vertexAdder.command = cmd
 }
 
-func (vertexAdder *VertexAdder) Vertex(x, y float64) {
+func (vertexAdder *VertexAdder) AddPoint(x, y float64) {
 	switch vertexAdder.command {
 	case VertexStartCommand:
 		vertexAdder.adder.Start(raster.Point{raster.Fix32(x * 256), raster.Fix32(y * 256)})

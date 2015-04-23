@@ -88,7 +88,7 @@ func recursiveQuadraticBezierBezier(v VertexConverter, x1, y1, x2, y2, x3, y3 fl
 			// we tend to finish subdivisions.
 			//----------------------
 			if angleTolerance < CurveAngleToleranceEpsilon {
-				v.Vertex(x123, y123)
+				v.AddPoint(x123, y123)
 				return
 			}
 
@@ -102,7 +102,7 @@ func recursiveQuadraticBezierBezier(v VertexConverter, x1, y1, x2, y2, x3, y3 fl
 			if da < angleTolerance {
 				// Finally we can stop the recursion
 				//----------------------
-				v.Vertex(x123, y123)
+				v.AddPoint(x123, y123)
 				return
 			}
 		}
@@ -128,7 +128,7 @@ func recursiveQuadraticBezierBezier(v VertexConverter, x1, y1, x2, y2, x3, y3 fl
 			}
 		}
 		if d < distanceToleranceSquare {
-			v.Vertex(x2, y2)
+			v.AddPoint(x2, y2)
 			return
 		}
 	}
@@ -209,12 +209,12 @@ func recursiveCubicBezier(v VertexConverter, x1, y1, x2, y2, x3, y3, x4, y4 floa
 		}
 		if d2 > d3 {
 			if d2 < distanceToleranceSquare {
-				v.Vertex(x2, y2)
+				v.AddPoint(x2, y2)
 				return
 			}
 		} else {
 			if d3 < distanceToleranceSquare {
-				v.Vertex(x3, y3)
+				v.AddPoint(x3, y3)
 				return
 			}
 		}
@@ -225,7 +225,7 @@ func recursiveCubicBezier(v VertexConverter, x1, y1, x2, y2, x3, y3, x4, y4 floa
 		//----------------------
 		if d3*d3 <= distanceToleranceSquare*(dx*dx+dy*dy) {
 			if angleTolerance < CurveAngleToleranceEpsilon {
-				v.Vertex(x23, y23)
+				v.AddPoint(x23, y23)
 				return
 			}
 
@@ -237,14 +237,14 @@ func recursiveCubicBezier(v VertexConverter, x1, y1, x2, y2, x3, y3, x4, y4 floa
 			}
 
 			if da1 < angleTolerance {
-				v.Vertex(x2, y2)
-				v.Vertex(x3, y3)
+				v.AddPoint(x2, y2)
+				v.AddPoint(x3, y3)
 				return
 			}
 
 			if cuspLimit != 0.0 {
 				if da1 > cuspLimit {
-					v.Vertex(x3, y3)
+					v.AddPoint(x3, y3)
 					return
 				}
 			}
@@ -256,7 +256,7 @@ func recursiveCubicBezier(v VertexConverter, x1, y1, x2, y2, x3, y3, x4, y4 floa
 		//----------------------
 		if d2*d2 <= distanceToleranceSquare*(dx*dx+dy*dy) {
 			if angleTolerance < CurveAngleToleranceEpsilon {
-				v.Vertex(x23, y23)
+				v.AddPoint(x23, y23)
 				return
 			}
 
@@ -268,14 +268,14 @@ func recursiveCubicBezier(v VertexConverter, x1, y1, x2, y2, x3, y3, x4, y4 floa
 			}
 
 			if da1 < angleTolerance {
-				v.Vertex(x2, y2)
-				v.Vertex(x3, y3)
+				v.AddPoint(x2, y2)
+				v.AddPoint(x3, y3)
 				return
 			}
 
 			if cuspLimit != 0.0 {
 				if da1 > cuspLimit {
-					v.Vertex(x2, y2)
+					v.AddPoint(x2, y2)
 					return
 				}
 			}
@@ -290,7 +290,7 @@ func recursiveCubicBezier(v VertexConverter, x1, y1, x2, y2, x3, y3, x4, y4 floa
 			// we tend to finish subdivisions.
 			//----------------------
 			if angleTolerance < CurveAngleToleranceEpsilon {
-				v.Vertex(x23, y23)
+				v.AddPoint(x23, y23)
 				return
 			}
 
@@ -309,18 +309,18 @@ func recursiveCubicBezier(v VertexConverter, x1, y1, x2, y2, x3, y3, x4, y4 floa
 			if da1+da2 < angleTolerance {
 				// Finally we can stop the recursion
 				//----------------------
-				v.Vertex(x23, y23)
+				v.AddPoint(x23, y23)
 				return
 			}
 
 			if cuspLimit != 0.0 {
 				if da1 > cuspLimit {
-					v.Vertex(x2, y2)
+					v.AddPoint(x2, y2)
 					return
 				}
 
 				if da2 > cuspLimit {
-					v.Vertex(x3, y3)
+					v.AddPoint(x3, y3)
 					return
 				}
 			}

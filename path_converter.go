@@ -4,74 +4,73 @@
 package draw2d
 
 import (
+	"github.com/llgcode/draw2d/curve"
 	"math"
 )
 
 type PathConverter struct {
-	converter                                     VertexConverter
-	ApproximationScale, AngleTolerance, CuspLimit float64
-	startX, startY, x, y                          float64
+	converter            VertexConverter
+	ApproximationScale   float64
+	startX, startY, x, y float64
 }
 
 func NewPathConverter(converter VertexConverter) *PathConverter {
-	return &PathConverter{converter, 1, 0, 0, 0, 0, 0, 0}
+	return &PathConverter{converter, 1, 0, 0, 0, 0}
 }
 
 func (c *PathConverter) Convert(paths ...*PathStorage) {
 	for _, path := range paths {
-		j := 0
+		i := 0
 		for _, cmd := range path.commands {
-			j = j + c.ConvertCommand(cmd, path.vertices[j:]...)
+			switch cmd {
+			case MoveTo:
+				c.x, c.y = path.vertices[i], path.vertices[i+1]
+				c.startX, c.startY = c.x, c.y
+				c.converter.NextCommand(VertexStopCommand)
+				c.converter.NextCommand(VertexStartCommand)
+				c.converter.AddPoint(c.x, c.y)
+				i += 2
+			case LineTo:
+				c.x, c.y = path.vertices[i], path.vertices[i+1]
+				if c.startX == c.x && c.startY == c.y {
+					c.converter.NextCommand(VertexCloseCommand)
+				}
+				c.converter.AddPoint(c.x, c.y)
+				c.converter.NextCommand(VertexJoinCommand)
+				i += 2
+			case QuadCurveTo:
+				curve.TraceQuad(c.converter, path.vertices[i-2:], 0.5)
+				c.x, c.y = path.vertices[i+2], path.vertices[i+3]
+				if c.startX == c.x && c.startY == c.y {
+					c.converter.NextCommand(VertexCloseCommand)
+				}
+				c.converter.AddPoint(c.x, c.y)
+				i += 4
+			case CubicCurveTo:
+				curve.TraceCubic(c.converter, path.vertices[i-2:], 0.5)
+				c.x, c.y = path.vertices[i+4], path.vertices[i+5]
+				if c.startX == c.x && c.startY == c.y {
+					c.converter.NextCommand(VertexCloseCommand)
+				}
+				c.converter.AddPoint(c.x, c.y)
+				i += 6
+			case ArcTo:
+				c.x, c.y = arc(c.converter, path.vertices[i], path.vertices[i+1], path.vertices[i+2], path.vertices[i+3], path.vertices[i+4], path.vertices[i+5], c.ApproximationScale)
+				if c.startX == c.x && c.startY == c.y {
+					c.converter.NextCommand(VertexCloseCommand)
+				}
+				c.converter.AddPoint(c.x, c.y)
+				i += 6
+			case Close:
+				c.converter.NextCommand(VertexCloseCommand)
+				c.converter.AddPoint(c.startX, c.startY)
+			}
 		}
 		c.converter.NextCommand(VertexStopCommand)
 	}
 }
 
-func (c *PathConverter) ConvertCommand(cmd PathCmd, vertices ...float64) int {
-	switch cmd {
-	case MoveTo:
-		c.x, c.y = vertices[0], vertices[1]
-		c.startX, c.startY = c.x, c.y
-		c.converter.NextCommand(VertexStopCommand)
-		c.converter.NextCommand(VertexStartCommand)
-		c.converter.Vertex(c.x, c.y)
-		return 2
-	case LineTo:
-		c.x, c.y = vertices[0], vertices[1]
-		if c.startX == c.x && c.startY == c.y {
-			c.converter.NextCommand(VertexCloseCommand)
-		}
-		c.converter.Vertex(c.x, c.y)
-		c.converter.NextCommand(VertexJoinCommand)
-		return 2
-	case QuadCurveTo:
-		quadraticBezier(c.converter, c.x, c.y, vertices[0], vertices[1], vertices[2], vertices[3], c.ApproximationScale, c.AngleTolerance)
-		c.x, c.y = vertices[2], vertices[3]
-		if c.startX == c.x && c.startY == c.y {
-			c.converter.NextCommand(VertexCloseCommand)
-		}
-		c.converter.Vertex(c.x, c.y)
-		return 4
-	case CubicCurveTo:
-		cubicBezier(c.converter, c.x, c.y, vertices[0], vertices[1], vertices[2], vertices[3], vertices[4], vertices[5], c.ApproximationScale, c.AngleTolerance, c.CuspLimit)
-		c.x, c.y = vertices[4], vertices[5]
-		if c.startX == c.x && c.startY == c.y {
-			c.converter.NextCommand(VertexCloseCommand)
-		}
-		c.converter.Vertex(c.x, c.y)
-		return 6
-	case ArcTo:
-		c.x, c.y = arc(c.converter, vertices[0], vertices[1], vertices[2], vertices[3], vertices[4], vertices[5], c.ApproximationScale)
-		if c.startX == c.x && c.startY == c.y {
-			c.converter.NextCommand(VertexCloseCommand)
-		}
-		c.converter.Vertex(c.x, c.y)
-		return 6
-	case Close:
-		c.converter.NextCommand(VertexCloseCommand)
-		c.converter.Vertex(c.startX, c.startY)
-		return 0
-	}
+func (c *PathConverter) convertCommand(cmd PathCmd, vertices ...float64) int {
 	return 0
 }
 
@@ -80,7 +79,7 @@ func (c *PathConverter) MoveTo(x, y float64) *PathConverter {
 	c.startX, c.startY = c.x, c.y
 	c.converter.NextCommand(VertexStopCommand)
 	c.converter.NextCommand(VertexStartCommand)
-	c.converter.Vertex(c.x, c.y)
+	c.converter.AddPoint(c.x, c.y)
 	return c
 }
 
@@ -94,7 +93,7 @@ func (c *PathConverter) LineTo(x, y float64) *PathConverter {
 	if c.startX == c.x && c.startY == c.y {
 		c.converter.NextCommand(VertexCloseCommand)
 	}
-	c.converter.Vertex(c.x, c.y)
+	c.converter.AddPoint(c.x, c.y)
 	c.converter.NextCommand(VertexJoinCommand)
 	return c
 }
@@ -105,12 +104,12 @@ func (c *PathConverter) RLineTo(dx, dy float64) *PathConverter {
 }
 
 func (c *PathConverter) QuadCurveTo(cx, cy, x, y float64) *PathConverter {
-	quadraticBezier(c.converter, c.x, c.y, cx, cy, x, y, c.ApproximationScale, c.AngleTolerance)
+	curve.TraceQuad(c.converter, []float64{c.x, c.y, cx, cy, x, y}, 0.5)
 	c.x, c.y = x, y
 	if c.startX == c.x && c.startY == c.y {
 		c.converter.NextCommand(VertexCloseCommand)
 	}
-	c.converter.Vertex(c.x, c.y)
+	c.converter.AddPoint(c.x, c.y)
 	return c
 }
 
@@ -120,12 +119,12 @@ func (c *PathConverter) RQuadCurveTo(dcx, dcy, dx, dy float64) *PathConverter {
 }
 
 func (c *PathConverter) CubicCurveTo(cx1, cy1, cx2, cy2, x, y float64) *PathConverter {
-	cubicBezier(c.converter, c.x, c.y, cx1, cy1, cx2, cy2, x, y, c.ApproximationScale, c.AngleTolerance, c.CuspLimit)
+	curve.TraceCubic(c.converter, []float64{c.x, c.y, cx1, cy1, cx2, cy2, x, y}, 0.5)
 	c.x, c.y = x, y
 	if c.startX == c.x && c.startY == c.y {
 		c.converter.NextCommand(VertexCloseCommand)
 	}
-	c.converter.Vertex(c.x, c.y)
+	c.converter.AddPoint(c.x, c.y)
 	return c
 }
 
@@ -157,7 +156,7 @@ func (c *PathConverter) ArcTo(cx, cy, rx, ry, startAngle, angle float64) *PathCo
 	if c.startX == c.x && c.startY == c.y {
 		c.converter.NextCommand(VertexCloseCommand)
 	}
-	c.converter.Vertex(c.x, c.y)
+	c.converter.AddPoint(c.x, c.y)
 	return c
 }
 
@@ -168,6 +167,6 @@ func (c *PathConverter) RArcTo(dcx, dcy, rx, ry, startAngle, angle float64) *Pat
 
 func (c *PathConverter) Close() *PathConverter {
 	c.converter.NextCommand(VertexCloseCommand)
-	c.converter.Vertex(c.startX, c.startY)
+	c.converter.AddPoint(c.startX, c.startY)
 	return c
 }
