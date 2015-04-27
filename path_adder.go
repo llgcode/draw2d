@@ -5,6 +5,7 @@ package draw2d
 
 import (
 	"code.google.com/p/freetype-go/freetype/raster"
+	"github.com/llgcode/draw2d/path"
 )
 
 type VertexAdder struct {
@@ -42,29 +43,29 @@ func NewPathAdder(adder raster.Adder) *PathAdder {
 	return &PathAdder{adder, raster.Point{0, 0}, 1}
 }
 
-func (pathAdder *PathAdder) Convert(paths ...*Path) {
-	for _, path := range paths {
+func (pathAdder *PathAdder) Convert(paths ...*path.Path) {
+	for _, apath := range paths {
 		j := 0
-		for _, cmd := range path.commands {
+		for _, cmd := range apath.Components {
 			switch cmd {
-			case MoveTo:
-				pathAdder.firstPoint = raster.Point{raster.Fix32(path.vertices[j] * 256), raster.Fix32(path.vertices[j+1] * 256)}
+			case path.MoveToCmp:
+				pathAdder.firstPoint = raster.Point{raster.Fix32(apath.Points[j] * 256), raster.Fix32(apath.Points[j+1] * 256)}
 				pathAdder.adder.Start(pathAdder.firstPoint)
 				j += 2
-			case LineTo:
-				pathAdder.adder.Add1(raster.Point{raster.Fix32(path.vertices[j] * 256), raster.Fix32(path.vertices[j+1] * 256)})
+			case path.LineToCmp:
+				pathAdder.adder.Add1(raster.Point{raster.Fix32(apath.Points[j] * 256), raster.Fix32(apath.Points[j+1] * 256)})
 				j += 2
-			case QuadCurveTo:
-				pathAdder.adder.Add2(raster.Point{raster.Fix32(path.vertices[j] * 256), raster.Fix32(path.vertices[j+1] * 256)}, raster.Point{raster.Fix32(path.vertices[j+2] * 256), raster.Fix32(path.vertices[j+3] * 256)})
+			case path.QuadCurveToCmp:
+				pathAdder.adder.Add2(raster.Point{raster.Fix32(apath.Points[j] * 256), raster.Fix32(apath.Points[j+1] * 256)}, raster.Point{raster.Fix32(apath.Points[j+2] * 256), raster.Fix32(apath.Points[j+3] * 256)})
 				j += 4
-			case CubicCurveTo:
-				pathAdder.adder.Add3(raster.Point{raster.Fix32(path.vertices[j] * 256), raster.Fix32(path.vertices[j+1] * 256)}, raster.Point{raster.Fix32(path.vertices[j+2] * 256), raster.Fix32(path.vertices[j+3] * 256)}, raster.Point{raster.Fix32(path.vertices[j+4] * 256), raster.Fix32(path.vertices[j+5] * 256)})
+			case path.CubicCurveToCmp:
+				pathAdder.adder.Add3(raster.Point{raster.Fix32(apath.Points[j] * 256), raster.Fix32(apath.Points[j+1] * 256)}, raster.Point{raster.Fix32(apath.Points[j+2] * 256), raster.Fix32(apath.Points[j+3] * 256)}, raster.Point{raster.Fix32(apath.Points[j+4] * 256), raster.Fix32(apath.Points[j+5] * 256)})
 				j += 6
-			case ArcTo:
-				lastPoint := arcAdder(pathAdder.adder, path.vertices[j], path.vertices[j+1], path.vertices[j+2], path.vertices[j+3], path.vertices[j+4], path.vertices[j+5], pathAdder.ApproximationScale)
+			case path.ArcToCmp:
+				lastPoint := arcAdder(pathAdder.adder, apath.Points[j], apath.Points[j+1], apath.Points[j+2], apath.Points[j+3], apath.Points[j+4], apath.Points[j+5], pathAdder.ApproximationScale)
 				pathAdder.adder.Add1(lastPoint)
 				j += 6
-			case Close:
+			case path.CloseCmp:
 				pathAdder.adder.Add1(pathAdder.firstPoint)
 			}
 		}

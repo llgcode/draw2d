@@ -5,6 +5,7 @@ package draw2d
 
 import (
 	"errors"
+	"github.com/llgcode/draw2d/path"
 	"image"
 	"image/color"
 	"image/draw"
@@ -275,7 +276,7 @@ func (gc *ImageGraphicContext) paint(rasterizer *raster.Rasterizer, color color.
 }
 
 /**** second method ****/
-func (gc *ImageGraphicContext) Stroke(paths ...*Path) {
+func (gc *ImageGraphicContext) Stroke(paths ...*path.Path) {
 	paths = append(paths, gc.Current.Path)
 	gc.strokeRasterizer.UseNonZeroWinding = true
 
@@ -295,7 +296,7 @@ func (gc *ImageGraphicContext) Stroke(paths ...*Path) {
 }
 
 /**** second method ****/
-func (gc *ImageGraphicContext) Fill(paths ...*Path) {
+func (gc *ImageGraphicContext) Fill(paths ...*path.Path) {
 	paths = append(paths, gc.Current.Path)
 	gc.fillRasterizer.UseNonZeroWinding = gc.Current.FillRule.UseNonZeroWinding()
 
@@ -308,7 +309,7 @@ func (gc *ImageGraphicContext) Fill(paths ...*Path) {
 }
 
 /* second method */
-func (gc *ImageGraphicContext) FillStroke(paths ...*Path) {
+func (gc *ImageGraphicContext) FillStroke(paths ...*path.Path) {
 	gc.fillRasterizer.UseNonZeroWinding = gc.Current.FillRule.UseNonZeroWinding()
 	gc.strokeRasterizer.UseNonZeroWinding = true
 

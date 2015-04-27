@@ -4,6 +4,7 @@
 package draw2d
 
 import (
+	"github.com/llgcode/draw2d/path"
 	"image"
 	"image/color"
 
@@ -16,7 +17,7 @@ type StackGraphicContext struct {
 
 type ContextStack struct {
 	Tr          MatrixTransform
-	Path        *Path
+	Path        *path.Path
 	LineWidth   float64
 	Dash        []float64
 	DashOffset  float64
