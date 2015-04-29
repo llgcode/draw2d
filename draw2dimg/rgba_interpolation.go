@@ -107,8 +107,7 @@ func cubic(offset, v0, v1, v2, v3 float64) uint32 {
 
 func DrawImage(src image.Image, dest draw.Image, tr draw2d.MatrixTransform, op draw.Op, filter ImageFilter) {
 	bounds := src.Bounds()
-	x0, y0, x1, y1 := float64(bounds.Min.X), float64(bounds.Min.Y), float64(bounds.Max.X), float64(bounds.Max.Y)
-	tr.TransformRectangle(&x0, &y0, &x1, &y1)
+	x0, y0, x1, y1 := tr.TransformRectangle(float64(bounds.Min.X), float64(bounds.Min.Y), float64(bounds.Max.X), float64(bounds.Max.Y))
 	var x, y, u, v float64
 	var c1, c2, cr color.Color
 	var r, g, b, a, ia, r1, g1, b1, a1, r2, g2, b2, a2 uint32
@@ -117,7 +116,7 @@ func DrawImage(src image.Image, dest draw.Image, tr draw2d.MatrixTransform, op d
 		for y = y0; y < y1; y++ {
 			u = x
 			v = y
-			tr.InverseTransform(&u, &v)
+			u, v = tr.InverseTransformPoint(u, v)
 			if bounds.Min.X <= int(u) && bounds.Max.X > int(u) && bounds.Min.Y <= int(v) && bounds.Max.Y > int(v) {
 				c1 = dest.At(int(x), int(y))
 				switch filter {

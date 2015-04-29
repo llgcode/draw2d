@@ -5,8 +5,6 @@ package draw2d
 
 import (
 	"math"
-
-	"code.google.com/p/freetype-go/freetype/raster"
 )
 
 type MatrixTransform [6]float64
@@ -19,22 +17,20 @@ func (tr MatrixTransform) Determinant() float64 {
 	return tr[0]*tr[3] - tr[1]*tr[2]
 }
 
-func (tr MatrixTransform) Transform(points ...*float64) {
-	for i, j := 0, 1; j < len(points); i, j = i+2, j+2 {
-		x := *points[i]
-		y := *points[j]
-		*points[i] = x*tr[0] + y*tr[2] + tr[4]
-		*points[j] = x*tr[1] + y*tr[3] + tr[5]
-	}
-}
-
-func (tr MatrixTransform) TransformArray(points []float64) {
+// Transform apply the Affine Matrix to points. It modify the points passed in parameter.
+func (tr MatrixTransform) Transform(points []float64) {
 	for i, j := 0, 1; j < len(points); i, j = i+2, j+2 {
 		x := points[i]
 		y := points[j]
 		points[i] = x*tr[0] + y*tr[2] + tr[4]
 		points[j] = x*tr[1] + y*tr[3] + tr[5]
 	}
+}
+
+func (tr MatrixTransform) TransformPoint(x, y float64) (xres, yres float64) {
+	xres = x*tr[0] + y*tr[2] + tr[4]
+	yres = x*tr[1] + y*tr[3] + tr[5]
+	return xres, yres
 }
 
 func minMax(x, y float64) (min, max float64) {
@@ -44,50 +40,46 @@ func minMax(x, y float64) (min, max float64) {
 	return x, y
 }
 
-func (tr MatrixTransform) TransformRectangle(x0, y0, x2, y2 *float64) {
-	x1 := *x2
-	y1 := *y0
-	x3 := *x0
-	y3 := *y2
-	tr.Transform(x0, y0, &x1, &y1, x2, y2, &x3, &y3)
-	*x0, x1 = minMax(*x0, x1)
-	*x2, x3 = minMax(*x2, x3)
-	*y0, y1 = minMax(*y0, y1)
-	*y2, y3 = minMax(*y2, y3)
+func (tr MatrixTransform) TransformRectangle(x0, y0, x2, y2 float64) (nx0, ny0, nx2, ny2 float64) {
+	points := []float64{x0, y0, x2, y0, x2, y2, x0, y2}
+	tr.Transform(points)
+	points[0], points[2] = minMax(points[0], points[2])
+	points[4], points[6] = minMax(points[4], points[6])
+	points[1], points[3] = minMax(points[1], points[3])
+	points[5], points[7] = minMax(points[5], points[7])
 
-	*x0 = math.Min(*x0, *x2)
-	*y0 = math.Min(*y0, *y2)
-	*x2 = math.Max(x1, x3)
-	*y2 = math.Max(y1, y3)
+	nx0 = math.Min(points[0], points[4])
+	ny0 = math.Min(points[1], points[5])
+	nx2 = math.Max(points[2], points[6])
+	ny2 = math.Max(points[3], points[7])
+	return nx0, ny0, nx2, ny2
 }
 
-func (tr MatrixTransform) TransformRasterPoint(points ...*raster.Point) {
-	for _, point := range points {
-		x := float64(point.X) / 256
-		y := float64(point.Y) / 256
-		point.X = raster.Fix32((x*tr[0] + y*tr[2] + tr[4]) * 256)
-		point.Y = raster.Fix32((x*tr[1] + y*tr[3] + tr[5]) * 256)
-	}
-}
-
-func (tr MatrixTransform) InverseTransform(points ...*float64) {
+func (tr MatrixTransform) InverseTransform(points []float64) {
 	d := tr.Determinant() // matrix determinant
 	for i, j := 0, 1; j < len(points); i, j = i+2, j+2 {
-		x := *points[i]
-		y := *points[j]
-		*points[i] = ((x-tr[4])*tr[3] - (y-tr[5])*tr[2]) / d
-		*points[j] = ((y-tr[5])*tr[0] - (x-tr[4])*tr[1]) / d
+		x := points[i]
+		y := points[j]
+		points[i] = ((x-tr[4])*tr[3] - (y-tr[5])*tr[2]) / d
+		points[j] = ((y-tr[5])*tr[0] - (x-tr[4])*tr[1]) / d
 	}
+}
+
+func (tr MatrixTransform) InverseTransformPoint(x, y float64) (xres, yres float64) {
+	d := tr.Determinant() // matrix determinant
+	xres = ((x-tr[4])*tr[3] - (y-tr[5])*tr[2]) / d
+	yres = ((y-tr[5])*tr[0] - (x-tr[4])*tr[1]) / d
+	return xres, yres
 }
 
 // ******************** Vector transformations ********************
 
-func (tr MatrixTransform) VectorTransform(points ...*float64) {
+func (tr MatrixTransform) VectorTransform(points []float64) {
 	for i, j := 0, 1; j < len(points); i, j = i+2, j+2 {
-		x := *points[i]
-		y := *points[j]
-		*points[i] = x*tr[0] + y*tr[2]
-		*points[j] = x*tr[1] + y*tr[3]
+		x := points[i]
+		y := points[j]
+		points[i] = x*tr[0] + y*tr[2]
+		points[j] = x*tr[1] + y*tr[3]
 	}
 }
 
@@ -286,34 +278,4 @@ func (t Transformer) Close() {
 
 func (t Transformer) End() {
 	t.Flattener.End()
-}
-
-// this adder apply a Matrix transformation to points
-type MatrixTransformAdder struct {
-	tr   MatrixTransform
-	next raster.Adder
-}
-
-// Start starts a new curve at the given point.
-func (mta MatrixTransformAdder) Start(a raster.Point) {
-	mta.tr.TransformRasterPoint(&a)
-	mta.next.Start(a)
-}
-
-// Add1 adds a linear segment to the current curve.
-func (mta MatrixTransformAdder) Add1(b raster.Point) {
-	mta.tr.TransformRasterPoint(&b)
-	mta.next.Add1(b)
-}
-
-// Add2 adds a quadratic segment to the current curve.
-func (mta MatrixTransformAdder) Add2(b, c raster.Point) {
-	mta.tr.TransformRasterPoint(&b, &c)
-	mta.next.Add2(b, c)
-}
-
-// Add3 adds a cubic segment to the current curve.
-func (mta MatrixTransformAdder) Add3(b, c, d raster.Point) {
-	mta.tr.TransformRasterPoint(&b, &c, &d)
-	mta.next.Add3(b, c, d)
 }
