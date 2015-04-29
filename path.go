@@ -52,40 +52,17 @@ type Path struct {
 	x, y       float64
 }
 
-func (p *Path) Clear() {
-	p.Components = p.Components[0:0]
-	p.Points = p.Points[0:0]
-	return
-}
-
 func (p *Path) appendToPath(cmd PathCmp, points ...float64) {
 	p.Components = append(p.Components, cmd)
 	p.Points = append(p.Points, points...)
 }
 
-// Copy make a clone of the current path and return it
-func (src *Path) Copy() (dest *Path) {
-	dest = new(Path)
-	dest.Components = make([]PathCmp, len(src.Components))
-	copy(dest.Components, src.Components)
-	dest.Points = make([]float64, len(src.Points))
-	copy(dest.Points, src.Points)
-	dest.x, dest.y = src.x, src.y
-	return dest
-}
-
+// LastPoint returns the current point of the current path
 func (p *Path) LastPoint() (x, y float64) {
 	return p.x, p.y
 }
 
-func (p *Path) IsEmpty() bool {
-	return len(p.Components) == 0
-}
-
-func (p *Path) Close() {
-	p.appendToPath(CloseCmp)
-}
-
+// MoveTo starts a new path at (x, y) position
 func (p *Path) MoveTo(x, y float64) {
 	p.appendToPath(MoveToCmp, x, y)
 
@@ -93,6 +70,7 @@ func (p *Path) MoveTo(x, y float64) {
 	p.y = y
 }
 
+// LineTo adds a line to the current path
 func (p *Path) LineTo(x, y float64) {
 	if len(p.Components) == 0 { //special case when no move has been done
 		p.MoveTo(0, 0)
@@ -102,6 +80,7 @@ func (p *Path) LineTo(x, y float64) {
 	p.y = y
 }
 
+// QuadCurveTo adds a quadratic bezier curve to the current path
 func (p *Path) QuadCurveTo(cx, cy, x, y float64) {
 	if len(p.Components) == 0 { //special case when no move has been done
 		p.MoveTo(0, 0)
@@ -111,6 +90,7 @@ func (p *Path) QuadCurveTo(cx, cy, x, y float64) {
 	p.y = y
 }
 
+// CubicCurveTo adds a cubic bezier curve to the current path
 func (p *Path) CubicCurveTo(cx1, cy1, cx2, cy2, x, y float64) {
 	if len(p.Components) == 0 { //special case when no move has been done
 		p.MoveTo(0, 0)
@@ -120,6 +100,7 @@ func (p *Path) CubicCurveTo(cx1, cy1, cx2, cy2, x, y float64) {
 	p.y = y
 }
 
+// ArcTo adds an arc to the path
 func (p *Path) ArcTo(cx, cy, rx, ry, startAngle, angle float64) {
 	endAngle := startAngle + angle
 	clockWise := true
@@ -148,6 +129,35 @@ func (p *Path) ArcTo(cx, cy, rx, ry, startAngle, angle float64) {
 	p.y = cy + math.Sin(endAngle)*ry
 }
 
+// Close closes the current path
+func (p *Path) Close() {
+	p.appendToPath(CloseCmp)
+}
+
+// Copy make a clone of the current path and return it
+func (src *Path) Copy() (dest *Path) {
+	dest = new(Path)
+	dest.Components = make([]PathCmp, len(src.Components))
+	copy(dest.Components, src.Components)
+	dest.Points = make([]float64, len(src.Points))
+	copy(dest.Points, src.Points)
+	dest.x, dest.y = src.x, src.y
+	return dest
+}
+
+// Clear reset the path
+func (p *Path) Clear() {
+	p.Components = p.Components[0:0]
+	p.Points = p.Points[0:0]
+	return
+}
+
+// IsEmpty returns true if the path is empty
+func (p *Path) IsEmpty() bool {
+	return len(p.Components) == 0
+}
+
+// String returns a debug text view of the path
 func (p *Path) String() string {
 	s := ""
 	j := 0
