@@ -246,33 +246,3 @@ func (tr MatrixTransform) IsTranslation() bool {
 func fequals(float1, float2 float64) bool {
 	return math.Abs(float1-float2) <= epsilon
 }
-
-// Transformer apply the Matrix transformation tr
-type Transformer struct {
-	Tr        MatrixTransform
-	Flattener Flattener
-}
-
-func (t Transformer) MoveTo(x, y float64) {
-	u := x*t.Tr[0] + y*t.Tr[2] + t.Tr[4]
-	v := x*t.Tr[1] + y*t.Tr[3] + t.Tr[5]
-	t.Flattener.MoveTo(u, v)
-}
-
-func (t Transformer) LineTo(x, y float64) {
-	u := x*t.Tr[0] + y*t.Tr[2] + t.Tr[4]
-	v := x*t.Tr[1] + y*t.Tr[3] + t.Tr[5]
-	t.Flattener.LineTo(u, v)
-}
-
-func (t Transformer) LineJoin() {
-	t.Flattener.LineJoin()
-}
-
-func (t Transformer) Close() {
-	t.Flattener.Close()
-}
-
-func (t Transformer) End() {
-	t.Flattener.End()
-}

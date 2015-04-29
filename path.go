@@ -9,7 +9,7 @@ import (
 	"math"
 )
 
-// PathBuilder define method that create path
+// PathBuilder defines methods that creates path
 type PathBuilder interface {
 	// LastPoint returns the current point of the current path
 	LastPoint() (x, y float64)
@@ -33,7 +33,7 @@ type PathBuilder interface {
 	Close()
 }
 
-// PathCmp represent components of a path
+// PathCmp represents component of a path
 type PathCmp int
 
 const (
@@ -173,48 +173,4 @@ func (p *Path) String() string {
 		}
 	}
 	return s
-}
-
-// Flatten convert curves into straight segments keeping join segments info
-func (path *Path) Flatten(flattener Flattener, scale float64) {
-	// First Point
-	var startX, startY float64 = 0, 0
-	// Current Point
-	var x, y float64 = 0, 0
-	i := 0
-	for _, cmd := range path.Components {
-		switch cmd {
-		case MoveToCmp:
-			x, y = path.Points[i], path.Points[i+1]
-			startX, startY = x, y
-			if i != 0 {
-				flattener.End()
-			}
-			flattener.MoveTo(x, y)
-			i += 2
-		case LineToCmp:
-			x, y = path.Points[i], path.Points[i+1]
-			flattener.LineTo(x, y)
-			flattener.LineJoin()
-			i += 2
-		case QuadCurveToCmp:
-			TraceQuad(flattener, path.Points[i-2:], 0.5)
-			x, y = path.Points[i+2], path.Points[i+3]
-			flattener.LineTo(x, y)
-			i += 4
-		case CubicCurveToCmp:
-			TraceCubic(flattener, path.Points[i-2:], 0.5)
-			x, y = path.Points[i+4], path.Points[i+5]
-			flattener.LineTo(x, y)
-			i += 6
-		case ArcToCmp:
-			x, y = TraceArc(flattener, path.Points[i], path.Points[i+1], path.Points[i+2], path.Points[i+3], path.Points[i+4], path.Points[i+5], scale)
-			flattener.LineTo(x, y)
-			i += 6
-		case CloseCmp:
-			flattener.LineTo(startX, startY)
-			flattener.Close()
-		}
-	}
-	flattener.End()
 }

@@ -32,7 +32,7 @@ func toFtJoin(j draw2d.LineJoin) raster.Joiner {
 }
 
 type LineStroker struct {
-	Next          draw2d.Flattener
+	Flattener     Flattener
 	HalfLineWidth float64
 	Cap           draw2d.LineCap
 	Join          draw2d.LineJoin
@@ -41,9 +41,9 @@ type LineStroker struct {
 	x, y, nx, ny  float64
 }
 
-func NewLineStroker(c draw2d.LineCap, j draw2d.LineJoin, flattener draw2d.Flattener) *LineStroker {
+func NewLineStroker(c draw2d.LineCap, j draw2d.LineJoin, flattener Flattener) *LineStroker {
 	l := new(LineStroker)
-	l.Next = flattener
+	l.Flattener = flattener
 	l.HalfLineWidth = 0.5
 	l.Cap = c
 	l.Join = j
@@ -82,18 +82,18 @@ func (l *LineStroker) Close() {
 
 func (l *LineStroker) End() {
 	if len(l.vertices) > 1 {
-		l.Next.MoveTo(l.vertices[0], l.vertices[1])
+		l.Flattener.MoveTo(l.vertices[0], l.vertices[1])
 		for i, j := 2, 3; j < len(l.vertices); i, j = i+2, j+2 {
-			l.Next.LineTo(l.vertices[i], l.vertices[j])
+			l.Flattener.LineTo(l.vertices[i], l.vertices[j])
 		}
 	}
 	for i, j := len(l.rewind)-2, len(l.rewind)-1; j > 0; i, j = i-2, j-2 {
-		l.Next.LineTo(l.rewind[i], l.rewind[j])
+		l.Flattener.LineTo(l.rewind[i], l.rewind[j])
 	}
 	if len(l.vertices) > 1 {
-		l.Next.LineTo(l.vertices[0], l.vertices[1])
+		l.Flattener.LineTo(l.vertices[0], l.vertices[1])
 	}
-	l.Next.End()
+	l.Flattener.End()
 	// reinit vertices
 	l.vertices = l.vertices[0:0]
 	l.rewind = l.rewind[0:0]

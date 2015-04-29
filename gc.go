@@ -15,6 +15,22 @@ const (
 	FillRuleWinding
 )
 
+type LineCap int
+
+const (
+	RoundCap LineCap = iota
+	ButtCap
+	SquareCap
+)
+
+type LineJoin int
+
+const (
+	BevelJoin LineJoin = iota
+	RoundJoin
+	MiterJoin
+)
+
 type GraphicContext interface {
 	PathBuilder
 	// Create a new path

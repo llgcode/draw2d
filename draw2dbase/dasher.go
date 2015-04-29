@@ -3,24 +3,20 @@
 
 package draw2dbase
 
-import (
-	"github.com/llgcode/draw2d"
-)
-
 type DashVertexConverter struct {
-	next           draw2d.Flattener
+	next           Flattener
 	x, y, distance float64
 	dash           []float64
 	currentDash    int
 	dashOffset     float64
 }
 
-func NewDashConverter(dash []float64, dashOffset float64, converter draw2d.Flattener) *DashVertexConverter {
+func NewDashConverter(dash []float64, dashOffset float64, flattener Flattener) *DashVertexConverter {
 	var dasher DashVertexConverter
 	dasher.dash = dash
 	dasher.currentDash = 0
 	dasher.dashOffset = dashOffset
-	dasher.next = converter
+	dasher.next = flattener
 	return &dasher
 }
 

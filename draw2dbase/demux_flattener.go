@@ -1,11 +1,7 @@
 package draw2dbase
 
-import (
-	"github.com/llgcode/draw2d"
-)
-
 type DemuxFlattener struct {
-	Flatteners []draw2d.Flattener
+	Flatteners []Flattener
 }
 
 func (dc DemuxFlattener) MoveTo(x, y float64) {
