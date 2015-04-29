@@ -18,7 +18,7 @@ func (tr MatrixTransform) Determinant() float64 {
 	return tr[0]*tr[3] - tr[1]*tr[2]
 }
 
-// Transform apply the transformation matrix to points. It modify the points passed in parameter.
+// Transform applies the transformation matrix to points. It modify the points passed in parameter.
 func (tr MatrixTransform) Transform(points []float64) {
 	for i, j := 0, 1; j < len(points); i, j = i+2, j+2 {
 		x := points[i]
@@ -28,7 +28,7 @@ func (tr MatrixTransform) Transform(points []float64) {
 	}
 }
 
-// TransformPoint apply the transformation matrix to point. It returns the point the transformed point.
+// TransformPoint applies the transformation matrix to point. It returns the point the transformed point.
 func (tr MatrixTransform) TransformPoint(x, y float64) (xres, yres float64) {
 	xres = x*tr[0] + y*tr[2] + tr[4]
 	yres = x*tr[1] + y*tr[3] + tr[5]
@@ -42,7 +42,7 @@ func minMax(x, y float64) (min, max float64) {
 	return x, y
 }
 
-// Transform apply the transformation matrix to the rectangle represented by the min and the max point of the rectangle
+// Transform applies the transformation matrix to the rectangle represented by the min and the max point of the rectangle
 func (tr MatrixTransform) TransformRectangle(x0, y0, x2, y2 float64) (nx0, ny0, nx2, ny2 float64) {
 	points := []float64{x0, y0, x2, y0, x2, y2, x0, y2}
 	tr.Transform(points)
@@ -58,7 +58,7 @@ func (tr MatrixTransform) TransformRectangle(x0, y0, x2, y2 float64) (nx0, ny0, 
 	return nx0, ny0, nx2, ny2
 }
 
-// InverseTransform apply the transformation inverse matrix to the rectangle represented by the min and the max point of the rectangle
+// InverseTransform applies the transformation inverse matrix to the rectangle represented by the min and the max point of the rectangle
 func (tr MatrixTransform) InverseTransform(points []float64) {
 	d := tr.Determinant() // matrix determinant
 	for i, j := 0, 1; j < len(points); i, j = i+2, j+2 {
@@ -69,7 +69,7 @@ func (tr MatrixTransform) InverseTransform(points []float64) {
 	}
 }
 
-// InverseTransformPoint apply the transformation inverse matrix to point. It returns the point the transformed point.
+// InverseTransformPoint applies the transformation inverse matrix to point. It returns the point the transformed point.
 func (tr MatrixTransform) InverseTransformPoint(x, y float64) (xres, yres float64) {
 	d := tr.Determinant() // matrix determinant
 	xres = ((x-tr[4])*tr[3] - (y-tr[5])*tr[2]) / d
@@ -77,7 +77,7 @@ func (tr MatrixTransform) InverseTransformPoint(x, y float64) (xres, yres float6
 	return xres, yres
 }
 
-// VectorTransform apply the transformation matrix to points without using the translation parameter of the affine matrix.
+// VectorTransform applies the transformation matrix to points without using the translation parameter of the affine matrix.
 // It modify the points passed in parameter.
 func (tr MatrixTransform) VectorTransform(points []float64) {
 	for i, j := 0, 1; j < len(points); i, j = i+2, j+2 {
@@ -131,7 +131,7 @@ func (tr MatrixTransform) Inverse() MatrixTransform {
 		(tr[1]*tr[4] - tr[0]*tr[5]) / d}
 }
 
-// Multiply Compose Matrix tr1 with tr2 returns the resulting matrix
+// Multiply composes Matrix tr1 with tr2 returns the resulting matrix
 func (tr1 MatrixTransform) Multiply(tr2 MatrixTransform) MatrixTransform {
 	return [6]float64{
 		tr1[0]*tr2[0] + tr1[1]*tr2[2],
@@ -142,7 +142,7 @@ func (tr1 MatrixTransform) Multiply(tr2 MatrixTransform) MatrixTransform {
 		tr1[5]*tr2[3] + tr1[4]*tr2[1] + tr2[5]}
 }
 
-// Scale add a scale to the matrix
+// Scale adds a scale to the matrix
 func (tr *MatrixTransform) Scale(sx, sy float64) *MatrixTransform {
 	tr[0] = sx * tr[0]
 	tr[1] = sx * tr[1]
@@ -151,14 +151,14 @@ func (tr *MatrixTransform) Scale(sx, sy float64) *MatrixTransform {
 	return tr
 }
 
-// Translate add a translation to the matrix
+// Translate adds a translation to the matrix
 func (tr *MatrixTransform) Translate(tx, ty float64) *MatrixTransform {
 	tr[4] = tx*tr[0] + ty*tr[2] + tr[4]
 	tr[5] = ty*tr[3] + tx*tr[1] + tr[5]
 	return tr
 }
 
-// Rotate add a rotation to the matrix. angle is in radian
+// Rotate adds a rotation to the matrix. angle is in radian
 func (tr *MatrixTransform) Rotate(angle float64) *MatrixTransform {
 	c := math.Cos(angle)
 	s := math.Sin(angle)
@@ -190,30 +190,9 @@ func (tr MatrixTransform) GetScale() float64 {
 	return math.Sqrt(x*x + y*y)
 }
 
-func (tr MatrixTransform) GetMaxAbsScaling() (s float64) {
-	sx := math.Abs(tr[0])
-	sy := math.Abs(tr[3])
-	if sx > sy {
-		return sx
-	}
-	return sy
-}
-
-func (tr MatrixTransform) GetMinAbsScaling() (s float64) {
-	sx := math.Abs(tr[0])
-	sy := math.Abs(tr[3])
-	if sx > sy {
-		return sy
-	}
-	return sx
-}
-
 // ******************** Testing ********************
 
-/**
- * Tests if a two transformation are equal. A tolerance is applied when
- * comparing matrix elements.
- */
+// Equals tests if a two transformation are equal. A tolerance is applied when comparing matrix elements.
 func (tr1 MatrixTransform) Equals(tr2 MatrixTransform) bool {
 	for i := 0; i < 6; i = i + 1 {
 		if !fequals(tr1[i], tr2[i]) {
@@ -223,26 +202,17 @@ func (tr1 MatrixTransform) Equals(tr2 MatrixTransform) bool {
 	return true
 }
 
-/**
- * Tests if a transformation is the identity transformation. A tolerance
- * is applied when comparing matrix elements.
- */
+// IsIdentity tests if a transformation is the identity transformation. A tolerance is applied when comparing matrix elements.
 func (tr MatrixTransform) IsIdentity() bool {
 	return fequals(tr[4], 0) && fequals(tr[5], 0) && tr.IsTranslation()
 }
 
-/**
- * Tests if a transformation is is a pure translation. A tolerance
- * is applied when comparing matrix elements.
- */
+// IsTranslation tests if a transformation is is a pure translation. A tolerance is applied when comparing matrix elements.
 func (tr MatrixTransform) IsTranslation() bool {
 	return fequals(tr[0], 1) && fequals(tr[1], 0) && fequals(tr[2], 0) && fequals(tr[3], 1)
 }
 
-/**
- * Compares two floats.
- * return true if the distance between the two floats is less than epsilon, false otherwise
- */
+// fequals compares two floats. return true if the distance between the two floats is less than epsilon, false otherwise
 func fequals(float1, float2 float64) bool {
 	return math.Abs(float1-float2) <= epsilon
 }
