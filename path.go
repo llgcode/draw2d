@@ -11,33 +11,33 @@ import (
 
 // PathBuilder define method that create path
 type PathBuilder interface {
-	// Return the current point of the current path
+	// LastPoint returns the current point of the current path
 	LastPoint() (x, y float64)
 
-	// MoveTo start a new path at (x, y) position
+	// MoveTo starts a new path at (x, y) position
 	MoveTo(x, y float64)
 
-	// LineTo add a line to the current path
+	// LineTo adds a line to the current path
 	LineTo(x, y float64)
 
-	// QuadCurveTo add a quadratic curve to the current path
+	// QuadCurveTo adds a quadratic bezier curve to the current path
 	QuadCurveTo(cx, cy, x, y float64)
 
-	// CubicCurveTo add a cubic bezier curve to the current path
+	// CubicCurveTo adds a cubic bezier curve to the current path
 	CubicCurveTo(cx1, cy1, cx2, cy2, x, y float64)
 
-	// ArcTo add an arc to the path
+	// ArcTo adds an arc to the path
 	ArcTo(cx, cy, rx, ry, startAngle, angle float64)
 
-	// Close the current path
+	// Close closes the current path
 	Close()
 }
 
-// Component represent components of a path
-type Component int
+// PathCmp represent components of a path
+type PathCmp int
 
 const (
-	MoveToCmp Component = iota
+	MoveToCmp PathCmp = iota
 	LineToCmp
 	QuadCurveToCmp
 	CubicCurveToCmp
@@ -45,9 +45,9 @@ const (
 	CloseCmp
 )
 
-// Type Path store path
+// Path stores points
 type Path struct {
-	Components []Component
+	Components []PathCmp
 	Points     []float64
 	x, y       float64
 }
@@ -58,7 +58,7 @@ func (p *Path) Clear() {
 	return
 }
 
-func (p *Path) appendToPath(cmd Component, points ...float64) {
+func (p *Path) appendToPath(cmd PathCmp, points ...float64) {
 	p.Components = append(p.Components, cmd)
 	p.Points = append(p.Points, points...)
 }
@@ -66,7 +66,7 @@ func (p *Path) appendToPath(cmd Component, points ...float64) {
 // Copy make a clone of the current path and return it
 func (src *Path) Copy() (dest *Path) {
 	dest = new(Path)
-	dest.Components = make([]Component, len(src.Components))
+	dest.Components = make([]PathCmp, len(src.Components))
 	copy(dest.Components, src.Components)
 	dest.Points = make([]float64, len(src.Points))
 	copy(dest.Points, src.Points)
@@ -175,7 +175,7 @@ func (p *Path) String() string {
 	return s
 }
 
-// Flatten convert curves in straight segments keeping join segements
+// Flatten convert curves into straight segments keeping join segments info
 func (path *Path) Flatten(flattener Flattener, scale float64) {
 	// First Point
 	var startX, startY float64 = 0, 0
