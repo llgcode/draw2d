@@ -9,7 +9,7 @@ import (
 	"github.com/llgcode/draw2d"
 )
 
-// Gopher draw a gopher using a gc thanks to https://github.com/golang-samples/gopher-vector/
+// Gopher draw a gopher using a GraphicContext thanks to https://github.com/golang-samples/gopher-vector/
 func Gopher(gc draw2d.GraphicContext, x, y, w, h float64) {
 	// Initialize Stroke Attribute
 	gc.SetLineWidth(3)

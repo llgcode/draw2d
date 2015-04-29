@@ -5,6 +5,7 @@ import (
 	"math"
 )
 
+// Droid draws a droid at specified position
 func Droid(gc draw2d.GraphicContext, x, y float64) {
 	gc.SetLineCap(draw2d.RoundCap)
 	gc.SetLineWidth(5)
