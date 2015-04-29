@@ -13,11 +13,12 @@ const (
 	epsilon = 1e-6
 )
 
+// Determinant compute the determinant of the matrix
 func (tr MatrixTransform) Determinant() float64 {
 	return tr[0]*tr[3] - tr[1]*tr[2]
 }
 
-// Transform apply the Affine Matrix to points. It modify the points passed in parameter.
+// Transform apply the transformation matrix to points. It modify the points passed in parameter.
 func (tr MatrixTransform) Transform(points []float64) {
 	for i, j := 0, 1; j < len(points); i, j = i+2, j+2 {
 		x := points[i]
@@ -27,6 +28,7 @@ func (tr MatrixTransform) Transform(points []float64) {
 	}
 }
 
+// TransformPoint apply the transformation matrix to point. It returns the point the transformed point.
 func (tr MatrixTransform) TransformPoint(x, y float64) (xres, yres float64) {
 	xres = x*tr[0] + y*tr[2] + tr[4]
 	yres = x*tr[1] + y*tr[3] + tr[5]
@@ -40,6 +42,7 @@ func minMax(x, y float64) (min, max float64) {
 	return x, y
 }
 
+// Transform apply the transformation matrix to the rectangle represented by the min and the max point of the rectangle
 func (tr MatrixTransform) TransformRectangle(x0, y0, x2, y2 float64) (nx0, ny0, nx2, ny2 float64) {
 	points := []float64{x0, y0, x2, y0, x2, y2, x0, y2}
 	tr.Transform(points)
@@ -55,6 +58,7 @@ func (tr MatrixTransform) TransformRectangle(x0, y0, x2, y2 float64) (nx0, ny0, 
 	return nx0, ny0, nx2, ny2
 }
 
+// InverseTransform apply the transformation inverse matrix to the rectangle represented by the min and the max point of the rectangle
 func (tr MatrixTransform) InverseTransform(points []float64) {
 	d := tr.Determinant() // matrix determinant
 	for i, j := 0, 1; j < len(points); i, j = i+2, j+2 {
@@ -65,6 +69,7 @@ func (tr MatrixTransform) InverseTransform(points []float64) {
 	}
 }
 
+// InverseTransformPoint apply the transformation inverse matrix to point. It returns the point the transformed point.
 func (tr MatrixTransform) InverseTransformPoint(x, y float64) (xres, yres float64) {
 	d := tr.Determinant() // matrix determinant
 	xres = ((x-tr[4])*tr[3] - (y-tr[5])*tr[2]) / d
@@ -72,8 +77,8 @@ func (tr MatrixTransform) InverseTransformPoint(x, y float64) (xres, yres float6
 	return xres, yres
 }
 
-// ******************** Vector transformations ********************
-
+// VectorTransform apply the transformation matrix to points without using the translation parameter of the affine matrix.
+// It modify the points passed in parameter.
 func (tr MatrixTransform) VectorTransform(points []float64) {
 	for i, j := 0, 1; j < len(points); i, j = i+2, j+2 {
 		x := points[i]
@@ -83,41 +88,30 @@ func (tr MatrixTransform) VectorTransform(points []float64) {
 	}
 }
 
-// ******************** Transformations creation ********************
-
-/** Creates an identity transformation. */
+// NewIdentityMatrix creates an identity transformation matrix.
 func NewIdentityMatrix() MatrixTransform {
 	return [6]float64{1, 0, 0, 1, 0, 0}
 }
 
-/**
- * Creates a transformation with a translation, that,
- * transform point1 into point2.
- */
+// NewTranslationMatrix creates a transformation matrix with a translation tx and ty translation parameter
 func NewTranslationMatrix(tx, ty float64) MatrixTransform {
 	return [6]float64{1, 0, 0, 1, tx, ty}
 }
 
-/**
- * Creates a transformation with a sx, sy scale factor
- */
+// NewScaleMatrix creates a transformation matrix with a sx, sy scale factor
 func NewScaleMatrix(sx, sy float64) MatrixTransform {
 	return [6]float64{sx, 0, 0, sy, 0, 0}
 }
 
-/**
- * Creates a rotation transformation.
- */
+// NewRotationMatrix creates a rotation transformation matrix. angle is in radian
 func NewRotationMatrix(angle float64) MatrixTransform {
 	c := math.Cos(angle)
 	s := math.Sin(angle)
 	return [6]float64{c, s, -s, c, 0, 0}
 }
 
-/**
- * Creates a transformation, combining a scale and a translation, that transform rectangle1 into rectangle2.
- */
-func NewMatrixTransform(rectangle1, rectangle2 [4]float64) MatrixTransform {
+// NewMatrixTransform creates a transformation matrix, combining a scale and a translation, that transform rectangle1 into rectangle2.
+func NewMatrixFromRects(rectangle1, rectangle2 [4]float64) MatrixTransform {
 	xScale := (rectangle2[2] - rectangle2[0]) / (rectangle1[2] - rectangle1[0])
 	yScale := (rectangle2[3] - rectangle2[1]) / (rectangle1[3] - rectangle1[1])
 	xOffset := rectangle2[0] - (rectangle1[0] * xScale)
@@ -125,12 +119,8 @@ func NewMatrixTransform(rectangle1, rectangle2 [4]float64) MatrixTransform {
 	return [6]float64{xScale, 0, 0, yScale, xOffset, yOffset}
 }
 
-// ******************** Transformations operations ********************
-
-/**
- * Returns a transformation that is the inverse of the given transformation.
- */
-func (tr MatrixTransform) GetInverseTransformation() MatrixTransform {
+// Inverse returns a matrix that is the inverse of the given matrix.
+func (tr MatrixTransform) Inverse() MatrixTransform {
 	d := tr.Determinant() // matrix determinant
 	return [6]float64{
 		tr[3] / d,
@@ -141,6 +131,7 @@ func (tr MatrixTransform) GetInverseTransformation() MatrixTransform {
 		(tr[1]*tr[4] - tr[0]*tr[5]) / d}
 }
 
+// Multiply Compose Matrix tr1 with tr2 returns the resulting matrix
 func (tr1 MatrixTransform) Multiply(tr2 MatrixTransform) MatrixTransform {
 	return [6]float64{
 		tr1[0]*tr2[0] + tr1[1]*tr2[2],
@@ -151,6 +142,7 @@ func (tr1 MatrixTransform) Multiply(tr2 MatrixTransform) MatrixTransform {
 		tr1[5]*tr2[3] + tr1[4]*tr2[1] + tr2[5]}
 }
 
+// Scale add a scale to the matrix
 func (tr *MatrixTransform) Scale(sx, sy float64) *MatrixTransform {
 	tr[0] = sx * tr[0]
 	tr[1] = sx * tr[1]
@@ -159,12 +151,14 @@ func (tr *MatrixTransform) Scale(sx, sy float64) *MatrixTransform {
 	return tr
 }
 
+// Translate add a translation to the matrix
 func (tr *MatrixTransform) Translate(tx, ty float64) *MatrixTransform {
 	tr[4] = tx*tr[0] + ty*tr[2] + tr[4]
 	tr[5] = ty*tr[3] + tx*tr[1] + tr[5]
 	return tr
 }
 
+// Rotate add a rotation to the matrix. angle is in radian
 func (tr *MatrixTransform) Rotate(angle float64) *MatrixTransform {
 	c := math.Cos(angle)
 	s := math.Sin(angle)
@@ -179,14 +173,17 @@ func (tr *MatrixTransform) Rotate(angle float64) *MatrixTransform {
 	return tr
 }
 
+// GetTranslation
 func (tr MatrixTransform) GetTranslation() (x, y float64) {
 	return tr[4], tr[5]
 }
 
+// GetScaling
 func (tr MatrixTransform) GetScaling() (x, y float64) {
 	return tr[0], tr[3]
 }
 
+// GetScale computes the scale of the matrix
 func (tr MatrixTransform) GetScale() float64 {
 	x := 0.707106781*tr[0] + 0.707106781*tr[1]
 	y := 0.707106781*tr[2] + 0.707106781*tr[3]
