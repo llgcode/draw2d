@@ -8,29 +8,6 @@ import (
 	"image/color"
 )
 
-type FillRule int
-
-const (
-	FillRuleEvenOdd FillRule = iota
-	FillRuleWinding
-)
-
-type LineCap int
-
-const (
-	RoundCap LineCap = iota
-	ButtCap
-	SquareCap
-)
-
-type LineJoin int
-
-const (
-	BevelJoin LineJoin = iota
-	RoundJoin
-	MiterJoin
-)
-
 type GraphicContext interface {
 	PathBuilder
 	// BeginPath creates a new path
