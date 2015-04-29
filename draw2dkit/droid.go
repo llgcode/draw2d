@@ -19,32 +19,32 @@ func Droid(gc draw2d.GraphicContext, x, y float64) {
 	gc.Stroke()
 
 	// left eye
-	draw2d.Circle(gc, x+60, y+45, 5)
+	Circle(gc, x+60, y+45, 5)
 	gc.FillStroke()
 
 	// right eye
-	draw2d.Circle(gc, x+100, y+45, 5)
+	Circle(gc, x+100, y+45, 5)
 	gc.FillStroke()
 
 	// body
-	draw2d.RoundedRectangle(gc, x+30, y+75, x+30+100, y+75+90, 10, 10)
+	RoundedRectangle(gc, x+30, y+75, x+30+100, y+75+90, 10, 10)
 	gc.FillStroke()
-	draw2d.Rectangle(gc, x+30, y+75, x+30+100, y+75+80)
+	Rectangle(gc, x+30, y+75, x+30+100, y+75+80)
 	gc.FillStroke()
 
 	// left arm
-	draw2d.RoundedRectangle(gc, x+5, y+80, x+5+20, y+80+70, 10, 10)
+	RoundedRectangle(gc, x+5, y+80, x+5+20, y+80+70, 10, 10)
 	gc.FillStroke()
 
 	// right arm
-	draw2d.RoundedRectangle(gc, x+135, y+80, x+135+20, y+80+70, 10, 10)
+	RoundedRectangle(gc, x+135, y+80, x+135+20, y+80+70, 10, 10)
 	gc.FillStroke()
 
 	// left leg
-	draw2d.RoundedRectangle(gc, x+50, y+150, x+50+20, y+150+50, 10, 10)
+	RoundedRectangle(gc, x+50, y+150, x+50+20, y+150+50, 10, 10)
 	gc.FillStroke()
 
 	// right leg
-	draw2d.RoundedRectangle(gc, x+90, y+150, x+90+20, y+150+50, 10, 10)
+	RoundedRectangle(gc, x+90, y+150, x+90+20, y+150+50, 10, 10)
 	gc.FillStroke()
 }
