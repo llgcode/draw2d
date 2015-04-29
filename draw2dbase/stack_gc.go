@@ -1,40 +1,42 @@
 // Copyright 2010 The draw2d Authors. All rights reserved.
 // created: 21/11/2010 by Laurent Le Goff
 
-package draw2d
+package draw2dbase
 
 import (
-	"github.com/llgcode/draw2d/path"
+	"github.com/llgcode/draw2d"
 	"image"
 	"image/color"
 
 	"code.google.com/p/freetype-go/freetype/truetype"
 )
 
+var DefaultFontData = draw2d.FontData{"luxi", draw2d.FontFamilySans, draw2d.FontStyleNormal}
+
 type StackGraphicContext struct {
 	Current *ContextStack
 }
 
 type ContextStack struct {
-	Tr          MatrixTransform
-	Path        *path.Path
+	Tr          draw2d.MatrixTransform
+	Path        *draw2d.Path
 	LineWidth   float64
 	Dash        []float64
 	DashOffset  float64
 	StrokeColor color.Color
 	FillColor   color.Color
-	FillRule    FillRule
-	Cap         path.Cap
-	Join        path.Join
+	FillRule    draw2d.FillRule
+	Cap         draw2d.LineCap
+	Join        draw2d.LineJoin
 	FontSize    float64
-	FontData    FontData
+	FontData    draw2d.FontData
 
-	font *truetype.Font
+	Font *truetype.Font
 	// fontSize and dpi are used to calculate scale. scale is the number of
 	// 26.6 fixed point units in 1 em.
-	scale int32
+	Scale int32
 
-	previous *ContextStack
+	Previous *ContextStack
 }
 
 /**
@@ -43,41 +45,41 @@ type ContextStack struct {
 func NewStackGraphicContext() *StackGraphicContext {
 	gc := &StackGraphicContext{}
 	gc.Current = new(ContextStack)
-	gc.Current.Tr = NewIdentityMatrix()
-	gc.Current.Path = new(path.Path)
+	gc.Current.Tr = draw2d.NewIdentityMatrix()
+	gc.Current.Path = new(draw2d.Path)
 	gc.Current.LineWidth = 1.0
 	gc.Current.StrokeColor = image.Black
 	gc.Current.FillColor = image.White
-	gc.Current.Cap = path.RoundCap
-	gc.Current.FillRule = FillRuleEvenOdd
-	gc.Current.Join = path.RoundJoin
+	gc.Current.Cap = draw2d.RoundCap
+	gc.Current.FillRule = draw2d.FillRuleEvenOdd
+	gc.Current.Join = draw2d.RoundJoin
 	gc.Current.FontSize = 10
-	gc.Current.FontData = defaultFontData
+	gc.Current.FontData = DefaultFontData
 	return gc
 }
 
-func (gc *StackGraphicContext) GetMatrixTransform() MatrixTransform {
+func (gc *StackGraphicContext) GetMatrixTransform() draw2d.MatrixTransform {
 	return gc.Current.Tr
 }
 
-func (gc *StackGraphicContext) SetMatrixTransform(Tr MatrixTransform) {
+func (gc *StackGraphicContext) SetMatrixTransform(Tr draw2d.MatrixTransform) {
 	gc.Current.Tr = Tr
 }
 
-func (gc *StackGraphicContext) ComposeMatrixTransform(Tr MatrixTransform) {
+func (gc *StackGraphicContext) ComposeMatrixTransform(Tr draw2d.MatrixTransform) {
 	gc.Current.Tr = Tr.Multiply(gc.Current.Tr)
 }
 
 func (gc *StackGraphicContext) Rotate(angle float64) {
-	gc.Current.Tr = NewRotationMatrix(angle).Multiply(gc.Current.Tr)
+	gc.Current.Tr = draw2d.NewRotationMatrix(angle).Multiply(gc.Current.Tr)
 }
 
 func (gc *StackGraphicContext) Translate(tx, ty float64) {
-	gc.Current.Tr = NewTranslationMatrix(tx, ty).Multiply(gc.Current.Tr)
+	gc.Current.Tr = draw2d.NewTranslationMatrix(tx, ty).Multiply(gc.Current.Tr)
 }
 
 func (gc *StackGraphicContext) Scale(sx, sy float64) {
-	gc.Current.Tr = NewScaleMatrix(sx, sy).Multiply(gc.Current.Tr)
+	gc.Current.Tr = draw2d.NewScaleMatrix(sx, sy).Multiply(gc.Current.Tr)
 }
 
 func (gc *StackGraphicContext) SetStrokeColor(c color.Color) {
@@ -88,40 +90,40 @@ func (gc *StackGraphicContext) SetFillColor(c color.Color) {
 	gc.Current.FillColor = c
 }
 
-func (gc *StackGraphicContext) SetFillRule(f FillRule) {
+func (gc *StackGraphicContext) SetFillRule(f draw2d.FillRule) {
 	gc.Current.FillRule = f
 }
 
-func (gc *StackGraphicContext) SetLineWidth(LineWidth float64) {
-	gc.Current.LineWidth = LineWidth
+func (gc *StackGraphicContext) SetLineWidth(lineWidth float64) {
+	gc.Current.LineWidth = lineWidth
 }
 
-func (gc *StackGraphicContext) SetLineCap(cap path.Cap) {
+func (gc *StackGraphicContext) SetLineCap(cap draw2d.LineCap) {
 	gc.Current.Cap = cap
 }
 
-func (gc *StackGraphicContext) SetLineJoin(join path.Join) {
+func (gc *StackGraphicContext) SetLineJoin(join draw2d.LineJoin) {
 	gc.Current.Join = join
 }
 
-func (gc *StackGraphicContext) SetLineDash(Dash []float64, DashOffset float64) {
-	gc.Current.Dash = Dash
-	gc.Current.DashOffset = DashOffset
+func (gc *StackGraphicContext) SetLineDash(dash []float64, dashOffset float64) {
+	gc.Current.Dash = dash
+	gc.Current.DashOffset = dashOffset
 }
 
-func (gc *StackGraphicContext) SetFontSize(FontSize float64) {
-	gc.Current.FontSize = FontSize
+func (gc *StackGraphicContext) SetFontSize(fontSize float64) {
+	gc.Current.FontSize = fontSize
 }
 
 func (gc *StackGraphicContext) GetFontSize() float64 {
 	return gc.Current.FontSize
 }
 
-func (gc *StackGraphicContext) SetFontData(FontData FontData) {
-	gc.Current.FontData = FontData
+func (gc *StackGraphicContext) SetFontData(fontData draw2d.FontData) {
+	gc.Current.FontData = fontData
 }
 
-func (gc *StackGraphicContext) GetFontData() FontData {
+func (gc *StackGraphicContext) GetFontData() draw2d.FontData {
 	return gc.Current.FontData
 }
 
@@ -174,17 +176,17 @@ func (gc *StackGraphicContext) Save() {
 	context.Cap = gc.Current.Cap
 	context.Join = gc.Current.Join
 	context.Path = gc.Current.Path.Copy()
-	context.font = gc.Current.font
-	context.scale = gc.Current.scale
+	context.Font = gc.Current.Font
+	context.Scale = gc.Current.Scale
 	copy(context.Tr[:], gc.Current.Tr[:])
-	context.previous = gc.Current
+	context.Previous = gc.Current
 	gc.Current = context
 }
 
 func (gc *StackGraphicContext) Restore() {
-	if gc.Current.previous != nil {
+	if gc.Current.Previous != nil {
 		oldContext := gc.Current
-		gc.Current = gc.Current.previous
-		oldContext.previous = nil
+		gc.Current = gc.Current.Previous
+		oldContext.Previous = nil
 	}
 }

@@ -1,17 +1,21 @@
 // Copyright 2010 The draw2d Authors. All rights reserved.
 // created: 13/12/2010 by Laurent Le Goff
 
-package path
+package draw2dbase
+
+import (
+	"github.com/llgcode/draw2d"
+)
 
 type DashVertexConverter struct {
-	next           LineBuilder
+	next           draw2d.Flattener
 	x, y, distance float64
 	dash           []float64
 	currentDash    int
 	dashOffset     float64
 }
 
-func NewDashConverter(dash []float64, dashOffset float64, converter LineBuilder) *DashVertexConverter {
+func NewDashConverter(dash []float64, dashOffset float64, converter draw2d.Flattener) *DashVertexConverter {
 	var dasher DashVertexConverter
 	dasher.dash = dash
 	dasher.currentDash = 0
@@ -82,4 +86,8 @@ func (dasher *DashVertexConverter) lineTo(x, y float64) {
 		dasher.currentDash = (dasher.currentDash + 1) % len(dasher.dash)
 	}
 	dasher.x, dasher.y = x, y
+}
+
+func distance(x1, y1, x2, y2 float64) float64 {
+	return vectorDistance(x2-x1, y2-y1)
 }

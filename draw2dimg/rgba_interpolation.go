@@ -2,9 +2,10 @@
 // created: 21/11/2010 by Laurent Le Goff
 // see http://pippin.gimp.org/image_processing/chap_resampling.html
 
-package draw2d
+package draw2dimg
 
 import (
+	"github.com/llgcode/draw2d"
 	"image"
 	"image/color"
 	"image/draw"
@@ -17,6 +18,7 @@ const (
 	LinearFilter ImageFilter = iota
 	BilinearFilter
 	BicubicFilter
+	M = 1<<16 - 1
 )
 
 //see http://pippin.gimp.org/image_processing/chap_resampling.html
@@ -103,7 +105,7 @@ func cubic(offset, v0, v1, v2, v3 float64) uint32 {
 		(-9*v0+9*v2))*offset + (v0 + 16*v1 + v2)) / 18.0)
 }
 
-func DrawImage(src image.Image, dest draw.Image, tr MatrixTransform, op draw.Op, filter ImageFilter) {
+func DrawImage(src image.Image, dest draw.Image, tr draw2d.MatrixTransform, op draw.Op, filter ImageFilter) {
 	bounds := src.Bounds()
 	x0, y0, x1, y1 := float64(bounds.Min.X), float64(bounds.Min.Y), float64(bounds.Max.X), float64(bounds.Max.Y)
 	tr.TransformRectangle(&x0, &y0, &x1, &y1)

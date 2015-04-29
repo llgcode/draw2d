@@ -1,4 +1,4 @@
-package draw2d
+package draw2dimg
 
 import (
 	"bufio"

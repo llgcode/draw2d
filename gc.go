@@ -4,7 +4,6 @@
 package draw2d
 
 import (
-	"github.com/llgcode/draw2d/path"
 	"image"
 	"image/color"
 )
@@ -17,7 +16,7 @@ const (
 )
 
 type GraphicContext interface {
-	path.PathBuilder
+	PathBuilder
 	// Create a new path
 	BeginPath()
 	GetMatrixTransform() MatrixTransform
@@ -30,8 +29,8 @@ type GraphicContext interface {
 	SetFillColor(c color.Color)
 	SetFillRule(f FillRule)
 	SetLineWidth(lineWidth float64)
-	SetLineCap(cap path.Cap)
-	SetLineJoin(join path.Join)
+	SetLineCap(cap LineCap)
+	SetLineJoin(join LineJoin)
 	SetLineDash(dash []float64, dashOffset float64)
 	SetFontSize(fontSize float64)
 	GetFontSize() float64
@@ -50,7 +49,7 @@ type GraphicContext interface {
 	FillStringAt(text string, x, y float64) (cursor float64)
 	StrokeString(text string) (cursor float64)
 	StrokeStringAt(text string, x, y float64) (cursor float64)
-	Stroke(paths ...*path.Path)
-	Fill(paths ...*path.Path)
-	FillStroke(paths ...*path.Path)
+	Stroke(paths ...*Path)
+	Fill(paths ...*Path)
+	FillStroke(paths ...*Path)
 }

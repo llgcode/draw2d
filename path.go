@@ -2,11 +2,10 @@
 // created: 21/11/2010 by Laurent Le Goff
 
 // Package path implements function to build path
-package path
+package draw2d
 
 import (
 	"fmt"
-	"github.com/llgcode/draw2d/curve"
 	"math"
 )
 
@@ -177,7 +176,7 @@ func (p *Path) String() string {
 }
 
 // Flatten convert curves in straight segments keeping join segements
-func (path *Path) Flatten(liner LineBuilder, scale float64) {
+func (path *Path) Flatten(flattener Flattener, scale float64) {
 	// First Point
 	var startX, startY float64 = 0, 0
 	// Current Point
@@ -189,33 +188,33 @@ func (path *Path) Flatten(liner LineBuilder, scale float64) {
 			x, y = path.Points[i], path.Points[i+1]
 			startX, startY = x, y
 			if i != 0 {
-				liner.End()
+				flattener.End()
 			}
-			liner.MoveTo(x, y)
+			flattener.MoveTo(x, y)
 			i += 2
 		case LineToCmp:
 			x, y = path.Points[i], path.Points[i+1]
-			liner.LineTo(x, y)
-			liner.LineJoin()
+			flattener.LineTo(x, y)
+			flattener.LineJoin()
 			i += 2
 		case QuadCurveToCmp:
-			curve.TraceQuad(liner, path.Points[i-2:], 0.5)
+			TraceQuad(flattener, path.Points[i-2:], 0.5)
 			x, y = path.Points[i+2], path.Points[i+3]
-			liner.LineTo(x, y)
+			flattener.LineTo(x, y)
 			i += 4
 		case CubicCurveToCmp:
-			curve.TraceCubic(liner, path.Points[i-2:], 0.5)
+			TraceCubic(flattener, path.Points[i-2:], 0.5)
 			x, y = path.Points[i+4], path.Points[i+5]
-			liner.LineTo(x, y)
+			flattener.LineTo(x, y)
 			i += 6
 		case ArcToCmp:
-			x, y = curve.TraceArc(liner, path.Points[i], path.Points[i+1], path.Points[i+2], path.Points[i+3], path.Points[i+4], path.Points[i+5], scale)
-			liner.LineTo(x, y)
+			x, y = TraceArc(flattener, path.Points[i], path.Points[i+1], path.Points[i+2], path.Points[i+3], path.Points[i+4], path.Points[i+5], scale)
+			flattener.LineTo(x, y)
 			i += 6
 		case CloseCmp:
-			liner.LineTo(startX, startY)
-			liner.Close()
+			flattener.LineTo(startX, startY)
+			flattener.Close()
 		}
 	}
-	liner.End()
+	flattener.End()
 }

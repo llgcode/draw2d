@@ -1,66 +1,50 @@
 // Copyright 2010 The draw2d Authors. All rights reserved.
 // created: 13/12/2010 by Laurent Le Goff
 
-package path
+package draw2dbase
 
 import (
 	"code.google.com/p/freetype-go/freetype/raster"
+	"github.com/llgcode/draw2d"
+	"math"
 )
 
-type Cap int
-
-const (
-	RoundCap Cap = iota
-	ButtCap
-	SquareCap
-)
-
-func (c Cap) Convert() raster.Capper {
+func toFtCap(c draw2d.LineCap) raster.Capper {
 	switch c {
-	case RoundCap:
+	case draw2d.RoundCap:
 		return raster.RoundCapper
-	case ButtCap:
+	case draw2d.ButtCap:
 		return raster.ButtCapper
-	case SquareCap:
+	case draw2d.SquareCap:
 		return raster.SquareCapper
 	}
 	return raster.RoundCapper
 }
 
-type Join int
-
-const (
-	BevelJoin Join = iota
-	RoundJoin
-	MiterJoin
-)
-
-func (j Join) Convert() raster.Joiner {
+func toFtJoin(j draw2d.LineJoin) raster.Joiner {
 	switch j {
-	case RoundJoin:
+	case draw2d.RoundJoin:
 		return raster.RoundJoiner
-	case BevelJoin:
+	case draw2d.BevelJoin:
 		return raster.BevelJoiner
 	}
 	return raster.RoundJoiner
 }
 
 type LineStroker struct {
-	Next          LineBuilder
+	Next          draw2d.Flattener
 	HalfLineWidth float64
-	Cap           Cap
-	Join          Join
+	Cap           draw2d.LineCap
+	Join          draw2d.LineJoin
 	vertices      []float64
 	rewind        []float64
 	x, y, nx, ny  float64
 }
 
-func NewLineStroker(c Cap, j Join, converter LineBuilder) *LineStroker {
+func NewLineStroker(c draw2d.LineCap, j draw2d.LineJoin, flattener draw2d.Flattener) *LineStroker {
 	l := new(LineStroker)
-	l.Next = converter
+	l.Next = flattener
 	l.HalfLineWidth = 0.5
-	l.vertices = make([]float64, 0, 256)
-	l.rewind = make([]float64, 0, 256)
 	l.Cap = c
 	l.Join = j
 	return l
@@ -121,4 +105,8 @@ func (l *LineStroker) appendVertex(vertices ...float64) {
 	s := len(vertices) / 2
 	l.vertices = append(l.vertices, vertices[:s]...)
 	l.rewind = append(l.rewind, vertices[s:]...)
+}
+
+func vectorDistance(dx, dy float64) float64 {
+	return float64(math.Sqrt(dx*dx + dy*dy))
 }

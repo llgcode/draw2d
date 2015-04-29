@@ -1,4 +1,4 @@
-package curve
+package draw2d
 
 import (
 	"bufio"
@@ -33,18 +33,6 @@ var (
 		100, 290, 290, 10, 120, 290,
 	}
 )
-
-type Path struct {
-	points []float64
-}
-
-func (p *Path) MoveTo(x, y float64) {
-	p.points = append(p.points, x, y)
-}
-
-func (p *Path) LineTo(x, y float64) {
-	p.points = append(p.points, x, y)
-}
 
 func init() {
 	os.Mkdir("test_results", 0666)
@@ -85,32 +73,32 @@ func drawPoints(img draw.Image, c color.Color, s ...float64) image.Image {
 
 func TestCubicCurve(t *testing.T) {
 	for i := 0; i < len(testsCubicFloat64); i += 8 {
-		var p Path
+		var p SegmentedPath
 		p.MoveTo(testsCubicFloat64[i], testsCubicFloat64[i+1])
 		TraceCubic(&p, testsCubicFloat64[i:], flattening_threshold)
 		img := image.NewNRGBA(image.Rect(0, 0, 300, 300))
 		raster.PolylineBresenham(img, color.NRGBA{0xff, 0, 0, 0xff}, testsCubicFloat64[i:i+8]...)
-		raster.PolylineBresenham(img, image.Black, p.points...)
+		raster.PolylineBresenham(img, image.Black, p.Points...)
 		//drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, curve[:]...)
-		drawPoints(img, color.NRGBA{0, 0, 0, 0xff}, p.points...)
+		drawPoints(img, color.NRGBA{0, 0, 0, 0xff}, p.Points...)
 		SaveToPngFile(fmt.Sprintf("test_results/_test%d.png", i/8), img)
-		log.Printf("Num of points: %d\n", len(p.points))
+		log.Printf("Num of points: %d\n", len(p.Points))
 	}
 	fmt.Println()
 }
 
 func TestQuadCurve(t *testing.T) {
 	for i := 0; i < len(testsQuadFloat64); i += 6 {
-		var p Path
+		var p SegmentedPath
 		p.MoveTo(testsQuadFloat64[i], testsQuadFloat64[i+1])
 		TraceQuad(&p, testsQuadFloat64[i:], flattening_threshold)
 		img := image.NewNRGBA(image.Rect(0, 0, 300, 300))
 		raster.PolylineBresenham(img, color.NRGBA{0xff, 0, 0, 0xff}, testsQuadFloat64[i:i+6]...)
-		raster.PolylineBresenham(img, image.Black, p.points...)
+		raster.PolylineBresenham(img, image.Black, p.Points...)
 		//drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, curve[:]...)
-		drawPoints(img, color.NRGBA{0, 0, 0, 0xff}, p.points...)
+		drawPoints(img, color.NRGBA{0, 0, 0, 0xff}, p.Points...)
 		SaveToPngFile(fmt.Sprintf("test_results/_testQuad%d.png", i), img)
-		log.Printf("Num of points: %d\n", len(p.points))
+		log.Printf("Num of points: %d\n", len(p.Points))
 	}
 	fmt.Println()
 }
@@ -118,7 +106,7 @@ func TestQuadCurve(t *testing.T) {
 func BenchmarkCubicCurve(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		for i := 0; i < len(testsCubicFloat64); i += 8 {
-			var p Path
+			var p SegmentedPath
 			p.MoveTo(testsCubicFloat64[i], testsCubicFloat64[i+1])
 			TraceCubic(&p, testsCubicFloat64[i:], flattening_threshold)
 		}

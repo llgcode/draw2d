@@ -7,7 +7,6 @@ import (
 	"math"
 
 	"code.google.com/p/freetype-go/freetype/raster"
-	"github.com/llgcode/draw2d/path"
 )
 
 type MatrixTransform [6]float64
@@ -36,6 +35,13 @@ func (tr MatrixTransform) TransformArray(points []float64) {
 		points[i] = x*tr[0] + y*tr[2] + tr[4]
 		points[j] = x*tr[1] + y*tr[3] + tr[5]
 	}
+}
+
+func minMax(x, y float64) (min, max float64) {
+	if x > y {
+		return y, x
+	}
+	return x, y
 }
 
 func (tr MatrixTransform) TransformRectangle(x0, y0, x2, y2 *float64) {
@@ -252,48 +258,40 @@ func fequals(float1, float2 float64) bool {
 	return math.Abs(float1-float2) <= epsilon
 }
 
-// this VertexConverter apply the Matrix transformation tr
-type VertexMatrixTransform struct {
-	tr   MatrixTransform
-	Next path.LineBuilder
+// Transformer apply the Matrix transformation tr
+type Transformer struct {
+	Tr        MatrixTransform
+	Flattener Flattener
 }
 
-func NewVertexMatrixTransform(tr MatrixTransform, converter path.LineBuilder) *VertexMatrixTransform {
-	return &VertexMatrixTransform{tr, converter}
+func (t Transformer) MoveTo(x, y float64) {
+	u := x*t.Tr[0] + y*t.Tr[2] + t.Tr[4]
+	v := x*t.Tr[1] + y*t.Tr[3] + t.Tr[5]
+	t.Flattener.MoveTo(u, v)
 }
 
-func (vmt *VertexMatrixTransform) MoveTo(x, y float64) {
-	u := x*vmt.tr[0] + y*vmt.tr[2] + vmt.tr[4]
-	v := x*vmt.tr[1] + y*vmt.tr[3] + vmt.tr[5]
-	vmt.Next.MoveTo(u, v)
+func (t Transformer) LineTo(x, y float64) {
+	u := x*t.Tr[0] + y*t.Tr[2] + t.Tr[4]
+	v := x*t.Tr[1] + y*t.Tr[3] + t.Tr[5]
+	t.Flattener.LineTo(u, v)
 }
 
-func (vmt *VertexMatrixTransform) LineTo(x, y float64) {
-	u := x*vmt.tr[0] + y*vmt.tr[2] + vmt.tr[4]
-	v := x*vmt.tr[1] + y*vmt.tr[3] + vmt.tr[5]
-	vmt.Next.LineTo(u, v)
+func (t Transformer) LineJoin() {
+	t.Flattener.LineJoin()
 }
 
-func (vmt *VertexMatrixTransform) LineJoin() {
-	vmt.Next.LineJoin()
+func (t Transformer) Close() {
+	t.Flattener.Close()
 }
 
-func (vmt *VertexMatrixTransform) Close() {
-	vmt.Next.Close()
-}
-
-func (vmt *VertexMatrixTransform) End() {
-	vmt.Next.End()
+func (t Transformer) End() {
+	t.Flattener.End()
 }
 
 // this adder apply a Matrix transformation to points
 type MatrixTransformAdder struct {
 	tr   MatrixTransform
 	next raster.Adder
-}
-
-func NewMatrixTransformAdder(tr MatrixTransform, adder raster.Adder) *MatrixTransformAdder {
-	return &MatrixTransformAdder{tr, adder}
 }
 
 // Start starts a new curve at the given point.
