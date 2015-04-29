@@ -24,8 +24,8 @@ type ContextStack struct {
 	StrokeColor color.Color
 	FillColor   color.Color
 	FillRule    FillRule
-	Cap         Cap
-	Join        Join
+	Cap         path.Cap
+	Join        path.Join
 	FontSize    float64
 	FontData    FontData
 
@@ -44,13 +44,13 @@ func NewStackGraphicContext() *StackGraphicContext {
 	gc := &StackGraphicContext{}
 	gc.Current = new(ContextStack)
 	gc.Current.Tr = NewIdentityMatrix()
-	gc.Current.Path = NewPathStorage()
+	gc.Current.Path = new(path.Path)
 	gc.Current.LineWidth = 1.0
 	gc.Current.StrokeColor = image.Black
 	gc.Current.FillColor = image.White
-	gc.Current.Cap = RoundCap
+	gc.Current.Cap = path.RoundCap
 	gc.Current.FillRule = FillRuleEvenOdd
-	gc.Current.Join = RoundJoin
+	gc.Current.Join = path.RoundJoin
 	gc.Current.FontSize = 10
 	gc.Current.FontData = defaultFontData
 	return gc
@@ -96,12 +96,12 @@ func (gc *StackGraphicContext) SetLineWidth(LineWidth float64) {
 	gc.Current.LineWidth = LineWidth
 }
 
-func (gc *StackGraphicContext) SetLineCap(Cap Cap) {
-	gc.Current.Cap = Cap
+func (gc *StackGraphicContext) SetLineCap(cap path.Cap) {
+	gc.Current.Cap = cap
 }
 
-func (gc *StackGraphicContext) SetLineJoin(Join Join) {
-	gc.Current.Join = Join
+func (gc *StackGraphicContext) SetLineJoin(join path.Join) {
+	gc.Current.Join = join
 }
 
 func (gc *StackGraphicContext) SetLineDash(Dash []float64, DashOffset float64) {
@@ -141,40 +141,20 @@ func (gc *StackGraphicContext) MoveTo(x, y float64) {
 	gc.Current.Path.MoveTo(x, y)
 }
 
-func (gc *StackGraphicContext) RMoveTo(dx, dy float64) {
-	gc.Current.Path.RMoveTo(dx, dy)
-}
-
 func (gc *StackGraphicContext) LineTo(x, y float64) {
 	gc.Current.Path.LineTo(x, y)
-}
-
-func (gc *StackGraphicContext) RLineTo(dx, dy float64) {
-	gc.Current.Path.RLineTo(dx, dy)
 }
 
 func (gc *StackGraphicContext) QuadCurveTo(cx, cy, x, y float64) {
 	gc.Current.Path.QuadCurveTo(cx, cy, x, y)
 }
 
-func (gc *StackGraphicContext) RQuadCurveTo(dcx, dcy, dx, dy float64) {
-	gc.Current.Path.RQuadCurveTo(dcx, dcy, dx, dy)
-}
-
 func (gc *StackGraphicContext) CubicCurveTo(cx1, cy1, cx2, cy2, x, y float64) {
 	gc.Current.Path.CubicCurveTo(cx1, cy1, cx2, cy2, x, y)
 }
 
-func (gc *StackGraphicContext) RCubicCurveTo(dcx1, dcy1, dcx2, dcy2, dx, dy float64) {
-	gc.Current.Path.RCubicCurveTo(dcx1, dcy1, dcx2, dcy2, dx, dy)
-}
-
 func (gc *StackGraphicContext) ArcTo(cx, cy, rx, ry, startAngle, angle float64) {
 	gc.Current.Path.ArcTo(cx, cy, rx, ry, startAngle, angle)
-}
-
-func (gc *StackGraphicContext) RArcTo(dcx, dcy, rx, ry, startAngle, angle float64) {
-	gc.Current.Path.RArcTo(dcx, dcy, rx, ry, startAngle, angle)
 }
 
 func (gc *StackGraphicContext) Close() {

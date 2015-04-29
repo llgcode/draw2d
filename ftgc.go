@@ -275,56 +275,64 @@ func (gc *ImageGraphicContext) paint(rasterizer *raster.Rasterizer, color color.
 	gc.Current.Path.Clear()
 }
 
-/**** second method ****/
 func (gc *ImageGraphicContext) Stroke(paths ...*path.Path) {
 	paths = append(paths, gc.Current.Path)
 	gc.strokeRasterizer.UseNonZeroWinding = true
 
-	stroker := NewLineStroker(gc.Current.Cap, gc.Current.Join, NewVertexMatrixTransform(gc.Current.Tr, NewVertexAdder(gc.strokeRasterizer)))
+	stroker := path.NewLineStroker(gc.Current.Cap, gc.Current.Join, NewVertexMatrixTransform(gc.Current.Tr, path.NewFtLineBuilder(gc.strokeRasterizer)))
 	stroker.HalfLineWidth = gc.Current.LineWidth / 2
-	var pathConverter *PathConverter
+
+	var liner path.LineBuilder
 	if gc.Current.Dash != nil && len(gc.Current.Dash) > 0 {
-		dasher := NewDashConverter(gc.Current.Dash, gc.Current.DashOffset, stroker)
-		pathConverter = NewPathConverter(dasher)
+		liner = path.NewDashConverter(gc.Current.Dash, gc.Current.DashOffset, stroker)
 	} else {
-		pathConverter = NewPathConverter(stroker)
+		liner = stroker
 	}
-	pathConverter.ApproximationScale = gc.Current.Tr.GetScale()
-	pathConverter.Convert(paths...)
+	for _, p := range paths {
+		p.Flatten(liner, gc.Current.Tr.GetScale())
+	}
 
 	gc.paint(gc.strokeRasterizer, gc.Current.StrokeColor)
 }
 
-/**** second method ****/
 func (gc *ImageGraphicContext) Fill(paths ...*path.Path) {
 	paths = append(paths, gc.Current.Path)
 	gc.fillRasterizer.UseNonZeroWinding = gc.Current.FillRule.UseNonZeroWinding()
 
 	/**** first method ****/
-	pathConverter := NewPathConverter(NewVertexMatrixTransform(gc.Current.Tr, NewVertexAdder(gc.fillRasterizer)))
-	pathConverter.ApproximationScale = gc.Current.Tr.GetScale()
-	pathConverter.Convert(paths...)
+	flattener := NewVertexMatrixTransform(gc.Current.Tr, path.NewFtLineBuilder(gc.fillRasterizer))
+	for _, p := range paths {
+		p.Flatten(flattener, gc.Current.Tr.GetScale())
+	}
 
 	gc.paint(gc.fillRasterizer, gc.Current.FillColor)
 }
 
-/* second method */
 func (gc *ImageGraphicContext) FillStroke(paths ...*path.Path) {
+	paths = append(paths, gc.Current.Path)
 	gc.fillRasterizer.UseNonZeroWinding = gc.Current.FillRule.UseNonZeroWinding()
 	gc.strokeRasterizer.UseNonZeroWinding = true
 
-	filler := NewVertexMatrixTransform(gc.Current.Tr, NewVertexAdder(gc.fillRasterizer))
+	flattener := NewVertexMatrixTransform(gc.Current.Tr, path.NewFtLineBuilder(gc.fillRasterizer))
 
-	stroker := NewLineStroker(gc.Current.Cap, gc.Current.Join, NewVertexMatrixTransform(gc.Current.Tr, NewVertexAdder(gc.strokeRasterizer)))
+	stroker := path.NewLineStroker(gc.Current.Cap, gc.Current.Join, NewVertexMatrixTransform(gc.Current.Tr, path.NewFtLineBuilder(gc.strokeRasterizer)))
 	stroker.HalfLineWidth = gc.Current.LineWidth / 2
 
-	demux := NewLineBuilders(filler, stroker)
-	paths = append(paths, gc.Current.Path)
-	pathConverter := NewPathConverter(demux)
-	pathConverter.ApproximationScale = gc.Current.Tr.GetScale()
-	pathConverter.Convert(paths...)
+	var liner path.LineBuilder
+	if gc.Current.Dash != nil && len(gc.Current.Dash) > 0 {
+		liner = path.NewDashConverter(gc.Current.Dash, gc.Current.DashOffset, stroker)
+	} else {
+		liner = stroker
+	}
 
+	demux := path.NewLineBuilders(flattener, liner)
+	for _, p := range paths {
+		p.Flatten(demux, gc.Current.Tr.GetScale())
+	}
+
+	// Fill
 	gc.paint(gc.fillRasterizer, gc.Current.FillColor)
+	// Stroke
 	gc.paint(gc.strokeRasterizer, gc.Current.StrokeColor)
 }
 
@@ -336,26 +344,4 @@ func (f FillRule) UseNonZeroWinding() bool {
 		return true
 	}
 	return false
-}
-
-func (c Cap) Convert() raster.Capper {
-	switch c {
-	case RoundCap:
-		return raster.RoundCapper
-	case ButtCap:
-		return raster.ButtCapper
-	case SquareCap:
-		return raster.SquareCapper
-	}
-	return raster.RoundCapper
-}
-
-func (j Join) Convert() raster.Joiner {
-	switch j {
-	case RoundJoin:
-		return raster.RoundJoiner
-	case BevelJoin:
-		return raster.BevelJoiner
-	}
-	return raster.RoundJoiner
 }

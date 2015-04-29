@@ -5,10 +5,12 @@ package curve
 
 import (
 	"math"
+
+	"code.google.com/p/freetype-go/freetype/raster"
 )
 
 // TraceArc trace an arc using a LineBuilder
-func TraceArc(t LineBuilder, x, y, rx, ry, start, angle, scale float64) {
+func TraceArc(t LineBuilder, x, y, rx, ry, start, angle, scale float64) (lastX, lastY float64) {
 	end := start + angle
 	clockWise := true
 	if angle < 0 {
@@ -26,7 +28,7 @@ func TraceArc(t LineBuilder, x, y, rx, ry, start, angle, scale float64) {
 		if (angle < end-da/4) != clockWise {
 			curX = x + math.Cos(end)*rx
 			curY = y + math.Sin(end)*ry
-			break
+			return curX, curY
 		}
 		curX = x + math.Cos(angle)*rx
 		curY = y + math.Sin(angle)*ry
@@ -34,5 +36,35 @@ func TraceArc(t LineBuilder, x, y, rx, ry, start, angle, scale float64) {
 		angle += da
 		t.LineTo(curX, curY)
 	}
-	t.LineTo(curX, curY)
+	return curX, curY
+}
+
+// TraceArc trace an arc using a Freetype
+func TraceArcFt(adder raster.Adder, x, y, rx, ry, start, angle, scale float64) raster.Point {
+	end := start + angle
+	clockWise := true
+	if angle < 0 {
+		clockWise = false
+	}
+	ra := (math.Abs(rx) + math.Abs(ry)) / 2
+	da := math.Acos(ra/(ra+0.125/scale)) * 2
+	//normalize
+	if !clockWise {
+		da = -da
+	}
+	angle = start + da
+	var curX, curY float64
+	for {
+		if (angle < end-da/4) != clockWise {
+			curX = x + math.Cos(end)*rx
+			curY = y + math.Sin(end)*ry
+			return raster.Point{raster.Fix32(curX * 256), raster.Fix32(curY * 256)}
+		}
+		curX = x + math.Cos(angle)*rx
+		curY = y + math.Sin(angle)*ry
+
+		angle += da
+		adder.Add1(raster.Point{raster.Fix32(curX * 256), raster.Fix32(curY * 256)})
+	}
+	return raster.Point{raster.Fix32(curX * 256), raster.Fix32(curY * 256)}
 }

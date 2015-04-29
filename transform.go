@@ -7,6 +7,7 @@ import (
 	"math"
 
 	"code.google.com/p/freetype-go/freetype/raster"
+	"github.com/llgcode/draw2d/path"
 )
 
 type MatrixTransform [6]float64
@@ -254,10 +255,10 @@ func fequals(float1, float2 float64) bool {
 // this VertexConverter apply the Matrix transformation tr
 type VertexMatrixTransform struct {
 	tr   MatrixTransform
-	Next LineBuilder
+	Next path.LineBuilder
 }
 
-func NewVertexMatrixTransform(tr MatrixTransform, converter LineBuilder) *VertexMatrixTransform {
+func NewVertexMatrixTransform(tr MatrixTransform, converter path.LineBuilder) *VertexMatrixTransform {
 	return &VertexMatrixTransform{tr, converter}
 }
 

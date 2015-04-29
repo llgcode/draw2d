@@ -30,8 +30,8 @@ type GraphicContext interface {
 	SetFillColor(c color.Color)
 	SetFillRule(f FillRule)
 	SetLineWidth(lineWidth float64)
-	SetLineCap(cap Cap)
-	SetLineJoin(join Join)
+	SetLineCap(cap path.Cap)
+	SetLineJoin(join path.Join)
 	SetLineDash(dash []float64, dashOffset float64)
 	SetFontSize(fontSize float64)
 	GetFontSize() float64

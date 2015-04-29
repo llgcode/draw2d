@@ -1,7 +1,11 @@
 // Copyright 2010 The draw2d Authors. All rights reserved.
 // created: 13/12/2010 by Laurent Le Goff
 
-package draw2d
+package path
+
+import (
+	"code.google.com/p/freetype-go/freetype/raster"
+)
 
 type Cap int
 
@@ -11,6 +15,18 @@ const (
 	SquareCap
 )
 
+func (c Cap) Convert() raster.Capper {
+	switch c {
+	case RoundCap:
+		return raster.RoundCapper
+	case ButtCap:
+		return raster.ButtCapper
+	case SquareCap:
+		return raster.SquareCapper
+	}
+	return raster.RoundCapper
+}
+
 type Join int
 
 const (
@@ -18,6 +34,16 @@ const (
 	RoundJoin
 	MiterJoin
 )
+
+func (j Join) Convert() raster.Joiner {
+	switch j {
+	case RoundJoin:
+		return raster.RoundJoiner
+	case BevelJoin:
+		return raster.BevelJoiner
+	}
+	return raster.RoundJoiner
+}
 
 type LineStroker struct {
 	Next          LineBuilder

@@ -1,7 +1,7 @@
 // Copyright 2010 The draw2d Authors. All rights reserved.
-// created: 21/11/2010 by Laurent Le Goff
+// created: 06/12/2010 by Laurent Le Goff
 
-package draw2d
+package path
 
 // LineBuilder defines drawing line methods
 type LineBuilder interface {

@@ -6,6 +6,7 @@ package path
 
 import (
 	"fmt"
+	"github.com/llgcode/draw2d/curve"
 	"math"
 )
 
@@ -173,4 +174,48 @@ func (p *Path) String() string {
 		}
 	}
 	return s
+}
+
+// Flatten convert curves in straight segments keeping join segements
+func (path *Path) Flatten(liner LineBuilder, scale float64) {
+	// First Point
+	var startX, startY float64 = 0, 0
+	// Current Point
+	var x, y float64 = 0, 0
+	i := 0
+	for _, cmd := range path.Components {
+		switch cmd {
+		case MoveToCmp:
+			x, y = path.Points[i], path.Points[i+1]
+			startX, startY = x, y
+			if i != 0 {
+				liner.End()
+			}
+			liner.MoveTo(x, y)
+			i += 2
+		case LineToCmp:
+			x, y = path.Points[i], path.Points[i+1]
+			liner.LineTo(x, y)
+			liner.LineJoin()
+			i += 2
+		case QuadCurveToCmp:
+			curve.TraceQuad(liner, path.Points[i-2:], 0.5)
+			x, y = path.Points[i+2], path.Points[i+3]
+			liner.LineTo(x, y)
+			i += 4
+		case CubicCurveToCmp:
+			curve.TraceCubic(liner, path.Points[i-2:], 0.5)
+			x, y = path.Points[i+4], path.Points[i+5]
+			liner.LineTo(x, y)
+			i += 6
+		case ArcToCmp:
+			x, y = curve.TraceArc(liner, path.Points[i], path.Points[i+1], path.Points[i+2], path.Points[i+3], path.Points[i+4], path.Points[i+5], scale)
+			liner.LineTo(x, y)
+			i += 6
+		case CloseCmp:
+			liner.LineTo(startX, startY)
+			liner.Close()
+		}
+	}
+	liner.End()
 }
