@@ -67,7 +67,7 @@ func Flatten(path *draw2d.Path, flattener Flattener, scale float64) {
 
 // Transformer apply the Matrix transformation tr
 type Transformer struct {
-	Tr        draw2d.MatrixTransform
+	Tr        draw2d.Matrix
 	Flattener Flattener
 }
 

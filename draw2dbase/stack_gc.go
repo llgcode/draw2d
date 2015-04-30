@@ -18,7 +18,7 @@ type StackGraphicContext struct {
 }
 
 type ContextStack struct {
-	Tr          draw2d.MatrixTransform
+	Tr          draw2d.Matrix
 	Path        *draw2d.Path
 	LineWidth   float64
 	Dash        []float64
@@ -58,28 +58,28 @@ func NewStackGraphicContext() *StackGraphicContext {
 	return gc
 }
 
-func (gc *StackGraphicContext) GetMatrixTransform() draw2d.MatrixTransform {
+func (gc *StackGraphicContext) GetMatrixTransform() draw2d.Matrix {
 	return gc.Current.Tr
 }
 
-func (gc *StackGraphicContext) SetMatrixTransform(Tr draw2d.MatrixTransform) {
+func (gc *StackGraphicContext) SetMatrixTransform(Tr draw2d.Matrix) {
 	gc.Current.Tr = Tr
 }
 
-func (gc *StackGraphicContext) ComposeMatrixTransform(Tr draw2d.MatrixTransform) {
-	gc.Current.Tr = Tr.Multiply(gc.Current.Tr)
+func (gc *StackGraphicContext) ComposeMatrixTransform(Tr draw2d.Matrix) {
+	gc.Current.Tr.Compose(Tr)
 }
 
 func (gc *StackGraphicContext) Rotate(angle float64) {
-	gc.Current.Tr = draw2d.NewRotationMatrix(angle).Multiply(gc.Current.Tr)
+	gc.Current.Tr.Rotate(angle)
 }
 
 func (gc *StackGraphicContext) Translate(tx, ty float64) {
-	gc.Current.Tr = draw2d.NewTranslationMatrix(tx, ty).Multiply(gc.Current.Tr)
+	gc.Current.Tr.Translate(tx, ty)
 }
 
 func (gc *StackGraphicContext) Scale(sx, sy float64) {
-	gc.Current.Tr = draw2d.NewScaleMatrix(sx, sy).Multiply(gc.Current.Tr)
+	gc.Current.Tr.Scale(sx, sy)
 }
 
 func (gc *StackGraphicContext) SetStrokeColor(c color.Color) {

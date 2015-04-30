@@ -1,6 +1,7 @@
 package draw2d
 
 import (
+	"image"
 	"image/color"
 )
 
@@ -101,7 +102,7 @@ type ScalingPolicy int
 
 const (
 	// ScalingNone no scaling applied
-	ScalingNone = iota
+	ScalingNone ScalingPolicy = iota
 	// ScalingStretch the image is stretched so that its width and height are exactly the given width and height
 	ScalingStretch
 	// ScalingWidth the image is scaled so that its width is exactly the given width
@@ -144,11 +145,11 @@ type ImageStyle struct {
 
 // Style defines properties that
 type Style struct {
-	MatrixTransform MatrixTransform
-	StrokeStyle     StrokeStyle
-	FillStyle       FillStyle
-	TextStyle       TextStyle
-	ImageStyle      TextStyle
+	Matrix      Matrix
+	StrokeStyle StrokeStyle
+	FillStyle   FillStyle
+	TextStyle   TextStyle
+	ImageStyle  TextStyle
 }
 
 // Drawer can fill and stroke a path

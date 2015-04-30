@@ -13,11 +13,11 @@ type GraphicContext interface {
 	// BeginPath creates a new path
 	BeginPath()
 	// GetMatrixTransform returns the current transformation matrix
-	GetMatrixTransform() MatrixTransform
+	GetMatrixTransform() Matrix
 	// SetMatrixTransform sets the current transformation matrix
-	SetMatrixTransform(tr MatrixTransform)
+	SetMatrixTransform(tr Matrix)
 	// ComposeMatrixTransform composes the current transformation matrix with tr
-	ComposeMatrixTransform(tr MatrixTransform)
+	ComposeMatrixTransform(tr Matrix)
 	// Rotate applies a rotation to the current transformation matrix. angle is in radian.
 	Rotate(angle float64)
 	// Translate applies a translation to the current transformation matrix.
