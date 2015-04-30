@@ -113,53 +113,9 @@ func (gc *GraphicContext) loadCurrentFont() (*truetype.Font, error) {
 	return font, nil
 }
 
-func fUnitsToFloat64(x int32) float64 {
-	scaled := x << 2
-	return float64(scaled/256) + float64(scaled%256)/256.0
-}
-
 // p is a truetype.Point measured in FUnits and positive Y going upwards.
 // The returned value is the same thing measured in floating point and positive Y
 // going downwards.
-func pointToF64Point(p truetype.Point) (x, y float64) {
-	return fUnitsToFloat64(p.X), -fUnitsToFloat64(p.Y)
-}
-
-// drawContour draws the given closed contour at the given sub-pixel offset.
-func (gc *GraphicContext) drawContour(ps []truetype.Point, dx, dy float64) {
-	if len(ps) == 0 {
-		return
-	}
-	startX, startY := pointToF64Point(ps[0])
-	gc.MoveTo(startX+dx, startY+dy)
-	q0X, q0Y, on0 := startX, startY, true
-	for _, p := range ps[1:] {
-		qX, qY := pointToF64Point(p)
-		on := p.Flags&0x01 != 0
-		if on {
-			if on0 {
-				gc.LineTo(qX+dx, qY+dy)
-			} else {
-				gc.QuadCurveTo(q0X+dx, q0Y+dy, qX+dx, qY+dy)
-			}
-		} else {
-			if on0 {
-				// No-op.
-			} else {
-				midX := (q0X + qX) / 2
-				midY := (q0Y + qY) / 2
-				gc.QuadCurveTo(q0X+dx, q0Y+dy, midX+dx, midY+dy)
-			}
-		}
-		q0X, q0Y, on0 = qX, qY, on
-	}
-	// Close the curve.
-	if on0 {
-		gc.LineTo(startX+dx, startY+dy)
-	} else {
-		gc.QuadCurveTo(q0X+dx, q0Y+dy, startX+dx, startY+dy)
-	}
-}
 
 func (gc *GraphicContext) drawGlyph(glyph truetype.Index, dx, dy float64) error {
 	if err := gc.glyphBuf.Load(gc.Current.Font, gc.Current.Scale, glyph, truetype.NoHinting); err != nil {
@@ -167,7 +123,7 @@ func (gc *GraphicContext) drawGlyph(glyph truetype.Index, dx, dy float64) error 
 	}
 	e0 := 0
 	for _, e1 := range gc.glyphBuf.End {
-		gc.drawContour(gc.glyphBuf.Point[e0:e1], dx, dy)
+		DrawContour(gc, gc.glyphBuf.Point[e0:e1], dx, dy)
 		e0 = e1
 	}
 	return nil
