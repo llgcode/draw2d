@@ -31,7 +31,7 @@ func NewDrawer(img *image.RGBA) *Drawer {
 }
 
 func (d *Drawer) Matrix() *draw2d.Matrix {
-	return d.Matrix()
+	return &d.matrix
 }
 
 func (d *Drawer) Fill(path *draw2d.Path, style draw2d.FillStyle) {
