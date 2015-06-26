@@ -32,11 +32,13 @@ func RoundRect(path Path, x1, y1, x2, y2, arcWidth, arcHeight float64) {
 }
 
 func Ellipse(path Path, cx, cy, rx, ry float64) {
+	path.MoveTo(cx-rx, cy)
 	path.ArcTo(cx, cy, rx, ry, 0, -math.Pi*2)
 	path.Close()
 }
 
 func Circle(path Path, cx, cy, radius float64) {
+	path.MoveTo(cx-radius, cy)
 	path.ArcTo(cx, cy, radius, radius, 0, -math.Pi*2)
 	path.Close()
 }
