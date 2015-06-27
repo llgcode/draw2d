@@ -27,7 +27,7 @@ func main() {
 	// Draw the droid
 	DrawDroid(gc, 10, 10)
 
-	// Save to png
+	// Save to pdf
 	pdf2d.SaveToPdfFile("android.pdf", pdf)
 }
 
