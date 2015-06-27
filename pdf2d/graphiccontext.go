@@ -159,9 +159,8 @@ var logger = log.New(os.Stdout, "", log.Lshortfile)
 // draw fills and/or strokes paths
 func (gc *GraphicContext) draw(style string, paths ...*draw2d.PathStorage) {
 	paths = append(paths, gc.Current.Path)
-	pathConverter := NewPathConverter(
-		NewVertexMatrixTransform(gc.Current.Tr,
-			NewPathLogger(logger, gc.pdf)))
+	pathConverter := NewPathConverter(NewVertexMatrixTransform(gc.Current.Tr, gc.pdf))
+	// pathConverter := NewPathConverter(NewVertexMatrixTransform(gc.Current.Tr,NewPathLogger(logger, gc.pdf)))
 	pathConverter.Convert(paths...)
 	if gc.Current.FillRule.UseNonZeroWinding() {
 		style += "*"
