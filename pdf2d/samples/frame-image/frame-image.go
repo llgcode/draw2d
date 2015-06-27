@@ -22,9 +22,9 @@ func main() {
 	// Initialize the graphic context on an RGBA image
 	dest := gofpdf.New("P", "mm", "A4", "../font")
 	dest.AddPage()
+	gc := pdf2d.NewGraphicContext(dest)
 	// Size of destination image
 	dw, dh := dest.GetPageSize()
-	gc := pdf2d.NewGraphicContext(dest)
 	// Draw frame
 	gc.SetFillColor(color.RGBA{0xff, 0xff, 0xff, 0xff})
 	draw2d.RoundRect(gc, lineWidth, lineWidth, dw-lineWidth, dh-lineWidth, 100, 100)
