@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	"image/jpeg"
+	"image/png"
 	"log"
 	"os"
 	"strconv"
@@ -70,17 +70,20 @@ func NewGraphicContext(pdf *gofpdf.Fpdf) *GraphicContext {
 	return &GraphicContext{draw2d.NewStackGraphicContext(), pdf, dpi}
 }
 
-// DrawImage draws an image as JPG at 96dpi
+// DrawImage draws an image as PNG
+// TODO: add type (tp) as parameter to argument list?
 func (gc *GraphicContext) DrawImage(image image.Image) {
 	name := strconv.Itoa(int(imageCount))
-	tp := "JPG" // "JPG", "JPEG", "PNG" and "GIF"
+	tp := "PNG" // "JPG", "JPEG", "PNG" and "GIF"
 	b := &bytes.Buffer{}
-	jpeg.Encode(b, image, nil)
+	png.Encode(b, image)
 	gc.pdf.RegisterImageReader(name, tp, b)
-	gc.pdf.Image(name, 0, 0, 0, 0, false, tp, 0, "")
-	// bounds := image.Bounds()
-	// x, y, w, h := float64(bounds.Min.X), float64(bounds.Min.Y), float64(bounds.Dx()), float64(bounds.Dy())
-	//gc.pdf.Image(name, x, y, w, h, false, tp, 0, "")
+	bounds := image.Bounds()
+	//x0, y0, x1, y1 := float64(bounds.Min.X), float64(bounds.Min.Y), float64(bounds.Dx()), float64(bounds.Dy())
+	x0, y0, x1, y1 := float64(bounds.Min.X), float64(bounds.Min.Y), float64(bounds.Max.X), float64(bounds.Max.Y)
+	tr := gc.Current.Tr
+	tr.TransformRectangle(&x0, &y0, &x1, &y1)
+	gc.pdf.Image(name, x0, y0, x1-x0, y1-y0, false, tp, 0, "")
 }
 
 // Clear draws a white rectangle over the whole page
