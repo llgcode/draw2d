@@ -21,7 +21,7 @@ func ExampleGraphicContext() {
 	gc.SetLineWidth(5)
 
 	// draw something
-	gc.MoveTo(10, 10) // should always be called for a new path
+	gc.MoveTo(10, 10) // should always be called first for a new path
 	gc.LineTo(100, 50)
 	gc.QuadCurveTo(100, 10, 10, 10)
 	gc.Close()
