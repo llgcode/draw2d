@@ -191,12 +191,33 @@ func (gc *GraphicContext) SetFillColor(c color.Color) {
 	gc.pdf.SetFillColor(rgb(c))
 }
 
-// SetFont sets the font used to draw text.
+// SetFont is unsupported by the pdf graphic context, use SetFontData
+// instead.
+func (gc *GraphicContext) SetFont(font *truetype.Font) {
+	// TODO: what to do with this api conflict between draw2d and gofpdf?!
+}
+
+// SetFontData sets the current font used to draw text. Always use
+// this method, as SetFont is unsupported by the pdf graphic context.
 // It is mandatory to call this method at least once before printing
 // text or the resulting document will not be valid.
-func (gc *GraphicContext) SetFont(font *truetype.Font) {
-	// TODO: this api conflict needs to be fixed
-	gc.pdf.SetFont("Helvetica", "", 12)
+// It is necessary to generate a font definition file first with the
+// makefont utility. It is not necessary to call this function for the
+// core PDF fonts (courier, helvetica, times, zapfdingbats).
+// go get github.com/jung-kurt/gofpdf/makefont
+// http://godoc.org/github.com/jung-kurt/gofpdf#Fpdf.AddFont
+func (gc *GraphicContext) SetFontData(fontData draw2d.FontData) {
+	gc.StackGraphicContext.SetFontData(fontData)
+	var style string
+	if fontData.Style&draw2d.FontStyleBold != 0 {
+		style += "B"
+	}
+	if fontData.Style&draw2d.FontStyleItalic != 0 {
+		style += "I"
+	}
+	fn := draw2d.FontFileName(fontData)
+	fn = fn[:len(fn)-4]
+	gc.pdf.AddFont(fn, style, fn+".json")
 }
 
 // SetFontSize sets the font size in points (as in ``a 12 point font'').
