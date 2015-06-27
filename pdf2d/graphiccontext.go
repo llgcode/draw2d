@@ -14,8 +14,6 @@ import (
 	"github.com/stanim/gofpdf"
 )
 
-const c255 = 254.0 / 65535.0
-
 var (
 	caps = map[draw2d.Cap]string{
 		draw2d.RoundCap:  "round",
@@ -26,6 +24,8 @@ var (
 func notImplemented(method string) {
 	fmt.Printf("%s: not implemented\n", method)
 }
+
+const c255 = 255.0 / 65535.0
 
 func rgb(c color.Color) (int, int, int) {
 	r, g, b, _ := c.RGBA()
