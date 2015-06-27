@@ -9,13 +9,11 @@ import (
 
 	"github.com/stanim/draw2d"
 	"github.com/stanim/draw2d/pdf2d"
-	"github.com/stanim/gofpdf"
 )
 
 func main() {
 	// Initialize the graphic context on an RGBA image
-	dest := gofpdf.New("P", "mm", "A3", "../font")
-	dest.AddPage()
+	dest := pdf2d.NewPdf("P", "mm", "A4")
 	gc := pdf2d.NewGraphicContext(dest)
 
 	// Draw a gopher

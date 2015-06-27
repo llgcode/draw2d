@@ -6,7 +6,6 @@ package pdf2d
 
 import (
 	"bytes"
-	"fmt"
 	"image"
 	"image/color"
 	"image/png"
@@ -27,10 +26,6 @@ var (
 		draw2d.SquareCap: "square"}
 )
 
-func notImplemented(method string) {
-	fmt.Printf("%s: not implemented\n", method)
-}
-
 const c255 = 255.0 / 65535.0
 
 var (
@@ -38,11 +33,21 @@ var (
 	white      color.Color = color.RGBA{255, 255, 255, 255}
 )
 
+// NewPdf creates a new pdf document with the draw2d fontfolder and
+// already a page added.
+func NewPdf(orientationStr, unitStr, sizeStr string) *gofpdf.Fpdf {
+	pdf := gofpdf.New(orientationStr, unitStr, sizeStr, draw2d.GetFontFolder())
+	pdf.AddPage()
+	return pdf
+}
+
+// rgb converts a color (used by draw2d) into 3 int (used by gofpdf)
 func rgb(c color.Color) (int, int, int) {
 	r, g, b, _ := c.RGBA()
 	return int(float64(r) * c255), int(float64(g) * c255), int(float64(b) * c255)
 }
 
+// clearRect draws a white rectangle
 func clearRect(gc *GraphicContext, x1, y1, x2, y2 float64) {
 	// save state
 	f := gc.Current.FillColor

@@ -10,7 +10,6 @@ import (
 
 	"github.com/stanim/draw2d"
 	"github.com/stanim/draw2d/pdf2d"
-	"github.com/stanim/gofpdf"
 )
 
 func main() {
@@ -19,9 +18,8 @@ func main() {
 	// Line width od the frame
 	const lineWidth = 3
 
-	// Initialize the graphic context on an RGBA image
-	dest := gofpdf.New("P", "mm", "A4", "../font")
-	dest.AddPage()
+	// Initialize the graphic context on a pdf document
+	dest := pdf2d.NewPdf("P", "mm", "A3")
 	gc := pdf2d.NewGraphicContext(dest)
 	// Size of destination image
 	dw, dh := dest.GetPageSize()
