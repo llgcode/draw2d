@@ -1,5 +1,5 @@
 // Copyright 2010 The draw2d Authors. All rights reserved.
-// created: 21/11/2010 by Laurent Le Goff
+// created: 21/11/2010 by Laurent Le Goff, Stani Michiels
 
 // Draw an android avatar to android.png
 package main
