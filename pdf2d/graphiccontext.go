@@ -79,6 +79,7 @@ func NewGraphicContext(pdf *gofpdf.Fpdf) *GraphicContext {
 // DrawImage draws an image as PNG
 // TODO: add type (tp) as parameter to argument list?
 func (gc *GraphicContext) DrawImage(image image.Image) {
+	// TODO: fix rotation gc.Current.Tr
 	name := strconv.Itoa(int(imageCount))
 	tp := "PNG" // "JPG", "JPEG", "PNG" and "GIF"
 	b := &bytes.Buffer{}
@@ -122,9 +123,13 @@ func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom fl
 
 // CreateStringPath creates a path from the string s at x, y, and returns the string width.
 func (gc *GraphicContext) CreateStringPath(text string, x, y float64) (cursor float64) {
-	gc.pdf.MoveTo(x, y)
+	// TODO: fix rotation of gc.Current.Tr
 	_, _, w, h := gc.GetStringBounds(text)
-	gc.pdf.Cell(w, h, text)
+	x1, y1 := x+w, y+h
+	tr := gc.Current.Tr
+	tr.TransformRectangle(&x, &y, &x1, &y1)
+	gc.pdf.MoveTo(x, y)
+	gc.pdf.Cell(x1-x, y1-y, text)
 	return w
 }
 
@@ -138,12 +143,14 @@ func (gc *GraphicContext) FillStringAt(text string, x, y float64) (cursor float6
 	return gc.CreateStringPath(text, x, y)
 }
 
-// StrokeString draws a string at 0, 0
+// StrokeString draws a string at 0, 0 (stroking is unsupported,
+// string will be filled)
 func (gc *GraphicContext) StrokeString(text string) (cursor float64) {
 	return gc.StrokeStringAt(text, 0, 0)
 }
 
-// StrokeStringAt draws a string at x, y
+// StrokeStringAt draws a string at x, y (stroking is unsupported,
+// string will be filled)
 func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (cursor float64) {
 	return gc.CreateStringPath(text, x, y)
 }
