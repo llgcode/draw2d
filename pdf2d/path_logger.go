@@ -20,13 +20,15 @@ func ftoas(xs ...float64) string {
 	return buffer.String()
 }
 
-// VertexMatrixTransform implements Vectorizer and applies the Matrix
-// transformation tr. It is normally wrapped around gofpdf Fpdf.
+// PathLogger implements Vectorizer and applies the Matrix
+// transformation tr. It is used as debugging middleware.
+// It should wrap gofpdf.Fpdf directly.
 type PathLogger struct {
 	logger *log.Logger
 	Next   Vectorizer
 }
 
+// NewPathLogger constructs a new PathLogger
 func NewPathLogger(logger *log.Logger,
 	vectorizer Vectorizer) *PathLogger {
 	return &PathLogger{logger, vectorizer}
@@ -51,7 +53,7 @@ func (pl *PathLogger) CurveTo(cx, cy, x, y float64) {
 
 }
 
-// CurveTo adds a cubic bezier curve to the current subpath
+// CurveBezierCubicTo adds a cubic bezier curve to the current subpath
 func (pl *PathLogger) CurveBezierCubicTo(cx1, cy1,
 	cx2, cy2, x, y float64) {
 	pl.logger.Printf("CurveBezierCubicTo(cx1=%.2f, cy1=%.2f, cx2=%.2f, cy2=%.2f, x=%.2f, y=%.2f)", cx1, cy1, cx2, cy2, x, y)

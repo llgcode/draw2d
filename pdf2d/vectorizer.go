@@ -4,6 +4,7 @@
 package pdf2d
 
 // Vectorizer defines the minimal interface for gofpdf.Fpdf
+// to be passed to a PathConvertor.
 // It is also implemented by for example VertexMatrixTransform
 type Vectorizer interface {
 	// MoveTo creates a new subpath that start at the specified point

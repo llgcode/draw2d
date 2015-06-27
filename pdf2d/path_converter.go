@@ -11,14 +11,17 @@ import (
 
 const deg = 180 / math.Pi
 
+// PathConverter converts the paths to the pdf api
 type PathConverter struct {
 	pdf Vectorizer
 }
 
+// NewPathConverter constructs a PathConverter from a pdf vectorizer
 func NewPathConverter(pdf Vectorizer) *PathConverter {
 	return &PathConverter{pdf: pdf}
 }
 
+// Convert converts the paths to the pdf api
 func (c *PathConverter) Convert(paths ...*draw2d.PathStorage) {
 	for _, path := range paths {
 		j := 0
@@ -28,6 +31,7 @@ func (c *PathConverter) Convert(paths ...*draw2d.PathStorage) {
 	}
 }
 
+// ConvertCommand converts a single path segment to the pdf api
 func (c *PathConverter) ConvertCommand(cmd draw2d.PathCmd, vertices ...float64) int {
 	switch cmd {
 	case draw2d.MoveTo:

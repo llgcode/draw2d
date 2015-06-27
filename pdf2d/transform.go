@@ -6,12 +6,14 @@ package pdf2d
 import "github.com/stanim/draw2d"
 
 // VertexMatrixTransform implements Vectorizer and applies the Matrix
-// transformation tr. It is normally wrapped around gofpdf Fpdf.
+// transformation tr. It is normally wrapped around gofpdf Fpdf
+// or PathLogger.
 type VertexMatrixTransform struct {
 	tr   draw2d.MatrixTransform
 	Next Vectorizer
 }
 
+// NewVertexMatrixTransform constructs an new VertexMatrixTransform
 func NewVertexMatrixTransform(tr draw2d.MatrixTransform,
 	vectorizer Vectorizer) *VertexMatrixTransform {
 	return &VertexMatrixTransform{tr, vectorizer}
@@ -36,7 +38,7 @@ func (vmt *VertexMatrixTransform) CurveTo(cx, cy, x, y float64) {
 
 }
 
-// CurveTo adds a cubic bezier curve to the current subpath
+// CurveBezierCubicTo adds a cubic bezier curve to the current subpath
 func (vmt *VertexMatrixTransform) CurveBezierCubicTo(cx1, cy1,
 	cx2, cy2, x, y float64) {
 	vmt.tr.Transform(&cx1, &cy1, &cx2, &cy2, &x, &y)
