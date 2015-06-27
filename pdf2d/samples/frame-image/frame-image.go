@@ -5,7 +5,6 @@
 package main
 
 import (
-	"image/color"
 	"math"
 
 	"github.com/stanim/draw2d"
@@ -24,7 +23,6 @@ func main() {
 	// Size of destination image
 	dw, dh := dest.GetPageSize()
 	// Draw frame
-	gc.SetFillColor(color.RGBA{0xff, 0xff, 0xff, 0xff})
 	draw2d.RoundRect(gc, lineWidth, lineWidth, dw-lineWidth, dh-lineWidth, 100, 100)
 	gc.SetLineWidth(lineWidth)
 	gc.FillStroke()

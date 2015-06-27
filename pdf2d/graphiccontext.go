@@ -33,11 +33,12 @@ var (
 	white      color.Color = color.RGBA{255, 255, 255, 255}
 )
 
-// NewPdf creates a new pdf document with the draw2d fontfolder and
-// already a page added.
+// NewPdf creates a new pdf document with the draw2d fontfolder, adds
+// a page and set fill color to white.
 func NewPdf(orientationStr, unitStr, sizeStr string) *gofpdf.Fpdf {
 	pdf := gofpdf.New(orientationStr, unitStr, sizeStr, draw2d.GetFontFolder())
 	pdf.AddPage()
+	pdf.SetFillColor(255, 255, 255) // to be compatible with draw2d
 	return pdf
 }
 
