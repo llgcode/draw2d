@@ -10,6 +10,7 @@ import (
 	"image/color"
 	"image/png"
 	"log"
+	"math"
 	"os"
 	"strconv"
 
@@ -79,18 +80,15 @@ func NewGraphicContext(pdf *gofpdf.Fpdf) *GraphicContext {
 // DrawImage draws an image as PNG
 // TODO: add type (tp) as parameter to argument list?
 func (gc *GraphicContext) DrawImage(image image.Image) {
-	// TODO: fix rotation gc.Current.Tr
 	name := strconv.Itoa(int(imageCount))
 	tp := "PNG" // "JPG", "JPEG", "PNG" and "GIF"
 	b := &bytes.Buffer{}
 	png.Encode(b, image)
 	gc.pdf.RegisterImageReader(name, tp, b)
 	bounds := image.Bounds()
-	//x0, y0, x1, y1 := float64(bounds.Min.X), float64(bounds.Min.Y), float64(bounds.Dx()), float64(bounds.Dy())
-	x0, y0, x1, y1 := float64(bounds.Min.X), float64(bounds.Min.Y), float64(bounds.Max.X), float64(bounds.Max.Y)
-	tr := gc.Current.Tr
-	tr.TransformRectangle(&x0, &y0, &x1, &y1)
-	gc.pdf.Image(name, x0, y0, x1-x0, y1-y0, false, tp, 0, "")
+	x0, y0 := float64(bounds.Min.X), float64(bounds.Min.Y)
+	w, h := float64(bounds.Dx()), float64(bounds.Dy())
+	gc.pdf.Image(name, x0, y0, w, h, false, tp, 0, "")
 }
 
 // Clear draws a white rectangle over the whole page
@@ -123,13 +121,9 @@ func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom fl
 
 // CreateStringPath creates a path from the string s at x, y, and returns the string width.
 func (gc *GraphicContext) CreateStringPath(text string, x, y float64) (cursor float64) {
-	// TODO: fix rotation of gc.Current.Tr
 	_, _, w, h := gc.GetStringBounds(text)
-	x1, y1 := x+w, y+h
-	tr := gc.Current.Tr
-	tr.TransformRectangle(&x, &y, &x1, &y1)
 	gc.pdf.MoveTo(x, y)
-	gc.pdf.Cell(x1-x, y1-y, text)
+	gc.pdf.Cell(w, h, text)
 	return w
 }
 
@@ -175,8 +169,8 @@ var logger = log.New(os.Stdout, "", log.Lshortfile)
 // draw fills and/or strokes paths
 func (gc *GraphicContext) draw(style string, paths ...*draw2d.PathStorage) {
 	paths = append(paths, gc.Current.Path)
-	pathConverter := NewPathConverter(NewVertexMatrixTransform(gc.Current.Tr, gc.pdf))
-	// pathConverter := NewPathConverter(NewVertexMatrixTransform(gc.Current.Tr,NewPathLogger(logger, gc.pdf)))
+	pathConverter := NewPathConverter(gc.pdf)
+	// pathConverter := NewPathConverter(NewPathLogger(logger, gc.pdf))
 	pathConverter.Convert(paths...)
 	if gc.Current.FillRule.UseNonZeroWinding() {
 		style += "*"
@@ -244,4 +238,60 @@ func (gc *GraphicContext) SetLineWidth(LineWidth float64) {
 func (gc *GraphicContext) SetLineCap(Cap draw2d.Cap) {
 	gc.StackGraphicContext.SetLineCap(Cap)
 	gc.pdf.SetLineCapStyle(caps[Cap])
+}
+
+// Transformations
+
+// Scale generally scales the following text, drawings and images.
+// sx and sy are the scaling factors for width and height.
+// This must be placed between gc.Save() and gc.Restore(), otherwise
+// the pdf is invalid.
+func (gc *GraphicContext) Scale(sx, sy float64) {
+	gc.StackGraphicContext.Scale(sx, sy)
+	gc.pdf.TransformScale(sx*100, sy*100, 0, 0)
+}
+
+// Rotate rotates the following text, drawings and images.
+// Angle is specified in radians and measured clockwise from the
+// 3 o'clock position.
+// This must be placed between gc.Save() and gc.Restore(), otherwise
+// the pdf is invalid.
+func (gc *GraphicContext) Rotate(angle float64) {
+	gc.StackGraphicContext.Rotate(angle)
+	gc.pdf.TransformRotate(-angle*180/math.Pi, 0, 0)
+}
+
+// Translate moves the following text, drawings and images
+// horizontally and vertically by the amounts specified by tx and ty.
+// This must be placed between gc.Save() and gc.Restore(), otherwise
+// the pdf is invalid.
+func (gc *GraphicContext) Translate(tx, ty float64) {
+	gc.StackGraphicContext.Translate(tx, ty)
+	gc.pdf.TransformTranslate(tx, ty)
+}
+
+// Save saves the current context stack
+// (transformation, font, color,...).
+func (gc *GraphicContext) Save() {
+	gc.StackGraphicContext.Save()
+	gc.pdf.TransformBegin()
+}
+
+// Restore restores the current context stack
+// (transformation, color,...). Restoring the font is not supported.
+func (gc *GraphicContext) Restore() {
+	gc.pdf.TransformEnd()
+	gc.StackGraphicContext.Restore()
+	c := gc.Current
+	gc.SetFontSize(c.FontSize)
+	// gc.SetFontData(c.FontData) unsupported, causes bug (do not enable)
+	gc.SetLineWidth(c.LineWidth)
+	gc.SetStrokeColor(c.StrokeColor)
+	gc.SetFillColor(c.FillColor)
+	gc.SetFillRule(c.FillRule)
+	// gc.SetLineDash(c.Dash, c.DashOffset) // TODO
+	gc.SetLineCap(c.Cap)
+	// gc.SetLineJoin(c.Join) // TODO
+	// c.Path unsupported
+	// c.Font unsupported
 }

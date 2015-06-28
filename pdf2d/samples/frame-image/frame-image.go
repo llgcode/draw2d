@@ -37,10 +37,12 @@ func main() {
 	// Draw image to fit in the frame
 	// TODO Seems to have a transform bug here on draw image
 	scale := math.Min((dw-margin*2)/sw, (dh-margin*2)/sh)
+	gc.Save()
 	gc.Translate(margin, margin)
 	gc.Scale(scale, scale)
 
 	gc.DrawImage(source)
+	gc.Restore()
 
 	// Save to pdf
 	pdf2d.SaveToPdfFile("frame-image.pdf", dest)
