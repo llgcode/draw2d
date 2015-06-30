@@ -237,11 +237,11 @@ func (gc *GraphicContext) SetFontData(fontData draw2d.FontData) {
 }
 
 // SetFontSize sets the font size in points (as in ``a 12 point font'').
-// TODO: resolve this with ImgGraphicContext (now done with gc.scale)
+// TODO: resolve this with ImgGraphicContext (now done with gc.Current.Scale)
 func (gc *GraphicContext) SetFontSize(fontSize float64) {
 	gc.StackGraphicContext.SetFontSize(fontSize)
 	gc.recalc()
-	gc.pdf.SetFontSize(fontSize * gc.scale)
+	gc.pdf.SetFontSize(fontSize * gc.Current.Scale)
 }
 
 // SetLineWidth sets the line width
