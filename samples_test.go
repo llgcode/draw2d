@@ -1,3 +1,5 @@
+// Package draw2d_test gives test coverage with the command:
+// go test -cover ./... | grep -v "no test"
 package draw2d_test
 
 import (
