@@ -9,6 +9,8 @@
 **/*.exe
 **/*~
 **/*.orig
+**/*.out
+**/*.test
 core
 _obj
 _test
