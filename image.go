@@ -247,7 +247,7 @@ func (gc *ImageGraphicContext) GetStringBounds(s string) (left, top, right, bott
 // recalc recalculates scale and bounds values from the font size, screen
 // resolution and font metrics, and invalidates the glyph cache.
 func (gc *ImageGraphicContext) recalc() {
-	int32(gc.Current.Scale) = int32(gc.Current.FontSize * float64(gc.DPI) * (64.0 / 72.0))
+	gc.Current.Scale = gc.Current.FontSize * float64(gc.DPI) * (64.0 / 72.0)
 }
 
 // SetDPI sets the screen resolution in dots per inch.
