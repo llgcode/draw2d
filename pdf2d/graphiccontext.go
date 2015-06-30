@@ -12,6 +12,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"path/filepath"
 	"strconv"
 
 	"code.google.com/p/freetype-go/freetype/truetype"
@@ -20,16 +21,16 @@ import (
 	"github.com/stanim/gofpdf"
 )
 
+const (
+	c255 = 255.0 / 65535.0
+	DPI  = 72
+)
+
 var (
 	caps = map[draw2d.Cap]string{
 		draw2d.RoundCap:  "round",
 		draw2d.ButtCap:   "butt",
 		draw2d.SquareCap: "square"}
-)
-
-const c255 = 255.0 / 65535.0
-
-var (
 	imageCount uint32
 	white      color.Color = color.RGBA{255, 255, 255, 255}
 )
@@ -73,8 +74,9 @@ type GraphicContext struct {
 
 // NewGraphicContext creates a new pdf GraphicContext
 func NewGraphicContext(pdf *gofpdf.Fpdf) *GraphicContext {
-	dpi := 92
-	return &GraphicContext{draw2d.NewStackGraphicContext(), pdf, dpi}
+	gc := &GraphicContext{draw2d.NewStackGraphicContext(), pdf, DPI}
+	gc.SetDPI(DPI)
+	return gc
 }
 
 // DrawImage draws an image as PNG
@@ -102,13 +104,22 @@ func (gc *GraphicContext) ClearRect(x1, y1, x2, y2 int) {
 	clearRect(gc, float64(x1), float64(y1), float64(x2), float64(y2))
 }
 
-// SetDPI is a dummy method to implement the GraphicContext interface
-func (gc *GraphicContext) SetDPI(dpi int) {
-	gc.DPI = dpi
-	// gc.recalc()
+// recalc recalculates scale and bounds values from the font size, screen
+// resolution and font metrics, and invalidates the glyph cache.
+func (gc *GraphicContext) recalc() {
+	// TODO: resolve properly the font size for pdf and bitmap
+	gc.Current.Scale = 3 * float64(gc.DPI) / 72
 }
 
-// GetDPI is a dummy method to implement the GraphicContext interface
+// SetDPI sets the DPI which influences the font size.
+func (gc *GraphicContext) SetDPI(dpi int) {
+	gc.DPI = dpi
+	gc.recalc()
+}
+
+// GetDPI returns the DPI which influences the font size.
+// (Note that gofpdf uses a fixed dpi of 72:
+// https://godoc.org/code.google.com/p/gofpdf#Fpdf.PointConvert)
 func (gc *GraphicContext) GetDPI() int {
 	return gc.DPI
 }
@@ -122,8 +133,10 @@ func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom fl
 // CreateStringPath creates a path from the string s at x, y, and returns the string width.
 func (gc *GraphicContext) CreateStringPath(text string, x, y float64) (cursor float64) {
 	_, _, w, h := gc.GetStringBounds(text)
-	gc.pdf.MoveTo(x, y)
-	gc.pdf.Cell(w, h, text)
+	margin := gc.pdf.GetCellMargin()
+	gc.pdf.MoveTo(x-margin, y+margin-0.82*h)
+	gc.pdf.CellFormat(w, h, text, "", 0, "BL", false, 0, "")
+	//	gc.pdf.Cell(w, h, text)
 	return w
 }
 
@@ -208,6 +221,7 @@ func (gc *GraphicContext) SetFont(font *truetype.Font) {
 // go get github.com/jung-kurt/gofpdf/makefont
 // http://godoc.org/github.com/jung-kurt/gofpdf#Fpdf.AddFont
 func (gc *GraphicContext) SetFontData(fontData draw2d.FontData) {
+	// TODO: call Makefont embed if json file does not exist yet
 	gc.StackGraphicContext.SetFontData(fontData)
 	var style string
 	if fontData.Style&draw2d.FontStyleBold != 0 {
@@ -218,14 +232,16 @@ func (gc *GraphicContext) SetFontData(fontData draw2d.FontData) {
 	}
 	fn := draw2d.FontFileName(fontData)
 	fn = fn[:len(fn)-4]
-	gc.pdf.AddFont(fn, style, fn+".json")
+	jfn := filepath.Join(draw2d.GetFontFolder(), fn+".json")
+	gc.pdf.AddFont(fn, style, jfn)
 }
 
 // SetFontSize sets the font size in points (as in ``a 12 point font'').
+// TODO: resolve this with ImgGraphicContext (now done with gc.scale)
 func (gc *GraphicContext) SetFontSize(fontSize float64) {
 	gc.StackGraphicContext.SetFontSize(fontSize)
-	gc.pdf.SetFontSize(fontSize)
-	//gc.recalc()
+	gc.recalc()
+	gc.pdf.SetFontSize(fontSize * gc.scale)
 }
 
 // SetLineWidth sets the line width

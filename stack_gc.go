@@ -28,10 +28,10 @@ type ContextStack struct {
 	FontSize    float64
 	FontData    FontData
 
-	font *truetype.Font
+	Font *truetype.Font
 	// fontSize and dpi are used to calculate scale. scale is the number of
 	// 26.6 fixed point units in 1 em.
-	scale int32
+	Scale float64
 
 	previous *ContextStack
 }
@@ -193,8 +193,8 @@ func (gc *StackGraphicContext) Save() {
 	context.Cap = gc.Current.Cap
 	context.Join = gc.Current.Join
 	context.Path = gc.Current.Path.Copy()
-	context.font = gc.Current.font
-	context.scale = gc.Current.scale
+	context.Font = gc.Current.Font
+	context.Scale = gc.Current.Scale
 	copy(context.Tr[:], gc.Current.Tr[:])
 	context.previous = gc.Current
 	gc.Current = context
