@@ -19,3 +19,4 @@ _test*
 
 **/*.dll
 **/core*[0-9]
+.private
