@@ -4,6 +4,7 @@
 package pdf2d_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stanim/draw2d"
@@ -20,7 +21,11 @@ func test(t *testing.T, sample draw2d.Sample) {
 		t.Errorf("Drawing %q failed: %v", fn, err)
 		return
 	}
-	// Save to png
+	// Save to pdf only if it doesn't exist because of git
+	if _, err = os.Stat(fn); err == nil {
+		t.Skipf("Saving %q skipped, as it exists already. (Git would consider it modified.)", fn)
+		return
+	}
 	err = pdf2d.SaveToPdfFile(fn, dest)
 	if err != nil {
 		t.Errorf("Saving %q failed: %v", fn, err)
