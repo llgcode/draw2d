@@ -15,7 +15,7 @@ func test(t *testing.T, sample draw2d.Sample) {
 	// Initialize the graphic context on an pdf document
 	dest := pdf2d.NewPdf("L", "mm", "A4")
 	gc := pdf2d.NewGraphicContext(dest)
-	// Draw Android logo
+	// Draw sample
 	fn, err := sample(gc, "pdf")
 	if err != nil {
 		t.Errorf("Drawing %q failed: %v", fn, err)
