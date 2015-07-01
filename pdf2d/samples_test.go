@@ -13,6 +13,7 @@ import (
 	"github.com/stanim/draw2d.samples/helloworld"
 	"github.com/stanim/draw2d.samples/line"
 	"github.com/stanim/draw2d.samples/linecapjoin"
+	"github.com/stanim/draw2d.samples/postscript"
 )
 
 func TestSampleAndroid(t *testing.T) {
@@ -41,4 +42,8 @@ func TestSampleLine(t *testing.T) {
 
 func TestSampleLineCap(t *testing.T) {
 	test(t, linecapjoin.Main)
+}
+
+func TestSamplePostscript(t *testing.T) {
+	test(t, postscript.Main)
 }
