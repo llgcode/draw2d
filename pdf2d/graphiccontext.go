@@ -31,6 +31,11 @@ var (
 		draw2d.RoundCap:  "round",
 		draw2d.ButtCap:   "butt",
 		draw2d.SquareCap: "square"}
+	joins = map[draw2d.Join]string{
+		draw2d.RoundJoin: "round",
+		draw2d.BevelJoin: "bevel",
+		draw2d.MiterJoin: "miter",
+	}
 	imageCount uint32
 	white      color.Color = color.RGBA{255, 255, 255, 255}
 )
@@ -199,10 +204,11 @@ func (gc *GraphicContext) SetStrokeColor(c color.Color) {
 	gc.pdf.SetDrawColor(rgb(c))
 }
 
-// SetFillColor sets the fill color
+// SetFillColor sets the fill and text color
 func (gc *GraphicContext) SetFillColor(c color.Color) {
 	gc.StackGraphicContext.SetFillColor(c)
 	gc.pdf.SetFillColor(rgb(c))
+	gc.pdf.SetTextColor(rgb(c))
 }
 
 // SetFont is unsupported by the pdf graphic context, use SetFontData
@@ -256,6 +262,12 @@ func (gc *GraphicContext) SetLineCap(Cap draw2d.Cap) {
 	gc.pdf.SetLineCapStyle(caps[Cap])
 }
 
+// SetLineJoin sets the line cap (round, bevel or miter)
+func (gc *GraphicContext) SetLineJoin(Join draw2d.Join) {
+	gc.StackGraphicContext.SetLineJoin(Join)
+	gc.pdf.SetLineJoinStyle(joins[Join])
+}
+
 // Transformations
 
 // Scale generally scales the following text, drawings and images.
@@ -307,7 +319,7 @@ func (gc *GraphicContext) Restore() {
 	gc.SetFillRule(c.FillRule)
 	// gc.SetLineDash(c.Dash, c.DashOffset) // TODO
 	gc.SetLineCap(c.Cap)
-	// gc.SetLineJoin(c.Join) // TODO
+	gc.SetLineJoin(c.Join)
 	// c.Path unsupported
 	// c.Font unsupported
 }
