@@ -23,7 +23,8 @@ import (
 
 const (
 	c255 = 255.0 / 65535.0
-	DPI  = 72
+	// DPI of a pdf document is fixed at 72.
+	DPI = 72
 )
 
 var (
