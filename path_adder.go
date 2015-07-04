@@ -43,23 +43,23 @@ func NewPathAdder(adder raster.Adder) *PathAdder {
 func (pathAdder *PathAdder) Convert(paths ...*PathStorage) {
 	for _, path := range paths {
 		j := 0
-		for _, cmd := range path.commands {
+		for _, cmd := range path.Commands {
 			switch cmd {
 			case MoveTo:
-				pathAdder.firstPoint = raster.Point{raster.Fix32(path.vertices[j] * 256), raster.Fix32(path.vertices[j+1] * 256)}
+				pathAdder.firstPoint = raster.Point{raster.Fix32(path.Vertices[j] * 256), raster.Fix32(path.Vertices[j+1] * 256)}
 				pathAdder.adder.Start(pathAdder.firstPoint)
 				j += 2
 			case LineTo:
-				pathAdder.adder.Add1(raster.Point{raster.Fix32(path.vertices[j] * 256), raster.Fix32(path.vertices[j+1] * 256)})
+				pathAdder.adder.Add1(raster.Point{raster.Fix32(path.Vertices[j] * 256), raster.Fix32(path.Vertices[j+1] * 256)})
 				j += 2
 			case QuadCurveTo:
-				pathAdder.adder.Add2(raster.Point{raster.Fix32(path.vertices[j] * 256), raster.Fix32(path.vertices[j+1] * 256)}, raster.Point{raster.Fix32(path.vertices[j+2] * 256), raster.Fix32(path.vertices[j+3] * 256)})
+				pathAdder.adder.Add2(raster.Point{raster.Fix32(path.Vertices[j] * 256), raster.Fix32(path.Vertices[j+1] * 256)}, raster.Point{raster.Fix32(path.Vertices[j+2] * 256), raster.Fix32(path.Vertices[j+3] * 256)})
 				j += 4
 			case CubicCurveTo:
-				pathAdder.adder.Add3(raster.Point{raster.Fix32(path.vertices[j] * 256), raster.Fix32(path.vertices[j+1] * 256)}, raster.Point{raster.Fix32(path.vertices[j+2] * 256), raster.Fix32(path.vertices[j+3] * 256)}, raster.Point{raster.Fix32(path.vertices[j+4] * 256), raster.Fix32(path.vertices[j+5] * 256)})
+				pathAdder.adder.Add3(raster.Point{raster.Fix32(path.Vertices[j] * 256), raster.Fix32(path.Vertices[j+1] * 256)}, raster.Point{raster.Fix32(path.Vertices[j+2] * 256), raster.Fix32(path.Vertices[j+3] * 256)}, raster.Point{raster.Fix32(path.Vertices[j+4] * 256), raster.Fix32(path.Vertices[j+5] * 256)})
 				j += 6
 			case ArcTo:
-				lastPoint := arcAdder(pathAdder.adder, path.vertices[j], path.vertices[j+1], path.vertices[j+2], path.vertices[j+3], path.vertices[j+4], path.vertices[j+5], pathAdder.ApproximationScale)
+				lastPoint := arcAdder(pathAdder.adder, path.Vertices[j], path.Vertices[j+1], path.Vertices[j+2], path.Vertices[j+3], path.Vertices[j+4], path.Vertices[j+5], pathAdder.ApproximationScale)
 				pathAdder.adder.Add1(lastPoint)
 				j += 6
 			case Close:

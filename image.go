@@ -164,7 +164,7 @@ func (gc *ImageGraphicContext) drawContour(ps []truetype.Point, dx, dy float64) 
 }
 
 func (gc *ImageGraphicContext) drawGlyph(glyph truetype.Index, dx, dy float64) error {
-	if err := gc.glyphBuf.Load(gc.Current.font, gc.Current.scale, glyph, truetype.NoHinting); err != nil {
+	if err := gc.glyphBuf.Load(gc.Current.Font, int32(gc.Current.Scale), glyph, truetype.NoHinting); err != nil {
 		return err
 	}
 	e0 := 0
@@ -192,14 +192,14 @@ func (gc *ImageGraphicContext) CreateStringPath(s string, x, y float64) float64 
 	for _, rune := range s {
 		index := font.Index(rune)
 		if hasPrev {
-			x += fUnitsToFloat64(font.Kerning(gc.Current.scale, prev, index))
+			x += fUnitsToFloat64(font.Kerning(int32(gc.Current.Scale), prev, index))
 		}
 		err := gc.drawGlyph(index, x, y)
 		if err != nil {
 			log.Println(err)
 			return startx - x
 		}
-		x += fUnitsToFloat64(font.HMetric(gc.Current.scale, index).AdvanceWidth)
+		x += fUnitsToFloat64(font.HMetric(int32(gc.Current.Scale), index).AdvanceWidth)
 		prev, hasPrev = index, true
 	}
 	return x - startx
@@ -221,9 +221,9 @@ func (gc *ImageGraphicContext) GetStringBounds(s string) (left, top, right, bott
 	for _, rune := range s {
 		index := font.Index(rune)
 		if hasPrev {
-			cursor += fUnitsToFloat64(font.Kerning(gc.Current.scale, prev, index))
+			cursor += fUnitsToFloat64(font.Kerning(int32(gc.Current.Scale), prev, index))
 		}
-		if err := gc.glyphBuf.Load(gc.Current.font, gc.Current.scale, index, truetype.NoHinting); err != nil {
+		if err := gc.glyphBuf.Load(gc.Current.Font, int32(gc.Current.Scale), index, truetype.NoHinting); err != nil {
 			log.Println(err)
 			return 0, 0, 0, 0
 		}
@@ -238,7 +238,7 @@ func (gc *ImageGraphicContext) GetStringBounds(s string) (left, top, right, bott
 				right = math.Max(right, x+cursor)
 			}
 		}
-		cursor += fUnitsToFloat64(font.HMetric(gc.Current.scale, index).AdvanceWidth)
+		cursor += fUnitsToFloat64(font.HMetric(int32(gc.Current.Scale), index).AdvanceWidth)
 		prev, hasPrev = index, true
 	}
 	return left, top, right, bottom
@@ -247,7 +247,7 @@ func (gc *ImageGraphicContext) GetStringBounds(s string) (left, top, right, bott
 // recalc recalculates scale and bounds values from the font size, screen
 // resolution and font metrics, and invalidates the glyph cache.
 func (gc *ImageGraphicContext) recalc() {
-	gc.Current.scale = int32(gc.Current.FontSize * float64(gc.DPI) * (64.0 / 72.0))
+	gc.Current.Scale = gc.Current.FontSize * float64(gc.DPI) * (64.0 / 72.0)
 }
 
 // SetDPI sets the screen resolution in dots per inch.
@@ -258,7 +258,7 @@ func (gc *ImageGraphicContext) SetDPI(dpi int) {
 
 // SetFont sets the font used to draw text.
 func (gc *ImageGraphicContext) SetFont(font *truetype.Font) {
-	gc.Current.font = font
+	gc.Current.Font = font
 }
 
 // SetFontSize sets the font size in points (as in ``a 12 point font'').
