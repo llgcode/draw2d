@@ -2,7 +2,7 @@
 // created: 26/06/2015 by Stani Michiels
 // TODO: fonts, dpi
 
-package pdf2d
+package draw2dpdf
 
 import (
 	"bytes"

@@ -1,4 +1,4 @@
-package pdf2d
+package draw2dpdf
 
 import (
 	"fmt"
@@ -28,7 +28,7 @@ func ExampleGraphicContext() {
 	gc.FillStroke()
 	fmt.Println(gc.LastPoint())
 
-	// pdf2d.SaveToPdfFile("example.pdf", pdf)
+	// draw2dpdf.SaveToPdfFile("example.pdf", pdf)
 
 	// Output:
 	// 10 10

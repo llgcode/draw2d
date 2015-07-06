@@ -1,4 +1,4 @@
-package pdf2d
+package draw2dpdf
 
 import "github.com/jung-kurt/gofpdf"
 

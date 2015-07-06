@@ -1,6 +1,6 @@
 // See also test_test.go
 
-package pdf2d_test
+package draw2dpdf_test
 
 import (
 	"testing"
