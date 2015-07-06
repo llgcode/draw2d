@@ -6,7 +6,7 @@ import (
 	"image"
 	"testing"
 
-	"github.com/stanim/draw2d"
+	"github.com/llgcode/draw2d"
 )
 
 func test(t *testing.T, draw draw2d.Sample) {

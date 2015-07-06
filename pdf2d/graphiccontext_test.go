@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"image/color"
 
-	"github.com/stanim/draw2d"
-	"github.com/stanim/gofpdf"
+	"github.com/llgcode/draw2d"
+	"github.com/jung-kurt/gofpdf"
 )
 
 func ExampleGraphicContext() {

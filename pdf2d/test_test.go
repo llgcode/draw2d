@@ -7,8 +7,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stanim/draw2d"
-	"github.com/stanim/draw2d/pdf2d"
+	"github.com/llgcode/draw2d"
+	"github.com/llgcode/draw2d/pdf2d"
 )
 
 func test(t *testing.T, sample draw2d.Sample) {

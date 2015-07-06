@@ -5,15 +5,15 @@ package draw2d_test
 import (
 	"testing"
 
-	"github.com/stanim/draw2d"
-	"github.com/stanim/draw2d.samples"
-	"github.com/stanim/draw2d.samples/android"
-	"github.com/stanim/draw2d.samples/frameimage"
-	"github.com/stanim/draw2d.samples/gopher"
-	"github.com/stanim/draw2d.samples/helloworld"
-	"github.com/stanim/draw2d.samples/line"
-	"github.com/stanim/draw2d.samples/linecapjoin"
-	"github.com/stanim/draw2d.samples/postscript"
+	"github.com/llgcode/draw2d"
+	"github.com/llgcode/draw2d.samples"
+	"github.com/llgcode/draw2d.samples/android"
+	"github.com/llgcode/draw2d.samples/frameimage"
+	"github.com/llgcode/draw2d.samples/gopher"
+	"github.com/llgcode/draw2d.samples/helloworld"
+	"github.com/llgcode/draw2d.samples/line"
+	"github.com/llgcode/draw2d.samples/linecapjoin"
+	"github.com/llgcode/draw2d.samples/postscript"
 )
 
 func TestSampleAndroid(t *testing.T) {
