@@ -1,14 +1,15 @@
 // Copyright 2010 The draw2d Authors. All rights reserved.
 // created: 13/12/2010 by Laurent Le Goff
 
+//high level path creation
+
 package draw2d
 
 import (
 	"math"
 )
 
-//high level path creation
-
+// Rect draws a rectangle between (x1,y1) and (x2,y2)
 func Rect(path Path, x1, y1, x2, y2 float64) {
 	path.MoveTo(x1, y1)
 	path.LineTo(x2, y1)
@@ -17,6 +18,7 @@ func Rect(path Path, x1, y1, x2, y2 float64) {
 	path.Close()
 }
 
+// RoundRect draws a rectangle between (x1,y1) and (x2,y2) with rounded corners
 func RoundRect(path Path, x1, y1, x2, y2, arcWidth, arcHeight float64) {
 	arcWidth = arcWidth / 2
 	arcHeight = arcHeight / 2
@@ -31,12 +33,14 @@ func RoundRect(path Path, x1, y1, x2, y2, arcWidth, arcHeight float64) {
 	path.Close()
 }
 
+// Ellipse is drawn with center (cx,cy) and radius (rx,ry)
 func Ellipse(path Path, cx, cy, rx, ry float64) {
 	path.MoveTo(cx-rx, cy)
 	path.ArcTo(cx, cy, rx, ry, 0, -math.Pi*2)
 	path.Close()
 }
 
+// Circle is drawn with center (cx,cy) and radius
 func Circle(path Path, cx, cy, radius float64) {
 	path.MoveTo(cx-radius, cy)
 	path.ArcTo(cx, cy, radius, radius, 0, -math.Pi*2)
