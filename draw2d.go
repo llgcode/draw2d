@@ -15,7 +15,7 @@
 //
 // Installation
 //
-// To install or update the package on your system, run:
+// To install or update the package draw2d on your system, run:
 //   go get -u github.com/llgcode/draw2d
 //
 // Quick Start
