@@ -168,12 +168,12 @@ func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (cursor floa
 	return gc.CreateStringPath(text, x, y)
 }
 
-// Stroke strokes the paths
+// Stroke strokes the paths with the color specified by SetStrokeColor
 func (gc *GraphicContext) Stroke(paths ...*draw2d.PathStorage) {
 	gc.draw("D", paths...)
 }
 
-// Fill strokes the paths
+// Fill fills the paths with the color specified by SetFillColor
 func (gc *GraphicContext) Fill(paths ...*draw2d.PathStorage) {
 	gc.draw("F", paths...)
 }
