@@ -8,13 +8,17 @@ import (
 	"image/color"
 )
 
+// FillRule defines the type for fill rules
 type FillRule int
 
 const (
+	// FillRuleEvenOdd defines the even odd filling rule
 	FillRuleEvenOdd FillRule = iota
+	// FillRuleWinding defines the non zero winding rule
 	FillRuleWinding
 )
 
+// GraphicContext describes the interface for the various backends (images, pdf, opengl, ...)
 type GraphicContext interface {
 	Path
 	// Create a new path
