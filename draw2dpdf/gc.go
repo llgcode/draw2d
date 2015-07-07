@@ -17,14 +17,14 @@ import (
 
 	"code.google.com/p/freetype-go/freetype/truetype"
 
-	"github.com/llgcode/draw2d"
 	"github.com/jung-kurt/gofpdf"
+	"github.com/llgcode/draw2d"
 )
 
 const (
-	c255 = 255.0 / 65535.0
 	// DPI of a pdf document is fixed at 72.
-	DPI = 72
+	DPI  = 72
+	c255 = 255.0 / 65535.0
 )
 
 var (
