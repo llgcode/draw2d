@@ -15,8 +15,6 @@ const (
 	FillRuleWinding
 )
 
-type Sample func(gc GraphicContext, ext string) (string, error)
-
 type GraphicContext interface {
 	Path
 	// Create a new path

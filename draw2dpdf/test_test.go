@@ -11,12 +11,14 @@ import (
 	"github.com/llgcode/draw2d/draw2dpdf"
 )
 
-func test(t *testing.T, sample draw2d.Sample) {
+type sample func(gc draw2d.GraphicContext, ext string) (string, error)
+
+func test(t *testing.T, draw sample) {
 	// Initialize the graphic context on an pdf document
 	dest := draw2dpdf.NewPdf("L", "mm", "A4")
 	gc := draw2dpdf.NewGraphicContext(dest)
 	// Draw sample
-	fn, err := sample(gc, "pdf")
+	fn, err := draw(gc, "pdf")
 	if err != nil {
 		t.Errorf("Drawing %q failed: %v", fn, err)
 		return
