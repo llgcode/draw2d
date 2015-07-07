@@ -38,7 +38,7 @@ type FontData struct {
 	Style  FontStyle
 }
 
-func fontFileName(fontData FontData) string {
+func FontFileName(fontData FontData) string {
 	fontFileName := fontData.Name
 	switch fontData.Family {
 	case FontFamilySans:
@@ -62,11 +62,11 @@ func fontFileName(fontData FontData) string {
 }
 
 func RegisterFont(fontData FontData, font *truetype.Font) {
-	fonts[fontFileName(fontData)] = font
+	fonts[FontFileName(fontData)] = font
 }
 
 func GetFont(fontData FontData) *truetype.Font {
-	fontFileName := fontFileName(fontData)
+	fontFileName := FontFileName(fontData)
 	font := fonts[fontFileName]
 	if font != nil {
 		return font

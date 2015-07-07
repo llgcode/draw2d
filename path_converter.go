@@ -20,8 +20,8 @@ func NewPathConverter(converter VertexConverter) *PathConverter {
 func (c *PathConverter) Convert(paths ...*PathStorage) {
 	for _, path := range paths {
 		j := 0
-		for _, cmd := range path.commands {
-			j = j + c.ConvertCommand(cmd, path.vertices[j:]...)
+		for _, cmd := range path.Commands {
+			j = j + c.ConvertCommand(cmd, path.Vertices[j:]...)
 		}
 		c.converter.NextCommand(VertexStopCommand)
 	}

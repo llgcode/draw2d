@@ -20,45 +20,45 @@ const (
 )
 
 type PathStorage struct {
-	commands []PathCmd
-	vertices []float64
+	Commands []PathCmd
+	Vertices []float64
 	x, y     float64
 }
 
 func NewPathStorage() (p *PathStorage) {
 	p = new(PathStorage)
-	p.commands = make([]PathCmd, 0, 256)
-	p.vertices = make([]float64, 0, 256)
+	p.Commands = make([]PathCmd, 0, 256)
+	p.Vertices = make([]float64, 0, 256)
 	return
 }
 
 func (p *PathStorage) Clear() {
-	p.commands = p.commands[0:0]
-	p.vertices = p.vertices[0:0]
+	p.Commands = p.Commands[0:0]
+	p.Vertices = p.Vertices[0:0]
 	return
 }
 
-func (p *PathStorage) appendToPath(cmd PathCmd, vertices ...float64) {
-	if cap(p.vertices) <= len(p.vertices)+6 {
-		a := make([]PathCmd, len(p.commands), cap(p.commands)+256)
-		b := make([]float64, len(p.vertices), cap(p.vertices)+256)
-		copy(a, p.commands)
-		p.commands = a
-		copy(b, p.vertices)
-		p.vertices = b
+func (p *PathStorage) appendToPath(cmd PathCmd, Vertices ...float64) {
+	if cap(p.Vertices) <= len(p.Vertices)+6 {
+		a := make([]PathCmd, len(p.Commands), cap(p.Commands)+256)
+		b := make([]float64, len(p.Vertices), cap(p.Vertices)+256)
+		copy(a, p.Commands)
+		p.Commands = a
+		copy(b, p.Vertices)
+		p.Vertices = b
 	}
-	p.commands = p.commands[0 : len(p.commands)+1]
-	p.commands[len(p.commands)-1] = cmd
-	copy(p.vertices[len(p.vertices):len(p.vertices)+len(vertices)], vertices)
-	p.vertices = p.vertices[0 : len(p.vertices)+len(vertices)]
+	p.Commands = p.Commands[0 : len(p.Commands)+1]
+	p.Commands[len(p.Commands)-1] = cmd
+	copy(p.Vertices[len(p.Vertices):len(p.Vertices)+len(Vertices)], Vertices)
+	p.Vertices = p.Vertices[0 : len(p.Vertices)+len(Vertices)]
 }
 
 func (src *PathStorage) Copy() (dest *PathStorage) {
 	dest = new(PathStorage)
-	dest.commands = make([]PathCmd, len(src.commands))
-	copy(dest.commands, src.commands)
-	dest.vertices = make([]float64, len(src.vertices))
-	copy(dest.vertices, src.vertices)
+	dest.Commands = make([]PathCmd, len(src.Commands))
+	copy(dest.Commands, src.Commands)
+	dest.Vertices = make([]float64, len(src.Vertices))
+	copy(dest.Vertices, src.Vertices)
 	return dest
 }
 
@@ -67,7 +67,7 @@ func (p *PathStorage) LastPoint() (x, y float64) {
 }
 
 func (p *PathStorage) IsEmpty() bool {
-	return len(p.commands) == 0
+	return len(p.Commands) == 0
 }
 
 func (p *PathStorage) Close() *PathStorage {
@@ -145,7 +145,7 @@ func (p *PathStorage) ArcTo(cx, cy, rx, ry, startAngle, angle float64) *PathStor
 	}
 	startX := cx + math.Cos(startAngle)*rx
 	startY := cy + math.Sin(startAngle)*ry
-	if len(p.commands) > 0 {
+	if len(p.Commands) > 0 {
 		p.LineTo(startX, startY)
 	} else {
 		p.MoveTo(startX, startY)
@@ -165,22 +165,22 @@ func (p *PathStorage) RArcTo(dcx, dcy, rx, ry, startAngle, angle float64) *PathS
 func (p *PathStorage) String() string {
 	s := ""
 	j := 0
-	for _, cmd := range p.commands {
+	for _, cmd := range p.Commands {
 		switch cmd {
 		case MoveTo:
-			s += fmt.Sprintf("MoveTo: %f, %f\n", p.vertices[j], p.vertices[j+1])
+			s += fmt.Sprintf("MoveTo: %f, %f\n", p.Vertices[j], p.Vertices[j+1])
 			j = j + 2
 		case LineTo:
-			s += fmt.Sprintf("LineTo: %f, %f\n", p.vertices[j], p.vertices[j+1])
+			s += fmt.Sprintf("LineTo: %f, %f\n", p.Vertices[j], p.Vertices[j+1])
 			j = j + 2
 		case QuadCurveTo:
-			s += fmt.Sprintf("QuadCurveTo: %f, %f, %f, %f\n", p.vertices[j], p.vertices[j+1], p.vertices[j+2], p.vertices[j+3])
+			s += fmt.Sprintf("QuadCurveTo: %f, %f, %f, %f\n", p.Vertices[j], p.Vertices[j+1], p.Vertices[j+2], p.Vertices[j+3])
 			j = j + 4
 		case CubicCurveTo:
-			s += fmt.Sprintf("CubicCurveTo: %f, %f, %f, %f, %f, %f\n", p.vertices[j], p.vertices[j+1], p.vertices[j+2], p.vertices[j+3], p.vertices[j+4], p.vertices[j+5])
+			s += fmt.Sprintf("CubicCurveTo: %f, %f, %f, %f, %f, %f\n", p.Vertices[j], p.Vertices[j+1], p.Vertices[j+2], p.Vertices[j+3], p.Vertices[j+4], p.Vertices[j+5])
 			j = j + 6
 		case ArcTo:
-			s += fmt.Sprintf("ArcTo: %f, %f, %f, %f, %f, %f\n", p.vertices[j], p.vertices[j+1], p.vertices[j+2], p.vertices[j+3], p.vertices[j+4], p.vertices[j+5])
+			s += fmt.Sprintf("ArcTo: %f, %f, %f, %f, %f, %f\n", p.Vertices[j], p.Vertices[j+1], p.Vertices[j+2], p.Vertices[j+3], p.Vertices[j+4], p.Vertices[j+5])
 			j = j + 6
 		case Close:
 			s += "Close\n"
