@@ -89,6 +89,7 @@ func NewGraphicContext(pdf *gofpdf.Fpdf) *GraphicContext {
 // TODO: add type (tp) as parameter to argument list?
 func (gc *GraphicContext) DrawImage(image image.Image) {
 	name := strconv.Itoa(int(imageCount))
+	imageCount += 1
 	tp := "PNG" // "JPG", "JPEG", "PNG" and "GIF"
 	b := &bytes.Buffer{}
 	png.Encode(b, image)
