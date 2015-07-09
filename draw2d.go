@@ -4,7 +4,7 @@
 // Package draw2d is a pure go 2D vector graphics library with support
 // for multiple output devices such as images (draw2d), pdf documents
 // (draw2dpdf) and opengl (draw2dopengl), which can also be used on the
-// google app engine.
+// google app engine. It can be used as a pure go Cairo alternative.
 //
 // Features
 //
@@ -51,18 +51,25 @@
 //
 // Acknowledgments
 //
-// Laurent Le Goff wrote this library, inspired by postscript and
-// HTML5 canvas. He implemented the image and opengl backend. Also
-// he created a pure go Postscripter interpreter which can draw to a
-// draw2d graphic context (https://github.com/llgcode/ps). Stani
-// Michiels implemented the pdf backend.
+// Laurent Le Goff wrote this library, inspired by Postscript and
+// HTML5 canvas. He implemented the image and opengl backend with the
+// freetype-go package. Also he created a pure go Postscript
+// interpreter, which can read postscript images and draw to a draw2d
+// graphic context (https://github.com/llgcode/ps). Stani Michiels
+// implemented the pdf backend with the gofpdf package.
 //
 // The package depends on freetype-go package for its rasterization
 // algorithm.
 //
 // Packages using draw2d
 //
-// - https://github.com/llgcode/ps
+// - https://github.com/llgcode/ps: Postscript interpreter written in Go
 //
-// - https://github.com/gonum/plot
+// - https://github.com/gonum/plot: drawing plots in Go
+//
+// - https://github.com/muesli/smartcrop: content aware image cropping
+//
+// - https://github.com/peterhellberg/karta: drawing Voronoi diagrams
+//
+// - https://github.com/vdobler/chart: basic charts in Go
 package draw2d
