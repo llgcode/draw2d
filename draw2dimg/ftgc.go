@@ -5,23 +5,26 @@ package draw2dimg
 
 import (
 	"errors"
-	"github.com/llgcode/draw2d"
-	"github.com/llgcode/draw2d/draw2dbase"
 	"image"
 	"image/color"
 	"image/draw"
 	"log"
 	"math"
 
+	"github.com/llgcode/draw2d"
+	"github.com/llgcode/draw2d/draw2dbase"
+
 	"code.google.com/p/freetype-go/freetype/raster"
 	"code.google.com/p/freetype-go/freetype/truetype"
 )
 
+// Painter implements the freetype raster.Painter and has a SetColor method like the RGBAPainter
 type Painter interface {
 	raster.Painter
 	SetColor(color color.Color)
 }
 
+// GraphicContext is the implementation of draw2d.GraphicContext for a raster image
 type GraphicContext struct {
 	*draw2dbase.StackGraphicContext
 	img              draw.Image
@@ -32,10 +35,9 @@ type GraphicContext struct {
 	DPI              int
 }
 
-/**
- * Create a new Graphic context from an image
- */
+// NewGraphicContext creates a new Graphic context from an image.
 func NewGraphicContext(img draw.Image) *GraphicContext {
+
 	var painter Painter
 	switch selectImage := img.(type) {
 	case *image.RGBA:
@@ -46,7 +48,7 @@ func NewGraphicContext(img draw.Image) *GraphicContext {
 	return NewGraphicContextWithPainter(img, painter)
 }
 
-// Create a new Graphic context from an image and a Painter (see Freetype-go)
+// NewGraphicContextWithPainter creates a new Graphic context from an image and a Painter (see Freetype-go)
 func NewGraphicContextWithPainter(img draw.Image, painter Painter) *GraphicContext {
 	width, height := img.Bounds().Dx(), img.Bounds().Dy()
 	dpi := 92
@@ -62,38 +64,46 @@ func NewGraphicContextWithPainter(img draw.Image, painter Painter) *GraphicConte
 	return gc
 }
 
+// GetDPI returns the resolution of the Image GraphicContext
 func (gc *GraphicContext) GetDPI() int {
 	return gc.DPI
 }
 
+// Clear fills the current canvas with a default transparent color
 func (gc *GraphicContext) Clear() {
 	width, height := gc.img.Bounds().Dx(), gc.img.Bounds().Dy()
 	gc.ClearRect(0, 0, width, height)
 }
 
+// ClearRect fills the current canvas with a default transparent color at the specified rectangle
 func (gc *GraphicContext) ClearRect(x1, y1, x2, y2 int) {
 	imageColor := image.NewUniform(gc.Current.FillColor)
 	draw.Draw(gc.img, image.Rect(x1, y1, x2, y2), imageColor, image.ZP, draw.Over)
 }
 
+// DrawImage draws the raster image in the current canvas
 func (gc *GraphicContext) DrawImage(img image.Image) {
 	DrawImage(img, gc.img, gc.Current.Tr, draw.Over, BilinearFilter)
 }
 
+// FillString draws the text at point (0, 0)
 func (gc *GraphicContext) FillString(text string) (cursor float64) {
 	return gc.FillStringAt(text, 0, 0)
 }
 
+// FillStringAt draws the text at the specified point (x, y)
 func (gc *GraphicContext) FillStringAt(text string, x, y float64) (cursor float64) {
 	width := gc.CreateStringPath(text, x, y)
 	gc.Fill()
 	return width
 }
 
+// StrokeString draws the contour of the text at point (0, 0)
 func (gc *GraphicContext) StrokeString(text string) (cursor float64) {
 	return gc.StrokeStringAt(text, 0, 0)
 }
 
+// StrokeStringAt draws the contour of the text at point (x, y)
 func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (cursor float64) {
 	width := gc.CreateStringPath(text, x, y)
 	gc.Stroke()
@@ -118,7 +128,7 @@ func (gc *GraphicContext) loadCurrentFont() (*truetype.Font, error) {
 // going downwards.
 
 func (gc *GraphicContext) drawGlyph(glyph truetype.Index, dx, dy float64) error {
-	if err := gc.glyphBuf.Load(gc.Current.Font, gc.Current.Scale, glyph, truetype.NoHinting); err != nil {
+	if err := gc.glyphBuf.Load(gc.Current.Font, int32(gc.Current.Scale), glyph, truetype.NoHinting); err != nil {
 		return err
 	}
 	e0 := 0
@@ -146,14 +156,14 @@ func (gc *GraphicContext) CreateStringPath(s string, x, y float64) float64 {
 	for _, rune := range s {
 		index := font.Index(rune)
 		if hasPrev {
-			x += fUnitsToFloat64(font.Kerning(gc.Current.Scale, prev, index))
+			x += fUnitsToFloat64(font.Kerning(int32(gc.Current.Scale), prev, index))
 		}
 		err := gc.drawGlyph(index, x, y)
 		if err != nil {
 			log.Println(err)
 			return startx - x
 		}
-		x += fUnitsToFloat64(font.HMetric(gc.Current.Scale, index).AdvanceWidth)
+		x += fUnitsToFloat64(font.HMetric(int32(gc.Current.Scale), index).AdvanceWidth)
 		prev, hasPrev = index, true
 	}
 	return x - startx
@@ -175,9 +185,10 @@ func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom fl
 	for _, rune := range s {
 		index := font.Index(rune)
 		if hasPrev {
-			cursor += fUnitsToFloat64(font.Kerning(gc.Current.Scale, prev, index))
+
+			cursor += fUnitsToFloat64(font.Kerning(int32(gc.Current.Scale), prev, index))
 		}
-		if err := gc.glyphBuf.Load(gc.Current.Font, gc.Current.Scale, index, truetype.NoHinting); err != nil {
+		if err := gc.glyphBuf.Load(gc.Current.Font, int32(gc.Current.Scale), index, truetype.NoHinting); err != nil {
 			log.Println(err)
 			return 0, 0, 0, 0
 		}
@@ -192,7 +203,7 @@ func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom fl
 				right = math.Max(right, x+cursor)
 			}
 		}
-		cursor += fUnitsToFloat64(font.HMetric(gc.Current.Scale, index).AdvanceWidth)
+		cursor += fUnitsToFloat64(font.HMetric(int32(gc.Current.Scale), index).AdvanceWidth)
 		prev, hasPrev = index, true
 	}
 	return left, top, right, bottom
@@ -201,7 +212,7 @@ func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom fl
 // recalc recalculates scale and bounds values from the font size, screen
 // resolution and font metrics, and invalidates the glyph cache.
 func (gc *GraphicContext) recalc() {
-	gc.Current.Scale = int32(gc.Current.FontSize * float64(gc.DPI) * (64.0 / 72.0))
+	gc.Current.Scale = gc.Current.FontSize * float64(gc.DPI) * (64.0 / 72.0)
 }
 
 // SetDPI sets the screen resolution in dots per inch.
@@ -228,11 +239,12 @@ func (gc *GraphicContext) paint(rasterizer *raster.Rasterizer, color color.Color
 	gc.Current.Path.Clear()
 }
 
+// Stroke strokes the paths with the color specified by SetStrokeColor
 func (gc *GraphicContext) Stroke(paths ...*draw2d.Path) {
 	paths = append(paths, gc.Current.Path)
 	gc.strokeRasterizer.UseNonZeroWinding = true
 
-	stroker := draw2dbase.NewLineStroker(gc.Current.Cap, gc.Current.Join, draw2dbase.Transformer{gc.Current.Tr, draw2dbase.FtLineBuilder{gc.strokeRasterizer}})
+	stroker := draw2dbase.NewLineStroker(gc.Current.Cap, gc.Current.Join, draw2dbase.Transformer{Tr: gc.Current.Tr, Flattener: draw2dbase.FtLineBuilder{Adder: gc.strokeRasterizer}})
 	stroker.HalfLineWidth = gc.Current.LineWidth / 2
 
 	var liner draw2dbase.Flattener
@@ -248,12 +260,13 @@ func (gc *GraphicContext) Stroke(paths ...*draw2d.Path) {
 	gc.paint(gc.strokeRasterizer, gc.Current.StrokeColor)
 }
 
+// Fill fills the paths with the color specified by SetFillColor
 func (gc *GraphicContext) Fill(paths ...*draw2d.Path) {
 	paths = append(paths, gc.Current.Path)
-	gc.fillRasterizer.UseNonZeroWinding = useNonZeroWinding(gc.Current.FillRule)
+	gc.fillRasterizer.UseNonZeroWinding = gc.Current.FillRule == draw2d.FillRuleWinding
 
 	/**** first method ****/
-	flattener := draw2dbase.Transformer{gc.Current.Tr, draw2dbase.FtLineBuilder{gc.fillRasterizer}}
+	flattener := draw2dbase.Transformer{Tr: gc.Current.Tr, Flattener: draw2dbase.FtLineBuilder{Adder: gc.fillRasterizer}}
 	for _, p := range paths {
 		draw2dbase.Flatten(p, flattener, gc.Current.Tr.GetScale())
 	}
@@ -261,14 +274,15 @@ func (gc *GraphicContext) Fill(paths ...*draw2d.Path) {
 	gc.paint(gc.fillRasterizer, gc.Current.FillColor)
 }
 
+// FillStroke first fills the paths and than strokes them
 func (gc *GraphicContext) FillStroke(paths ...*draw2d.Path) {
 	paths = append(paths, gc.Current.Path)
-	gc.fillRasterizer.UseNonZeroWinding = useNonZeroWinding(gc.Current.FillRule)
+	gc.fillRasterizer.UseNonZeroWinding = gc.Current.FillRule == draw2d.FillRuleWinding
 	gc.strokeRasterizer.UseNonZeroWinding = true
 
-	flattener := draw2dbase.Transformer{gc.Current.Tr, draw2dbase.FtLineBuilder{gc.fillRasterizer}}
+	flattener := draw2dbase.Transformer{Tr: gc.Current.Tr, Flattener: draw2dbase.FtLineBuilder{Adder: gc.fillRasterizer}}
 
-	stroker := draw2dbase.NewLineStroker(gc.Current.Cap, gc.Current.Join, draw2dbase.Transformer{gc.Current.Tr, draw2dbase.FtLineBuilder{gc.strokeRasterizer}})
+	stroker := draw2dbase.NewLineStroker(gc.Current.Cap, gc.Current.Join, draw2dbase.Transformer{Tr: gc.Current.Tr, Flattener: draw2dbase.FtLineBuilder{Adder: gc.strokeRasterizer}})
 	stroker.HalfLineWidth = gc.Current.LineWidth / 2
 
 	var liner draw2dbase.Flattener
@@ -278,7 +292,7 @@ func (gc *GraphicContext) FillStroke(paths ...*draw2d.Path) {
 		liner = stroker
 	}
 
-	demux := draw2dbase.DemuxFlattener{[]draw2dbase.Flattener{flattener, liner}}
+	demux := draw2dbase.DemuxFlattener{Flatteners: []draw2dbase.Flattener{flattener, liner}}
 	for _, p := range paths {
 		draw2dbase.Flatten(p, demux, gc.Current.Tr.GetScale())
 	}
@@ -287,14 +301,4 @@ func (gc *GraphicContext) FillStroke(paths ...*draw2d.Path) {
 	gc.paint(gc.fillRasterizer, gc.Current.FillColor)
 	// Stroke
 	gc.paint(gc.strokeRasterizer, gc.Current.StrokeColor)
-}
-
-func useNonZeroWinding(f draw2d.FillRule) bool {
-	switch f {
-	case draw2d.FillRuleEvenOdd:
-		return false
-	case draw2d.FillRuleWinding:
-		return true
-	}
-	return false
 }

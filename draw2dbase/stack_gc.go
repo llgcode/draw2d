@@ -4,9 +4,10 @@
 package draw2dbase
 
 import (
-	"github.com/llgcode/draw2d"
 	"image"
 	"image/color"
+
+	"github.com/llgcode/draw2d"
 
 	"code.google.com/p/freetype-go/freetype/truetype"
 )
@@ -34,7 +35,7 @@ type ContextStack struct {
 	Font *truetype.Font
 	// fontSize and dpi are used to calculate scale. scale is the number of
 	// 26.6 fixed point units in 1 em.
-	Scale int32
+	Scale float64
 
 	Previous *ContextStack
 }

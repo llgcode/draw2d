@@ -8,6 +8,7 @@ import (
 	"image/color"
 )
 
+// GraphicContext describes the interface for the various backends (images, pdf, opengl, ...)
 type GraphicContext interface {
 	PathBuilder
 	// BeginPath creates a new path

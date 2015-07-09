@@ -1,8 +1,9 @@
 package draw2dkit
 
 import (
-	"github.com/llgcode/draw2d"
 	"math"
+
+	"github.com/llgcode/draw2d"
 )
 
 // Droid draws a droid at specified position

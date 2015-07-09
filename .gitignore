@@ -9,6 +9,8 @@
 **/*.exe
 **/*~
 **/*.orig
+**/*.out
+**/*.test
 core
 _obj
 _test
@@ -17,3 +19,4 @@ _test*
 
 **/*.dll
 **/core*[0-9]
+.private

@@ -5,19 +5,25 @@
 package draw2dimg
 
 import (
-	"github.com/llgcode/draw2d"
 	"image"
 	"image/color"
 	"image/draw"
 	"math"
+
+	"github.com/llgcode/draw2d"
 )
 
+// ImageFilter defines the type of filter to use
 type ImageFilter int
 
 const (
+	// LinearFilter defines a linear filter
 	LinearFilter ImageFilter = iota
+	// BilinearFilter defines a bilinear filter
 	BilinearFilter
+	// BicubicFilter defines a bicubic filter
 	BicubicFilter
+	// M is the maximum value for a rgb component
 	M = 1<<16 - 1
 )
 
@@ -48,14 +54,7 @@ func getColorBilinear(img image.Image, x, y float64) color.Color {
 	return color.RGBA{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)}
 }
 
-/**
--- LERP
--- /lerp/, vi.,n.
---
--- Quasi-acronym for Linear Interpolation, used as a verb or noun for
--- the operation. "Bresenham's algorithm lerps incrementally between the
--- two endpoints of the line." (From Jargon File (4.4.4, 14 Aug 2003)
-*/
+// lerp is a linear interpolation bertween 2 points
 func lerp(v1, v2, ratio float64) float64 {
 	return v1*(1-ratio) + v2*ratio
 }
@@ -105,6 +104,7 @@ func cubic(offset, v0, v1, v2, v3 float64) uint32 {
 		(-9*v0+9*v2))*offset + (v0 + 16*v1 + v2)) / 18.0)
 }
 
+// DrawImage draws an image into dest using an affine transformation matrix, an op and a filter
 func DrawImage(src image.Image, dest draw.Image, tr draw2d.Matrix, op draw.Op, filter ImageFilter) {
 	bounds := src.Bounds()
 	x0, y0, x1, y1 := tr.TransformRectangle(float64(bounds.Min.X), float64(bounds.Min.Y), float64(bounds.Max.X), float64(bounds.Max.Y))

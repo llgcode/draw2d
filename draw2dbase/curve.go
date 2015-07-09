@@ -8,13 +8,14 @@ import (
 )
 
 const (
+	// CurveRecursionLimit represents the maximum recursion that is really necessary to subsivide a curve into straight lines
 	CurveRecursionLimit = 32
 )
 
 // Cubic
 //	x1, y1, cpx1, cpy1, cpx2, cpy2, x2, y2 float64
 
-// Subdivide a Bezier cubic curve in 2 equivalents Bezier cubic curves.
+// SubdivideCubic a Bezier cubic curve in 2 equivalents Bezier cubic curves.
 // c1 and c2 parameters are the resulting curves
 func SubdivideCubic(c, c1, c2 []float64) {
 	// First point of c is the first point of c1
@@ -47,7 +48,7 @@ func SubdivideCubic(c, c1, c2 []float64) {
 
 // TraceCubic generate lines subdividing the cubic curve using a Flattener
 // flattening_threshold helps determines the flattening expectation of the curve
-func TraceCubic(t Flattener, cubic []float64, flattening_threshold float64) {
+func TraceCubic(t Flattener, cubic []float64, flatteningThreshold float64) {
 	// Allocation curves
 	var curves [CurveRecursionLimit * 8]float64
 	copy(curves[0:8], cubic[0:8])
@@ -67,7 +68,7 @@ func TraceCubic(t Flattener, cubic []float64, flattening_threshold float64) {
 		d3 = math.Abs((c[4]-c[6])*dy - (c[5]-c[7])*dx)
 
 		// if it's flat then trace a line
-		if (d2+d3)*(d2+d3) < flattening_threshold*(dx*dx+dy*dy) || i == len(curves)-1 {
+		if (d2+d3)*(d2+d3) < flatteningThreshold*(dx*dx+dy*dy) || i == len(curves)-1 {
 			t.LineTo(c[6], c[7])
 			i--
 		} else {
@@ -81,7 +82,7 @@ func TraceCubic(t Flattener, cubic []float64, flattening_threshold float64) {
 // Quad
 // x1, y1, cpx1, cpy2, x2, y2 float64
 
-// Subdivide a Bezier quad curve in 2 equivalents Bezier quad curves.
+// SubdivideQuad a Bezier quad curve in 2 equivalents Bezier quad curves.
 // c1 and c2 parameters are the resulting curves
 func SubdivideQuad(c, c1, c2 []float64) {
 	// First point of c is the first point of c1
@@ -100,9 +101,9 @@ func SubdivideQuad(c, c1, c2 []float64) {
 	return
 }
 
-// Trace generate lines subdividing the curve using a Flattener
+// TraceQuad generate lines subdividing the curve using a Flattener
 // flattening_threshold helps determines the flattening expectation of the curve
-func TraceQuad(t Flattener, quad []float64, flattening_threshold float64) {
+func TraceQuad(t Flattener, quad []float64, flatteningThreshold float64) {
 	// Allocates curves stack
 	var curves [CurveRecursionLimit * 6]float64
 	copy(curves[0:6], quad[0:6])
@@ -119,7 +120,7 @@ func TraceQuad(t Flattener, quad []float64, flattening_threshold float64) {
 		d = math.Abs(((c[2]-c[4])*dy - (c[3]-c[5])*dx))
 
 		// if it's flat then trace a line
-		if (d*d) < flattening_threshold*(dx*dx+dy*dy) || i == len(curves)-1 {
+		if (d*d) < flatteningThreshold*(dx*dx+dy*dy) || i == len(curves)-1 {
 			t.LineTo(c[4], c[5])
 			i--
 		} else {
@@ -157,5 +158,4 @@ func TraceArc(t Flattener, x, y, rx, ry, start, angle, scale float64) (lastX, la
 		angle += da
 		t.LineTo(curX, curY)
 	}
-	return curX, curY
 }

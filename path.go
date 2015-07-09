@@ -1,7 +1,6 @@
 // Copyright 2010 The draw2d Authors. All rights reserved.
 // created: 21/11/2010 by Laurent Le Goff
 
-// Package path implements function to build path
 package draw2d
 
 import (
@@ -9,27 +8,23 @@ import (
 	"math"
 )
 
-// PathBuilder defines methods that creates path
+// PathBuilder describes the interface for path drawing.
 type PathBuilder interface {
-	// LastPoint returns the current point of the current path
+	// LastPoint returns the current point of the current sub path
 	LastPoint() (x, y float64)
-
-	// MoveTo starts a new path at (x, y) position
+	// MoveTo creates a new subpath that start at the specified point
 	MoveTo(x, y float64)
-
-	// LineTo adds a line to the current path
+	// LineTo adds a line to the current subpath
 	LineTo(x, y float64)
-
-	// QuadCurveTo adds a quadratic bezier curve to the current path
+	// QuadCurveTo adds a quadratic Bézier curve to the current subpath
 	QuadCurveTo(cx, cy, x, y float64)
-
-	// CubicCurveTo adds a cubic bezier curve to the current path
+	// CubicCurveTo adds a cubic Bézier curve to the current subpath
 	CubicCurveTo(cx1, cy1, cx2, cy2, x, y float64)
-
-	// ArcTo adds an arc to the path
+	// ArcTo adds an arc to the current subpath
 	ArcTo(cx, cy, rx, ry, startAngle, angle float64)
-
-	// Close closes the current path
+	// Close creates a line from the current point to the last MoveTo
+	// point (if not the same) and mark the path as closed so the
+	// first and last lines join nicely.
 	Close()
 }
 
@@ -37,19 +32,28 @@ type PathBuilder interface {
 type PathCmp int
 
 const (
+	// MoveToCmp is a MoveTo component in a Path
 	MoveToCmp PathCmp = iota
+	// LineToCmp is a LineTo component in a Path
 	LineToCmp
+	// QuadCurveToCmp is a QuadCurveTo component in a Path
 	QuadCurveToCmp
+	// CubicCurveToCmp is a CubicCurveTo component in a Path
 	CubicCurveToCmp
+	// ArcToCmp is a ArcTo component in a Path
 	ArcToCmp
+	// CloseCmp is a ArcTo component in a Path
 	CloseCmp
 )
 
 // Path stores points
 type Path struct {
+	// Components is a slice of PathCmp in a Path and mark the role of each points in the Path
 	Components []PathCmp
-	Points     []float64
-	x, y       float64
+	// Points are combined with Components to have a specific role in the path
+	Points []float64
+	// Last Point of the Path
+	x, y float64
 }
 
 func (p *Path) appendToPath(cmd PathCmp, points ...float64) {
@@ -65,7 +69,6 @@ func (p *Path) LastPoint() (x, y float64) {
 // MoveTo starts a new path at (x, y) position
 func (p *Path) MoveTo(x, y float64) {
 	p.appendToPath(MoveToCmp, x, y)
-
 	p.x = x
 	p.y = y
 }
@@ -135,13 +138,13 @@ func (p *Path) Close() {
 }
 
 // Copy make a clone of the current path and return it
-func (src *Path) Copy() (dest *Path) {
+func (p *Path) Copy() (dest *Path) {
 	dest = new(Path)
-	dest.Components = make([]PathCmp, len(src.Components))
-	copy(dest.Components, src.Components)
-	dest.Points = make([]float64, len(src.Points))
-	copy(dest.Points, src.Points)
-	dest.x, dest.y = src.x, src.y
+	dest.Components = make([]PathCmp, len(p.Components))
+	copy(dest.Components, p.Components)
+	dest.Points = make([]float64, len(p.Points))
+	copy(dest.Points, p.Points)
+	dest.x, dest.y = p.x, p.y
 	return dest
 }
 

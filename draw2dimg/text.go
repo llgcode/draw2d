@@ -5,7 +5,7 @@ import (
 	"github.com/llgcode/draw2d"
 )
 
-// drawContour draws the given closed contour at the given sub-pixel offset.
+// DrawContour draws the given closed contour at the given sub-pixel offset.
 func DrawContour(path draw2d.PathBuilder, ps []truetype.Point, dx, dy float64) {
 	if len(ps) == 0 {
 		return
@@ -67,8 +67,8 @@ type FontExtents struct {
 	Height float64
 }
 
-// TODO needs to read this https://developer.apple.com/fonts/TrueType-Reference-Manual/RM02/Chap2.html#intro
 // Extents returns the FontExtents for a font.
+// TODO needs to read this https://developer.apple.com/fonts/TrueType-Reference-Manual/RM02/Chap2.html#intro
 func Extents(font *truetype.Font, size float64) FontExtents {
 	bounds := font.Bounds(font.FUnitsPerEm())
 	scale := size / float64(font.FUnitsPerEm())

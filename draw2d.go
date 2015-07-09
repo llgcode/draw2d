@@ -1,7 +1,77 @@
 // Copyright 2010 The draw2d Authors. All rights reserved.
 // created: 13/12/2010 by Laurent Le Goff
 
-// Package draw2d provides a Graphic Context that can draw vector form on canvas.
+// Package draw2d is a pure go 2D vector graphics library with support
+// for multiple output devices such as images (draw2d), pdf documents
+// (draw2dpdf) and opengl (draw2dopengl), which can also be used on the
+// google app engine. It can be used as a pure go Cairo alternative.
+//
+// Features
+//
+// Operations in draw2d include stroking and filling polygons, arcs,
+// Bézier curves, drawing images and text rendering with truetype fonts.
+// All drawing operations can be transformed by affine transformations
+// (scale, rotation, translation).
+//
+// Installation
+//
+// To install or update the package draw2d on your system, run:
+//   go get -u github.com/llgcode/draw2d
+//
+// Quick Start
+//
+// Package draw2d itself provides a graphic context that can draw vector
+// graphics and text on an image canvas. The following Go code
+// generates a simple drawing and saves it to an image file:
+//   // Initialize the graphic context on an RGBA image
+//   dest := image.NewRGBA(image.Rect(0, 0, 297, 210.0))
+//   gc := draw2d.NewGraphicContext(dest)
+//
+//   // Set some properties
+//   gc.SetFillColor(color.RGBA{0x44, 0xff, 0x44, 0xff})
+//   gc.SetStrokeColor(color.RGBA{0x44, 0x44, 0x44, 0xff})
+//   gc.SetLineWidth(5)
+//
+//   // Draw a closed shape
+//   gc.MoveTo(10, 10) // should always be called first for a new path
+//   gc.LineTo(100, 50)
+//   gc.QuadCurveTo(100, 10, 10, 10)
+//   gc.Close()
+//   gc.FillStroke()
+//
+//   // Save to file
+//   draw2d.SaveToPngFile(fn, dest)
+//
+// There are more examples here:
+// https://github.com/llgcode/draw2d.samples
+//
+// Drawing on pdf documents is provided by the draw2dpdf package.
+// Drawing on opengl is provided by the draw2dgl package.
+// See subdirectories at the bottom of this page.
+//
+// Acknowledgments
+//
+// Laurent Le Goff wrote this library, inspired by Postscript and
+// HTML5 canvas. He implemented the image and opengl backend with the
+// freetype-go package. Also he created a pure go Postscript
+// interpreter, which can read postscript images and draw to a draw2d
+// graphic context (https://github.com/llgcode/ps). Stani Michiels
+// implemented the pdf backend with the gofpdf package.
+//
+// The package depends on freetype-go package for its rasterization
+// algorithm.
+//
+// Packages using draw2d
+//
+// - https://github.com/llgcode/ps: Postscript interpreter written in Go
+//
+// - https://github.com/gonum/plot: drawing plots in Go
+//
+// - https://github.com/muesli/smartcrop: content aware image cropping
+//
+// - https://github.com/peterhellberg/karta: drawing Voronoi diagrams
+//
+// - https://github.com/vdobler/chart: basic charts in Go
 package draw2d
 
 import (
@@ -9,7 +79,7 @@ import (
 	"image/color"
 )
 
-// FillRule defines the fill rule used when fill
+// FillRule defines the type for fill rules
 type FillRule int
 
 const (
@@ -81,7 +151,7 @@ type SolidFillStyle struct {
 	FillRule FillRule
 }
 
-// Vertical Alignment of the text
+// Valign Vertical Alignment of the text
 type Valign int
 
 const (
@@ -91,7 +161,7 @@ const (
 	ValignTopBaseline
 )
 
-// Horizontal Alignment of the text
+// Halign Horizontal Alignment of the text
 type Halign int
 
 const (

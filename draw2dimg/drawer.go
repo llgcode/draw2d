@@ -1,12 +1,13 @@
 package draw2dimg
 
 import (
+	"image"
+	"image/draw"
+
 	"code.google.com/p/freetype-go/freetype/raster"
 	"code.google.com/p/freetype-go/freetype/truetype"
 	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/draw2dbase"
-	"image"
-	"image/draw"
 )
 
 type Drawer struct {
@@ -37,7 +38,7 @@ func (d *Drawer) Matrix() *draw2d.Matrix {
 func (d *Drawer) Fill(path *draw2d.Path, style draw2d.FillStyle) {
 	switch fillStyle := style.(type) {
 	case draw2d.SolidFillStyle:
-		d.fillRasterizer.UseNonZeroWinding = useNonZeroWinding(fillStyle.FillRule)
+		d.fillRasterizer.UseNonZeroWinding = fillStyle.FillRule == draw2d.FillRuleWinding
 		d.painter.SetColor(fillStyle.Color)
 	default:
 		panic("FillStyle not supported")
