@@ -17,14 +17,14 @@ import (
 
 	"code.google.com/p/freetype-go/freetype/truetype"
 
-	"github.com/llgcode/draw2d"
 	"github.com/jung-kurt/gofpdf"
+	"github.com/llgcode/draw2d"
 )
 
 const (
-	c255 = 255.0 / 65535.0
 	// DPI of a pdf document is fixed at 72.
-	DPI = 72
+	DPI  = 72
+	c255 = 255.0 / 65535.0
 )
 
 var (
@@ -89,6 +89,7 @@ func NewGraphicContext(pdf *gofpdf.Fpdf) *GraphicContext {
 // TODO: add type (tp) as parameter to argument list?
 func (gc *GraphicContext) DrawImage(image image.Image) {
 	name := strconv.Itoa(int(imageCount))
+	imageCount += 1
 	tp := "PNG" // "JPG", "JPEG", "PNG" and "GIF"
 	b := &bytes.Buffer{}
 	png.Encode(b, image)
@@ -168,12 +169,12 @@ func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (cursor floa
 	return gc.CreateStringPath(text, x, y)
 }
 
-// Stroke strokes the paths
+// Stroke strokes the paths with the color specified by SetStrokeColor
 func (gc *GraphicContext) Stroke(paths ...*draw2d.PathStorage) {
 	gc.draw("D", paths...)
 }
 
-// Fill strokes the paths
+// Fill fills the paths with the color specified by SetFillColor
 func (gc *GraphicContext) Fill(paths ...*draw2d.PathStorage) {
 	gc.draw("F", paths...)
 }

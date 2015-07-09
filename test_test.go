@@ -9,7 +9,9 @@ import (
 	"github.com/llgcode/draw2d"
 )
 
-func test(t *testing.T, draw draw2d.Sample) {
+type sample func(gc draw2d.GraphicContext, ext string) (string, error)
+
+func test(t *testing.T, draw sample) {
 	// Initialize the graphic context on an RGBA image
 	dest := image.NewRGBA(image.Rect(0, 0, 297, 210.0))
 	gc := draw2d.NewGraphicContext(dest)

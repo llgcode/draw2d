@@ -34,9 +34,7 @@ type ImageGraphicContext struct {
 	DPI              int
 }
 
-/**
- * Create a new Graphic context from an image
- */
+// NewGraphicContext creates a new Graphic context from an image.
 func NewGraphicContext(img draw.Image) *ImageGraphicContext {
 	var painter Painter
 	switch selectImage := img.(type) {
@@ -48,7 +46,7 @@ func NewGraphicContext(img draw.Image) *ImageGraphicContext {
 	return NewGraphicContextWithPainter(img, painter)
 }
 
-// Create a new Graphic context from an image and a Painter (see Freetype-go)
+// NewGraphicContextWithPainter creates a new Graphic context from an image and a Painter (see Freetype-go)
 func NewGraphicContextWithPainter(img draw.Image, painter Painter) *ImageGraphicContext {
 	width, height := img.Bounds().Dx(), img.Bounds().Dy()
 	dpi := 92
@@ -274,7 +272,7 @@ func (gc *ImageGraphicContext) paint(rasterizer *raster.Rasterizer, color color.
 	gc.Current.Path.Clear()
 }
 
-/**** second method ****/
+// Stroke strokes the paths with the color specified by SetStrokeColor
 func (gc *ImageGraphicContext) Stroke(paths ...*PathStorage) {
 	paths = append(paths, gc.Current.Path)
 	gc.strokeRasterizer.UseNonZeroWinding = true
@@ -294,7 +292,7 @@ func (gc *ImageGraphicContext) Stroke(paths ...*PathStorage) {
 	gc.paint(gc.strokeRasterizer, gc.Current.StrokeColor)
 }
 
-/**** second method ****/
+// Fill fills the paths with the color specified by SetFillColor
 func (gc *ImageGraphicContext) Fill(paths ...*PathStorage) {
 	paths = append(paths, gc.Current.Path)
 	gc.fillRasterizer.UseNonZeroWinding = gc.Current.FillRule.UseNonZeroWinding()
@@ -307,7 +305,7 @@ func (gc *ImageGraphicContext) Fill(paths ...*PathStorage) {
 	gc.paint(gc.fillRasterizer, gc.Current.FillColor)
 }
 
-/* second method */
+// FillStroke first fills the paths and than strokes them
 func (gc *ImageGraphicContext) FillStroke(paths ...*PathStorage) {
 	gc.fillRasterizer.UseNonZeroWinding = gc.Current.FillRule.UseNonZeroWinding()
 	gc.strokeRasterizer.UseNonZeroWinding = true
