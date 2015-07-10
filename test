@@ -1,5 +1,5 @@
 echo golint
-golint ./... | grep "draw2dpdf\|samples"
+golint ./... | grep "draw2dpdf\|samples\|^advanced_path\|^arc\|draw2d[.]\|fileutil\|^gc\|math\|^path[.]\|rgba_interpolation\|test\|vertex2d"
 echo
 echo go vet
 go vet ./...

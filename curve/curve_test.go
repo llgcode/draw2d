@@ -15,8 +15,8 @@ import (
 )
 
 var (
-	flattening_threshold float64 = 0.5
-	testsCubicFloat64            = []CubicCurveFloat64{
+	flatteningThreshold = 0.5
+	testsCubicFloat64   = []CubicCurveFloat64{
 		CubicCurveFloat64{100, 100, 200, 100, 100, 200, 200, 200},
 		CubicCurveFloat64{100, 100, 300, 200, 200, 200, 300, 100},
 		CubicCurveFloat64{100, 100, 0, 300, 200, 0, 300, 300},
@@ -110,7 +110,7 @@ func TestCubicCurveRec(t *testing.T) {
 	for i, curve := range testsCubicFloat64 {
 		var p Path
 		p.LineTo(curve[0], curve[1])
-		curve.SegmentRec(&p, flattening_threshold)
+		curve.SegmentRec(&p, flatteningThreshold)
 		img := image.NewNRGBA(image.Rect(0, 0, 300, 300))
 		raster.PolylineBresenham(img, color.NRGBA{0xff, 0, 0, 0xff}, curve[:]...)
 		raster.PolylineBresenham(img, image.Black, p.points...)
@@ -126,7 +126,7 @@ func TestCubicCurve(t *testing.T) {
 	for i, curve := range testsCubicFloat64 {
 		var p Path
 		p.LineTo(curve[0], curve[1])
-		curve.Segment(&p, flattening_threshold)
+		curve.Segment(&p, flatteningThreshold)
 		img := image.NewNRGBA(image.Rect(0, 0, 300, 300))
 		raster.PolylineBresenham(img, color.NRGBA{0xff, 0, 0, 0xff}, curve[:]...)
 		raster.PolylineBresenham(img, image.Black, p.points...)
@@ -174,7 +174,7 @@ func TestCubicCurveParabolic(t *testing.T) {
 	for i, curve := range testsCubicFloat64 {
 		var p Path
 		p.LineTo(curve[0], curve[1])
-		curve.ParabolicSegment(&p, flattening_threshold)
+		curve.ParabolicSegment(&p, flatteningThreshold)
 		img := image.NewNRGBA(image.Rect(0, 0, 300, 300))
 		raster.PolylineBresenham(img, color.NRGBA{0xff, 0, 0, 0xff}, curve[:]...)
 		raster.PolylineBresenham(img, image.Black, p.points...)
@@ -190,7 +190,7 @@ func TestQuadCurve(t *testing.T) {
 	for i, curve := range testsQuadFloat64 {
 		var p Path
 		p.LineTo(curve[0], curve[1])
-		curve.Segment(&p, flattening_threshold)
+		curve.Segment(&p, flatteningThreshold)
 		img := image.NewNRGBA(image.Rect(0, 0, 300, 300))
 		raster.PolylineBresenham(img, color.NRGBA{0xff, 0, 0, 0xff}, curve[:]...)
 		raster.PolylineBresenham(img, image.Black, p.points...)
@@ -207,7 +207,7 @@ func BenchmarkCubicCurveRec(b *testing.B) {
 		for _, curve := range testsCubicFloat64 {
 			p := Path{make([]float64, 0, 32)}
 			p.LineTo(curve[0], curve[1])
-			curve.SegmentRec(&p, flattening_threshold)
+			curve.SegmentRec(&p, flatteningThreshold)
 		}
 	}
 }
@@ -217,7 +217,7 @@ func BenchmarkCubicCurve(b *testing.B) {
 		for _, curve := range testsCubicFloat64 {
 			p := Path{make([]float64, 0, 32)}
 			p.LineTo(curve[0], curve[1])
-			curve.Segment(&p, flattening_threshold)
+			curve.Segment(&p, flatteningThreshold)
 		}
 	}
 }
@@ -247,7 +247,7 @@ func BenchmarkCubicCurveParabolic(b *testing.B) {
 		for _, curve := range testsCubicFloat64 {
 			p := Path{make([]float64, 0, 32)}
 			p.LineTo(curve[0], curve[1])
-			curve.ParabolicSegment(&p, flattening_threshold)
+			curve.ParabolicSegment(&p, flatteningThreshold)
 		}
 	}
 }
@@ -257,7 +257,7 @@ func BenchmarkQuadCurve(b *testing.B) {
 		for _, curve := range testsQuadFloat64 {
 			p := Path{make([]float64, 0, 32)}
 			p.LineTo(curve[0], curve[1])
-			curve.Segment(&p, flattening_threshold)
+			curve.Segment(&p, flatteningThreshold)
 		}
 	}
 }
