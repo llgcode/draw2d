@@ -35,7 +35,6 @@ func arc(t VertexConverter, x, y, rx, ry, start, angle, scale float64) (lastX, l
 		angle += da
 		t.Vertex(curX, curY)
 	}
-	return curX, curY
 }
 
 func arcAdder(adder raster.Adder, x, y, rx, ry, start, angle, scale float64) raster.Point {
@@ -56,13 +55,16 @@ func arcAdder(adder raster.Adder, x, y, rx, ry, start, angle, scale float64) ras
 		if (angle < end-da/4) != clockWise {
 			curX = x + math.Cos(end)*rx
 			curY = y + math.Sin(end)*ry
-			return raster.Point{raster.Fix32(curX * 256), raster.Fix32(curY * 256)}
+			return raster.Point{
+				X: raster.Fix32(curX * 256),
+				Y: raster.Fix32(curY * 256)}
 		}
 		curX = x + math.Cos(angle)*rx
 		curY = y + math.Sin(angle)*ry
 
 		angle += da
-		adder.Add1(raster.Point{raster.Fix32(curX * 256), raster.Fix32(curY * 256)})
+		adder.Add1(raster.Point{
+			X: raster.Fix32(curX * 256),
+			Y: raster.Fix32(curY * 256)})
 	}
-	return raster.Point{raster.Fix32(curX * 256), raster.Fix32(curY * 256)}
 }
