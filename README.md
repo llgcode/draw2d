@@ -70,7 +70,7 @@ gc.FillStroke()
 draw2dpdf.SaveToPdfFile(fn, dest)
 ```
 
-There are more examples here: https://github.com/llgcode/draw2d/samples
+There are more examples here: https://github.com/llgcode/draw2d/tree/master/samples
 
 Drawing on opengl is provided by the draw2dgl package.
 
