@@ -74,7 +74,7 @@ func TestFreetype(t *testing.T) {
 	painter.SetColor(color)
 	rasterizer.Rasterize(painter)
 
-	savepng("../output/raster_TestFreetype.png", img)
+	savepng("../output/raster/TestFreetype.png", img)
 }
 
 func TestFreetypeNonZeroWinding(t *testing.T) {
@@ -100,7 +100,7 @@ func TestFreetypeNonZeroWinding(t *testing.T) {
 	painter.SetColor(color)
 	rasterizer.Rasterize(painter)
 
-	savepng("../output/raster_TestFreetypeNonZeroWinding.png", img)
+	savepng("../output/raster/TestFreetypeNonZeroWinding.png", img)
 }
 
 func TestRasterizer(t *testing.T) {
@@ -116,7 +116,7 @@ func TestRasterizer(t *testing.T) {
 	//PolylineBresenham(img, image.Black, poly...)
 
 	r.RenderEvenOdd(img, &color, &poly, tr)
-	savepng("../output/raster_TestRasterizer.png", img)
+	savepng("../output/raster/TestRasterizer.png", img)
 }
 
 func TestRasterizerNonZeroWinding(t *testing.T) {
@@ -132,7 +132,7 @@ func TestRasterizerNonZeroWinding(t *testing.T) {
 	//PolylineBresenham(img, image.Black, poly...)
 
 	r.RenderNonZeroWinding(img, &color, &poly, tr)
-	savepng("../output/raster_TestRasterizerNonZeroWinding.png", img)
+	savepng("../output/raster/TestRasterizerNonZeroWinding.png", img)
 }
 
 func BenchmarkFreetype(b *testing.B) {

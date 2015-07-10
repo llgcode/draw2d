@@ -20,5 +20,5 @@ func Output(name, ext string) string {
 	if ext == "pdf" {
 		root = "../"
 	}
-	return fmt.Sprintf("%soutput/%s.%s", root, name, ext)
+	return fmt.Sprintf("%soutput/samples/%s.%s", root, name, ext)
 }
