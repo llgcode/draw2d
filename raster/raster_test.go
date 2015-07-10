@@ -62,9 +62,13 @@ func TestFreetype(t *testing.T) {
 	img := image.NewRGBA(image.Rect(0, 0, 200, 200))
 	rasterizer := raster.NewRasterizer(200, 200)
 	rasterizer.UseNonZeroWinding = false
-	rasterizer.Start(raster.Point{raster.Fix32(10 * 256), raster.Fix32(190 * 256)})
+	rasterizer.Start(raster.Point{
+		X: raster.Fix32(10 * 256),
+		Y: raster.Fix32(190 * 256)})
 	for j := 0; j < len(poly); j = j + 2 {
-		rasterizer.Add1(raster.Point{raster.Fix32(poly[j] * 256), raster.Fix32(poly[j+1] * 256)})
+		rasterizer.Add1(raster.Point{
+			X: raster.Fix32(poly[j] * 256),
+			Y: raster.Fix32(poly[j+1] * 256)})
 	}
 	painter := raster.NewRGBAPainter(img)
 	painter.SetColor(color)
@@ -84,9 +88,13 @@ func TestFreetypeNonZeroWinding(t *testing.T) {
 	img := image.NewRGBA(image.Rect(0, 0, 200, 200))
 	rasterizer := raster.NewRasterizer(200, 200)
 	rasterizer.UseNonZeroWinding = true
-	rasterizer.Start(raster.Point{raster.Fix32(10 * 256), raster.Fix32(190 * 256)})
+	rasterizer.Start(raster.Point{
+		X: raster.Fix32(10 * 256),
+		Y: raster.Fix32(190 * 256)})
 	for j := 0; j < len(poly); j = j + 2 {
-		rasterizer.Add1(raster.Point{raster.Fix32(poly[j] * 256), raster.Fix32(poly[j+1] * 256)})
+		rasterizer.Add1(raster.Point{
+			X: raster.Fix32(poly[j] * 256),
+			Y: raster.Fix32(poly[j+1] * 256)})
 	}
 	painter := raster.NewRGBAPainter(img)
 	painter.SetColor(color)
@@ -139,15 +147,20 @@ func BenchmarkFreetype(b *testing.B) {
 		img := image.NewRGBA(image.Rect(0, 0, 200, 200))
 		rasterizer := raster.NewRasterizer(200, 200)
 		rasterizer.UseNonZeroWinding = false
-		rasterizer.Start(raster.Point{raster.Fix32(10 * 256), raster.Fix32(190 * 256)})
+		rasterizer.Start(raster.Point{
+			X: raster.Fix32(10 * 256),
+			Y: raster.Fix32(190 * 256)})
 		for j := 0; j < len(poly); j = j + 2 {
-			rasterizer.Add1(raster.Point{raster.Fix32(poly[j] * 256), raster.Fix32(poly[j+1] * 256)})
+			rasterizer.Add1(raster.Point{
+				X: raster.Fix32(poly[j] * 256),
+				Y: raster.Fix32(poly[j+1] * 256)})
 		}
 		painter := raster.NewRGBAPainter(img)
 		painter.SetColor(color)
 		rasterizer.Rasterize(painter)
 	}
 }
+
 func BenchmarkFreetypeNonZeroWinding(b *testing.B) {
 	var p Path
 	p.LineTo(10, 190)
@@ -160,9 +173,13 @@ func BenchmarkFreetypeNonZeroWinding(b *testing.B) {
 		img := image.NewRGBA(image.Rect(0, 0, 200, 200))
 		rasterizer := raster.NewRasterizer(200, 200)
 		rasterizer.UseNonZeroWinding = true
-		rasterizer.Start(raster.Point{raster.Fix32(10 * 256), raster.Fix32(190 * 256)})
+		rasterizer.Start(raster.Point{
+			X: raster.Fix32(10 * 256),
+			Y: raster.Fix32(190 * 256)})
 		for j := 0; j < len(poly); j = j + 2 {
-			rasterizer.Add1(raster.Point{raster.Fix32(poly[j] * 256), raster.Fix32(poly[j+1] * 256)})
+			rasterizer.Add1(raster.Point{
+				X: raster.Fix32(poly[j] * 256),
+				Y: raster.Fix32(poly[j+1] * 256)})
 		}
 		painter := raster.NewRGBAPainter(img)
 		painter.SetColor(color)

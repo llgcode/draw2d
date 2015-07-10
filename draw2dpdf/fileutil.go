@@ -1,3 +1,6 @@
+// Copyright 2015 The draw2d Authors. All rights reserved.
+// created: 26/06/2015 by Stani Michiels
+
 package draw2dpdf
 
 import "github.com/jung-kurt/gofpdf"
