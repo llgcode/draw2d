@@ -32,12 +32,6 @@ func NewPathStorage() (p *PathStorage) {
 	return
 }
 
-func (p *PathStorage) Clear() {
-	p.Commands = p.Commands[0:0]
-	p.Vertices = p.Vertices[0:0]
-	return
-}
-
 func (p *PathStorage) appendToPath(cmd PathCmd, Vertices ...float64) {
 	if cap(p.Vertices) <= len(p.Vertices)+6 {
 		a := make([]PathCmd, len(p.Commands), cap(p.Commands)+256)

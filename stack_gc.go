@@ -125,7 +125,7 @@ func (gc *StackGraphicContext) GetFontData() FontData {
 }
 
 func (gc *StackGraphicContext) BeginPath() {
-	gc.Current.Path.Clear()
+	gc.Current.Path = NewPathStorage()
 }
 
 func (gc *StackGraphicContext) IsEmpty() bool {

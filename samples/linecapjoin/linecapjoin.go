@@ -31,7 +31,6 @@ func Main(gc draw2d.GraphicContext, ext string) (string, error) {
 // Draw a line with an angle with specified line cap and join
 func Draw(gc draw2d.GraphicContext, cap draw2d.Cap, join draw2d.Join,
 	x0, y0, x1, y1, offset float64) {
-	gc.Save() // pdf: save & restore needed to isolate caps and joins
 	gc.SetLineCap(cap)
 	gc.SetLineJoin(join)
 
@@ -50,5 +49,4 @@ func Draw(gc draw2d.GraphicContext, cap draw2d.Cap, join draw2d.Join,
 	gc.LineTo((x0+x1)/2+offset, (y0+y1)/2)
 	gc.LineTo(x1, y1)
 	gc.Stroke()
-	gc.Restore()
 }
