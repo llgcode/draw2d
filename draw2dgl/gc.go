@@ -199,7 +199,7 @@ func (gc *GraphicContext) Stroke(paths ...*draw2d.PathStorage) {
 	pathConverter.Convert(paths...)
 
 	gc.paint(gc.strokeRasterizer, gc.Current.StrokeColor)
-	gc.Current.Path.Clear()
+	gc.Current.Path = draw2d.NewPathStorage()
 }
 
 func (gc *GraphicContext) Fill(paths ...*draw2d.PathStorage) {
@@ -211,7 +211,7 @@ func (gc *GraphicContext) Fill(paths ...*draw2d.PathStorage) {
 	pathConverter.Convert(paths...)
 
 	gc.paint(gc.fillRasterizer, gc.Current.FillColor)
-	gc.Current.Path.Clear()
+	gc.Current.Path = draw2d.NewPathStorage()
 }
 
 func (gc *GraphicContext) FillStroke(paths ...*draw2d.PathStorage) {

@@ -269,7 +269,7 @@ func (gc *ImageGraphicContext) paint(rasterizer *raster.Rasterizer, color color.
 	gc.painter.SetColor(color)
 	rasterizer.Rasterize(gc.painter)
 	rasterizer.Clear()
-	gc.Current.Path.Clear()
+	gc.Current.Path = NewPathStorage()
 }
 
 // Stroke strokes the paths with the color specified by SetStrokeColor

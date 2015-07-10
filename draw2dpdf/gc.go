@@ -205,7 +205,7 @@ func (gc *GraphicContext) draw(style string, paths ...*draw2d.PathStorage) {
 	pathConverter := NewPathConverter(gc.pdf)
 	pathConverter.Convert(paths...)
 	gc.pdf.DrawPath(style)
-	gc.Current.Path.Clear()
+	gc.Current.Path = draw2d.NewPathStorage()
 }
 
 // overwrite StackGraphicContext methods
