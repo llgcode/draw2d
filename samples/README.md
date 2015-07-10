@@ -1,7 +1,7 @@
 draw2d samples
 ==============
 
-Various Samples to using draw2d
+Various samples for using draw2d
 
 Using the image backend
 -----------------------

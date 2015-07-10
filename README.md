@@ -8,7 +8,7 @@ See the [documentation](http://godoc.org/github.com/llgcode/draw2d) for more det
 Features
 --------
 
-Operations in draw2d include stroking and filling polygons, arcs, Bézier curves, drawing images and text rendering with truetype fonts. All drawing operations can be transformed by affine transformations (scale, rotation, translation).
+Operations in draw2d include stroking and filling polygons, arcs, Bézier curves, drawing images and text rendering with truetype fonts. All drawing operations can be transformed by affine transformations (scale, rotation, translation). draw2d is released under the BSD license.
 
 Package draw2d follows the conventions of the [HTML Canvas 2D Context](http://www.w3.org/TR/2dcontext/) for coordinate system, angles, etc...
 
