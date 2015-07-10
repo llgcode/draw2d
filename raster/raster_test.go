@@ -13,7 +13,7 @@ import (
 	"github.com/llgcode/draw2d/curve"
 )
 
-var flattening_threshold float64 = 0.5
+var flatteningThreshold = 0.5
 
 func savepng(filePath string, m image.Image) {
 	f, err := os.Create(filePath)
@@ -55,7 +55,7 @@ func TestFreetype(t *testing.T) {
 	var p Path
 	p.LineTo(10, 190)
 	c := curve.CubicCurveFloat64{10, 190, 10, 10, 190, 10, 190, 190}
-	c.Segment(&p, flattening_threshold)
+	c.Segment(&p, flatteningThreshold)
 	poly := Polygon(p.points)
 	color := color.RGBA{0, 0, 0, 0xff}
 
@@ -74,14 +74,14 @@ func TestFreetype(t *testing.T) {
 	painter.SetColor(color)
 	rasterizer.Rasterize(painter)
 
-	savepng("../output/raster_TestFreetype.png", img)
+	savepng("../output/raster/TestFreetype.png", img)
 }
 
 func TestFreetypeNonZeroWinding(t *testing.T) {
 	var p Path
 	p.LineTo(10, 190)
 	c := curve.CubicCurveFloat64{10, 190, 10, 10, 190, 10, 190, 190}
-	c.Segment(&p, flattening_threshold)
+	c.Segment(&p, flatteningThreshold)
 	poly := Polygon(p.points)
 	color := color.RGBA{0, 0, 0, 0xff}
 
@@ -100,7 +100,7 @@ func TestFreetypeNonZeroWinding(t *testing.T) {
 	painter.SetColor(color)
 	rasterizer.Rasterize(painter)
 
-	savepng("../output/raster_TestFreetypeNonZeroWinding.png", img)
+	savepng("../output/raster/TestFreetypeNonZeroWinding.png", img)
 }
 
 func TestRasterizer(t *testing.T) {
@@ -108,7 +108,7 @@ func TestRasterizer(t *testing.T) {
 	var p Path
 	p.LineTo(10, 190)
 	c := curve.CubicCurveFloat64{10, 190, 10, 10, 190, 10, 190, 190}
-	c.Segment(&p, flattening_threshold)
+	c.Segment(&p, flatteningThreshold)
 	poly := Polygon(p.points)
 	color := color.RGBA{0, 0, 0, 0xff}
 	tr := [6]float64{1, 0, 0, 1, 0, 0}
@@ -116,7 +116,7 @@ func TestRasterizer(t *testing.T) {
 	//PolylineBresenham(img, image.Black, poly...)
 
 	r.RenderEvenOdd(img, &color, &poly, tr)
-	savepng("../output/raster_TestRasterizer.png", img)
+	savepng("../output/raster/TestRasterizer.png", img)
 }
 
 func TestRasterizerNonZeroWinding(t *testing.T) {
@@ -124,7 +124,7 @@ func TestRasterizerNonZeroWinding(t *testing.T) {
 	var p Path
 	p.LineTo(10, 190)
 	c := curve.CubicCurveFloat64{10, 190, 10, 10, 190, 10, 190, 190}
-	c.Segment(&p, flattening_threshold)
+	c.Segment(&p, flatteningThreshold)
 	poly := Polygon(p.points)
 	color := color.RGBA{0, 0, 0, 0xff}
 	tr := [6]float64{1, 0, 0, 1, 0, 0}
@@ -132,14 +132,14 @@ func TestRasterizerNonZeroWinding(t *testing.T) {
 	//PolylineBresenham(img, image.Black, poly...)
 
 	r.RenderNonZeroWinding(img, &color, &poly, tr)
-	savepng("../output/raster_TestRasterizerNonZeroWinding.png", img)
+	savepng("../output/raster/TestRasterizerNonZeroWinding.png", img)
 }
 
 func BenchmarkFreetype(b *testing.B) {
 	var p Path
 	p.LineTo(10, 190)
 	c := curve.CubicCurveFloat64{10, 190, 10, 10, 190, 10, 190, 190}
-	c.Segment(&p, flattening_threshold)
+	c.Segment(&p, flatteningThreshold)
 	poly := Polygon(p.points)
 	color := color.RGBA{0, 0, 0, 0xff}
 
@@ -165,7 +165,7 @@ func BenchmarkFreetypeNonZeroWinding(b *testing.B) {
 	var p Path
 	p.LineTo(10, 190)
 	c := curve.CubicCurveFloat64{10, 190, 10, 10, 190, 10, 190, 190}
-	c.Segment(&p, flattening_threshold)
+	c.Segment(&p, flatteningThreshold)
 	poly := Polygon(p.points)
 	color := color.RGBA{0, 0, 0, 0xff}
 
@@ -191,7 +191,7 @@ func BenchmarkRasterizerNonZeroWinding(b *testing.B) {
 	var p Path
 	p.LineTo(10, 190)
 	c := curve.CubicCurveFloat64{10, 190, 10, 10, 190, 10, 190, 190}
-	c.Segment(&p, flattening_threshold)
+	c.Segment(&p, flatteningThreshold)
 	poly := Polygon(p.points)
 	color := color.RGBA{0, 0, 0, 0xff}
 	tr := [6]float64{1, 0, 0, 1, 0, 0}
@@ -206,7 +206,7 @@ func BenchmarkRasterizer(b *testing.B) {
 	var p Path
 	p.LineTo(10, 190)
 	c := curve.CubicCurveFloat64{10, 190, 10, 10, 190, 10, 190, 190}
-	c.Segment(&p, flattening_threshold)
+	c.Segment(&p, flatteningThreshold)
 	poly := Polygon(p.points)
 	color := color.RGBA{0, 0, 0, 0xff}
 	tr := [6]float64{1, 0, 0, 1, 0, 0}
