@@ -44,8 +44,13 @@ var (
 // a page and set fill color to white.
 func NewPdf(orientationStr, unitStr, sizeStr string) *gofpdf.Fpdf {
 	pdf := gofpdf.New(orientationStr, unitStr, sizeStr, draw2d.GetFontFolder())
+	// to be compatible with draw2d
+	pdf.SetDrawColor(0, 0, 0)
+	pdf.SetFillColor(255, 255, 255)
+	pdf.SetLineCapStyle("round")
+	pdf.SetLineJoinStyle("round")
+	pdf.SetLineWidth(1)
 	pdf.AddPage()
-	pdf.SetFillColor(255, 255, 255) // to be compatible with draw2d
 	return pdf
 }
 
@@ -176,12 +181,20 @@ func (gc *GraphicContext) Stroke(paths ...*draw2d.PathStorage) {
 
 // Fill fills the paths with the color specified by SetFillColor
 func (gc *GraphicContext) Fill(paths ...*draw2d.PathStorage) {
-	gc.draw("F", paths...)
+	style := "F"
+	if !gc.Current.FillRule.UseNonZeroWinding() {
+		style += "*"
+	}
+	gc.draw(style, paths...)
 }
 
 // FillStroke first fills the paths and than strokes them
 func (gc *GraphicContext) FillStroke(paths ...*draw2d.PathStorage) {
-	gc.draw("FD", paths...)
+	style := "FD"
+	if !gc.Current.FillRule.UseNonZeroWinding() {
+		style += "*"
+	}
+	gc.draw(style, paths...)
 }
 
 var logger = log.New(os.Stdout, "", log.Lshortfile)
@@ -190,12 +203,9 @@ var logger = log.New(os.Stdout, "", log.Lshortfile)
 func (gc *GraphicContext) draw(style string, paths ...*draw2d.PathStorage) {
 	paths = append(paths, gc.Current.Path)
 	pathConverter := NewPathConverter(gc.pdf)
-	// pathConverter := NewPathConverter(NewPathLogger(logger, gc.pdf))
 	pathConverter.Convert(paths...)
-	if gc.Current.FillRule.UseNonZeroWinding() {
-		style += "*"
-	}
 	gc.pdf.DrawPath(style)
+	gc.Current.Path.Clear()
 }
 
 // overwrite StackGraphicContext methods
