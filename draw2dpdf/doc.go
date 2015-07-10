@@ -28,7 +28,7 @@
 //   draw2dpdf.SaveToPdfFile(fn, dest)
 //
 // There are more examples here:
-// https://github.com/llgcode/draw2d.samples
+// https://github.com/llgcode/draw2d/samples
 //
 // Drawing on images is provided by the draw2d package.
 // Drawing on opengl is provided by the draw2dgl package.
