@@ -6,14 +6,13 @@ import (
 	"testing"
 
 	"github.com/llgcode/draw2d"
-	"github.com/llgcode/draw2d.samples"
-	"github.com/llgcode/draw2d.samples/android"
-	"github.com/llgcode/draw2d.samples/frameimage"
-	"github.com/llgcode/draw2d.samples/gopher"
-	"github.com/llgcode/draw2d.samples/helloworld"
-	"github.com/llgcode/draw2d.samples/line"
-	"github.com/llgcode/draw2d.samples/linecapjoin"
-	"github.com/llgcode/draw2d.samples/postscript"
+	"github.com/llgcode/draw2d/samples/android"
+	"github.com/llgcode/draw2d/samples/frameimage"
+	"github.com/llgcode/draw2d/samples/gopher"
+	"github.com/llgcode/draw2d/samples/helloworld"
+	"github.com/llgcode/draw2d/samples/line"
+	"github.com/llgcode/draw2d/samples/linecapjoin"
+	"github.com/llgcode/draw2d/samples/postscript"
 )
 
 func TestSampleAndroid(t *testing.T) {
@@ -26,7 +25,7 @@ func TestSampleGopher(t *testing.T) {
 
 func TestSampleHelloWorld(t *testing.T) {
 	// Set the global folder for searching fonts
-	draw2d.SetFontFolder(samples.Dir("helloworld", ""))
+	draw2d.SetFontFolder("resource/font")
 	test(t, helloworld.Main)
 }
 
@@ -38,7 +37,7 @@ func TestSampleLine(t *testing.T) {
 	test(t, line.Main)
 }
 
-func TestSampleLineCap(t *testing.T) {
+func TestSampleLineCapJoin(t *testing.T) {
 	test(t, linecapjoin.Main)
 }
 

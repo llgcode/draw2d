@@ -4,7 +4,6 @@
 package draw2dpdf_test
 
 import (
-	"os"
 	"testing"
 
 	"github.com/llgcode/draw2d"
@@ -18,18 +17,20 @@ func test(t *testing.T, draw sample) {
 	dest := draw2dpdf.NewPdf("L", "mm", "A4")
 	gc := draw2dpdf.NewGraphicContext(dest)
 	// Draw sample
-	fn, err := draw(gc, "pdf")
+	output, err := draw(gc, "pdf")
 	if err != nil {
-		t.Errorf("Drawing %q failed: %v", fn, err)
+		t.Errorf("Drawing %q failed: %v", output, err)
 		return
 	}
-	// Save to pdf only if it doesn't exist because of git
-	if _, err = os.Stat(fn); err == nil {
-		t.Skipf("Saving %q skipped, as it exists already. (Git would consider it modified.)", fn)
-		return
-	}
-	err = draw2dpdf.SaveToPdfFile(fn, dest)
+	/*
+		// Save to pdf only if it doesn't exist because of git
+		if _, err = os.Stat(output); err == nil {
+			t.Skipf("Saving %q skipped, as it exists already. (Git would consider it modified.)", output)
+			return
+		}
+	*/
+	err = draw2dpdf.SaveToPdfFile(output, dest)
 	if err != nil {
-		t.Errorf("Saving %q failed: %v", fn, err)
+		t.Errorf("Saving %q failed: %v", output, err)
 	}
 }
