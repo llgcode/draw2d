@@ -52,9 +52,8 @@ func (c *PathConverter) ConvertCommand(cmd draw2d.PathCmd, vertices ...float64) 
 			vertices[4]*deg,               // degStart = startAngle
 			(vertices[4]-vertices[5])*deg) // degEnd = startAngle-angle
 		return 6
-	case draw2d.Close:
+	default: // case draw2d.Close:
 		c.pdf.ClosePath()
 		return 0
 	}
-	return 0
 }
