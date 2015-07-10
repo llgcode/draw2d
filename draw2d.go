@@ -5,6 +5,7 @@
 // for multiple output devices such as images (draw2d), pdf documents
 // (draw2dpdf) and opengl (draw2dopengl), which can also be used on the
 // google app engine. It can be used as a pure go Cairo alternative.
+// draw2d is released under the BSD license.
 //
 // Features
 //
