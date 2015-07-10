@@ -105,7 +105,8 @@ func (gc *GraphicContext) Clear() {
 	clearRect(gc, 0, 0, width, height)
 }
 
-// ClearRect draws a white rectangle over the specified area
+// ClearRect draws a white rectangle over the specified area.
+// Samples: line.
 func (gc *GraphicContext) ClearRect(x1, y1, x2, y2 int) {
 	clearRect(gc, float64(x1), float64(y1), float64(x2), float64(y2))
 }

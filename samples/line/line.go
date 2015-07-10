@@ -5,6 +5,8 @@
 package line
 
 import (
+	"image/color"
+
 	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/samples"
 )
@@ -12,10 +14,16 @@ import (
 // Main draws vertically spaced lines and returns the filename.
 // This should only be used during testing.
 func Main(gc draw2d.GraphicContext, ext string) (string, error) {
+	gc.SetFillRule(draw2d.FillRuleWinding)
+	gc.Clear()
 	// Draw the line
 	for x := 5.0; x < 297; x += 10 {
 		Draw(gc, x, 0, x, 210)
 	}
+	gc.ClearRect(100, 75, 197, 135)
+	draw2d.Ellipse(gc, 148.5, 105, 35, 25)
+	gc.SetFillColor(color.RGBA{0xff, 0xff, 0x44, 0xff})
+	gc.FillStroke()
 
 	// Return the output filename
 	return samples.Output("line", ext), nil
