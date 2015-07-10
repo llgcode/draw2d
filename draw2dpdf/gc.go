@@ -1,6 +1,6 @@
 // Copyright 2015 The draw2d Authors. All rights reserved.
 // created: 26/06/2015 by Stani Michiels
-// TODO: fonts, dpi
+// TODO: dashed line
 
 package draw2dpdf
 
@@ -88,7 +88,7 @@ func NewGraphicContext(pdf *gofpdf.Fpdf) *GraphicContext {
 // TODO: add type (tp) as parameter to argument list?
 func (gc *GraphicContext) DrawImage(image image.Image) {
 	name := strconv.Itoa(int(imageCount))
-	imageCount += 1
+	imageCount++
 	tp := "PNG" // "JPG", "JPEG", "PNG" and "GIF"
 	b := &bytes.Buffer{}
 	png.Encode(b, image)

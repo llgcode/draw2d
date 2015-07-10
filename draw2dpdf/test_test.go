@@ -1,3 +1,6 @@
+// Copyright 2015 The draw2d Authors. All rights reserved.
+// created: 26/06/2015 by Stani Michiels
+
 // Package draw2dpdf_test gives test coverage with the command:
 // go test -cover ./... | grep -v "no test"
 // (It should be run from its parent draw2d directory.)

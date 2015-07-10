@@ -1,3 +1,5 @@
+// Copyright 2015 The draw2d Authors. All rights reserved.
+// created: 26/06/2015 by Stani Michiels
 // See also test_test.go
 
 package draw2dpdf_test
