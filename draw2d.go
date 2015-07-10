@@ -46,7 +46,7 @@
 //   draw2d.SaveToPngFile(fn, dest)
 //
 // There are more examples here:
-// https://github.com/llgcode/draw2d/samples
+// https://github.com/llgcode/draw2d/tree/master/samples
 //
 // Drawing on pdf documents is provided by the draw2dpdf package.
 // Drawing on opengl is provided by the draw2dgl package.
