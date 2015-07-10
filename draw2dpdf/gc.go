@@ -12,7 +12,6 @@ import (
 	"log"
 	"math"
 	"os"
-	"path/filepath"
 	"strconv"
 
 	"code.google.com/p/freetype-go/freetype/truetype"
@@ -240,8 +239,7 @@ func (gc *GraphicContext) SetFontData(fontData draw2d.FontData) {
 	}
 	fn := draw2d.FontFileName(fontData)
 	fn = fn[:len(fn)-4]
-	jfn := filepath.Join(draw2d.GetFontFolder(), fn+".json")
-	gc.pdf.AddFont(fn, style, jfn)
+	gc.pdf.AddFont(fn, style, fn+".json")
 }
 
 // SetFontSize sets the font size in points (as in ``a 12 point font'').

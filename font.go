@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"path"
+	"path/filepath"
 
 	"code.google.com/p/freetype-go/freetype/truetype"
 )
@@ -80,7 +81,7 @@ func GetFontFolder() string {
 }
 
 func SetFontFolder(folder string) {
-	fontFolder = folder
+	fontFolder = filepath.Clean(folder)
 }
 
 func loadFont(fontFileName string) *truetype.Font {

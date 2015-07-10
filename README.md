@@ -10,6 +10,8 @@ Features
 
 Operations in draw2d include stroking and filling polygons, arcs, Bézier curves, drawing images and text rendering with truetype fonts. All drawing operations can be transformed by affine transformations (scale, rotation, translation).
 
+Package draw2d follows the conventions of the [HTML Canvas 2D Context](http://www.w3.org/TR/2dcontext/) for coordinate system, angles, etc...
+
 Installation
 ------------
 
@@ -71,6 +73,19 @@ draw2dpdf.SaveToPdfFile(fn, dest)
 There are more examples here: https://github.com/llgcode/draw2d.samples
 
 Drawing on opengl is provided by the draw2dgl package.
+
+Testing
+-------
+
+The samples are run as tests from the root package folder `draw2d` by:
+```
+go test ./...
+```
+Or if you want to run with test coverage:
+```
+go test -cover ./... | grep -v "no test"
+```
+This will generate output by the different backends in the output folder.
 
 Acknowledgments
 ---------------

@@ -13,6 +13,8 @@
 // All drawing operations can be transformed by affine transformations
 // (scale, rotation, translation).
 //
+// Package draw2d follows the conventions of http://www.w3.org/TR/2dcontext for coordinate system, angles, etc...
+//
 // Installation
 //
 // To install or update the package draw2d on your system, run:
@@ -48,6 +50,16 @@
 // Drawing on pdf documents is provided by the draw2dpdf package.
 // Drawing on opengl is provided by the draw2dgl package.
 // See subdirectories at the bottom of this page.
+//
+// Testing
+//
+// The samples are run as tests from the root package folder `draw2d` by:
+//   go test ./...
+//
+// Or if you want to run with test coverage:
+//   go test -cover ./... | grep -v "no test"
+//
+// This will generate output by the different backends in the output folder.
 //
 // Acknowledgments
 //
