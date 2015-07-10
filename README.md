@@ -1,14 +1,14 @@
 draw2d
 ======
 
-Package draw2d is a pure [go](http://golang.org) 2D vector graphics library with support for multiple output devices such as [images](http://golang.org/pkg/image) (draw2d), pdf documents (draw2dpdf) and opengl (draw2dopengl), which can also be used on the google app engine. It can be used as a pure go [Cairo](http://www.cairographics.org/) alternative.
+Package draw2d is a pure [go](http://golang.org) 2D vector graphics library with support for multiple output devices such as [images](http://golang.org/pkg/image) (draw2d), pdf documents (draw2dpdf) and opengl (draw2dopengl), which can also be used on the google app engine. It can be used as a pure go [Cairo](http://www.cairographics.org/) alternative. draw2d is released under the BSD license.
 
 See the [documentation](http://godoc.org/github.com/llgcode/draw2d) for more details.
 
 Features
 --------
 
-Operations in draw2d include stroking and filling polygons, arcs, Bézier curves, drawing images and text rendering with truetype fonts. All drawing operations can be transformed by affine transformations (scale, rotation, translation). draw2d is released under the BSD license.
+Operations in draw2d include stroking and filling polygons, arcs, Bézier curves, drawing images and text rendering with truetype fonts. All drawing operations can be transformed by affine transformations (scale, rotation, translation).
 
 Package draw2d follows the conventions of the [HTML Canvas 2D Context](http://www.w3.org/TR/2dcontext/) for coordinate system, angles, etc...
 
