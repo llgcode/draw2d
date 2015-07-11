@@ -24,7 +24,7 @@ func Main(gc draw2d.GraphicContext, ext string) (string, error) {
 	return samples.Output("geometry", ext), nil
 }
 
-// Bubble draws a text balloon
+// Bubble draws a text balloon.
 func Bubble(gc draw2d.GraphicContext, x, y, width, height float64) {
 	sx, sy := width/100, height/100
 	gc.MoveTo(x+sx*50, y)
@@ -37,14 +37,15 @@ func Bubble(gc draw2d.GraphicContext, x, y, width, height float64) {
 	gc.Stroke()
 }
 
+// CurveRectangle draws a rectangle with bezier curves (not rounded rectangle).
 func CurveRectangle(gc draw2d.GraphicContext, x0, y0,
-	rect_width, rect_height float64, stroke, fill color.Color) {
-	radius := (rect_width + rect_height) / 4
+	rectWidth, rectHeight float64, stroke, fill color.Color) {
+	radius := (rectWidth + rectHeight) / 4
 
-	x1 := x0 + rect_width
-	y1 := y0 + rect_height
-	if rect_width/2 < radius {
-		if rect_height/2 < radius {
+	x1 := x0 + rectWidth
+	y1 := y0 + rectHeight
+	if rectWidth/2 < radius {
+		if rectHeight/2 < radius {
 			gc.MoveTo(x0, (y0+y1)/2)
 			gc.CubicCurveTo(x0, y0, x0, y0, (x0+x1)/2, y0)
 			gc.CubicCurveTo(x1, y0, x1, y0, x1, (y0+y1)/2)
@@ -59,7 +60,7 @@ func CurveRectangle(gc draw2d.GraphicContext, x0, y0,
 			gc.CubicCurveTo(x0, y1, x0, y1, x0, y1-radius)
 		}
 	} else {
-		if rect_height/2 < radius {
+		if rectHeight/2 < radius {
 			gc.MoveTo(x0, (y0+y1)/2)
 			gc.CubicCurveTo(x0, y0, x0, y0, x0+radius, y0)
 			gc.LineTo(x1-radius, y0)
@@ -86,6 +87,7 @@ func CurveRectangle(gc draw2d.GraphicContext, x0, y0,
 	gc.FillStroke()
 }
 
+// Dash draws a line with a dash pattern
 func Dash(gc draw2d.GraphicContext, x, y, width, height float64) {
 	sx, sy := width/162, height/205
 	gc.SetStrokeColor(image.Black)
@@ -103,6 +105,7 @@ func Dash(gc draw2d.GraphicContext, x, y, width, height float64) {
 	gc.SetLineDash(nil, 0.0)
 }
 
+// Arc draws an arc with a positive angle (clockwise)
 func Arc(gc draw2d.GraphicContext, xc, yc, width, height float64) {
 	// draw an arc
 	xc += width / 2
@@ -133,6 +136,7 @@ func Arc(gc draw2d.GraphicContext, xc, yc, width, height float64) {
 	gc.Fill()
 }
 
+// ArcNegative draws an arc with a negative angle (anti clockwise).
 func ArcNegative(gc draw2d.GraphicContext, xc, yc, width, height float64) {
 	xc += width / 2
 	yc += height / 2
@@ -160,6 +164,7 @@ func ArcNegative(gc draw2d.GraphicContext, xc, yc, width, height float64) {
 	gc.Fill()
 }
 
+// CubicCurve draws a cubic curve with its control points.
 func CubicCurve(gc draw2d.GraphicContext, x, y, width, height float64) {
 	sx, sy := width/162, height/205
 	x0, y0 := x, y+sy*100.0
@@ -185,6 +190,7 @@ func CubicCurve(gc draw2d.GraphicContext, x, y, width, height float64) {
 	gc.Stroke()
 }
 
+// FillString draws a filled and stroked string.
 func FillString(gc draw2d.GraphicContext, x, y, width, height float64) {
 	sx, sy := width/100, height/100
 	gc.Save()
@@ -195,7 +201,10 @@ func FillString(gc draw2d.GraphicContext, x, y, width, height float64) {
 	gc.SetFillColor(image.Black)
 	gc.SetFontSize(height / 6)
 	gc.Translate(x+sx*6, y+sy*52)
-	gc.SetFontData(draw2d.FontData{"luxi", draw2d.FontFamilyMono, draw2d.FontStyleBold | draw2d.FontStyleItalic})
+	gc.SetFontData(draw2d.FontData{
+		Name:   "luxi",
+		Family: draw2d.FontFamilyMono,
+		Style:  draw2d.FontStyleBold | draw2d.FontStyleItalic})
 	w := gc.FillString("cou")
 	gc.Translate(w+sx, 0)
 	left, top, right, bottom := gc.GetStringBounds("cou")
@@ -209,6 +218,7 @@ func FillString(gc draw2d.GraphicContext, x, y, width, height float64) {
 	gc.Restore()
 }
 
+// FillStroke first fills and afterwards strokes a path.
 func FillStroke(gc draw2d.GraphicContext, x, y, width, height float64) {
 	sx, sy := width/210, height/215
 	gc.MoveTo(x+sx*113.0, y)
@@ -229,6 +239,7 @@ func FillStroke(gc draw2d.GraphicContext, x, y, width, height float64) {
 	gc.FillStroke()
 }
 
+// FillStyle demonstrates the difference between even odd and non zero winding rule.
 func FillStyle(gc draw2d.GraphicContext, x, y, width, height float64) {
 	sx, sy := width/232, height/220
 	gc.SetLineWidth(width / 40)
@@ -257,6 +268,7 @@ func FillStyle(gc draw2d.GraphicContext, x, y, width, height float64) {
 	gc.FillStroke(wheel1, wheel2)
 }
 
+// PathTransform scales a path differently in horizontal and vertical direction.
 func PathTransform(gc draw2d.GraphicContext, x, y, width, height float64) {
 	gc.Save()
 	gc.SetLineWidth(width / 10)
@@ -268,6 +280,7 @@ func PathTransform(gc draw2d.GraphicContext, x, y, width, height float64) {
 	gc.Restore()
 }
 
+// Star draws many lines from a center.
 func Star(gc draw2d.GraphicContext, x, y, width, height float64) {
 	gc.Save()
 	gc.Translate(x+width/2, y+height/2)
@@ -283,6 +296,7 @@ func Star(gc draw2d.GraphicContext, x, y, width, height float64) {
 	gc.Restore()
 }
 
+// Draw all figures in a nice 4x3 grid.
 func Draw(gc draw2d.GraphicContext, width, height float64) {
 	mx, my := width*0.025, height*0.025 // margin
 	dx, dy := (width-2*mx)/4, (height-2*my)/3
