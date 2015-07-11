@@ -13,7 +13,7 @@ import (
 )
 
 // Main draws a left hand and ear of a gopher. Afterwards it returns
-// the filename. This should only be during testing.
+// the filename. This should only be used during testing.
 func Main(gc draw2d.GraphicContext, ext string) (string, error) {
 	gc.Save()
 	gc.Scale(0.5, 0.5)
