@@ -261,6 +261,12 @@ func (gc *GraphicContext) SetFontSize(fontSize float64) {
 	gc.pdf.SetFontSize(fontSize * gc.Current.Scale)
 }
 
+// SetLineDash sets the line dash pattern
+func (gc *GraphicContext) SetLineDash(Dash []float64, DashOffset float64) {
+	gc.StackGraphicContext.SetLineDash(Dash, DashOffset)
+	gc.pdf.SetDashPattern(Dash, DashOffset)
+}
+
 // SetLineWidth sets the line width
 func (gc *GraphicContext) SetLineWidth(LineWidth float64) {
 	gc.StackGraphicContext.SetLineWidth(LineWidth)

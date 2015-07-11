@@ -47,10 +47,11 @@ func (c *PathConverter) ConvertCommand(cmd draw2d.PathCmd, vertices ...float64) 
 		c.pdf.CurveBezierCubicTo(vertices[0], vertices[1], vertices[2], vertices[3], vertices[4], vertices[5])
 		return 6
 	case draw2d.ArcTo:
+		// draw2d: angles clockwise, fpdf angles counter clockwise
 		c.pdf.ArcTo(vertices[0], vertices[1], vertices[2], vertices[3],
-			0,                             // degRotate
-			vertices[4]*deg,               // degStart = startAngle
-			(vertices[4]-vertices[5])*deg) // degEnd = startAngle-angle
+			0,                              // degRotate
+			-vertices[4]*deg,               // degStart = -startAngle
+			(-vertices[4]-vertices[5])*deg) // degEnd = -startAngle-angle
 		return 6
 	default: // case draw2d.Close:
 		c.pdf.ClosePath()

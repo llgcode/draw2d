@@ -5,6 +5,9 @@ Package draw2d is a pure [go](http://golang.org) 2D vector graphics library with
 
 See the [documentation](http://godoc.org/github.com/llgcode/draw2d) for more details.
 
+![demonstration of the image backend](https://raw.githubusercontent.com/llgcode/draw2d/master/output/samples/geometry.png)
+The image above is generated with the image backend. The pdf which is generated with exactly the same code is [here](https://raw.githubusercontent.com/llgcode/draw2d/master/output/samples/geometry.pdf).
+
 Features
 --------
 
