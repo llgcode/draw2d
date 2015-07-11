@@ -1,13 +1,11 @@
 draw2d
 ======
 
-Package draw2d is a pure [go](http://golang.org) 2D vector graphics library with support for multiple output devices such as [images](http://golang.org/pkg/image) (draw2d), pdf documents (draw2dpdf) and opengl (draw2dopengl), which can also be used on the google app engine. It can be used as a pure go [Cairo](http://www.cairographics.org/) alternative. draw2d is released under the BSD license.
+Package draw2d is a pure [go](http://golang.org) 2D vector graphics library with support for multiple output devices such as [images](http://golang.org/pkg/image) (draw2d), pdf documents (draw2dpdf) and opengl (draw2dopengl), which can also be used on the google app engine. It can be used as a pure go [Cairo](http://www.cairographics.org/) alternative. draw2d is released under the BSD license. See the [documentation](http://godoc.org/github.com/llgcode/draw2d) for more details.
 
-See the [documentation](http://godoc.org/github.com/llgcode/draw2d) for more details.
+[![geometry](https://raw.githubusercontent.com/llgcode/draw2d/master/output/samples/geometry.png)](https://raw.githubusercontent.com/llgcode/draw2d/master/resource/image/geometry.pdf)[![postscript](https://raw.githubusercontent.com/llgcode/draw2d/master/output/samples/postscript.png)](https://raw.githubusercontent.com/llgcode/draw2d/master/resource/image/postscript.pdf)
 
-[![demonstration of the image backend](https://raw.githubusercontent.com/llgcode/draw2d/master/output/samples/geometry.png)](https://raw.githubusercontent.com/llgcode/draw2d/master/output/samples/geometry.pdf)
-
-This image above is generated with the image backend. Click on the image to get the pdf which is generated with exactly the same code.
+Click on an image above to get the pdf, generated with exactly the same draw2d code. The first image is the output of `samples/geometry`. The second image is the result of `samples/postcript`, which demonstrates that draw2d can draw postscript files into images or pdf documents with the [ps](https://github.com/llgcode/ps) package.
 
 Features
 --------
