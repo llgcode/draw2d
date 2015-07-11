@@ -2,4 +2,5 @@
 *
 # Except this file
 !.gitignore
-!geometry.*
+!geometry.png
+!postscript.png
