@@ -138,10 +138,21 @@ func (gc *GraphicContext) GetDPI() int {
 }
 
 // GetStringBounds returns the approximate pixel bounds of the string s at x, y.
+// The left edge of the em square of the first character of s
+// and the baseline intersect at 0, 0 in the returned coordinates.
+// Therefore the top and left coordinates may well be negative.
 func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom float64) {
 	_, h := gc.pdf.GetFontSize()
+	d := gc.pdf.GetFontDesc("", "")
+	if d.Ascent == 0 {
+		// not defined (standard font?), use average of 81%
+		top = 0.81 * h
+	} else {
+		top = -float64(d.Ascent) * h / float64(d.Ascent-d.Descent)
+	}
+	bottom = top + h
 	margin := gc.pdf.GetCellMargin()
-	return margin, -h, margin + gc.pdf.GetStringWidth(s), 0
+	return -margin, top, -margin + gc.pdf.GetStringWidth(s), bottom
 }
 
 // CreateStringPath creates a path from the string s at x, y, and returns the string width.
@@ -151,8 +162,7 @@ func (gc *GraphicContext) CreateStringPath(text string, x, y float64) (cursor fl
 	w := right - left
 	h := bottom - top
 	// gc.pdf.SetXY(x, y-h) do not use this as y-h might be negative
-	margin := gc.pdf.GetCellMargin()
-	gc.pdf.MoveTo(x-margin, y-margin-0.82*h)
+	gc.pdf.MoveTo(x+left, y+top)
 	gc.pdf.CellFormat(w, h, text, "", 0, "BL", false, 0, "")
 	return w
 }
