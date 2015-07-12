@@ -204,7 +204,7 @@ func (gc *ImageGraphicContext) CreateStringPath(s string, x, y float64) float64 
 }
 
 // GetStringBounds returns the approximate pixel bounds of the string s at x, y.
-// The the left edge of the em square of the first character of s
+// The left edge of the em square of the first character of s
 // and the baseline intersect at 0, 0 in the returned coordinates.
 // Therefore the top and left coordinates may well be negative.
 func (gc *ImageGraphicContext) GetStringBounds(s string) (left, top, right, bottom float64) {
