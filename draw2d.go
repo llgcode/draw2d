@@ -43,7 +43,7 @@
 //   gc.FillStroke()
 //
 //   // Save to file
-//   draw2d.SaveToPngFile(fn, dest)
+//   draw2d.SaveToPngFile("hello.png", dest)
 //
 // There are more examples here:
 // https://github.com/llgcode/draw2d/tree/master/samples

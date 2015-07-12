@@ -1,7 +1,7 @@
 draw2d
 ======
 
-Package draw2d is a pure [go](http://golang.org) 2D vector graphics library with support for multiple output devices such as [images](http://golang.org/pkg/image) (draw2d), pdf documents (draw2dpdf) and opengl (draw2dopengl), which can also be used on the google app engine. It can be used as a pure go [Cairo](http://www.cairographics.org/) alternative. draw2d is released under the BSD license. See the [documentation](http://godoc.org/github.com/llgcode/draw2d) for more details.
+Package draw2d is a pure [go](http://golang.org) 2D vector graphics library with support for multiple output devices such as [images](http://golang.org/pkg/image) (draw2d), pdf documents (draw2dpdf) and opengl (draw2dgl), which can also be used on the google app engine. It can be used as a pure go [Cairo](http://www.cairographics.org/) alternative. draw2d is released under the BSD license. See the [documentation](http://godoc.org/github.com/llgcode/draw2d) for more details.
 
 [![geometry](https://raw.githubusercontent.com/llgcode/draw2d/master/output/samples/geometry.png)](https://raw.githubusercontent.com/llgcode/draw2d/master/resource/image/geometry.pdf)[![postscript](https://raw.githubusercontent.com/llgcode/draw2d/master/output/samples/postscript.png)](https://raw.githubusercontent.com/llgcode/draw2d/master/resource/image/postscript.pdf)
 
@@ -46,7 +46,7 @@ gc.Close()
 gc.FillStroke()
 
 // Save to file
-draw2d.SaveToPngFile(fn, dest)
+draw2d.SaveToPngFile("hello.png", dest)
 ```
 
 The same Go code can also generate a pdf document with package draw2dpdf:
@@ -69,7 +69,7 @@ gc.Close()
 gc.FillStroke()
 
 // Save to file
-draw2dpdf.SaveToPdfFile(fn, dest)
+draw2dpdf.SaveToPdfFile("hello.pdf", dest)
 ```
 
 There are more examples here: https://github.com/llgcode/draw2d/tree/master/samples
@@ -111,3 +111,4 @@ References
 
  - [antigrain.com](http://www.antigrain.com)
  - [freetype-go](http://code.google.com/p/freetype-go)
+ - 

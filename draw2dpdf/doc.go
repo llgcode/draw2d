@@ -2,7 +2,7 @@
 // created: 26/06/2015 by Stani Michiels
 
 // Package draw2dpdf provides a graphic context that can draw vector
-// graphics and text on pdf file.
+// graphics and text on pdf file with the gofpdf package.
 //
 // Quick Start
 //
@@ -25,10 +25,12 @@
 //   gc.FillStroke()
 //
 //   // Save to file
-//   draw2dpdf.SaveToPdfFile(fn, dest)
+//   draw2dpdf.SaveToPdfFile("hello.pdf", dest)
 //
 // There are more examples here:
 // https://github.com/llgcode/draw2d/tree/master/samples
+//
+// Alternative backends
 //
 // Drawing on images is provided by the draw2d package.
 // Drawing on opengl is provided by the draw2dgl package.
