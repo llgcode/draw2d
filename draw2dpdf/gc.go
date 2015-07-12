@@ -150,9 +150,7 @@ func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom fl
 	} else {
 		top = -float64(d.Ascent) * h / float64(d.Ascent-d.Descent)
 	}
-	bottom = top + h
-	margin := gc.pdf.GetCellMargin()
-	return -margin, top, -margin + gc.pdf.GetStringWidth(s), bottom
+	return 0, top, gc.pdf.GetStringWidth(s), top + h
 }
 
 // CreateStringPath creates a path from the string s at x, y, and returns the string width.
@@ -162,7 +160,8 @@ func (gc *GraphicContext) CreateStringPath(text string, x, y float64) (cursor fl
 	w := right - left
 	h := bottom - top
 	// gc.pdf.SetXY(x, y-h) do not use this as y-h might be negative
-	gc.pdf.MoveTo(x+left, y+top)
+	margin := gc.pdf.GetCellMargin()
+	gc.pdf.MoveTo(x-left-margin, y+top)
 	gc.pdf.CellFormat(w, h, text, "", 0, "BL", false, 0, "")
 	return w
 }
