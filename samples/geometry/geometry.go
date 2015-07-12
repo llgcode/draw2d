@@ -80,7 +80,6 @@ func CurveRectangle(gc draw2d.GraphicContext, x0, y0,
 		}
 	}
 	gc.Close()
-
 	gc.SetStrokeColor(stroke)
 	gc.SetFillColor(fill)
 	gc.SetLineWidth(10.0)
@@ -125,9 +124,8 @@ func Arc(gc draw2d.GraphicContext, xc, yc, width, height float64) {
 	gc.SetFillColor(color.NRGBA{255, 0x33, 0x33, 0x80})
 	gc.SetLineWidth(width / 20)
 
-	gc.MoveTo(xc, yc)
-	gc.LineTo(xc+math.Cos(startAngle)*radiusX, yc+math.Sin(startAngle)*radiusY)
-	gc.MoveTo(xc, yc)
+	gc.MoveTo(xc+math.Cos(startAngle)*radiusX, yc+math.Sin(startAngle)*radiusY)
+	gc.LineTo(xc, yc)
 	gc.LineTo(xc-radiusX, yc)
 	gc.Stroke()
 
@@ -154,9 +152,8 @@ func ArcNegative(gc draw2d.GraphicContext, xc, yc, width, height float64) {
 	gc.SetFillColor(color.NRGBA{255, 0x33, 0x33, 0x80})
 	gc.SetLineWidth(width / 20)
 
-	gc.MoveTo(xc, yc)
-	gc.LineTo(xc+math.Cos(startAngle)*radiusX, yc+math.Sin(startAngle)*radiusY)
-	gc.MoveTo(xc, yc)
+	gc.MoveTo(xc+math.Cos(startAngle)*radiusX, yc+math.Sin(startAngle)*radiusY)
+	gc.LineTo(xc, yc)
 	gc.LineTo(xc-radiusX, yc)
 	gc.Stroke()
 
@@ -205,7 +202,7 @@ func FillString(gc draw2d.GraphicContext, x, y, width, height float64) {
 		Name:   "luxi",
 		Family: draw2d.FontFamilyMono,
 		Style:  draw2d.FontStyleBold | draw2d.FontStyleItalic})
-	w := gc.FillString("cou")
+	w := gc.FillString("Hug")
 	gc.Translate(w+sx, 0)
 	left, top, right, bottom := gc.GetStringBounds("cou")
 	gc.SetStrokeColor(color.NRGBA{255, 0x33, 0x33, 0x80})
@@ -215,7 +212,7 @@ func FillString(gc draw2d.GraphicContext, x, y, width, height float64) {
 	gc.SetFillColor(color.NRGBA{0x33, 0x33, 0xff, 0xff})
 	gc.SetStrokeColor(color.NRGBA{0x33, 0x33, 0xff, 0xff})
 	gc.SetLineWidth(height / 100)
-	gc.StrokeString("cou")
+	gc.StrokeString("Hug")
 	gc.Restore()
 }
 
