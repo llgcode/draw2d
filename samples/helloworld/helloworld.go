@@ -41,6 +41,11 @@ func Draw(gc draw2d.GraphicContext, text string) {
 	gc.SetDPI(72)
 	gc.SetFontSize(14)
 	// Display Hello World
+	gc.SetStrokeColor(color.NRGBA{0x33, 0xFF, 0x33, 0xFF})
+	gc.MoveTo(8, 0)
+	gc.LineTo(8, 52)
+	gc.LineTo(297, 52)
+	gc.Stroke()
 	gc.FillString(text)
 	gc.FillStringAt(text, 8, 52)
 
