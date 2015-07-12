@@ -46,10 +46,12 @@ func Draw(gc draw2d.GraphicContext, text string) {
 
 	gc.Save()
 	gc.SetFillColor(color.NRGBA{0xFF, 0x33, 0x33, 0xFF})
+	gc.SetStrokeColor(color.NRGBA{0xFF, 0x33, 0x33, 0xFF})
 	gc.Translate(145, 85)
 	gc.StrokeStringAt(text, -50, 0)
 	gc.Rotate(math.Pi / 4)
 	gc.SetFillColor(color.NRGBA{0x33, 0x33, 0xFF, 0xFF})
+	gc.SetStrokeColor(color.NRGBA{0x33, 0x33, 0xFF, 0xFF})
 	gc.StrokeString(text)
 	gc.Restore()
 }

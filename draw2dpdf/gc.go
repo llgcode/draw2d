@@ -45,6 +45,7 @@ var (
 func NewPdf(orientationStr, unitStr, sizeStr string) *gofpdf.Fpdf {
 	pdf := gofpdf.New(orientationStr, unitStr, sizeStr, draw2d.GetFontFolder())
 	// to be compatible with draw2d
+	pdf.SetMargins(0, 0, 0)
 	pdf.SetDrawColor(0, 0, 0)
 	pdf.SetFillColor(255, 255, 255)
 	pdf.SetLineCapStyle("round")
@@ -139,16 +140,20 @@ func (gc *GraphicContext) GetDPI() int {
 // GetStringBounds returns the approximate pixel bounds of the string s at x, y.
 func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom float64) {
 	_, h := gc.pdf.GetFontSize()
-	return 0, 0, gc.pdf.GetStringWidth(s), h
+	margin := gc.pdf.GetCellMargin()
+	return margin, -h, margin + gc.pdf.GetStringWidth(s), 0
 }
 
 // CreateStringPath creates a path from the string s at x, y, and returns the string width.
 func (gc *GraphicContext) CreateStringPath(text string, x, y float64) (cursor float64) {
-	_, _, w, h := gc.GetStringBounds(text)
+	//fpdf uses the top left corner
+	left, top, right, bottom := gc.GetStringBounds(text)
+	w := right - left
+	h := bottom - top
+	// gc.pdf.SetXY(x, y-h) do not use this as y-h might be negative
 	margin := gc.pdf.GetCellMargin()
-	gc.pdf.MoveTo(x-margin, y+margin-0.82*h)
+	gc.pdf.MoveTo(x-margin, y-margin-0.82*h)
 	gc.pdf.CellFormat(w, h, text, "", 0, "BL", false, 0, "")
-	//	gc.pdf.Cell(w, h, text)
 	return w
 }
 
@@ -250,7 +255,9 @@ func (gc *GraphicContext) SetFontData(fontData draw2d.FontData) {
 	}
 	fn := draw2d.FontFileName(fontData)
 	fn = fn[:len(fn)-4]
-	gc.pdf.AddFont(fn, style, fn+".json")
+	size, _ := gc.pdf.GetFontSize()
+	gc.pdf.AddFont(fontData.Name, style, fn+".json")
+	gc.pdf.SetFont(fontData.Name, style, size)
 }
 
 // SetFontSize sets the font size in points (as in ``a 12 point font'').
