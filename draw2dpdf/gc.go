@@ -190,7 +190,9 @@ func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (cursor floa
 
 // Stroke strokes the paths with the color specified by SetStrokeColor
 func (gc *GraphicContext) Stroke(paths ...*draw2d.PathStorage) {
-	gc.draw("D", paths...)
+	_, _, _, alphaS := gc.Current.StrokeColor.RGBA()
+	gc.draw("D", alphaS, paths...)
+	gc.Current.Path = draw2d.NewPathStorage()
 }
 
 // Fill fills the paths with the color specified by SetFillColor
@@ -199,27 +201,43 @@ func (gc *GraphicContext) Fill(paths ...*draw2d.PathStorage) {
 	if !gc.Current.FillRule.UseNonZeroWinding() {
 		style += "*"
 	}
-	gc.draw(style, paths...)
+	_, _, _, alphaF := gc.Current.FillColor.RGBA()
+	gc.draw(style, alphaF, paths...)
+	gc.Current.Path = draw2d.NewPathStorage()
 }
 
 // FillStroke first fills the paths and than strokes them
 func (gc *GraphicContext) FillStroke(paths ...*draw2d.PathStorage) {
-	style := "FD"
+	var rule string
 	if !gc.Current.FillRule.UseNonZeroWinding() {
-		style += "*"
+		rule = "*"
 	}
-	gc.draw(style, paths...)
+	_, _, _, alphaS := gc.Current.StrokeColor.RGBA()
+	_, _, _, alphaF := gc.Current.FillColor.RGBA()
+	if alphaS == alphaF {
+		gc.draw("FD"+rule, alphaF, paths...)
+	} else {
+		gc.draw("F"+rule, alphaF, paths...)
+		gc.draw("S", alphaS, paths...)
+	}
+	gc.Current.Path = draw2d.NewPathStorage()
 }
 
 var logger = log.New(os.Stdout, "", log.Lshortfile)
 
+const alphaMax = float64(0xFFFF)
+
 // draw fills and/or strokes paths
-func (gc *GraphicContext) draw(style string, paths ...*draw2d.PathStorage) {
+func (gc *GraphicContext) draw(style string, alpha uint32, paths ...*draw2d.PathStorage) {
 	paths = append(paths, gc.Current.Path)
 	pathConverter := NewPathConverter(gc.pdf)
 	pathConverter.Convert(paths...)
+	a := float64(alpha) / alphaMax
+	current, blendMode := gc.pdf.GetAlpha()
+	if a != current {
+		gc.pdf.SetAlpha(a, blendMode)
+	}
 	gc.pdf.DrawPath(style)
-	gc.Current.Path = draw2d.NewPathStorage()
 }
 
 // overwrite StackGraphicContext methods

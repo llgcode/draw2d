@@ -21,7 +21,7 @@ func Main(gc draw2d.GraphicContext, ext string) (string, error) {
 	gc.SetFillColor(image.White)
 	gc.Save()
 	// Draw a (partial) gopher
-	gc.Translate(-65, 65)
+	gc.Translate(-60, 65)
 	gc.Rotate(-30 * (math.Pi / 180.0))
 	Draw(gc, 48, 48, 240, 72)
 	gc.Restore()
@@ -41,13 +41,13 @@ func Draw(gc draw2d.GraphicContext, x, y, w, h float64) {
 	brb := color.RGBA{0x8B, 0x45, 0x13, 0xBB} // brown transparant
 
 	// round head top
-	gc.MoveTo(x, y+h)
-	gc.CubicCurveTo(x, y+h*1.05, x+w/2, y-h, x+w, y+h*1.05)
+	gc.MoveTo(x, y+h*1.002)
+	gc.CubicCurveTo(x+w/4, y-h/3, x+3*w/4, y-h/3, x+w, y+h*1.002)
 	gc.Close()
 	gc.SetFillColor(brb)
 	gc.Fill()
 	// rectangle head bottom
-	draw2d.RoundRect(gc, x, y+h, x+w, y+h+h, w/5, h/5)
+	draw2d.RoundRect(gc, x, y+h, x+w, y+h+h, h/5, h/5)
 	gc.Fill()
 	// left ear outside
 	draw2d.Circle(gc, x, y+h, w/12)
