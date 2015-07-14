@@ -71,9 +71,6 @@
 // graphic context (https://github.com/llgcode/ps). Stani Michiels
 // implemented the pdf backend with the gofpdf package.
 //
-// The package depends on freetype-go package for its rasterization
-// algorithm.
-//
 // Packages using draw2d
 //
 // - https://github.com/llgcode/ps: Postscript interpreter written in Go
