@@ -13,8 +13,9 @@ import (
 )
 
 var (
-	fontFolder = "../resource/font/"
-	fonts      = make(map[string]*truetype.Font)
+	fontFolder               = "../resource/font/"
+	fonts                    = make(map[string]*truetype.Font)
+	fontNamer  FontFileNamer = FontFileName
 )
 
 type FontStyle byte
@@ -38,6 +39,8 @@ type FontData struct {
 	Family FontFamily
 	Style  FontStyle
 }
+
+type FontFileNamer func(fontData FontData) string
 
 func FontFileName(fontData FontData) string {
 	fontFileName := fontData.Name
@@ -63,11 +66,11 @@ func FontFileName(fontData FontData) string {
 }
 
 func RegisterFont(fontData FontData, font *truetype.Font) {
-	fonts[FontFileName(fontData)] = font
+	fonts[fontNamer(fontData)] = font
 }
 
 func GetFont(fontData FontData) *truetype.Font {
-	fontFileName := FontFileName(fontData)
+	fontFileName := fontNamer(fontData)
 	font := fonts[fontFileName]
 	if font != nil {
 		return font
@@ -82,6 +85,10 @@ func GetFontFolder() string {
 
 func SetFontFolder(folder string) {
 	fontFolder = filepath.Clean(folder)
+}
+
+func SetFontNamer(fn FontFileNamer) {
+	fontNamer = fn
 }
 
 func loadFont(fontFileName string) *truetype.Font {
