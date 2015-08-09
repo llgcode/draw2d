@@ -13,8 +13,9 @@ import (
 )
 
 var (
-	fontFolder = "../resource/font/"
-	fonts      = make(map[string]*truetype.Font)
+	fontFolder               = "../resource/font/"
+	fonts                    = make(map[string]*truetype.Font)
+	fontNamer  FontFileNamer = FontFileName
 )
 
 type FontStyle byte
@@ -38,6 +39,8 @@ type FontData struct {
 	Family FontFamily
 	Style  FontStyle
 }
+
+type FontFileNamer func(fontData FontData) string
 
 func FontFileName(fontData FontData) string {
 	fontFileName := fontData.Name
