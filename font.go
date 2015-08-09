@@ -87,6 +87,10 @@ func SetFontFolder(folder string) {
 	fontFolder = filepath.Clean(folder)
 }
 
+func SetFontNamer(fn FontFileNamer) {
+	fontNamer = fn
+}
+
 func loadFont(fontFileName string) *truetype.Font {
 	fontBytes, err := ioutil.ReadFile(path.Join(fontFolder, fontFileName))
 	if err != nil {
