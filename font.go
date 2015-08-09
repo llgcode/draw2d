@@ -66,11 +66,11 @@ func FontFileName(fontData FontData) string {
 }
 
 func RegisterFont(fontData FontData, font *truetype.Font) {
-	fonts[FontFileName(fontData)] = font
+	fonts[fontNamer(fontData)] = font
 }
 
 func GetFont(fontData FontData) *truetype.Font {
-	fontFileName := FontFileName(fontData)
+	fontFileName := fontNamer(fontData)
 	font := fonts[fontFileName]
 	if font != nil {
 		return font
