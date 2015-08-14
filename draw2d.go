@@ -84,10 +84,7 @@
 // - https://github.com/vdobler/chart: basic charts in Go
 package draw2d
 
-import (
-	"image"
-	"image/color"
-)
+import "image/color"
 
 // FillRule defines the type for fill rules
 type FillRule int
@@ -148,10 +145,6 @@ type StrokeStyle struct {
 	// array represented dash length pair values are plain dash and impair are space between dash
 	// if empty display plain line
 	Dash []float64
-}
-
-// FillStyle is an empty interface you may want to use SolidFillStyle
-type FillStyle interface {
 }
 
 // SolidFillStyle define style attributes for a solid fill style
@@ -232,13 +225,4 @@ type ImageScaling struct {
 	Width, Height float64
 	// ScalingPolicy defines the scaling policy to applied to the image
 	ScalingPolicy ScalingPolicy
-}
-
-// Drawer can fill and stroke a path
-type Drawer interface {
-	Matrix() *Matrix
-	Fill(path *Path, style FillStyle)
-	Stroke(path *Path, style StrokeStyle)
-	Text(text string, x, y float64, style TextStyle)
-	Image(image image.Image, x, y float64, scaling ImageScaling)
 }
