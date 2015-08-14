@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/llgcode/draw2d"
+	"github.com/llgcode/draw2d/draw2dimg"
 )
 
 type sample func(gc draw2d.GraphicContext, ext string) (string, error)
@@ -14,7 +15,7 @@ type sample func(gc draw2d.GraphicContext, ext string) (string, error)
 func test(t *testing.T, draw sample) {
 	// Initialize the graphic context on an RGBA image
 	dest := image.NewRGBA(image.Rect(0, 0, 297, 210.0))
-	gc := draw2d.NewGraphicContext(dest)
+	gc := draw2dimg.NewGraphicContext(dest)
 	// Draw Android logo
 	output, err := draw(gc, "png")
 	if err != nil {
@@ -22,7 +23,7 @@ func test(t *testing.T, draw sample) {
 		return
 	}
 	// Save to png
-	err = draw2d.SaveToPngFile(output, dest)
+	err = draw2dimg.SaveToPngFile(output, dest)
 	if err != nil {
 		t.Errorf("Saving %q failed: %v", output, err)
 	}

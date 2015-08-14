@@ -11,6 +11,7 @@ import (
 	"math"
 
 	"github.com/llgcode/draw2d"
+	"github.com/llgcode/draw2d/draw2dkit"
 	"github.com/llgcode/draw2d/samples"
 )
 
@@ -46,61 +47,76 @@ func Draw(gc draw2d.GraphicContext, x, y, w, h float64) {
 	gc.Close()
 	gc.SetFillColor(brb)
 	gc.Fill()
+
 	// rectangle head bottom
-	draw2d.RoundRect(gc, x, y+h, x+w, y+h+h, h/5, h/5)
+	draw2dkit.RoundedRectangle(gc, x, y+h, x+w, y+h+h, h/5, h/5)
 	gc.Fill()
+
 	// left ear outside
-	draw2d.Circle(gc, x, y+h, w/12)
+	draw2dkit.Circle(gc, x, y+h, w/12)
 	gc.SetFillColor(brf)
 	gc.Fill()
+
 	// left ear inside
-	draw2d.Circle(gc, x, y+h, 0.5*w/12)
+	draw2dkit.Circle(gc, x, y+h, 0.5*w/12)
 	gc.SetFillColor(nf)
 	gc.Fill()
+
 	// right ear outside
-	draw2d.Circle(gc, x+w, y+h, w/12)
+	draw2dkit.Circle(gc, x+w, y+h, w/12)
 	gc.SetFillColor(brf)
 	gc.Fill()
+
 	// right ear inside
-	draw2d.Circle(gc, x+w, y+h, 0.5*w/12)
+	draw2dkit.Circle(gc, x+w, y+h, 0.5*w/12)
 	gc.SetFillColor(nf)
 	gc.Fill()
+
 	// left eye outside white
-	draw2d.Circle(gc, x+w/3, y+h23, w/9)
+	draw2dkit.Circle(gc, x+w/3, y+h23, w/9)
 	gc.SetFillColor(wf)
 	gc.Fill()
+
 	// left eye black
-	draw2d.Circle(gc, x+w/3+w/24, y+h23, 0.5*w/9)
+	draw2dkit.Circle(gc, x+w/3+w/24, y+h23, 0.5*w/9)
 	gc.SetFillColor(blf)
 	gc.Fill()
+
 	// left eye inside white
-	draw2d.Circle(gc, x+w/3+w/24+w/48, y+h23, 0.2*w/9)
+	draw2dkit.Circle(gc, x+w/3+w/24+w/48, y+h23, 0.2*w/9)
 	gc.SetFillColor(wf)
 	gc.Fill()
+
 	// right eye outside white
-	draw2d.Circle(gc, x+w-w/3, y+h23, w/9)
+	draw2dkit.Circle(gc, x+w-w/3, y+h23, w/9)
 	gc.Fill()
+
 	// right eye black
-	draw2d.Circle(gc, x+w-w/3+w/24, y+h23, 0.5*w/9)
+	draw2dkit.Circle(gc, x+w-w/3+w/24, y+h23, 0.5*w/9)
 	gc.SetFillColor(blf)
 	gc.Fill()
+
 	// right eye inside white
-	draw2d.Circle(gc, x+w-(w/3)+w/24+w/48, y+h23, 0.2*w/9)
+	draw2dkit.Circle(gc, x+w-(w/3)+w/24+w/48, y+h23, 0.2*w/9)
 	gc.SetFillColor(wf)
 	gc.Fill()
+
 	// left tooth
 	gc.SetFillColor(wf)
-	draw2d.RoundRect(gc, x+w/2-w/8, y+h+h/2.5, x+w/2-w/8+w/8, y+h+h/2.5+w/6, w/10, w/10)
+	draw2dkit.RoundedRectangle(gc, x+w/2-w/8, y+h+h/2.5, x+w/2-w/8+w/8, y+h+h/2.5+w/6, w/10, w/10)
 	gc.Fill()
+
 	// right tooth
-	draw2d.RoundRect(gc, x+w/2, y+h+h/2.5, x+w/2+w/8, y+h+h/2.5+w/6, w/10, w/10)
+	draw2dkit.RoundedRectangle(gc, x+w/2, y+h+h/2.5, x+w/2+w/8, y+h+h/2.5+w/6, w/10, w/10)
 	gc.Fill()
+
 	// snout
-	draw2d.Ellipse(gc, x+(w/2), y+h+h/2.5, w/6, w/12)
+	draw2dkit.Ellipse(gc, x+(w/2), y+h+h/2.5, w/6, w/12)
 	gc.SetFillColor(nf)
 	gc.Fill()
+
 	// nose
-	draw2d.Ellipse(gc, x+(w/2), y+h+h/7, w/10, w/12)
+	draw2dkit.Ellipse(gc, x+(w/2), y+h+h/7, w/10, w/12)
 	gc.SetFillColor(blf)
 	gc.Fill()
 }

@@ -9,6 +9,8 @@ import (
 	"code.google.com/p/freetype-go/freetype/raster"
 	"github.com/go-gl/gl/v2.1/gl"
 	"github.com/llgcode/draw2d"
+	"github.com/llgcode/draw2d/draw2dbase"
+	"github.com/llgcode/draw2d/draw2dimg"
 )
 
 func init() {
@@ -112,7 +114,7 @@ func NewPainter() *Painter {
 }
 
 type GraphicContext struct {
-	*draw2d.StackGraphicContext
+	*draw2dbase.StackGraphicContext
 	painter          *Painter
 	fillRasterizer   *raster.Rasterizer
 	strokeRasterizer *raster.Rasterizer
@@ -121,7 +123,7 @@ type GraphicContext struct {
 // NewGraphicContext creates a new Graphic context from an image.
 func NewGraphicContext(width, height int) *GraphicContext {
 	gc := &GraphicContext{
-		draw2d.NewStackGraphicContext(),
+		draw2dbase.NewStackGraphicContext(),
 		NewPainter(),
 		raster.NewRasterizer(width, height),
 		raster.NewRasterizer(width, height),
@@ -180,56 +182,76 @@ func (gc *GraphicContext) paint(rasterizer *raster.Rasterizer, color color.Color
 	rasterizer.Rasterize(gc.painter)
 	rasterizer.Clear()
 	gc.painter.Flush()
+	gc.Current.Path.Clear()
 }
 
-func (gc *GraphicContext) Stroke(paths ...*draw2d.PathStorage) {
+func (gc *GraphicContext) Stroke(paths ...*draw2d.Path) {
 	paths = append(paths, gc.Current.Path)
 	gc.strokeRasterizer.UseNonZeroWinding = true
 
-	stroker := draw2d.NewLineStroker(gc.Current.Cap, gc.Current.Join, draw2d.NewVertexMatrixTransform(gc.Current.Tr, draw2d.NewVertexAdder(gc.strokeRasterizer)))
+	stroker := draw2dbase.NewLineStroker(gc.Current.Cap, gc.Current.Join, draw2dbase.Transformer{Tr: gc.Current.Tr, Flattener: draw2dimg.FtLineBuilder{Adder: gc.strokeRasterizer}})
 	stroker.HalfLineWidth = gc.Current.LineWidth / 2
-	var pathConverter *draw2d.PathConverter
+
+	var liner draw2dbase.Flattener
 	if gc.Current.Dash != nil && len(gc.Current.Dash) > 0 {
-		dasher := draw2d.NewDashConverter(gc.Current.Dash, gc.Current.DashOffset, stroker)
-		pathConverter = draw2d.NewPathConverter(dasher)
+		liner = draw2dbase.NewDashConverter(gc.Current.Dash, gc.Current.DashOffset, stroker)
 	} else {
-		pathConverter = draw2d.NewPathConverter(stroker)
+		liner = stroker
 	}
-	pathConverter.ApproximationScale = gc.Current.Tr.GetScale() // From agg code
-	pathConverter.Convert(paths...)
+	for _, p := range paths {
+		draw2dbase.Flatten(p, liner, gc.Current.Tr.GetScale())
+	}
 
 	gc.paint(gc.strokeRasterizer, gc.Current.StrokeColor)
-	gc.Current.Path = draw2d.NewPathStorage()
 }
 
-func (gc *GraphicContext) Fill(paths ...*draw2d.PathStorage) {
+func (gc *GraphicContext) Fill(paths ...*draw2d.Path) {
 	paths = append(paths, gc.Current.Path)
-	gc.fillRasterizer.UseNonZeroWinding = gc.Current.FillRule.UseNonZeroWinding()
+	gc.fillRasterizer.UseNonZeroWinding = useNonZeroWinding(gc.Current.FillRule)
 
-	pathConverter := draw2d.NewPathConverter(draw2d.NewVertexMatrixTransform(gc.Current.Tr, draw2d.NewVertexAdder(gc.fillRasterizer)))
-	pathConverter.ApproximationScale = gc.Current.Tr.GetScale() // From agg code
-	pathConverter.Convert(paths...)
+	/**** first method ****/
+	flattener := draw2dbase.Transformer{Tr: gc.Current.Tr, Flattener: draw2dimg.FtLineBuilder{Adder: gc.fillRasterizer}}
+	for _, p := range paths {
+		draw2dbase.Flatten(p, flattener, gc.Current.Tr.GetScale())
+	}
 
 	gc.paint(gc.fillRasterizer, gc.Current.FillColor)
-	gc.Current.Path = draw2d.NewPathStorage()
 }
 
-func (gc *GraphicContext) FillStroke(paths ...*draw2d.PathStorage) {
-	gc.fillRasterizer.UseNonZeroWinding = gc.Current.FillRule.UseNonZeroWinding()
+func (gc *GraphicContext) FillStroke(paths ...*draw2d.Path) {
+	paths = append(paths, gc.Current.Path)
+	gc.fillRasterizer.UseNonZeroWinding = useNonZeroWinding(gc.Current.FillRule)
 	gc.strokeRasterizer.UseNonZeroWinding = true
 
-	filler := draw2d.NewVertexMatrixTransform(gc.Current.Tr, draw2d.NewVertexAdder(gc.fillRasterizer))
+	flattener := draw2dbase.Transformer{Tr: gc.Current.Tr, Flattener: draw2dimg.FtLineBuilder{Adder: gc.fillRasterizer}}
 
-	stroker := draw2d.NewLineStroker(gc.Current.Cap, gc.Current.Join, draw2d.NewVertexMatrixTransform(gc.Current.Tr, draw2d.NewVertexAdder(gc.strokeRasterizer)))
+	stroker := draw2dbase.NewLineStroker(gc.Current.Cap, gc.Current.Join, draw2dbase.Transformer{Tr: gc.Current.Tr, Flattener: draw2dimg.FtLineBuilder{Adder: gc.strokeRasterizer}})
 	stroker.HalfLineWidth = gc.Current.LineWidth / 2
 
-	demux := draw2d.NewDemuxConverter(filler, stroker)
-	paths = append(paths, gc.Current.Path)
-	pathConverter := draw2d.NewPathConverter(demux)
-	pathConverter.ApproximationScale = gc.Current.Tr.GetScale() // From agg code
-	pathConverter.Convert(paths...)
+	var liner draw2dbase.Flattener
+	if gc.Current.Dash != nil && len(gc.Current.Dash) > 0 {
+		liner = draw2dbase.NewDashConverter(gc.Current.Dash, gc.Current.DashOffset, stroker)
+	} else {
+		liner = stroker
+	}
 
+	demux := draw2dbase.DemuxFlattener{Flatteners: []draw2dbase.Flattener{flattener, liner}}
+	for _, p := range paths {
+		draw2dbase.Flatten(p, demux, gc.Current.Tr.GetScale())
+	}
+
+	// Fill
 	gc.paint(gc.fillRasterizer, gc.Current.FillColor)
+	// Stroke
 	gc.paint(gc.strokeRasterizer, gc.Current.StrokeColor)
-	gc.Current.Path = draw2d.NewPathStorage()
+}
+
+func useNonZeroWinding(f draw2d.FillRule) bool {
+	switch f {
+	case draw2d.FillRuleEvenOdd:
+		return false
+	case draw2d.FillRuleWinding:
+		return true
+	}
+	return false
 }

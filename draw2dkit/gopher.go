@@ -1,33 +1,16 @@
 // Copyright 2010 The draw2d Authors. All rights reserved.
 // created: 21/11/2010 by Laurent Le Goff
 
-// Package gopher draws a gopher avatar based on a svg of:
-// https://github.com/golang-samples/gopher-vector/
-package gopher
+package draw2dkit
 
 import (
 	"image/color"
 
 	"github.com/llgcode/draw2d"
-	"github.com/llgcode/draw2d/samples"
 )
 
-// Main draws a left hand and ear of a gopher. Afterwards it returns
-// the filename. This should only be used during testing.
-func Main(gc draw2d.GraphicContext, ext string) (string, error) {
-	gc.Save()
-	gc.Scale(0.5, 0.5)
-	// Draw a (partial) gopher
-	Draw(gc)
-	gc.Restore()
-
-	// Return the output filename
-	return samples.Output("gopher", ext), nil
-}
-
-// Draw a left hand and ear of a gopher using a gc thanks to
-// https://github.com/golang-samples/gopher-vector/
-func Draw(gc draw2d.GraphicContext) {
+// Gopher draw a gopher using a GraphicContext thanks to https://github.com/golang-samples/gopher-vector/
+func Gopher(gc draw2d.GraphicContext, x, y, w, h float64) {
 	// Initialize Stroke Attribute
 	gc.SetLineWidth(3)
 	gc.SetLineCap(draw2d.RoundCap)

@@ -8,10 +8,9 @@ package helloworld
 import (
 	"fmt"
 	"image"
-	"image/color"
-	"math"
 
 	"github.com/llgcode/draw2d"
+	"github.com/llgcode/draw2d/draw2dkit"
 	"github.com/llgcode/draw2d/samples"
 )
 
@@ -28,35 +27,14 @@ func Main(gc draw2d.GraphicContext, ext string) (string, error) {
 // Draw "Hello World"
 func Draw(gc draw2d.GraphicContext, text string) {
 	// Draw a rounded rectangle using default colors
-	draw2d.RoundRect(gc, 5, 5, 292, 205, 10, 10)
+	draw2dkit.RoundedRectangle(gc, 5, 5, 135, 95, 10, 10)
 	gc.FillStroke()
 
 	// Set the font luximbi.ttf
-	gc.SetFontData(draw2d.FontData{
-		Name:   "luxi",
-		Family: draw2d.FontFamilyMono,
-		Style:  draw2d.FontStyleBold | draw2d.FontStyleItalic})
+	gc.SetFontData(draw2d.FontData{Name: "luxi", Family: draw2d.FontFamilyMono, Style: draw2d.FontStyleBold | draw2d.FontStyleItalic})
 	// Set the fill text color to black
 	gc.SetFillColor(image.Black)
-	gc.SetDPI(72)
 	gc.SetFontSize(14)
 	// Display Hello World
-	gc.SetStrokeColor(color.NRGBA{0x33, 0xFF, 0x33, 0xFF})
-	gc.MoveTo(8, 0)
-	gc.LineTo(8, 52)
-	gc.LineTo(297, 52)
-	gc.Stroke()
-	gc.FillString(text)
-	gc.FillStringAt(text, 8, 52)
-
-	gc.Save()
-	gc.SetFillColor(color.NRGBA{0xFF, 0x33, 0x33, 0xFF})
-	gc.SetStrokeColor(color.NRGBA{0xFF, 0x33, 0x33, 0xFF})
-	gc.Translate(145, 85)
-	gc.StrokeStringAt(text, -50, 0)
-	gc.Rotate(math.Pi / 4)
-	gc.SetFillColor(color.NRGBA{0x33, 0x33, 0xFF, 0xFF})
-	gc.SetStrokeColor(color.NRGBA{0x33, 0x33, 0xFF, 0xFF})
-	gc.StrokeString(text)
-	gc.Restore()
+	gc.FillStringAt("Hello World", 8, 52)
 }

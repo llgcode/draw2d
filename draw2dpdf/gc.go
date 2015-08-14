@@ -18,6 +18,8 @@ import (
 
 	"github.com/jung-kurt/gofpdf"
 	"github.com/llgcode/draw2d"
+	"github.com/llgcode/draw2d/draw2dbase"
+	"github.com/llgcode/draw2d/draw2dkit"
 )
 
 const (
@@ -27,11 +29,11 @@ const (
 )
 
 var (
-	caps = map[draw2d.Cap]string{
+	caps = map[draw2d.LineCap]string{
 		draw2d.RoundCap:  "round",
 		draw2d.ButtCap:   "butt",
 		draw2d.SquareCap: "square"}
-	joins = map[draw2d.Join]string{
+	joins = map[draw2d.LineJoin]string{
 		draw2d.RoundJoin: "round",
 		draw2d.BevelJoin: "bevel",
 		draw2d.MiterJoin: "miter",
@@ -68,7 +70,7 @@ func clearRect(gc *GraphicContext, x1, y1, x2, y2 float64) {
 	x, y := gc.pdf.GetXY()
 	// cover page with white rectangle
 	gc.SetFillColor(white)
-	draw2d.Rect(gc, x1, y1, x2, y2)
+	draw2dkit.Rectangle(gc, x1, y1, x2, y2)
 	gc.Fill()
 	// restore state
 	gc.SetFillColor(f)
@@ -78,14 +80,14 @@ func clearRect(gc *GraphicContext, x1, y1, x2, y2 float64) {
 // GraphicContext implements the draw2d.GraphicContext interface
 // It provides draw2d with a pdf backend (based on gofpdf)
 type GraphicContext struct {
-	*draw2d.StackGraphicContext
+	*draw2dbase.StackGraphicContext
 	pdf *gofpdf.Fpdf
 	DPI int
 }
 
 // NewGraphicContext creates a new pdf GraphicContext
 func NewGraphicContext(pdf *gofpdf.Fpdf) *GraphicContext {
-	gc := &GraphicContext{draw2d.NewStackGraphicContext(), pdf, DPI}
+	gc := &GraphicContext{draw2dbase.NewStackGraphicContext(), pdf, DPI}
 	gc.SetDPI(DPI)
 	return gc
 }
@@ -189,27 +191,27 @@ func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (cursor floa
 }
 
 // Stroke strokes the paths with the color specified by SetStrokeColor
-func (gc *GraphicContext) Stroke(paths ...*draw2d.PathStorage) {
+func (gc *GraphicContext) Stroke(paths ...*draw2d.Path) {
 	_, _, _, alphaS := gc.Current.StrokeColor.RGBA()
 	gc.draw("D", alphaS, paths...)
-	gc.Current.Path = draw2d.NewPathStorage()
+	gc.Current.Path.Clear()
 }
 
 // Fill fills the paths with the color specified by SetFillColor
-func (gc *GraphicContext) Fill(paths ...*draw2d.PathStorage) {
+func (gc *GraphicContext) Fill(paths ...*draw2d.Path) {
 	style := "F"
-	if !gc.Current.FillRule.UseNonZeroWinding() {
+	if gc.Current.FillRule != draw2d.FillRuleWinding {
 		style += "*"
 	}
 	_, _, _, alphaF := gc.Current.FillColor.RGBA()
 	gc.draw(style, alphaF, paths...)
-	gc.Current.Path = draw2d.NewPathStorage()
+	gc.Current.Path.Clear()
 }
 
 // FillStroke first fills the paths and than strokes them
-func (gc *GraphicContext) FillStroke(paths ...*draw2d.PathStorage) {
+func (gc *GraphicContext) FillStroke(paths ...*draw2d.Path) {
 	var rule string
-	if !gc.Current.FillRule.UseNonZeroWinding() {
+	if gc.Current.FillRule != draw2d.FillRuleWinding {
 		rule = "*"
 	}
 	_, _, _, alphaS := gc.Current.StrokeColor.RGBA()
@@ -220,7 +222,7 @@ func (gc *GraphicContext) FillStroke(paths ...*draw2d.PathStorage) {
 		gc.draw("F"+rule, alphaF, paths...)
 		gc.draw("S", alphaS, paths...)
 	}
-	gc.Current.Path = draw2d.NewPathStorage()
+	gc.Current.Path.Clear()
 }
 
 var logger = log.New(os.Stdout, "", log.Lshortfile)
@@ -228,10 +230,11 @@ var logger = log.New(os.Stdout, "", log.Lshortfile)
 const alphaMax = float64(0xFFFF)
 
 // draw fills and/or strokes paths
-func (gc *GraphicContext) draw(style string, alpha uint32, paths ...*draw2d.PathStorage) {
+func (gc *GraphicContext) draw(style string, alpha uint32, paths ...*draw2d.Path) {
 	paths = append(paths, gc.Current.Path)
-	pathConverter := NewPathConverter(gc.pdf)
-	pathConverter.Convert(paths...)
+	for _, p := range paths {
+		ConvertPath(p, gc.pdf)
+	}
 	a := float64(alpha) / alphaMax
 	current, blendMode := gc.pdf.GetAlpha()
 	if a != current {
@@ -308,13 +311,13 @@ func (gc *GraphicContext) SetLineWidth(LineWidth float64) {
 }
 
 // SetLineCap sets the line cap (round, but or square)
-func (gc *GraphicContext) SetLineCap(Cap draw2d.Cap) {
+func (gc *GraphicContext) SetLineCap(Cap draw2d.LineCap) {
 	gc.StackGraphicContext.SetLineCap(Cap)
 	gc.pdf.SetLineCapStyle(caps[Cap])
 }
 
 // SetLineJoin sets the line cap (round, bevel or miter)
-func (gc *GraphicContext) SetLineJoin(Join draw2d.Join) {
+func (gc *GraphicContext) SetLineJoin(Join draw2d.LineJoin) {
 	gc.StackGraphicContext.SetLineJoin(Join)
 	gc.pdf.SetLineJoinStyle(joins[Join])
 }

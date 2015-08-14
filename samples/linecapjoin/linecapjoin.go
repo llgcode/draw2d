@@ -17,8 +17,8 @@ func Main(gc draw2d.GraphicContext, ext string) (string, error) {
 	// Draw the line
 	const offset = 75.0
 	x := 35.0
-	caps := []draw2d.Cap{draw2d.ButtCap, draw2d.SquareCap, draw2d.RoundCap}
-	joins := []draw2d.Join{draw2d.BevelJoin, draw2d.MiterJoin, draw2d.RoundJoin}
+	caps := []draw2d.LineCap{draw2d.ButtCap, draw2d.SquareCap, draw2d.RoundCap}
+	joins := []draw2d.LineJoin{draw2d.BevelJoin, draw2d.MiterJoin, draw2d.RoundJoin}
 	for i := range caps {
 		Draw(gc, caps[i], joins[i], x, 50, x, 160, offset)
 		x += offset
@@ -29,7 +29,7 @@ func Main(gc draw2d.GraphicContext, ext string) (string, error) {
 }
 
 // Draw a line with an angle with specified line cap and join
-func Draw(gc draw2d.GraphicContext, cap draw2d.Cap, join draw2d.Join,
+func Draw(gc draw2d.GraphicContext, cap draw2d.LineCap, join draw2d.LineJoin,
 	x0, y0, x1, y1, offset float64) {
 	gc.SetLineCap(cap)
 	gc.SetLineJoin(join)

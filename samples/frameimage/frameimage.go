@@ -8,6 +8,8 @@ import (
 	"math"
 
 	"github.com/llgcode/draw2d"
+	"github.com/llgcode/draw2d/draw2dimg"
+	"github.com/llgcode/draw2d/draw2dkit"
 	"github.com/llgcode/draw2d/samples"
 )
 
@@ -33,13 +35,12 @@ func Main(gc draw2d.GraphicContext, ext string) (string, error) {
 func Draw(gc draw2d.GraphicContext, png string,
 	dw, dh, margin, lineWidth float64) error {
 	// Draw frame
-	draw2d.RoundRect(gc, lineWidth, lineWidth,
-		dw-lineWidth, dh-lineWidth, 100, 100)
+	draw2dkit.RoundedRectangle(gc, lineWidth, lineWidth, dw-lineWidth, dh-lineWidth, 100, 100)
 	gc.SetLineWidth(lineWidth)
 	gc.FillStroke()
 
 	// load the source image
-	source, err := draw2d.LoadFromPngFile(png)
+	source, err := draw2dimg.LoadFromPngFile(png)
 	if err != nil {
 		return err
 	}

@@ -10,6 +10,7 @@ import (
 	"github.com/go-gl/glfw/v3.1/glfw"
 	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/draw2dgl"
+	"github.com/llgcode/draw2d/draw2dkit"
 )
 
 var (
@@ -57,7 +58,7 @@ func display() {
 		Style:  draw2d.FontStyleBold | draw2d.FontStyleItalic})
 
 	gc.BeginPath()
-	draw2d.RoundRect(gc, 200, 200, 600, 600, 100, 100)
+	draw2dkit.RoundedRectangle(gc, 200, 200, 600, 600, 100, 100)
 
 	gc.SetFillColor(color.RGBA{0, 0, 0, 0xff})
 	gc.Fill()
@@ -104,9 +105,11 @@ func main() {
 		//		time.Sleep(2 * time.Second)
 	}
 }
+
 func onChar(w *glfw.Window, char rune) {
 	log.Println(char)
 }
+
 func onKey(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
 	switch {
 	case key == glfw.KeyEscape && action == glfw.Press,

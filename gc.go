@@ -8,34 +8,38 @@ import (
 	"image/color"
 )
 
-// FillRule defines the type for fill rules
-type FillRule int
-
-const (
-	// FillRuleEvenOdd defines the even odd filling rule
-	FillRuleEvenOdd FillRule = iota
-	// FillRuleWinding defines the non zero winding rule
-	FillRuleWinding
-)
-
 // GraphicContext describes the interface for the various backends (images, pdf, opengl, ...)
 type GraphicContext interface {
-	Path
-	// Create a new path
+	PathBuilder
+	// BeginPath creates a new path
 	BeginPath()
-	GetMatrixTransform() MatrixTransform
-	SetMatrixTransform(tr MatrixTransform)
-	ComposeMatrixTransform(tr MatrixTransform)
+	// GetMatrixTransform returns the current transformation matrix
+	GetMatrixTransform() Matrix
+	// SetMatrixTransform sets the current transformation matrix
+	SetMatrixTransform(tr Matrix)
+	// ComposeMatrixTransform composes the current transformation matrix with tr
+	ComposeMatrixTransform(tr Matrix)
+	// Rotate applies a rotation to the current transformation matrix. angle is in radian.
 	Rotate(angle float64)
+	// Translate applies a translation to the current transformation matrix.
 	Translate(tx, ty float64)
+	// Scale applies a scale to the current transformation matrix.
 	Scale(sx, sy float64)
+	// SetStrokeColor sets the current stroke color
 	SetStrokeColor(c color.Color)
+	// SetStrokeColor sets the current fill color
 	SetFillColor(c color.Color)
+	// SetFillRule sets the current fill rule
 	SetFillRule(f FillRule)
+	// SetLineWidth sets the current line width
 	SetLineWidth(lineWidth float64)
-	SetLineCap(cap Cap)
-	SetLineJoin(join Join)
+	// SetLineCap sets the current line cap
+	SetLineCap(cap LineCap)
+	// SetLineJoin sets the current line join
+	SetLineJoin(join LineJoin)
+	// SetLineJoin sets the current dash
 	SetLineDash(dash []float64, dashOffset float64)
+	// SetFontSize
 	SetFontSize(fontSize float64)
 	GetFontSize() float64
 	SetFontData(fontData FontData)
@@ -53,7 +57,7 @@ type GraphicContext interface {
 	FillStringAt(text string, x, y float64) (cursor float64)
 	StrokeString(text string) (cursor float64)
 	StrokeStringAt(text string, x, y float64) (cursor float64)
-	Stroke(paths ...*PathStorage)
-	Fill(paths ...*PathStorage)
-	FillStroke(paths ...*PathStorage)
+	Stroke(paths ...*Path)
+	Fill(paths ...*Path)
+	FillStroke(paths ...*Path)
 }

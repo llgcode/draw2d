@@ -8,6 +8,7 @@ import (
 	"image/color"
 
 	"github.com/llgcode/draw2d"
+	"github.com/llgcode/draw2d/draw2dkit"
 	"github.com/llgcode/draw2d/samples"
 )
 
@@ -21,7 +22,7 @@ func Main(gc draw2d.GraphicContext, ext string) (string, error) {
 		Draw(gc, x, 0, x, 210)
 	}
 	gc.ClearRect(100, 75, 197, 135)
-	draw2d.Ellipse(gc, 148.5, 105, 35, 25)
+	draw2dkit.Ellipse(gc, 148.5, 105, 35, 25)
 	gc.SetFillColor(color.RGBA{0xff, 0xff, 0x44, 0xff})
 	gc.FillStroke()
 

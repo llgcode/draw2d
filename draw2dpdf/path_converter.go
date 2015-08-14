@@ -11,50 +11,34 @@ import (
 
 const deg = 180 / math.Pi
 
-// PathConverter converts the paths to the pdf api
-type PathConverter struct {
-	pdf Vectorizer
-}
-
-// NewPathConverter constructs a PathConverter from a pdf vectorizer
-func NewPathConverter(pdf Vectorizer) *PathConverter {
-	return &PathConverter{pdf: pdf}
-}
-
-// Convert converts the paths to the pdf api
-func (c *PathConverter) Convert(paths ...*draw2d.PathStorage) {
-	for _, path := range paths {
-		j := 0
-		for _, cmd := range path.Commands {
-			j = j + c.ConvertCommand(cmd, path.Vertices[j:]...)
+// ConvertPath converts a paths to the pdf api
+func ConvertPath(path *draw2d.Path, pdf Vectorizer) {
+	var startX, startY float64 = 0, 0
+	i := 0
+	for _, cmp := range path.Components {
+		switch cmp {
+		case draw2d.MoveToCmp:
+			startX, startY = path.Points[i], path.Points[i+1]
+			pdf.MoveTo(startX, startY)
+			i += 2
+		case draw2d.LineToCmp:
+			pdf.LineTo(path.Points[i], path.Points[i+1])
+			i += 2
+		case draw2d.QuadCurveToCmp:
+			pdf.CurveTo(path.Points[i], path.Points[i+1], path.Points[i+2], path.Points[i+3])
+			i += 4
+		case draw2d.CubicCurveToCmp:
+			pdf.CurveBezierCubicTo(path.Points[i], path.Points[i+1], path.Points[i+2], path.Points[i+3], path.Points[i+4], path.Points[i+5])
+			i += 6
+		case draw2d.ArcToCmp:
+			pdf.ArcTo(path.Points[i], path.Points[i+1], path.Points[i+2], path.Points[i+3],
+				0, // degRotate
+				path.Points[i+4]*deg,                    // degStart = startAngle
+				(path.Points[i+4]-path.Points[i+5])*deg) // degEnd = startAngle-angle
+			i += 6
+		case draw2d.CloseCmp:
+			pdf.LineTo(startX, startY)
+			pdf.ClosePath()
 		}
-	}
-}
-
-// ConvertCommand converts a single path segment to the pdf api
-func (c *PathConverter) ConvertCommand(cmd draw2d.PathCmd, vertices ...float64) int {
-	switch cmd {
-	case draw2d.MoveTo:
-		c.pdf.MoveTo(vertices[0], vertices[1])
-		return 2
-	case draw2d.LineTo:
-		c.pdf.LineTo(vertices[0], vertices[1])
-		return 2
-	case draw2d.QuadCurveTo:
-		c.pdf.CurveTo(vertices[0], vertices[1], vertices[2], vertices[3])
-		return 4
-	case draw2d.CubicCurveTo:
-		c.pdf.CurveBezierCubicTo(vertices[0], vertices[1], vertices[2], vertices[3], vertices[4], vertices[5])
-		return 6
-	case draw2d.ArcTo:
-		// draw2d: angles clockwise, fpdf angles counter clockwise
-		c.pdf.ArcTo(vertices[0], vertices[1], vertices[2], vertices[3],
-			0,                              // degRotate
-			-vertices[4]*deg,               // degStart = -startAngle
-			(-vertices[4]-vertices[5])*deg) // degEnd = -startAngle-angle
-		return 6
-	default: // case draw2d.Close:
-		c.pdf.ClosePath()
-		return 0
 	}
 }

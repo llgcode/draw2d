@@ -10,6 +10,7 @@ import (
 	"math"
 
 	"github.com/llgcode/draw2d"
+	"github.com/llgcode/draw2d/draw2dkit"
 	"github.com/llgcode/draw2d/samples"
 	"github.com/llgcode/draw2d/samples/gopher2"
 )
@@ -98,7 +99,7 @@ func Dash(gc draw2d.GraphicContext, x, y, width, height float64) {
 	gc.MoveTo(x+sx*60.0, y)
 	gc.LineTo(x+sx*60.0, y)
 	gc.LineTo(x+sx*162, y+sy*205)
-	gc.RLineTo(sx*-102.4, 0.0)
+	rLineTo(gc, sx*-102.4, 0)
 	gc.CubicCurveTo(x+sx*-17, y+sy*205, x+sx*-17, y+sy*103, x+sx*60.0, y+sy*103.0)
 	gc.Stroke()
 	gc.SetLineDash(nil, 0.0)
@@ -193,7 +194,7 @@ func FillString(gc draw2d.GraphicContext, x, y, width, height float64) {
 	gc.Save()
 	gc.SetStrokeColor(image.Black)
 	gc.SetLineWidth(1)
-	draw2d.RoundRect(gc, x+sx*5, y+sy*5, x+sx*95, y+sy*95, sx*10, sy*10)
+	draw2dkit.RoundedRectangle(gc, x+sx*5, y+sy*5, x+sx*95, y+sy*95, sx*10, sy*10)
 	gc.FillStroke()
 	gc.SetFillColor(image.Black)
 	gc.SetFontSize(height / 6)
@@ -206,7 +207,7 @@ func FillString(gc draw2d.GraphicContext, x, y, width, height float64) {
 	gc.Translate(w+sx, 0)
 	left, top, right, bottom := gc.GetStringBounds("cou")
 	gc.SetStrokeColor(color.NRGBA{255, 0x33, 0x33, 0x80})
-	draw2d.Rect(gc, left, top, right, bottom)
+	draw2dkit.Rectangle(gc, left, top, right, bottom)
 	gc.SetLineWidth(height / 50)
 	gc.Stroke()
 	gc.SetFillColor(color.NRGBA{0x33, 0x33, 0xff, 0xff})
@@ -221,14 +222,14 @@ func FillStroke(gc draw2d.GraphicContext, x, y, width, height float64) {
 	sx, sy := width/210, height/215
 	gc.MoveTo(x+sx*113.0, y)
 	gc.LineTo(x+sx*215.0, y+sy*215)
-	gc.RLineTo(sx*-100, 0)
+	rLineTo(gc, sx*-100, 0)
 	gc.CubicCurveTo(x+sx*35, y+sy*215, x+sx*35, y+sy*113, x+sx*113.0, y+sy*113)
 	gc.Close()
 
 	gc.MoveTo(x+sx*50.0, y)
-	gc.RLineTo(sx*51.2, sy*51.2)
-	gc.RLineTo(sx*-51.2, sy*51.2)
-	gc.RLineTo(sx*-51.2, sy*-51.2)
+	rLineTo(gc, sx*51.2, sy*51.2)
+	rLineTo(gc, sx*-51.2, sy*51.2)
+	rLineTo(gc, sx*-51.2, sy*-51.2)
 	gc.Close()
 
 	gc.SetLineWidth(width / 20.0)
@@ -237,33 +238,37 @@ func FillStroke(gc draw2d.GraphicContext, x, y, width, height float64) {
 	gc.FillStroke()
 }
 
+func rLineTo(path draw2d.PathBuilder, x, y float64) {
+	x0, y0 := path.LastPoint()
+	path.LineTo(x0+x, y0+y)
+}
+
 // FillStyle demonstrates the difference between even odd and non zero winding rule.
 func FillStyle(gc draw2d.GraphicContext, x, y, width, height float64) {
 	sx, sy := width/232, height/220
 	gc.SetLineWidth(width / 40)
 
-	draw2d.Rect(gc, x+sx*0, y+sy*12, x+sx*232, y+sy*70)
+	draw2dkit.Rectangle(gc, x+sx*0, y+sy*12, x+sx*232, y+sy*70)
 
-	wheel1 := new(draw2d.PathStorage)
+	var wheel1, wheel2 draw2d.Path
 	wheel1.ArcTo(x+sx*52, y+sy*70, sx*40, sy*40, 0, 2*math.Pi)
-	wheel2 := new(draw2d.PathStorage)
 	wheel2.ArcTo(x+sx*180, y+sy*70, sx*40, sy*40, 0, -2*math.Pi)
 
 	gc.SetFillRule(draw2d.FillRuleEvenOdd)
 	gc.SetFillColor(color.NRGBA{0, 0xB2, 0, 0xFF})
 
 	gc.SetStrokeColor(image.Black)
-	gc.FillStroke(wheel1, wheel2)
+	gc.FillStroke(&wheel1, &wheel2)
 
-	draw2d.Rect(gc, x, y+sy*140, x+sx*232, y+sy*198)
-	wheel1 = new(draw2d.PathStorage)
+	draw2dkit.Rectangle(gc, x, y+sy*140, x+sx*232, y+sy*198)
+	wheel1.Clear()
 	wheel1.ArcTo(x+sx*52, y+sy*198, sx*40, sy*40, 0, 2*math.Pi)
-	wheel2 = new(draw2d.PathStorage)
+	wheel2.Clear()
 	wheel2.ArcTo(x+sx*180, y+sy*198, sx*40, sy*40, 0, -2*math.Pi)
 
 	gc.SetFillRule(draw2d.FillRuleWinding)
 	gc.SetFillColor(color.NRGBA{0, 0, 0xE5, 0xFF})
-	gc.FillStroke(wheel1, wheel2)
+	gc.FillStroke(&wheel1, &wheel2)
 }
 
 // PathTransform scales a path differently in horizontal and vertical direction.

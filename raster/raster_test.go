@@ -1,39 +1,16 @@
 package raster
 
 import (
-	"bufio"
 	"image"
 	"image/color"
-	"image/png"
-	"log"
-	"os"
 	"testing"
 
 	"code.google.com/p/freetype-go/freetype/raster"
-	"github.com/llgcode/draw2d/curve"
+	"github.com/llgcode/draw2d/draw2dbase"
+	"github.com/llgcode/draw2d/draw2dimg"
 )
 
 var flatteningThreshold = 0.5
-
-func savepng(filePath string, m image.Image) {
-	f, err := os.Create(filePath)
-	if err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
-	defer f.Close()
-	b := bufio.NewWriter(f)
-	err = png.Encode(b, m)
-	if err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
-	err = b.Flush()
-	if err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
-}
 
 type Path struct {
 	points []float64
@@ -54,8 +31,7 @@ func (p *Path) LineTo(x, y float64) {
 func TestFreetype(t *testing.T) {
 	var p Path
 	p.LineTo(10, 190)
-	c := curve.CubicCurveFloat64{10, 190, 10, 10, 190, 10, 190, 190}
-	c.Segment(&p, flatteningThreshold)
+	draw2dbase.TraceCubic(&p, []float64{10, 190, 10, 10, 190, 10, 190, 190}, 0.5)
 	poly := Polygon(p.points)
 	color := color.RGBA{0, 0, 0, 0xff}
 
@@ -74,14 +50,13 @@ func TestFreetype(t *testing.T) {
 	painter.SetColor(color)
 	rasterizer.Rasterize(painter)
 
-	savepng("../output/raster/TestFreetype.png", img)
+	draw2dimg.SaveToPngFile("../output/raster/TestFreetype.png", img)
 }
 
 func TestFreetypeNonZeroWinding(t *testing.T) {
 	var p Path
 	p.LineTo(10, 190)
-	c := curve.CubicCurveFloat64{10, 190, 10, 10, 190, 10, 190, 190}
-	c.Segment(&p, flatteningThreshold)
+	draw2dbase.TraceCubic(&p, []float64{10, 190, 10, 10, 190, 10, 190, 190}, 0.5)
 	poly := Polygon(p.points)
 	color := color.RGBA{0, 0, 0, 0xff}
 
@@ -100,15 +75,15 @@ func TestFreetypeNonZeroWinding(t *testing.T) {
 	painter.SetColor(color)
 	rasterizer.Rasterize(painter)
 
-	savepng("../output/raster/TestFreetypeNonZeroWinding.png", img)
+	draw2dimg.SaveToPngFile("../output/raster/TestFreetypeNonZeroWinding.png", img)
 }
 
 func TestRasterizer(t *testing.T) {
 	img := image.NewRGBA(image.Rect(0, 0, 200, 200))
 	var p Path
 	p.LineTo(10, 190)
-	c := curve.CubicCurveFloat64{10, 190, 10, 10, 190, 10, 190, 190}
-	c.Segment(&p, flatteningThreshold)
+	draw2dbase.TraceCubic(&p, []float64{10, 190, 10, 10, 190, 10, 190, 190}, 0.5)
+
 	poly := Polygon(p.points)
 	color := color.RGBA{0, 0, 0, 0xff}
 	tr := [6]float64{1, 0, 0, 1, 0, 0}
@@ -116,15 +91,15 @@ func TestRasterizer(t *testing.T) {
 	//PolylineBresenham(img, image.Black, poly...)
 
 	r.RenderEvenOdd(img, &color, &poly, tr)
-	savepng("../output/raster/TestRasterizer.png", img)
+	draw2dimg.SaveToPngFile("../output/raster/TestRasterizer.png", img)
 }
 
 func TestRasterizerNonZeroWinding(t *testing.T) {
 	img := image.NewRGBA(image.Rect(0, 0, 200, 200))
 	var p Path
 	p.LineTo(10, 190)
-	c := curve.CubicCurveFloat64{10, 190, 10, 10, 190, 10, 190, 190}
-	c.Segment(&p, flatteningThreshold)
+	draw2dbase.TraceCubic(&p, []float64{10, 190, 10, 10, 190, 10, 190, 190}, 0.5)
+
 	poly := Polygon(p.points)
 	color := color.RGBA{0, 0, 0, 0xff}
 	tr := [6]float64{1, 0, 0, 1, 0, 0}
@@ -132,14 +107,14 @@ func TestRasterizerNonZeroWinding(t *testing.T) {
 	//PolylineBresenham(img, image.Black, poly...)
 
 	r.RenderNonZeroWinding(img, &color, &poly, tr)
-	savepng("../output/raster/TestRasterizerNonZeroWinding.png", img)
+	draw2dimg.SaveToPngFile("../output/raster/TestRasterizerNonZeroWinding.png", img)
 }
 
 func BenchmarkFreetype(b *testing.B) {
 	var p Path
 	p.LineTo(10, 190)
-	c := curve.CubicCurveFloat64{10, 190, 10, 10, 190, 10, 190, 190}
-	c.Segment(&p, flatteningThreshold)
+	draw2dbase.TraceCubic(&p, []float64{10, 190, 10, 10, 190, 10, 190, 190}, 0.5)
+
 	poly := Polygon(p.points)
 	color := color.RGBA{0, 0, 0, 0xff}
 
@@ -164,8 +139,8 @@ func BenchmarkFreetype(b *testing.B) {
 func BenchmarkFreetypeNonZeroWinding(b *testing.B) {
 	var p Path
 	p.LineTo(10, 190)
-	c := curve.CubicCurveFloat64{10, 190, 10, 10, 190, 10, 190, 190}
-	c.Segment(&p, flatteningThreshold)
+	draw2dbase.TraceCubic(&p, []float64{10, 190, 10, 10, 190, 10, 190, 190}, 0.5)
+
 	poly := Polygon(p.points)
 	color := color.RGBA{0, 0, 0, 0xff}
 
@@ -190,8 +165,8 @@ func BenchmarkFreetypeNonZeroWinding(b *testing.B) {
 func BenchmarkRasterizerNonZeroWinding(b *testing.B) {
 	var p Path
 	p.LineTo(10, 190)
-	c := curve.CubicCurveFloat64{10, 190, 10, 10, 190, 10, 190, 190}
-	c.Segment(&p, flatteningThreshold)
+	draw2dbase.TraceCubic(&p, []float64{10, 190, 10, 10, 190, 10, 190, 190}, 0.5)
+
 	poly := Polygon(p.points)
 	color := color.RGBA{0, 0, 0, 0xff}
 	tr := [6]float64{1, 0, 0, 1, 0, 0}
@@ -205,8 +180,8 @@ func BenchmarkRasterizerNonZeroWinding(b *testing.B) {
 func BenchmarkRasterizer(b *testing.B) {
 	var p Path
 	p.LineTo(10, 190)
-	c := curve.CubicCurveFloat64{10, 190, 10, 10, 190, 10, 190, 190}
-	c.Segment(&p, flatteningThreshold)
+	draw2dbase.TraceCubic(&p, []float64{10, 190, 10, 10, 190, 10, 190, 190}, 0.5)
+
 	poly := Polygon(p.points)
 	color := color.RGBA{0, 0, 0, 0xff}
 	tr := [6]float64{1, 0, 0, 1, 0, 0}

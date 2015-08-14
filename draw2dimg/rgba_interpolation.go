@@ -2,25 +2,29 @@
 // created: 21/11/2010 by Laurent Le Goff
 // see http://pippin.gimp.org/image_processing/chap_resampling.html
 
-package draw2d
+package draw2dimg
 
 import (
 	"image"
 	"image/color"
 	"image/draw"
 	"math"
+
+	"github.com/llgcode/draw2d"
 )
 
-// ImageFilter defines sampling filter (linear, bilinear or bicubic)
+// ImageFilter defines the type of filter to use
 type ImageFilter int
 
 const (
-	// LinearFilter uses linear interpolation
+	// LinearFilter defines a linear filter
 	LinearFilter ImageFilter = iota
-	// BilinearFilter uses bilinear interpolation
+	// BilinearFilter defines a bilinear filter
 	BilinearFilter
-	// BicubicFilter uses bicubic interpolation
+	// BicubicFilter defines a bicubic filter
 	BicubicFilter
+	// M is the maximum value for a rgb component
+	M = 1<<16 - 1
 )
 
 //see http://pippin.gimp.org/image_processing/chap_resampling.html
@@ -50,14 +54,7 @@ func getColorBilinear(img image.Image, x, y float64) color.Color {
 	return color.RGBA{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)}
 }
 
-/**
--- LERP
--- /lerp/, vi.,n.
---
--- Quasi-acronym for Linear Interpolation, used as a verb or noun for
--- the operation. "Bresenham's algorithm lerps incrementally between the
--- two endpoints of the line." (From Jargon File (4.4.4, 14 Aug 2003)
-*/
+// lerp is a linear interpolation bertween 2 points
 func lerp(v1, v2, ratio float64) float64 {
 	return v1*(1-ratio) + v2*ratio
 }
@@ -107,11 +104,10 @@ func cubic(offset, v0, v1, v2, v3 float64) uint32 {
 		(-9*v0+9*v2))*offset + (v0 + 16*v1 + v2)) / 18.0)
 }
 
-// DrawImage draws a source image on an destination image.
-func DrawImage(src image.Image, dest draw.Image, tr MatrixTransform, op draw.Op, filter ImageFilter) {
+// DrawImage draws an image into dest using an affine transformation matrix, an op and a filter
+func DrawImage(src image.Image, dest draw.Image, tr draw2d.Matrix, op draw.Op, filter ImageFilter) {
 	bounds := src.Bounds()
-	x0, y0, x1, y1 := float64(bounds.Min.X), float64(bounds.Min.Y), float64(bounds.Max.X), float64(bounds.Max.Y)
-	tr.TransformRectangle(&x0, &y0, &x1, &y1)
+	x0, y0, x1, y1 := tr.TransformRectangle(float64(bounds.Min.X), float64(bounds.Min.Y), float64(bounds.Max.X), float64(bounds.Max.Y))
 	var x, y, u, v float64
 	var c1, c2, cr color.Color
 	var r, g, b, a, ia, r1, g1, b1, a1, r2, g2, b2, a2 uint32
@@ -120,7 +116,7 @@ func DrawImage(src image.Image, dest draw.Image, tr MatrixTransform, op draw.Op,
 		for y = y0; y < y1; y++ {
 			u = x
 			v = y
-			tr.InverseTransform(&u, &v)
+			u, v = tr.InverseTransformPoint(u, v)
 			if bounds.Min.X <= int(u) && bounds.Max.X > int(u) && bounds.Min.Y <= int(v) && bounds.Max.Y > int(v) {
 				c1 = dest.At(int(x), int(y))
 				switch filter {
