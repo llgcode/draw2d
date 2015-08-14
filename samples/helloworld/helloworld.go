@@ -31,7 +31,7 @@ func Draw(gc draw2d.GraphicContext, text string) {
 	gc.FillStroke()
 
 	// Set the font luximbi.ttf
-	gc.SetFontData(draw2d.FontData{"luxi", draw2d.FontFamilyMono, draw2d.FontStyleBold | draw2d.FontStyleItalic})
+	gc.SetFontData(draw2d.FontData{Name: "luxi", Family: draw2d.FontFamilyMono, Style: draw2d.FontStyleBold | draw2d.FontStyleItalic})
 	// Set the fill text color to black
 	gc.SetFillColor(image.Black)
 	gc.SetFontSize(14)

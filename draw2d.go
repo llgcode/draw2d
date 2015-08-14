@@ -150,6 +150,7 @@ type StrokeStyle struct {
 	Dash []float64
 }
 
+// FillStyle is an empty interface you may want to use SolidFillStyle
 type FillStyle interface {
 }
 
@@ -165,22 +166,29 @@ type SolidFillStyle struct {
 type Valign int
 
 const (
+	// ValignTop top align text
 	ValignTop Valign = iota
-	ValignTopCenter
-	ValignTopBottom
-	ValignTopBaseline
+	// ValignCenter centered text
+	ValignCenter
+	// ValignBottom bottom aligned text
+	ValignBottom
+	// ValignBaseline align text with the baseline of the font
+	ValignBaseline
 )
 
 // Halign Horizontal Alignment of the text
 type Halign int
 
 const (
+	// HalignLeft Horizontally align to left
 	HalignLeft = iota
+	// HalignCenter Horizontally align to center
 	HalignCenter
+	// HalignRight Horizontally align to right
 	HalignRight
 )
 
-// TextStyle
+// TextStyle describe text property
 type TextStyle struct {
 	// Color defines the color of text
 	Color color.Color
@@ -194,6 +202,7 @@ type TextStyle struct {
 	Valign Valign
 }
 
+// ScalingPolicy is a constant to define how to scale an image
 type ScalingPolicy int
 
 const (

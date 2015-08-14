@@ -12,7 +12,7 @@ import (
 	"code.google.com/p/freetype-go/freetype/truetype"
 )
 
-var DefaultFontData = draw2d.FontData{"luxi", draw2d.FontFamilySans, draw2d.FontStyleNormal}
+var DefaultFontData = draw2d.FontData{Name: "luxi", Family: draw2d.FontFamilySans, Style: draw2d.FontStyleNormal}
 
 type StackGraphicContext struct {
 	Current *ContextStack

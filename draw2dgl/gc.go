@@ -223,9 +223,9 @@ func (gc *GraphicContext) FillStroke(paths ...*draw2d.Path) {
 	gc.fillRasterizer.UseNonZeroWinding = useNonZeroWinding(gc.Current.FillRule)
 	gc.strokeRasterizer.UseNonZeroWinding = true
 
-	flattener := draw2dbase.Transformer{gc.Current.Tr, draw2dimg.FtLineBuilder{gc.fillRasterizer}}
+	flattener := draw2dbase.Transformer{Tr: gc.Current.Tr, Flattener: draw2dimg.FtLineBuilder{Adder: gc.fillRasterizer}}
 
-	stroker := draw2dbase.NewLineStroker(gc.Current.Cap, gc.Current.Join, draw2dbase.Transformer{gc.Current.Tr, draw2dimg.FtLineBuilder{gc.strokeRasterizer}})
+	stroker := draw2dbase.NewLineStroker(gc.Current.Cap, gc.Current.Join, draw2dbase.Transformer{Tr: gc.Current.Tr, Flattener: draw2dimg.FtLineBuilder{Adder: gc.strokeRasterizer}})
 	stroker.HalfLineWidth = gc.Current.LineWidth / 2
 
 	var liner draw2dbase.Flattener
@@ -235,7 +235,7 @@ func (gc *GraphicContext) FillStroke(paths ...*draw2d.Path) {
 		liner = stroker
 	}
 
-	demux := draw2dbase.DemuxFlattener{[]draw2dbase.Flattener{flattener, liner}}
+	demux := draw2dbase.DemuxFlattener{Flatteners: []draw2dbase.Flattener{flattener, liner}}
 	for _, p := range paths {
 		draw2dbase.Flatten(p, demux, gc.Current.Tr.GetScale())
 	}

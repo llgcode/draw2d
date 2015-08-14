@@ -15,8 +15,8 @@ import (
 )
 
 var (
-	flattening_threshold float64 = 0.5
-	testsCubicFloat64            = []float64{
+	flatteningThreshold = 0.5
+	testsCubicFloat64   = []float64{
 		100, 100, 200, 100, 100, 200, 200, 200,
 		100, 100, 300, 200, 200, 200, 300, 100,
 		100, 100, 0, 300, 200, 0, 300, 300,
@@ -75,7 +75,7 @@ func TestCubicCurve(t *testing.T) {
 	for i := 0; i < len(testsCubicFloat64); i += 8 {
 		var p SegmentedPath
 		p.MoveTo(testsCubicFloat64[i], testsCubicFloat64[i+1])
-		TraceCubic(&p, testsCubicFloat64[i:], flattening_threshold)
+		TraceCubic(&p, testsCubicFloat64[i:], flatteningThreshold)
 		img := image.NewNRGBA(image.Rect(0, 0, 300, 300))
 		raster.PolylineBresenham(img, color.NRGBA{0xff, 0, 0, 0xff}, testsCubicFloat64[i:i+8]...)
 		raster.PolylineBresenham(img, image.Black, p.Points...)
@@ -91,7 +91,7 @@ func TestQuadCurve(t *testing.T) {
 	for i := 0; i < len(testsQuadFloat64); i += 6 {
 		var p SegmentedPath
 		p.MoveTo(testsQuadFloat64[i], testsQuadFloat64[i+1])
-		TraceQuad(&p, testsQuadFloat64[i:], flattening_threshold)
+		TraceQuad(&p, testsQuadFloat64[i:], flatteningThreshold)
 		img := image.NewNRGBA(image.Rect(0, 0, 300, 300))
 		raster.PolylineBresenham(img, color.NRGBA{0xff, 0, 0, 0xff}, testsQuadFloat64[i:i+6]...)
 		raster.PolylineBresenham(img, image.Black, p.Points...)
@@ -108,7 +108,7 @@ func BenchmarkCubicCurve(b *testing.B) {
 		for i := 0; i < len(testsCubicFloat64); i += 8 {
 			var p SegmentedPath
 			p.MoveTo(testsCubicFloat64[i], testsCubicFloat64[i+1])
-			TraceCubic(&p, testsCubicFloat64[i:], flattening_threshold)
+			TraceCubic(&p, testsCubicFloat64[i:], flatteningThreshold)
 		}
 	}
 }
