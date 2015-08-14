@@ -244,7 +244,7 @@ func (gc *GraphicContext) Stroke(paths ...*draw2d.Path) {
 	paths = append(paths, gc.Current.Path)
 	gc.strokeRasterizer.UseNonZeroWinding = true
 
-	stroker := draw2dbase.NewLineStroker(gc.Current.Cap, gc.Current.Join, draw2dbase.Transformer{Tr: gc.Current.Tr, Flattener: draw2dbase.FtLineBuilder{Adder: gc.strokeRasterizer}})
+	stroker := draw2dbase.NewLineStroker(gc.Current.Cap, gc.Current.Join, draw2dbase.Transformer{Tr: gc.Current.Tr, Flattener: FtLineBuilder{Adder: gc.strokeRasterizer}})
 	stroker.HalfLineWidth = gc.Current.LineWidth / 2
 
 	var liner draw2dbase.Flattener
@@ -266,7 +266,7 @@ func (gc *GraphicContext) Fill(paths ...*draw2d.Path) {
 	gc.fillRasterizer.UseNonZeroWinding = gc.Current.FillRule == draw2d.FillRuleWinding
 
 	/**** first method ****/
-	flattener := draw2dbase.Transformer{Tr: gc.Current.Tr, Flattener: draw2dbase.FtLineBuilder{Adder: gc.fillRasterizer}}
+	flattener := draw2dbase.Transformer{Tr: gc.Current.Tr, Flattener: FtLineBuilder{Adder: gc.fillRasterizer}}
 	for _, p := range paths {
 		draw2dbase.Flatten(p, flattener, gc.Current.Tr.GetScale())
 	}
@@ -280,9 +280,9 @@ func (gc *GraphicContext) FillStroke(paths ...*draw2d.Path) {
 	gc.fillRasterizer.UseNonZeroWinding = gc.Current.FillRule == draw2d.FillRuleWinding
 	gc.strokeRasterizer.UseNonZeroWinding = true
 
-	flattener := draw2dbase.Transformer{Tr: gc.Current.Tr, Flattener: draw2dbase.FtLineBuilder{Adder: gc.fillRasterizer}}
+	flattener := draw2dbase.Transformer{Tr: gc.Current.Tr, Flattener: FtLineBuilder{Adder: gc.fillRasterizer}}
 
-	stroker := draw2dbase.NewLineStroker(gc.Current.Cap, gc.Current.Join, draw2dbase.Transformer{Tr: gc.Current.Tr, Flattener: draw2dbase.FtLineBuilder{Adder: gc.strokeRasterizer}})
+	stroker := draw2dbase.NewLineStroker(gc.Current.Cap, gc.Current.Join, draw2dbase.Transformer{Tr: gc.Current.Tr, Flattener: FtLineBuilder{Adder: gc.strokeRasterizer}})
 	stroker.HalfLineWidth = gc.Current.LineWidth / 2
 
 	var liner draw2dbase.Flattener
@@ -301,4 +301,26 @@ func (gc *GraphicContext) FillStroke(paths ...*draw2d.Path) {
 	gc.paint(gc.fillRasterizer, gc.Current.FillColor)
 	// Stroke
 	gc.paint(gc.strokeRasterizer, gc.Current.StrokeColor)
+}
+
+func toFtCap(c draw2d.LineCap) raster.Capper {
+	switch c {
+	case draw2d.RoundCap:
+		return raster.RoundCapper
+	case draw2d.ButtCap:
+		return raster.ButtCapper
+	case draw2d.SquareCap:
+		return raster.SquareCapper
+	}
+	return raster.RoundCapper
+}
+
+func toFtJoin(j draw2d.LineJoin) raster.Joiner {
+	switch j {
+	case draw2d.RoundJoin:
+		return raster.RoundJoiner
+	case draw2d.BevelJoin:
+		return raster.BevelJoiner
+	}
+	return raster.RoundJoiner
 }

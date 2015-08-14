@@ -1,7 +1,7 @@
 // Copyright 2010 The draw2d Authors. All rights reserved.
 // created: 13/12/2010 by Laurent Le Goff
 
-package draw2dbase
+package draw2dimg
 
 import (
 	"code.google.com/p/freetype-go/freetype/raster"

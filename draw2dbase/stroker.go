@@ -4,32 +4,10 @@
 package draw2dbase
 
 import (
-	"code.google.com/p/freetype-go/freetype/raster"
-	"github.com/llgcode/draw2d"
 	"math"
+
+	"github.com/llgcode/draw2d"
 )
-
-func toFtCap(c draw2d.LineCap) raster.Capper {
-	switch c {
-	case draw2d.RoundCap:
-		return raster.RoundCapper
-	case draw2d.ButtCap:
-		return raster.ButtCapper
-	case draw2d.SquareCap:
-		return raster.SquareCapper
-	}
-	return raster.RoundCapper
-}
-
-func toFtJoin(j draw2d.LineJoin) raster.Joiner {
-	switch j {
-	case draw2d.RoundJoin:
-		return raster.RoundJoiner
-	case draw2d.BevelJoin:
-		return raster.BevelJoiner
-	}
-	return raster.RoundJoiner
-}
 
 type LineStroker struct {
 	Flattener     Flattener

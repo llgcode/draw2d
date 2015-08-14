@@ -10,6 +10,7 @@ import (
 	"github.com/go-gl/gl/v2.1/gl"
 	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/draw2dbase"
+	"github.com/llgcode/draw2d/draw2dimg"
 )
 
 func init() {
@@ -188,7 +189,7 @@ func (gc *GraphicContext) Stroke(paths ...*draw2d.Path) {
 	paths = append(paths, gc.Current.Path)
 	gc.strokeRasterizer.UseNonZeroWinding = true
 
-	stroker := draw2dbase.NewLineStroker(gc.Current.Cap, gc.Current.Join, draw2dbase.Transformer{gc.Current.Tr, draw2dbase.FtLineBuilder{gc.strokeRasterizer}})
+	stroker := draw2dbase.NewLineStroker(gc.Current.Cap, gc.Current.Join, draw2dbase.Transformer{Tr: gc.Current.Tr, Flattener: draw2dimg.FtLineBuilder{Adder: gc.strokeRasterizer}})
 	stroker.HalfLineWidth = gc.Current.LineWidth / 2
 
 	var liner draw2dbase.Flattener
@@ -209,7 +210,7 @@ func (gc *GraphicContext) Fill(paths ...*draw2d.Path) {
 	gc.fillRasterizer.UseNonZeroWinding = useNonZeroWinding(gc.Current.FillRule)
 
 	/**** first method ****/
-	flattener := draw2dbase.Transformer{gc.Current.Tr, draw2dbase.FtLineBuilder{gc.fillRasterizer}}
+	flattener := draw2dbase.Transformer{Tr: gc.Current.Tr, Flattener: draw2dimg.FtLineBuilder{Adder: gc.fillRasterizer}}
 	for _, p := range paths {
 		draw2dbase.Flatten(p, flattener, gc.Current.Tr.GetScale())
 	}
@@ -222,9 +223,9 @@ func (gc *GraphicContext) FillStroke(paths ...*draw2d.Path) {
 	gc.fillRasterizer.UseNonZeroWinding = useNonZeroWinding(gc.Current.FillRule)
 	gc.strokeRasterizer.UseNonZeroWinding = true
 
-	flattener := draw2dbase.Transformer{gc.Current.Tr, draw2dbase.FtLineBuilder{gc.fillRasterizer}}
+	flattener := draw2dbase.Transformer{gc.Current.Tr, draw2dimg.FtLineBuilder{gc.fillRasterizer}}
 
-	stroker := draw2dbase.NewLineStroker(gc.Current.Cap, gc.Current.Join, draw2dbase.Transformer{gc.Current.Tr, draw2dbase.FtLineBuilder{gc.strokeRasterizer}})
+	stroker := draw2dbase.NewLineStroker(gc.Current.Cap, gc.Current.Join, draw2dbase.Transformer{gc.Current.Tr, draw2dimg.FtLineBuilder{gc.strokeRasterizer}})
 	stroker.HalfLineWidth = gc.Current.LineWidth / 2
 
 	var liner draw2dbase.Flattener
