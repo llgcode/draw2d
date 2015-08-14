@@ -7,6 +7,12 @@ import (
 	"github.com/llgcode/draw2d"
 )
 
+// Liner receive segment definition
+type Liner interface {
+	// LineTo Draw a line from the current position to the point (x, y)
+	LineTo(x, y float64)
+}
+
 // Flattener receive segment definition
 type Flattener interface {
 	// MoveTo Start a New line from the point (x, y)

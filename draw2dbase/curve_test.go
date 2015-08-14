@@ -36,7 +36,7 @@ var (
 
 func init() {
 	os.Mkdir("test_results", 0666)
-	f, err := os.Create("test_results/_test.html")
+	f, err := os.Create("../output/curve/_test.html")
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
@@ -81,7 +81,7 @@ func TestCubicCurve(t *testing.T) {
 		raster.PolylineBresenham(img, image.Black, p.Points...)
 		//drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, curve[:]...)
 		drawPoints(img, color.NRGBA{0, 0, 0, 0xff}, p.Points...)
-		SaveToPngFile(fmt.Sprintf("test_results/_test%d.png", i/8), img)
+		SaveToPngFile(fmt.Sprintf("../output/curve/_test%d.png", i/8), img)
 		log.Printf("Num of points: %d\n", len(p.Points))
 	}
 	fmt.Println()
@@ -97,7 +97,7 @@ func TestQuadCurve(t *testing.T) {
 		raster.PolylineBresenham(img, image.Black, p.Points...)
 		//drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, curve[:]...)
 		drawPoints(img, color.NRGBA{0, 0, 0, 0xff}, p.Points...)
-		SaveToPngFile(fmt.Sprintf("test_results/_testQuad%d.png", i), img)
+		SaveToPngFile(fmt.Sprintf("../output/curve/_testQuad%d.png", i), img)
 		log.Printf("Num of points: %d\n", len(p.Points))
 	}
 	fmt.Println()

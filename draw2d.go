@@ -3,8 +3,9 @@
 
 // Package draw2d is a pure go 2D vector graphics library with support
 // for multiple output devices such as images (draw2d), pdf documents
-// (draw2dpdf) and opengl (draw2dopengl), which can also be used on the
+// (draw2dpdf) and opengl (draw2dgl), which can also be used on the
 // google app engine. It can be used as a pure go Cairo alternative.
+// draw2d is released under the BSD license.
 //
 // Features
 //
@@ -12,6 +13,8 @@
 // Bézier curves, drawing images and text rendering with truetype fonts.
 // All drawing operations can be transformed by affine transformations
 // (scale, rotation, translation).
+//
+// Package draw2d follows the conventions of http://www.w3.org/TR/2dcontext for coordinate system, angles, etc...
 //
 // Installation
 //
@@ -40,14 +43,24 @@
 //   gc.FillStroke()
 //
 //   // Save to file
-//   draw2d.SaveToPngFile(fn, dest)
+//   draw2d.SaveToPngFile("hello.png", dest)
 //
 // There are more examples here:
-// https://github.com/llgcode/draw2d.samples
+// https://github.com/llgcode/draw2d/tree/master/samples
 //
 // Drawing on pdf documents is provided by the draw2dpdf package.
 // Drawing on opengl is provided by the draw2dgl package.
 // See subdirectories at the bottom of this page.
+//
+// Testing
+//
+// The samples are run as tests from the root package folder `draw2d` by:
+//   go test ./...
+//
+// Or if you want to run with test coverage:
+//   go test -cover ./... | grep -v "no test"
+//
+// This will generate output by the different backends in the output folder.
 //
 // Acknowledgments
 //
@@ -57,9 +70,6 @@
 // interpreter, which can read postscript images and draw to a draw2d
 // graphic context (https://github.com/llgcode/ps). Stani Michiels
 // implemented the pdf backend with the gofpdf package.
-//
-// The package depends on freetype-go package for its rasterization
-// algorithm.
 //
 // Packages using draw2d
 //

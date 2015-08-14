@@ -46,9 +46,9 @@ func SubdivideCubic(c, c1, c2 []float64) {
 	c2[0], c2[1] = c1[6], c1[7]
 }
 
-// TraceCubic generate lines subdividing the cubic curve using a Flattener
+// TraceCubic generate lines subdividing the cubic curve using a Liner
 // flattening_threshold helps determines the flattening expectation of the curve
-func TraceCubic(t Flattener, cubic []float64, flatteningThreshold float64) {
+func TraceCubic(t Liner, cubic []float64, flatteningThreshold float64) {
 	// Allocation curves
 	var curves [CurveRecursionLimit * 8]float64
 	copy(curves[0:8], cubic[0:8])
@@ -101,9 +101,9 @@ func SubdivideQuad(c, c1, c2 []float64) {
 	return
 }
 
-// TraceQuad generate lines subdividing the curve using a Flattener
+// TraceQuad generate lines subdividing the curve using a Liner
 // flattening_threshold helps determines the flattening expectation of the curve
-func TraceQuad(t Flattener, quad []float64, flatteningThreshold float64) {
+func TraceQuad(t Liner, quad []float64, flatteningThreshold float64) {
 	// Allocates curves stack
 	var curves [CurveRecursionLimit * 6]float64
 	copy(curves[0:6], quad[0:6])
@@ -131,8 +131,8 @@ func TraceQuad(t Flattener, quad []float64, flatteningThreshold float64) {
 	}
 }
 
-// TraceArc trace an arc using a Flattener
-func TraceArc(t Flattener, x, y, rx, ry, start, angle, scale float64) (lastX, lastY float64) {
+// TraceArc trace an arc using a Liner
+func TraceArc(t Liner, x, y, rx, ry, start, angle, scale float64) (lastX, lastY float64) {
 	end := start + angle
 	clockWise := true
 	if angle < 0 {

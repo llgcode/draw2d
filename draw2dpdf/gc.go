@@ -1,6 +1,6 @@
 // Copyright 2015 The draw2d Authors. All rights reserved.
 // created: 26/06/2015 by Stani Michiels
-// TODO: fonts, dpi
+// TODO: dashed line
 
 package draw2dpdf
 
@@ -12,7 +12,6 @@ import (
 	"log"
 	"math"
 	"os"
-	"path/filepath"
 	"strconv"
 
 	"code.google.com/p/freetype-go/freetype/truetype"
@@ -47,8 +46,14 @@ var (
 // a page and set fill color to white.
 func NewPdf(orientationStr, unitStr, sizeStr string) *gofpdf.Fpdf {
 	pdf := gofpdf.New(orientationStr, unitStr, sizeStr, draw2d.GetFontFolder())
+	// to be compatible with draw2d
+	pdf.SetMargins(0, 0, 0)
+	pdf.SetDrawColor(0, 0, 0)
+	pdf.SetFillColor(255, 255, 255)
+	pdf.SetLineCapStyle("round")
+	pdf.SetLineJoinStyle("round")
+	pdf.SetLineWidth(1)
 	pdf.AddPage()
-	pdf.SetFillColor(255, 255, 255) // to be compatible with draw2d
 	return pdf
 }
 
@@ -91,7 +96,7 @@ func NewGraphicContext(pdf *gofpdf.Fpdf) *GraphicContext {
 // TODO: add type (tp) as parameter to argument list?
 func (gc *GraphicContext) DrawImage(image image.Image) {
 	name := strconv.Itoa(int(imageCount))
-	imageCount += 1
+	imageCount++
 	tp := "PNG" // "JPG", "JPEG", "PNG" and "GIF"
 	b := &bytes.Buffer{}
 	png.Encode(b, image)
@@ -108,7 +113,8 @@ func (gc *GraphicContext) Clear() {
 	clearRect(gc, 0, 0, width, height)
 }
 
-// ClearRect draws a white rectangle over the specified area
+// ClearRect draws a white rectangle over the specified area.
+// Samples: line.
 func (gc *GraphicContext) ClearRect(x1, y1, x2, y2 int) {
 	clearRect(gc, float64(x1), float64(y1), float64(x2), float64(y2))
 }
@@ -134,18 +140,31 @@ func (gc *GraphicContext) GetDPI() int {
 }
 
 // GetStringBounds returns the approximate pixel bounds of the string s at x, y.
+// The left edge of the em square of the first character of s
+// and the baseline intersect at 0, 0 in the returned coordinates.
+// Therefore the top and left coordinates may well be negative.
 func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom float64) {
 	_, h := gc.pdf.GetFontSize()
-	return 0, 0, gc.pdf.GetStringWidth(s), h
+	d := gc.pdf.GetFontDesc("", "")
+	if d.Ascent == 0 {
+		// not defined (standard font?), use average of 81%
+		top = 0.81 * h
+	} else {
+		top = -float64(d.Ascent) * h / float64(d.Ascent-d.Descent)
+	}
+	return 0, top, gc.pdf.GetStringWidth(s), top + h
 }
 
 // CreateStringPath creates a path from the string s at x, y, and returns the string width.
 func (gc *GraphicContext) CreateStringPath(text string, x, y float64) (cursor float64) {
-	_, _, w, h := gc.GetStringBounds(text)
+	//fpdf uses the top left corner
+	left, top, right, bottom := gc.GetStringBounds(text)
+	w := right - left
+	h := bottom - top
+	// gc.pdf.SetXY(x, y-h) do not use this as y-h might be negative
 	margin := gc.pdf.GetCellMargin()
-	gc.pdf.MoveTo(x-margin, y+margin-0.82*h)
+	gc.pdf.MoveTo(x-left-margin, y+top)
 	gc.pdf.CellFormat(w, h, text, "", 0, "BL", false, 0, "")
-	//	gc.pdf.Cell(w, h, text)
 	return w
 }
 
@@ -173,29 +192,53 @@ func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (cursor floa
 
 // Stroke strokes the paths with the color specified by SetStrokeColor
 func (gc *GraphicContext) Stroke(paths ...*draw2d.Path) {
-	gc.draw("D", paths...)
+	_, _, _, alphaS := gc.Current.StrokeColor.RGBA()
+	gc.draw("D", alphaS, paths...)
+	gc.Current.Path.Clear()
 }
 
 // Fill fills the paths with the color specified by SetFillColor
 func (gc *GraphicContext) Fill(paths ...*draw2d.Path) {
-	gc.draw("F", paths...)
+	style := "F"
+	if gc.Current.FillRule != draw2d.FillRuleWinding {
+		style += "*"
+	}
+	_, _, _, alphaF := gc.Current.FillColor.RGBA()
+	gc.draw(style, alphaF, paths...)
+	gc.Current.Path.Clear()
 }
 
 // FillStroke first fills the paths and than strokes them
 func (gc *GraphicContext) FillStroke(paths ...*draw2d.Path) {
-	gc.draw("FD", paths...)
+	var rule string
+	if gc.Current.FillRule != draw2d.FillRuleWinding {
+		rule = "*"
+	}
+	_, _, _, alphaS := gc.Current.StrokeColor.RGBA()
+	_, _, _, alphaF := gc.Current.FillColor.RGBA()
+	if alphaS == alphaF {
+		gc.draw("FD"+rule, alphaF, paths...)
+	} else {
+		gc.draw("F"+rule, alphaF, paths...)
+		gc.draw("S", alphaS, paths...)
+	}
+	gc.Current.Path.Clear()
 }
 
 var logger = log.New(os.Stdout, "", log.Lshortfile)
 
+const alphaMax = float64(0xFFFF)
+
 // draw fills and/or strokes paths
-func (gc *GraphicContext) draw(style string, paths ...*draw2d.Path) {
+func (gc *GraphicContext) draw(style string, alpha uint32, paths ...*draw2d.Path) {
 	paths = append(paths, gc.Current.Path)
 	for _, p := range paths {
 		ConvertPath(p, gc.pdf)
 	}
-	if gc.Current.FillRule == draw2d.FillRuleWinding {
-		style += "*"
+	a := float64(alpha) / alphaMax
+	current, blendMode := gc.pdf.GetAlpha()
+	if a != current {
+		gc.pdf.SetAlpha(a, blendMode)
 	}
 	gc.pdf.DrawPath(style)
 }
@@ -242,8 +285,9 @@ func (gc *GraphicContext) SetFontData(fontData draw2d.FontData) {
 	}
 	fn := draw2d.FontFileName(fontData)
 	fn = fn[:len(fn)-4]
-	jfn := filepath.Join(draw2d.GetFontFolder(), fn+".json")
-	gc.pdf.AddFont(fn, style, jfn)
+	size, _ := gc.pdf.GetFontSize()
+	gc.pdf.AddFont(fontData.Name, style, fn+".json")
+	gc.pdf.SetFont(fontData.Name, style, size)
 }
 
 // SetFontSize sets the font size in points (as in ``a 12 point font'').
@@ -252,6 +296,12 @@ func (gc *GraphicContext) SetFontSize(fontSize float64) {
 	gc.StackGraphicContext.SetFontSize(fontSize)
 	gc.recalc()
 	gc.pdf.SetFontSize(fontSize * gc.Current.Scale)
+}
+
+// SetLineDash sets the line dash pattern
+func (gc *GraphicContext) SetLineDash(Dash []float64, DashOffset float64) {
+	gc.StackGraphicContext.SetLineDash(Dash, DashOffset)
+	gc.pdf.SetDashPattern(Dash, DashOffset)
 }
 
 // SetLineWidth sets the line width
