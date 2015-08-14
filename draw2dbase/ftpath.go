@@ -12,11 +12,11 @@ type FtLineBuilder struct {
 }
 
 func (liner FtLineBuilder) MoveTo(x, y float64) {
-	liner.Adder.Start(raster.Point{raster.Fix32(x * 256), raster.Fix32(y * 256)})
+	liner.Adder.Start(raster.Point{X: raster.Fix32(x * 256), Y: raster.Fix32(y * 256)})
 }
 
 func (liner FtLineBuilder) LineTo(x, y float64) {
-	liner.Adder.Add1(raster.Point{raster.Fix32(x * 256), raster.Fix32(y * 256)})
+	liner.Adder.Add1(raster.Point{X: raster.Fix32(x * 256), Y: raster.Fix32(y * 256)})
 }
 
 func (liner FtLineBuilder) LineJoin() {
