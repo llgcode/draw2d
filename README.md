@@ -31,7 +31,7 @@ The following Go code generates a simple drawing and saves it to an image file w
 ```go
 // Initialize the graphic context on an RGBA image
 dest := image.NewRGBA(image.Rect(0, 0, 297, 210.0))
-gc := draw2d.NewGraphicContext(dest)
+gc := draw2dimg.NewGraphicContext(dest)
 
 // Set some properties
 gc.SetFillColor(color.RGBA{0x44, 0xff, 0x44, 0xff})
