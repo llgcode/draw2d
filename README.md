@@ -46,7 +46,7 @@ gc.Close()
 gc.FillStroke()
 
 // Save to file
-draw2d.SaveToPngFile("hello.png", dest)
+draw2dimg.SaveToPngFile("hello.png", dest)
 ```
 
 The same Go code can also generate a pdf document with package draw2dpdf:
@@ -111,4 +111,4 @@ References
 
  - [antigrain.com](http://www.antigrain.com)
  - [freetype-go](http://code.google.com/p/freetype-go)
- - 
+ -
