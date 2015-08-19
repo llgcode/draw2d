@@ -19,9 +19,16 @@ Installation
 
 Install [golang](http://golang.org/doc/install). To install or update the package draw2d on your system, run:
 
+Stable release
+```
+go get -u gopkg.in/llgcode/draw2d.v1
+```
+
+or Current release
 ```
 go get -u github.com/llgcode/draw2d
 ```
+
 
 Quick Start
 -----------
