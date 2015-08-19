@@ -19,7 +19,7 @@ import (
 function main(){}
 	// Initialize the graphic context on an RGBA image
 	dest := image.NewRGBA(image.Rect(0, 0, 297, 210.0))
-	gc := draw2d.NewGraphicContext(dest)
+	gc := draw2dimg.NewGraphicContext(dest)
 	// Draw Android logo
 	fn, err := android.Main(gc, "png")
 	if err != nil {

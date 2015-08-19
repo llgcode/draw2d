@@ -61,7 +61,7 @@ The same Go code can also generate a pdf document with package draw2dpdf:
 ```go
 // Initialize the graphic context on an RGBA image
 dest := draw2dpdf.NewPdf("L", "mm", "A4")
-gc := draw2d.NewGraphicContext(dest)
+gc := draw2dpdf.NewGraphicContext(dest)
 
 // Set some properties
 gc.SetFillColor(color.RGBA{0x44, 0xff, 0x44, 0xff})
