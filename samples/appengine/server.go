@@ -9,7 +9,7 @@ import (
 	"image/png"
 	"net/http"
 
-	"github.com/llgcode/draw2d"
+	"github.com/llgcode/draw2d/draw2dimg"
 	"github.com/llgcode/draw2d/draw2dpdf"
 	"github.com/llgcode/draw2d/samples/android"
 
@@ -59,7 +59,7 @@ func imgPng(w http.ResponseWriter, r *http.Request) *appError {
 
 	// Initialize the graphic context on an RGBA image
 	dest := image.NewRGBA(image.Rect(0, 0, 297, 210.0))
-	gc := draw2d.NewGraphicContext(dest)
+	gc := draw2dimg.NewGraphicContext(dest)
 
 	// Draw sample
 	android.Draw(gc, 65, 0)

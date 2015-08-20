@@ -10,7 +10,7 @@ The following Go code generates a simple drawing and saves it to a pdf document:
 ```go
 // Initialize the graphic context on an RGBA image
 dest := draw2dpdf.NewPdf("L", "mm", "A4")
-gc := draw2d.NewGraphicContext(dest)
+gc := draw2dpdf.NewGraphicContext(dest)
 
 // Set some properties
 gc.SetFillColor(color.RGBA{0x44, 0xff, 0x44, 0xff})
