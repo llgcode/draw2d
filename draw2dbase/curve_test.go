@@ -10,8 +10,6 @@ import (
 	"log"
 	"os"
 	"testing"
-
-	"github.com/llgcode/draw2d/raster"
 )
 
 var (
@@ -77,8 +75,8 @@ func TestCubicCurve(t *testing.T) {
 		p.MoveTo(testsCubicFloat64[i], testsCubicFloat64[i+1])
 		TraceCubic(&p, testsCubicFloat64[i:], flatteningThreshold)
 		img := image.NewNRGBA(image.Rect(0, 0, 300, 300))
-		raster.PolylineBresenham(img, color.NRGBA{0xff, 0, 0, 0xff}, testsCubicFloat64[i:i+8]...)
-		raster.PolylineBresenham(img, image.Black, p.Points...)
+		PolylineBresenham(img, color.NRGBA{0xff, 0, 0, 0xff}, testsCubicFloat64[i:i+8]...)
+		PolylineBresenham(img, image.Black, p.Points...)
 		//drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, curve[:]...)
 		drawPoints(img, color.NRGBA{0, 0, 0, 0xff}, p.Points...)
 		SaveToPngFile(fmt.Sprintf("../output/curve/_test%d.png", i/8), img)
@@ -93,8 +91,8 @@ func TestQuadCurve(t *testing.T) {
 		p.MoveTo(testsQuadFloat64[i], testsQuadFloat64[i+1])
 		TraceQuad(&p, testsQuadFloat64[i:], flatteningThreshold)
 		img := image.NewNRGBA(image.Rect(0, 0, 300, 300))
-		raster.PolylineBresenham(img, color.NRGBA{0xff, 0, 0, 0xff}, testsQuadFloat64[i:i+6]...)
-		raster.PolylineBresenham(img, image.Black, p.Points...)
+		PolylineBresenham(img, color.NRGBA{0xff, 0, 0, 0xff}, testsQuadFloat64[i:i+6]...)
+		PolylineBresenham(img, image.Black, p.Points...)
 		//drawPoints(img, image.NRGBAColor{0, 0, 0, 0xff}, curve[:]...)
 		drawPoints(img, color.NRGBA{0, 0, 0, 0xff}, p.Points...)
 		SaveToPngFile(fmt.Sprintf("../output/curve/_testQuad%d.png", i), img)
