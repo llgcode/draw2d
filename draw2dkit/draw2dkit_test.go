@@ -26,5 +26,5 @@ func TestCircle(t *testing.T) {
 	Circle(gc, 100, 100, 50)
 	gc.Stroke()
 
-	draw2d.SaveToPngFile("../resource/result/TestCircle.png", img)
+	draw2d.SaveToPngFile("../output/draw2dkit/TestCircle.png", img)
 }
