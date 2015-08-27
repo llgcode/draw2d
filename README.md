@@ -99,7 +99,7 @@ This will generate output by the different backends in the output folder.
 Acknowledgments
 ---------------
 
-[Laurent Le Goff](https://github.com/llgcode) wrote this library, inspired by [Postscript](http://www.tailrecursive.org/postscript) and [HTML5 canvas](http://www.w3.org/TR/2dcontext/). He implemented the image and opengl backend with the [freetype-go](https://code.google.com/p/freetype-go/) package. Also he created a pure go [Postscript interpreter](https://github.com/llgcode/ps), which can read postscript images and draw to a draw2d graphic context. [Stani Michiels](https://github.com/stanim) implemented the pdf backend with the [gofpdf](https://github.com/jung-kurt/gofpdf) package.
+[Laurent Le Goff](https://github.com/llgcode) wrote this library, inspired by [Postscript](http://www.tailrecursive.org/postscript) and [HTML5 canvas](http://www.w3.org/TR/2dcontext/). He implemented the image and opengl backend with the [freetype-go](https://github.com/golang/freetype/) package. Also he created a pure go [Postscript interpreter](https://github.com/llgcode/ps), which can read postscript images and draw to a draw2d graphic context. [Stani Michiels](https://github.com/stanim) implemented the pdf backend with the [gofpdf](https://github.com/jung-kurt/gofpdf) package.
 
 
 
@@ -117,5 +117,5 @@ References
 ---------
 
  - [antigrain.com](http://www.antigrain.com)
- - [freetype-go](http://code.google.com/p/freetype-go)
+ - [freetype-go](https://github.com/golang/freetype)
  -
