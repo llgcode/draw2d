@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"testing"
 
-	"code.google.com/p/freetype-go/freetype/raster"
+	"github.com/golang/freetype/raster"
 	"github.com/llgcode/draw2d/draw2dbase"
 	"github.com/llgcode/draw2d/draw2dimg"
 )
