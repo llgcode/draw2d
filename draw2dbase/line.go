@@ -1,6 +1,7 @@
 // Copyright 2011 The draw2d Authors. All rights reserved.
 // created: 27/05/2011 by Laurent Le Goff
-package raster
+
+package draw2dbase
 
 import (
 	"image/color"
@@ -14,12 +15,14 @@ func abs(i int) int {
 	return i
 }
 
+// PolylineBresenham draws a polyline to an image
 func PolylineBresenham(img draw.Image, c color.Color, s ...float64) {
 	for i := 2; i < len(s); i += 2 {
 		Bresenham(img, c, int(s[i-2]+0.5), int(s[i-1]+0.5), int(s[i]+0.5), int(s[i+1]+0.5))
 	}
 }
 
+// Bresenham draws a line between (x0, y0) and (x1, y1)
 func Bresenham(img draw.Image, color color.Color, x0, y0, x1, y1 int) {
 	dx := abs(x1 - x0)
 	dy := abs(y1 - y0)
