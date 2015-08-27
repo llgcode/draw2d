@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/llgcode/draw2d/draw2dimg"
-	"github.com/stanim/draw2d"
 )
 
 func TestCircle(t *testing.T) {
@@ -26,5 +25,5 @@ func TestCircle(t *testing.T) {
 	Circle(gc, 100, 100, 50)
 	gc.Stroke()
 
-	draw2d.SaveToPngFile("../output/draw2dkit/TestCircle.png", img)
+	draw2dimg.SaveToPngFile("../output/draw2dkit/TestCircle.png", img)
 }
