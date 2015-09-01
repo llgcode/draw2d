@@ -14,8 +14,8 @@ import (
 	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/draw2dbase"
 
-	"code.google.com/p/freetype-go/freetype/raster"
-	"code.google.com/p/freetype-go/freetype/truetype"
+	"github.com/golang/freetype/raster"
+	"github.com/golang/freetype/truetype"
 )
 
 // Painter implements the freetype raster.Painter and has a SetColor method like the RGBAPainter

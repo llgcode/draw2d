@@ -4,7 +4,7 @@
 package draw2dimg
 
 import (
-	"code.google.com/p/freetype-go/freetype/raster"
+	"github.com/golang/freetype/raster"
 )
 
 type FtLineBuilder struct {

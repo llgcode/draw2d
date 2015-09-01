@@ -1,7 +1,7 @@
 package draw2dimg
 
 import (
-	"code.google.com/p/freetype-go/freetype/truetype"
+	"github.com/golang/freetype/truetype"
 	"github.com/llgcode/draw2d"
 )
 
