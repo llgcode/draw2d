@@ -14,7 +14,7 @@ import (
 	"os"
 	"strconv"
 
-	"code.google.com/p/freetype-go/freetype/truetype"
+	"github.com/golang/freetype/truetype"
 
 	"github.com/jung-kurt/gofpdf"
 	"github.com/llgcode/draw2d"

@@ -14,8 +14,11 @@ import (
 	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/draw2dbase"
 
-	"code.google.com/p/freetype-go/freetype/raster"
-	"code.google.com/p/freetype-go/freetype/truetype"
+	"github.com/golang/freetype/raster"
+	"github.com/golang/freetype/truetype"
+
+	"golang.org/x/image/font"
+	"golang.org/x/image/math/fixed"
 )
 
 // Painter implements the freetype raster.Painter and has a SetColor method like the RGBAPainter
@@ -58,7 +61,7 @@ func NewGraphicContextWithPainter(img draw.Image, painter Painter) *GraphicConte
 		painter,
 		raster.NewRasterizer(width, height),
 		raster.NewRasterizer(width, height),
-		truetype.NewGlyphBuf(),
+		&truetype.GlyphBuf{},
 		dpi,
 	}
 	return gc
@@ -128,12 +131,12 @@ func (gc *GraphicContext) loadCurrentFont() (*truetype.Font, error) {
 // going downwards.
 
 func (gc *GraphicContext) drawGlyph(glyph truetype.Index, dx, dy float64) error {
-	if err := gc.glyphBuf.Load(gc.Current.Font, int32(gc.Current.Scale), glyph, truetype.NoHinting); err != nil {
+	if err := gc.glyphBuf.Load(gc.Current.Font, fixed.Int26_6(gc.Current.Scale), glyph, font.HintingNone); err != nil {
 		return err
 	}
 	e0 := 0
-	for _, e1 := range gc.glyphBuf.End {
-		DrawContour(gc, gc.glyphBuf.Point[e0:e1], dx, dy)
+	for _, e1 := range gc.glyphBuf.Ends {
+		DrawContour(gc, gc.glyphBuf.Points[e0:e1], dx, dy)
 		e0 = e1
 	}
 	return nil
@@ -146,7 +149,7 @@ func (gc *GraphicContext) drawGlyph(glyph truetype.Index, dx, dy float64) error 
 // For example, drawing a string that starts with a 'J' in an italic font may
 // affect pixels below and left of the point.
 func (gc *GraphicContext) CreateStringPath(s string, x, y float64) float64 {
-	font, err := gc.loadCurrentFont()
+	f, err := gc.loadCurrentFont()
 	if err != nil {
 		log.Println(err)
 		return 0.0
@@ -154,16 +157,16 @@ func (gc *GraphicContext) CreateStringPath(s string, x, y float64) float64 {
 	startx := x
 	prev, hasPrev := truetype.Index(0), false
 	for _, rune := range s {
-		index := font.Index(rune)
+		index := f.Index(rune)
 		if hasPrev {
-			x += fUnitsToFloat64(font.Kerning(int32(gc.Current.Scale), prev, index))
+			x += fUnitsToFloat64(f.Kern(fixed.Int26_6(gc.Current.Scale), prev, index))
 		}
 		err := gc.drawGlyph(index, x, y)
 		if err != nil {
 			log.Println(err)
 			return startx - x
 		}
-		x += fUnitsToFloat64(font.HMetric(int32(gc.Current.Scale), index).AdvanceWidth)
+		x += fUnitsToFloat64(f.HMetric(fixed.Int26_6(gc.Current.Scale), index).AdvanceWidth)
 		prev, hasPrev = index, true
 	}
 	return x - startx
@@ -174,7 +177,7 @@ func (gc *GraphicContext) CreateStringPath(s string, x, y float64) float64 {
 // and the baseline intersect at 0, 0 in the returned coordinates.
 // Therefore the top and left coordinates may well be negative.
 func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom float64) {
-	font, err := gc.loadCurrentFont()
+	f, err := gc.loadCurrentFont()
 	if err != nil {
 		log.Println(err)
 		return 0, 0, 0, 0
@@ -183,18 +186,17 @@ func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom fl
 	cursor := 0.0
 	prev, hasPrev := truetype.Index(0), false
 	for _, rune := range s {
-		index := font.Index(rune)
+		index := f.Index(rune)
 		if hasPrev {
-
-			cursor += fUnitsToFloat64(font.Kerning(int32(gc.Current.Scale), prev, index))
+			cursor += fUnitsToFloat64(f.Kern(fixed.Int26_6(gc.Current.Scale), prev, index))
 		}
-		if err := gc.glyphBuf.Load(gc.Current.Font, int32(gc.Current.Scale), index, truetype.NoHinting); err != nil {
+		if err := gc.glyphBuf.Load(gc.Current.Font, fixed.Int26_6(gc.Current.Scale), index, font.HintingNone); err != nil {
 			log.Println(err)
 			return 0, 0, 0, 0
 		}
 		e0 := 0
-		for _, e1 := range gc.glyphBuf.End {
-			ps := gc.glyphBuf.Point[e0:e1]
+		for _, e1 := range gc.glyphBuf.Ends {
+			ps := gc.glyphBuf.Points[e0:e1]
 			for _, p := range ps {
 				x, y := pointToF64Point(p)
 				top = math.Min(top, y)
@@ -203,7 +205,7 @@ func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom fl
 				right = math.Max(right, x+cursor)
 			}
 		}
-		cursor += fUnitsToFloat64(font.HMetric(int32(gc.Current.Scale), index).AdvanceWidth)
+		cursor += fUnitsToFloat64(f.HMetric(fixed.Int26_6(gc.Current.Scale), index).AdvanceWidth)
 		prev, hasPrev = index, true
 	}
 	return left, top, right, bottom

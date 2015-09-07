@@ -4,7 +4,8 @@
 package draw2dimg
 
 import (
-	"code.google.com/p/freetype-go/freetype/raster"
+	"github.com/golang/freetype/raster"
+	"golang.org/x/image/math/fixed"
 )
 
 type FtLineBuilder struct {
@@ -12,11 +13,11 @@ type FtLineBuilder struct {
 }
 
 func (liner FtLineBuilder) MoveTo(x, y float64) {
-	liner.Adder.Start(raster.Point{X: raster.Fix32(x * 256), Y: raster.Fix32(y * 256)})
+	liner.Adder.Start(fixed.Point26_6{X: fixed.Int26_6(x * 64), Y: fixed.Int26_6(y * 64)})
 }
 
 func (liner FtLineBuilder) LineTo(x, y float64) {
-	liner.Adder.Add1(raster.Point{X: raster.Fix32(x * 256), Y: raster.Fix32(y * 256)})
+	liner.Adder.Add1(fixed.Point26_6{X: fixed.Int26_6(x * 64), Y: fixed.Int26_6(y * 64)})
 }
 
 func (liner FtLineBuilder) LineJoin() {
