@@ -6,8 +6,8 @@ import (
 	"image/draw"
 	"runtime"
 
-	"code.google.com/p/freetype-go/freetype/raster"
 	"github.com/go-gl/gl/v2.1/gl"
+	"github.com/golang/freetype/raster"
 	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/draw2dbase"
 	"github.com/llgcode/draw2d/draw2dimg"
@@ -52,7 +52,7 @@ func (p *Painter) Paint(ss []raster.Span, done bool) {
 		vertices []int32
 	)
 	for _, s := range ss {
-		ma := s.A >> 16
+		ma := s.Alpha >> 16
 		a := uint8((ma * p.ca / M16) >> 8)
 		colors = p.colors[ci:]
 		colors[0] = p.cr
