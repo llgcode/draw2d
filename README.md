@@ -114,6 +114,7 @@ Packages using draw2d
  - [smartcrop](https://github.com/muesli/smartcrop): content aware image cropping
  - [karta](https://github.com/peterhellberg/karta): drawing Voronoi diagrams
  - [chart](https://github.com/vdobler/chart): basic charts in Go
+ - [hilbert](https://github.com/google/hilbert): package for drawing Hilbert curves
 
 References
 ---------
