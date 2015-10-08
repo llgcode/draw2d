@@ -38,47 +38,66 @@ Quick Start
 The following Go code generates a simple drawing and saves it to an image file with package draw2d:
 
 ```go
-// Initialize the graphic context on an RGBA image
-dest := image.NewRGBA(image.Rect(0, 0, 297, 210.0))
-gc := draw2dimg.NewGraphicContext(dest)
+package main
 
-// Set some properties
-gc.SetFillColor(color.RGBA{0x44, 0xff, 0x44, 0xff})
-gc.SetStrokeColor(color.RGBA{0x44, 0x44, 0x44, 0xff})
-gc.SetLineWidth(5)
+import (
+	"github.com/llgcode/draw2d/draw2dimg"
+	"image"
+	"image/color"
+)
 
-// Draw a closed shape
-gc.MoveTo(10, 10) // should always be called first for a new path
-gc.LineTo(100, 50)
-gc.QuadCurveTo(100, 10, 10, 10)
-gc.Close()
-gc.FillStroke()
+func main() {
+	// Initialize the graphic context on an RGBA image
+	dest := image.NewRGBA(image.Rect(0, 0, 297, 210.0))
+	gc := draw2dimg.NewGraphicContext(dest)
 
-// Save to file
-draw2dimg.SaveToPngFile("hello.png", dest)
+	// Set some properties
+	gc.SetFillColor(color.RGBA{0x44, 0xff, 0x44, 0xff})
+	gc.SetStrokeColor(color.RGBA{0x44, 0x44, 0x44, 0xff})
+	gc.SetLineWidth(5)
+
+	// Draw a closed shape
+	gc.MoveTo(10, 10) // should always be called first for a new path
+	gc.LineTo(100, 50)
+	gc.QuadCurveTo(100, 10, 10, 10)
+	gc.Close()
+	gc.FillStroke()
+
+	// Save to file
+	draw2dimg.SaveToPngFile("hello.png", dest)
+}
 ```
 
 The same Go code can also generate a pdf document with package draw2dpdf:
 
 ```go
-// Initialize the graphic context on an RGBA image
-dest := draw2dpdf.NewPdf("L", "mm", "A4")
-gc := draw2dpdf.NewGraphicContext(dest)
+package main
 
-// Set some properties
-gc.SetFillColor(color.RGBA{0x44, 0xff, 0x44, 0xff})
-gc.SetStrokeColor(color.RGBA{0x44, 0x44, 0x44, 0xff})
-gc.SetLineWidth(5)
+import (
+	"github.com/llgcode/draw2d/draw2dpdf"
+	"image/color"
+)
 
-// Draw a closed shape
-gc.MoveTo(10, 10) // should always be called first for a new path
-gc.LineTo(100, 50)
-gc.QuadCurveTo(100, 10, 10, 10)
-gc.Close()
-gc.FillStroke()
+func main() {
+	// Initialize the graphic context on an RGBA image
+	dest := draw2dpdf.NewPdf("L", "mm", "A4")
+	gc := draw2dpdf.NewGraphicContext(dest)
 
-// Save to file
-draw2dpdf.SaveToPdfFile("hello.pdf", dest)
+	// Set some properties
+	gc.SetFillColor(color.RGBA{0x44, 0xff, 0x44, 0xff})
+	gc.SetStrokeColor(color.RGBA{0x44, 0x44, 0x44, 0xff})
+	gc.SetLineWidth(5)
+
+	// Draw a closed shape
+	gc.MoveTo(10, 10) // should always be called first for a new path
+	gc.LineTo(100, 50)
+	gc.QuadCurveTo(100, 10, 10, 10)
+	gc.Close()
+	gc.FillStroke()
+
+	// Save to file
+	draw2dpdf.SaveToPdfFile("hello.pdf", dest)
+}
 ```
 
 There are more examples here: https://github.com/llgcode/draw2d/tree/master/samples
