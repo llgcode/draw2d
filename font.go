@@ -18,6 +18,9 @@ var (
 	fontNamer  FontFileNamer = FontFileName
 )
 
+// FontStyle defines bold and italic styles for the font
+// It is possible to combine values for mixed styles, eg.
+//     FontData.Style = FontStyleBold | FontStyleItalic
 type FontStyle byte
 
 const (
