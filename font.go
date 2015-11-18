@@ -11,12 +11,6 @@ import (
 	"github.com/golang/freetype/truetype"
 )
 
-var (
-	fontFolder               = "../resource/font/"
-	fonts                    = make(map[string]*truetype.Font)
-	fontNamer  FontFileNamer = FontFileName
-)
-
 // FontStyle defines bold and italic styles for the font
 // It is possible to combine values for mixed styles, eg.
 //     FontData.Style = FontStyleBold | FontStyleItalic
