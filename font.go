@@ -6,7 +6,6 @@ package draw2d
 import (
 	"io/ioutil"
 	"log"
-	"path"
 	"path/filepath"
 
 	"github.com/golang/freetype/truetype"
@@ -69,41 +68,89 @@ func FontFileName(fontData FontData) string {
 }
 
 func RegisterFont(fontData FontData, font *truetype.Font) {
-	fonts[fontNamer(fontData)] = font
+	fontCache.Store(fontData, font)
 }
 
-func GetFont(fontData FontData) *truetype.Font {
-	fontFileName := fontNamer(fontData)
-	font := fonts[fontFileName]
-	if font != nil {
-		return font
+func GetFont(fontData FontData) (font *truetype.Font) {
+	var err error
+
+	if font, err = fontCache.Load(fontData); err != nil {
+		log.Println(err)
 	}
-	fonts[fontFileName] = loadFont(fontFileName)
-	return fonts[fontFileName]
+
+	return
 }
 
 func GetFontFolder() string {
-	return fontFolder
+	return defaultFonts.folder
 }
 
 func SetFontFolder(folder string) {
-	fontFolder = filepath.Clean(folder)
+	defaultFonts.folder = filepath.Clean(folder)
 }
 
 func SetFontNamer(fn FontFileNamer) {
-	fontNamer = fn
+	defaultFonts.namer = fn
 }
 
-func loadFont(fontFileName string) *truetype.Font {
-	fontBytes, err := ioutil.ReadFile(path.Join(fontFolder, fontFileName))
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-	font, err := truetype.Parse(fontBytes)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-	return font
+// Types implementing this interface can be passed to SetFontCache to change the
+// way fonts are being stored and retrieved.
+type FontCache interface {
+	// Loads a truetype font represented by the FontData object passed as
+	// argument.
+	// The method returns an error if the font could not be loaded, either
+	// because it didn't exist or the resource it was loaded from was corrupted.
+	Load(FontData) (*truetype.Font, error)
+
+	// Sets the truetype font that will be returned by Load when given the font
+	// data passed as first argument.
+	Store(FontData, *truetype.Font)
 }
+
+// Changes the font cache backend used by the package. After calling this
+// functionSetFontFolder and SetFontNamer will not affect anymore how fonts are
+// loaded.
+// To restore the default font cache, call this function passing nil as argument.
+func SetFontCache(cache FontCache) {
+	if cache == nil {
+		fontCache = defaultFonts
+	} else {
+		fontCache = cache
+	}
+}
+
+type defaultFontCache struct {
+	fonts  map[string]*truetype.Font
+	folder string
+	namer  FontFileNamer
+}
+
+func (cache *defaultFontCache) Load(fontData FontData) (font *truetype.Font, err error) {
+	var data []byte
+	var file = cache.namer(fontData)
+
+	if data, err = ioutil.ReadFile(filepath.Join(cache.folder, file)); err != nil {
+		return
+	}
+
+	if font, err = truetype.Parse(data); err != nil {
+		return
+	}
+
+	cache.fonts[file] = font
+	return
+}
+
+func (cache *defaultFontCache) Store(fontData FontData, font *truetype.Font) {
+	cache.fonts[cache.namer(fontData)] = font
+}
+
+var (
+	defaultFonts = &defaultFontCache{
+		fonts:  make(map[string]*truetype.Font),
+		folder: "../resource/font",
+		namer:  FontFileName,
+	}
+
+	fontCache FontCache = defaultFonts
+)
