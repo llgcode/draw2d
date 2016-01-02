@@ -18,6 +18,7 @@ import (
 
 	"golang.org/x/image/draw"
 	"golang.org/x/image/font"
+	"golang.org/x/image/math/f64"
 	"golang.org/x/image/math/fixed"
 )
 
@@ -98,21 +99,16 @@ func (gc *GraphicContext) ClearRect(x1, y1, x2, y2 int) {
 
 // DrawImage draws an image into dest using an affine transformation matrix, an op and a filter
 func DrawImage(src image.Image, dest draw.Image, tr draw2d.Matrix, op draw.Op, filter ImageFilter) {
-	srcRect := src.Bounds()
-	x0, y0, x1, y1 := tr.TransformRectangle(float64(srcRect.Min.X), float64(srcRect.Min.Y), float64(srcRect.Max.X), float64(srcRect.Max.Y))
-	destRect := image.Rectangle{image.Point{int(x0), int(y0)}, image.Point{int(x1), int(y1)}}
-
-	var scaler draw.Scaler
+	var transformer draw.Transformer
 	switch filter {
 	case LinearFilter:
-		scaler = draw.NearestNeighbor
+		transformer = draw.NearestNeighbor
 	case BilinearFilter:
-		scaler = draw.BiLinear
+		transformer = draw.BiLinear
 	case BicubicFilter:
-		scaler = draw.CatmullRom
+		transformer = draw.CatmullRom
 	}
-
-	scaler.Scale(dest, destRect, src, srcRect, draw.Over, nil)
+	transformer.Transform(dest, f64.Aff3{tr[0], tr[1], tr[4], tr[2], tr[3], tr[5]}, src, src.Bounds(), draw.Over, nil)
 }
 
 // DrawImage draws the raster image in the current canvas
