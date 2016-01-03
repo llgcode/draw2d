@@ -7,7 +7,6 @@ import (
 	"errors"
 	"image"
 	"image/color"
-	"image/draw"
 	"log"
 	"math"
 
@@ -17,7 +16,9 @@ import (
 	"github.com/golang/freetype/raster"
 	"github.com/golang/freetype/truetype"
 
+	"golang.org/x/image/draw"
 	"golang.org/x/image/font"
+	"golang.org/x/image/math/f64"
 	"golang.org/x/image/math/fixed"
 )
 
@@ -37,6 +38,18 @@ type GraphicContext struct {
 	glyphBuf         *truetype.GlyphBuf
 	DPI              int
 }
+
+// ImageFilter defines the type of filter to use
+type ImageFilter int
+
+const (
+	// LinearFilter defines a linear filter
+	LinearFilter ImageFilter = iota
+	// BilinearFilter defines a bilinear filter
+	BilinearFilter
+	// BicubicFilter defines a bicubic filter
+	BicubicFilter
+)
 
 // NewGraphicContext creates a new Graphic context from an image.
 func NewGraphicContext(img draw.Image) *GraphicContext {
@@ -82,6 +95,20 @@ func (gc *GraphicContext) Clear() {
 func (gc *GraphicContext) ClearRect(x1, y1, x2, y2 int) {
 	imageColor := image.NewUniform(gc.Current.FillColor)
 	draw.Draw(gc.img, image.Rect(x1, y1, x2, y2), imageColor, image.ZP, draw.Over)
+}
+
+// DrawImage draws an image into dest using an affine transformation matrix, an op and a filter
+func DrawImage(src image.Image, dest draw.Image, tr draw2d.Matrix, op draw.Op, filter ImageFilter) {
+	var transformer draw.Transformer
+	switch filter {
+	case LinearFilter:
+		transformer = draw.NearestNeighbor
+	case BilinearFilter:
+		transformer = draw.BiLinear
+	case BicubicFilter:
+		transformer = draw.CatmullRom
+	}
+	transformer.Transform(dest, f64.Aff3{tr[0], tr[1], tr[4], tr[2], tr[3], tr[5]}, src, src.Bounds(), draw.Over, nil)
 }
 
 // DrawImage draws the raster image in the current canvas
