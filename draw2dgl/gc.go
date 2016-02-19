@@ -52,8 +52,8 @@ func (p *Painter) Paint(ss []raster.Span, done bool) {
 		vertices []int32
 	)
 	for _, s := range ss {
-		ma := s.Alpha >> 16
-		a := uint8((ma * p.ca / M16) >> 8)
+		a := uint8((s.Alpha * p.ca / M16) >> 8)
+
 		colors = p.colors[ci:]
 		colors[0] = p.cr
 		colors[1] = p.cg
