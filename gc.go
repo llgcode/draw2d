@@ -10,6 +10,7 @@ import (
 
 // GraphicContext describes the interface for the various backends (images, pdf, opengl, ...)
 type GraphicContext interface {
+	// PathBuilder describes the interface for path drawing
 	PathBuilder
 	// BeginPath creates a new path
 	BeginPath()
@@ -27,7 +28,7 @@ type GraphicContext interface {
 	Scale(sx, sy float64)
 	// SetStrokeColor sets the current stroke color
 	SetStrokeColor(c color.Color)
-	// SetStrokeColor sets the current fill color
+	// SetFillColor sets the current fill color
 	SetFillColor(c color.Color)
 	// SetFillRule sets the current fill rule
 	SetFillRule(f FillRule)
@@ -37,27 +38,43 @@ type GraphicContext interface {
 	SetLineCap(cap LineCap)
 	// SetLineJoin sets the current line join
 	SetLineJoin(join LineJoin)
-	// SetLineJoin sets the current dash
+	// SetLineDash sets the current dash
 	SetLineDash(dash []float64, dashOffset float64)
-	// SetFontSize
+	// SetFontSize sets the current font size
 	SetFontSize(fontSize float64)
+	// GetFontSize gets the current font size
 	GetFontSize() float64
+	// SetFontData sets the current FontData
 	SetFontData(fontData FontData)
+	// GetFontData gets the current FontData
 	GetFontData() FontData
+	// DrawImage draws the raster image in the current canvas
 	DrawImage(image image.Image)
 	Save()
 	Restore()
+	// Clear fills the current canvas with a default transparent color
 	Clear()
 	ClearRect(x1, y1, x2, y2 int)
+	// SetDPI sets the current DPI
 	SetDPI(dpi int)
+	// GetDPI gets the current DPI
 	GetDPI() int
+	// GetStringBounds gets pixel bounds(dimensions) of given string
 	GetStringBounds(s string) (left, top, right, bottom float64)
+	// CreateStringPath creates a path from the string s at x, y
 	CreateStringPath(text string, x, y float64) (cursor float64)
+	// FillString draws the text at point (0, 0)
 	FillString(text string) (cursor float64)
+	// FillStringAt draws the text at the specified point (x, y)
 	FillStringAt(text string, x, y float64) (cursor float64)
+	// StrokeString draws the contour of the text at point (0, 0)
 	StrokeString(text string) (cursor float64)
+	// StrokeStringAt draws the contour of the text at point (x, y)
 	StrokeStringAt(text string, x, y float64) (cursor float64)
+	// Stroke strokes the paths with the color specified by SetStrokeColor
 	Stroke(paths ...*Path)
+	// Fill fills the paths with the color specified by SetFillColor
 	Fill(paths ...*Path)
+	// FillStroke first fills the paths and than strokes them
 	FillStroke(paths ...*Path)
 }
