@@ -108,7 +108,7 @@ func DrawImage(src image.Image, dest draw.Image, tr draw2d.Matrix, op draw.Op, f
 	case BicubicFilter:
 		transformer = draw.CatmullRom
 	}
-	transformer.Transform(dest, f64.Aff3{tr[0], tr[1], tr[4], tr[2], tr[3], tr[5]}, src, src.Bounds(), draw.Over, nil)
+	transformer.Transform(dest, f64.Aff3{tr[0], tr[1], tr[4], tr[2], tr[3], tr[5]}, src, src.Bounds(), op, nil)
 }
 
 // DrawImage draws the raster image in the current canvas
