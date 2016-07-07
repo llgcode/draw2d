@@ -141,6 +141,9 @@ func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (cursor floa
 }
 
 func (gc *GraphicContext) loadCurrentFont() (*truetype.Font, error) {
+	if gc.Current.Font != nil {
+		return gc.Current.Font, nil
+	}
 	font := draw2d.GetFont(gc.Current.FontData)
 	if font == nil {
 		font = draw2d.GetFont(draw2dbase.DefaultFontData)
