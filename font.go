@@ -120,6 +120,10 @@ type defaultFontCache struct {
 }
 
 func (cache *defaultFontCache) Load(fontData FontData) (font *truetype.Font, err error) {
+	if font = cache.fonts[cache.namer(fontData)]; font != nil {
+		return font, nil
+	}
+
 	var data []byte
 	var file = cache.namer(fontData)
 
