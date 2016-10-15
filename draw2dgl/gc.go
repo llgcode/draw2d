@@ -142,7 +142,6 @@ func NewGraphicContext(width, height int) *GraphicContext {
 	return gc
 }
 
-//FIXME copied from ../draw2dimg
 func (gc *GraphicContext) loadCurrentFont() (*truetype.Font, error) {
 	font := draw2d.GetFont(gc.Current.FontData)
 	if font == nil {
@@ -156,7 +155,6 @@ func (gc *GraphicContext) loadCurrentFont() (*truetype.Font, error) {
 	return font, nil
 }
 
-//FIXME copied from ../draw2dimg
 func (gc *GraphicContext) drawGlyph(glyph truetype.Index, dx, dy float64) error {
 	if err := gc.glyphBuf.Load(gc.Current.Font, fixed.Int26_6(gc.Current.Scale), glyph, font.HintingNone); err != nil {
 		return err
@@ -169,7 +167,6 @@ func (gc *GraphicContext) drawGlyph(glyph truetype.Index, dx, dy float64) error 
 	return nil
 }
 
-//FIXME copied from ../draw2dimg
 // CreateStringPath creates a path from the string s at x, y, and returns the string width.
 // The text is placed so that the left edge of the em square of the first character of s
 // and the baseline intersect at x, y. The majority of the affected pixels will be
@@ -206,7 +203,6 @@ func (gc *GraphicContext) FillStringAt(text string, x, y float64) (width float64
 	return width
 }
 
-//FIXME copied from ../draw2dimg
 // GetStringBounds returns the approximate pixel bounds of the string s at x, y.
 // The the left edge of the em square of the first character of s
 // and the baseline intersect at 0, 0 in the returned coordinates.
@@ -256,7 +252,6 @@ func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (width float
 	return width
 }
 
-//FIXME copied from ../draw2dimg
 // recalc recalculates scale and bounds values from the font size, screen
 // resolution and font metrics, and invalidates the glyph cache.
 func (gc *GraphicContext) recalc() {

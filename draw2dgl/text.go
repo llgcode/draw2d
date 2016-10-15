@@ -1,5 +1,4 @@
 package draw2dgl
-//Copied from ../draw2dimg
 
 import (
 	"github.com/golang/freetype/truetype"
