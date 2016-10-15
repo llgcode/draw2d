@@ -160,6 +160,17 @@ func (p *Path) IsEmpty() bool {
 	return len(p.Components) == 0
 }
 
+// Shift moves every point in the path by x and y.
+func (p *Path) Shift(x, y float64) {
+	if len(p.Points) % 2 != 0 {
+		panic("Invalid Path (odd number of points)")
+	}
+	for i := 0;i < len(p.Points);i += 2 {
+		p.Points[i] += x
+		p.Points[i+1] += y
+	}
+}
+
 // String returns a debug text view of the path
 func (p *Path) String() string {
 	s := ""
