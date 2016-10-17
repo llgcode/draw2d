@@ -19,7 +19,7 @@ type Flattener interface {
 	MoveTo(x, y float64)
 	// LineTo Draw a line from the current position to the point (x, y)
 	LineTo(x, y float64)
-	// LineJoin add the most recent starting point to close the path to create a polygon
+	// LineJoin use Round, Bevel or miter to join points
 	LineJoin()
 	// Close add the most recent starting point to close the path to create a polygon
 	Close()
