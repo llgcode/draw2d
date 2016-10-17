@@ -160,6 +160,10 @@ func (gc *StackGraphicContext) ArcTo(cx, cy, rx, ry, startAngle, angle float64) 
 	gc.Current.Path.ArcTo(cx, cy, rx, ry, startAngle, angle)
 }
 
+func (gc *StackGraphicContext) Shift(x, y float64) {
+	gc.Current.Path.Shift(x, y)
+}
+
 func (gc *StackGraphicContext) Close() {
 	gc.Current.Path.Close()
 }

@@ -22,6 +22,8 @@ type PathBuilder interface {
 	CubicCurveTo(cx1, cy1, cx2, cy2, x, y float64)
 	// ArcTo adds an arc to the current subpath
 	ArcTo(cx, cy, rx, ry, startAngle, angle float64)
+	// Shift moves every point in the path by x and y
+	Shift(x, y float64)
 	// Close creates a line from the current point to the last MoveTo
 	// point (if not the same) and mark the path as closed so the
 	// first and last lines join nicely.
