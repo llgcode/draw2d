@@ -160,14 +160,32 @@ func (p *Path) IsEmpty() bool {
 	return len(p.Components) == 0
 }
 
-// Shift moves every point in the path by x and y.
+// Shift moves every point in the path by x and y
 func (p *Path) Shift(x, y float64) {
-	if len(p.Points) % 2 != 0 {
-		panic("Invalid Path (odd number of points)")
-	}
-	for i := 0;i < len(p.Points);i += 2 {
-		p.Points[i] += x
-		p.Points[i+1] += y
+	j := 0
+	for _, cmd := range p.Components {
+		if cmd == CloseCmp {
+			continue
+		}
+		p.Points[j] += x
+		p.Points[j+1] += y
+		j += 2
+		switch cmd {
+		case QuadCurveToCmp:
+			p.Points[j] += x
+			p.Points[j+1] += y
+			j += 2
+		case CubicCurveToCmp:
+			p.Points[j] += x
+			p.Points[j+1] += y
+			p.Points[j+2] += x
+			p.Points[j+3] += y
+			j += 4
+		case ArcToCmp:
+			p.Points[j] += x
+			p.Points[j+1] += y
+			j += 4
+		}
 	}
 }
 
