@@ -58,6 +58,8 @@ func NewGraphicContext(img draw.Image) *GraphicContext {
 	switch selectImage := img.(type) {
 	case *image.RGBA:
 		painter = raster.NewRGBAPainter(selectImage)
+	case *image.Gray:
+		painter = raster.NewGRAYPainter(selectImage)
 	default:
 		panic("Image type not supported")
 	}
