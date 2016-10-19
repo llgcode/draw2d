@@ -14,7 +14,7 @@ type GraphicContext interface {
 	PathBuilder
 	// BeginPath creates a new path
 	BeginPath()
-	// CopyPath copies the current path, then returns it
+	// GetPath copies the current path, then returns it
 	GetPath() Path
 	// GetMatrixTransform returns the current transformation matrix
 	GetMatrixTransform() Matrix
