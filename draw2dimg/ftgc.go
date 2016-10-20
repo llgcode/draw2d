@@ -117,27 +117,31 @@ func (gc *GraphicContext) DrawImage(img image.Image) {
 }
 
 // FillString draws the text at point (0, 0)
-func (gc *GraphicContext) FillString(text string) (cursor float64) {
+func (gc *GraphicContext) FillString(text string) (width float64) {
 	return gc.FillStringAt(text, 0, 0)
 }
 
 // FillStringAt draws the text at the specified point (x, y)
-func (gc *GraphicContext) FillStringAt(text string, x, y float64) (cursor float64) {
-	width := gc.CreateStringPath(text, x, y)
-	gc.Fill()
-	return width
+func (gc *GraphicContext) FillStringAt(text string, x, y float64) (width float64) {
+	xorig := x
+	for _, r := range text {
+		x += draw2dbase.FillGlyph(gc, x, y, r)
+	}
+	return x - xorig
 }
 
 // StrokeString draws the contour of the text at point (0, 0)
-func (gc *GraphicContext) StrokeString(text string) (cursor float64) {
+func (gc *GraphicContext) StrokeString(text string) (width float64) {
 	return gc.StrokeStringAt(text, 0, 0)
 }
 
 // StrokeStringAt draws the contour of the text at point (x, y)
-func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (cursor float64) {
-	width := gc.CreateStringPath(text, x, y)
-	gc.Stroke()
-	return width
+func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (width float64) {
+	xorig := x
+	for _, r := range text {
+		x += draw2dbase.StrokeGlyph(gc, x, y, r)
+	}
+	return x - xorig
 }
 
 func (gc *GraphicContext) loadCurrentFont() (*truetype.Font, error) {

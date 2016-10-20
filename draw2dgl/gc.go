@@ -197,10 +197,16 @@ func (gc *GraphicContext) CreateStringPath(s string, x, y float64) float64 {
 	return x - startx
 }
 
+func (gc *GraphicContext) FillString(text string) (cursor float64) {
+	return gc.FillStringAt(text, 0, 0)
+}
+
 func (gc *GraphicContext) FillStringAt(text string, x, y float64) (width float64) {
-	width = gc.CreateStringPath(text, x, y)
-	gc.Fill()
-	return width
+	xorig := x
+	for _, r := range text {
+		x += draw2dbase.FillGlyph(gc, x, y, r)
+	}
+	return x - xorig
 }
 
 // GetStringBounds returns the approximate pixel bounds of the string s at x, y.
@@ -247,9 +253,11 @@ func (gc *GraphicContext) StrokeString(text string) (width float64) {
 }
 
 func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (width float64) {
-	width = gc.CreateStringPath(text, x, y)
-	gc.Stroke()
-	return width
+	xorig := x
+	for _, r := range text {
+		x += draw2dbase.StrokeGlyph(gc, x, y, r)
+	}
+	return x - xorig
 }
 
 // recalc recalculates scale and bounds values from the font size, screen
@@ -291,10 +299,6 @@ func (gc *GraphicContext) ClearRect(x1, y1, x2, y2 int) {
 //TODO
 func (gc *GraphicContext) DrawImage(img image.Image) {
 	panic("not implemented")
-}
-
-func (gc *GraphicContext) FillString(text string) (cursor float64) {
-	return gc.FillStringAt(text, 0, 0)
 }
 
 func (gc *GraphicContext) paint(rasterizer *raster.Rasterizer, color color.Color) {
