@@ -1,23 +1,16 @@
 package draw2dgl
 
 import (
-	"errors"
 	"image"
 	"image/color"
 	"image/draw"
-	"log"
-	"math"
 	"runtime"
 
 	"github.com/go-gl/gl/v2.1/gl"
 	"github.com/golang/freetype/raster"
-	"github.com/golang/freetype/truetype"
 	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/draw2dbase"
 	"github.com/llgcode/draw2d/draw2dimg"
-
-	"golang.org/x/image/font"
-	"golang.org/x/image/math/fixed"
 )
 
 func init() {
@@ -125,8 +118,6 @@ type GraphicContext struct {
 	painter          *Painter
 	fillRasterizer   *raster.Rasterizer
 	strokeRasterizer *raster.Rasterizer
-	glyphBuf         *truetype.GlyphBuf
-	DPI		int
 }
 
 // NewGraphicContext creates a new Graphic context from an image.
@@ -136,110 +127,14 @@ func NewGraphicContext(width, height int) *GraphicContext {
 		NewPainter(),
 		raster.NewRasterizer(width, height),
 		raster.NewRasterizer(width, height),
-		&truetype.GlyphBuf{},
-		92,
 	}
 	return gc
-}
-
-func (gc *GraphicContext) loadCurrentFont() (*truetype.Font, error) {
-	font := draw2d.GetFont(gc.Current.FontData)
-	if font == nil {
-		font = draw2d.GetFont(draw2dbase.DefaultFontData)
-	}
-	if font == nil {
-		return nil, errors.New("No font set, and no default font available.")
-	}
-	gc.SetFont(font)
-	gc.SetFontSize(gc.Current.FontSize)
-	return font, nil
-}
-
-func (gc *GraphicContext) drawGlyph(glyph truetype.Index, dx, dy float64) error {
-	if err := gc.glyphBuf.Load(gc.Current.Font, fixed.Int26_6(gc.Current.Scale), glyph, font.HintingNone); err != nil {
-		return err
-	}
-	e0 := 0
-	for _, e1 := range gc.glyphBuf.Ends {
-		DrawContour(gc, gc.glyphBuf.Points[e0:e1], dx, dy)
-		e0 = e1
-	}
-	return nil
-}
-
-// CreateStringPath creates a path from the string s at x, y, and returns the string width.
-// The text is placed so that the left edge of the em square of the first character of s
-// and the baseline intersect at x, y. The majority of the affected pixels will be
-// above and to the right of the point, but some may be below or to the left.
-// For example, drawing a string that starts with a 'J' in an italic font may
-// affect pixels below and left of the point.
-func (gc *GraphicContext) CreateStringPath(s string, x, y float64) float64 {
-	f, err := gc.loadCurrentFont()
-	if err != nil {
-		log.Println(err)
-		return 0.0
-	}
-	startx := x
-	prev, hasPrev := truetype.Index(0), false
-	for _, rune := range s {
-		index := f.Index(rune)
-		if hasPrev {
-			x += fUnitsToFloat64(f.Kern(fixed.Int26_6(gc.Current.Scale), prev, index))
-		}
-		err := gc.drawGlyph(index, x, y)
-		if err != nil {
-			log.Println(err)
-			return startx - x
-		}
-		x += fUnitsToFloat64(f.HMetric(fixed.Int26_6(gc.Current.Scale), index).AdvanceWidth)
-		prev, hasPrev = index, true
-	}
-	return x - startx
 }
 
 func (gc *GraphicContext) FillStringAt(text string, x, y float64) (width float64) {
 	width = gc.CreateStringPath(text, x, y)
 	gc.Fill()
 	return width
-}
-
-// GetStringBounds returns the approximate pixel bounds of the string s at x, y.
-// The the left edge of the em square of the first character of s
-// and the baseline intersect at 0, 0 in the returned coordinates.
-// Therefore the top and left coordinates may well be negative.
-func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom float64) {
-	f, err := gc.loadCurrentFont()
-	if err != nil {
-		log.Println(err)
-		return 0, 0, 0, 0
-	}
-	top, left, bottom, right = 10e6, 10e6, -10e6, -10e6
-	cursor := 0.0
-	prev, hasPrev := truetype.Index(0), false
-	for _, rune := range s {
-		index := f.Index(rune)
-		if hasPrev {
-			cursor += fUnitsToFloat64(f.Kern(fixed.Int26_6(gc.Current.Scale), prev, index))
-		}
-		if err := gc.glyphBuf.Load(gc.Current.Font, fixed.Int26_6(gc.Current.Scale), index, font.HintingNone); err != nil {
-			log.Println(err)
-			return 0, 0, 0, 0
-		}
-		e0 := 0
-		for _, e1 := range gc.glyphBuf.Ends {
-			ps := gc.glyphBuf.Points[e0:e1]
-			for _, p := range ps {
-				x, y := pointToF64Point(p)
-				top = math.Min(top, y)
-				bottom = math.Max(bottom, y)
-				left = math.Min(left, x+cursor)
-				right = math.Max(right, x+cursor)
-			}
-		}
-		cursor += fUnitsToFloat64(f.HMetric(fixed.Int26_6(gc.Current.Scale), index).AdvanceWidth)
-		prev, hasPrev = index, true
-	}
-	return left, top, right, bottom
 }
 
 func (gc *GraphicContext) StrokeString(text string) (width float64) {
@@ -250,32 +145,6 @@ func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (width float
 	width = gc.CreateStringPath(text, x, y)
 	gc.Stroke()
 	return width
-}
-
-// recalc recalculates scale and bounds values from the font size, screen
-// resolution and font metrics, and invalidates the glyph cache.
-func (gc *GraphicContext) recalc() {
-	gc.Current.Scale = gc.Current.FontSize * float64(gc.DPI) * (64.0 / 72.0)
-}
-
-func (gc *GraphicContext) SetDPI(dpi int) {
-	gc.DPI = dpi
-	gc.recalc()
-}
-
-// SetFont sets the font used to draw text.
-func (gc *GraphicContext) SetFont(font *truetype.Font) {
-	gc.Current.Font = font
-}
-
-// SetFontSize sets the font size in points (as in ``a 12 point font'').
-func (gc *GraphicContext) SetFontSize(fontSize float64) {
-	gc.Current.FontSize = fontSize
-	gc.recalc()
-}
-
-func (gc *GraphicContext) GetDPI() int {
-	return gc.DPI
 }
 
 //TODO
