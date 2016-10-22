@@ -1,8 +1,6 @@
 package draw2dgl
 
 import (
-	"fmt"
-
 	"github.com/golang/freetype/truetype"
 	"github.com/llgcode/draw2d"
 
@@ -16,8 +14,8 @@ func init() {
 }
 
 // FillGlyph copies a glyph from the cache, copies it to the gc, and fills it
-func FillGlyph(gc draw2d.GraphicContext, x, y float64, chr rune) float64 {
-	g := fetchGlyph(gc, chr)
+func FillGlyph(gc draw2d.GraphicContext, x, y float64, fontName string, chr rune) float64 {
+	g := fetchGlyph(gc, fontName, chr)
 	gc.Save()
 	gc.BeginPath()
 	gc.Translate(x, y)
@@ -27,8 +25,8 @@ func FillGlyph(gc draw2d.GraphicContext, x, y float64, chr rune) float64 {
 }
 
 // StrokeGlyph fetches a glyph from the cache, copies it to the gc, and strokes it
-func StrokeGlyph(gc draw2d.GraphicContext, x, y float64, chr rune) float64 {
-	g := fetchGlyph(gc, chr)
+func StrokeGlyph(gc draw2d.GraphicContext, x, y float64, fontName string, chr rune) float64 {
+	g := fetchGlyph(gc, fontName, chr)
 	gc.Save()
 	gc.BeginPath()
 	gc.Translate(x, y)
@@ -38,9 +36,7 @@ func StrokeGlyph(gc draw2d.GraphicContext, x, y float64, chr rune) float64 {
 }
 
 // fetchGlyph fetches a glyph from the cache, calling renderGlyph first if it doesn't already exist
-func fetchGlyph(gc draw2d.GraphicContext, chr rune) *glyph {
-	fontData := gc.GetFontData()
-	fontName := fmt.Sprintf("%s:%d:%d:%d", fontData.Name, fontData.Family, fontData.Style, gc.GetFontSize())
+func fetchGlyph(gc draw2d.GraphicContext, fontName string, chr rune) *glyph {
 	if glyphCache[fontName] == nil {
 		glyphCache[fontName] = make(map[rune]*glyph, 60)
 	}

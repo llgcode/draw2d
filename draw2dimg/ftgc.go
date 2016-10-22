@@ -124,8 +124,9 @@ func (gc *GraphicContext) FillString(text string) (width float64) {
 // FillStringAt draws the text at the specified point (x, y)
 func (gc *GraphicContext) FillStringAt(text string, x, y float64) (width float64) {
 	xorig := x
+	fontName := gc.GetFontName()
 	for _, r := range text {
-		x += draw2dbase.FillGlyph(gc, x, y, r)
+		x += draw2dbase.FillGlyph(gc, x, y, fontName, r)
 	}
 	return x - xorig
 }
@@ -138,8 +139,9 @@ func (gc *GraphicContext) StrokeString(text string) (width float64) {
 // StrokeStringAt draws the contour of the text at point (x, y)
 func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (width float64) {
 	xorig := x
+	fontName := gc.GetFontName()
 	for _, r := range text {
-		x += draw2dbase.StrokeGlyph(gc, x, y, r)
+		x += draw2dbase.StrokeGlyph(gc, x, y, fontName, r)
 	}
 	return x - xorig
 }
