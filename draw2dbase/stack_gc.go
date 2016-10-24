@@ -132,6 +132,10 @@ func (gc *StackGraphicContext) BeginPath() {
 	gc.Current.Path.Clear()
 }
 
+func (gc *StackGraphicContext) GetPath() draw2d.Path {
+	return *gc.Current.Path.Copy()
+}
+
 func (gc *StackGraphicContext) IsEmpty() bool {
 	return gc.Current.Path.IsEmpty()
 }
