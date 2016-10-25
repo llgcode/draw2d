@@ -145,6 +145,7 @@ func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (cursor floa
 
 func (gc *GraphicContext) SetDPI(dpi int) {
 	gc.DPI = dpi
+	draw2dbase.Recalc(gc)
 }
 
 func (gc *GraphicContext) GetDPI() int {
@@ -154,6 +155,7 @@ func (gc *GraphicContext) GetDPI() int {
 // SetFontSize sets the font size in points (as in ``a 12 point font'').
 func (gc *GraphicContext) SetFontSize(fontSize float64) {
 	gc.Current.FontSize = fontSize
+	draw2dbase.Recalc(gc)
 }
 
 func (gc *GraphicContext) paint(rasterizer *raster.Rasterizer, color color.Color) {

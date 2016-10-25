@@ -29,7 +29,6 @@ func loadCurrentFont(gc draw2d.GraphicContext) (*truetype.Font, error) {
 	}
 	gc.SetFont(font)
 	gc.SetFontSize(gc.GetFontSize())
-	recalc(gc)
 	return font, nil
 }
 
@@ -116,9 +115,9 @@ func GetStringBounds(gc draw2d.GraphicContext, s string) (left, top, right, bott
 	return left, top, right, bottom
 }
 
-// recalc recalculates scale and bounds values from the font size, screen
+// Recalc recalculates scale and bounds values from the font size, screen
 // resolution and font metrics, and invalidates the glyph cache.
-func recalc(gc draw2d.GraphicContext) {
+func Recalc(gc draw2d.GraphicContext) {
 	gc.SetScale(gc.GetFontSize() * float64(gc.GetDPI()) * (64.0 / 72.0))
 }
 
