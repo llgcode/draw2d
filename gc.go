@@ -6,6 +6,7 @@ package draw2d
 import (
 	"image"
 	"image/color"
+	"github.com/golang/freetype/truetype"
 )
 
 // GraphicContext describes the interface for the various backends (images, pdf, opengl, ...)
@@ -44,6 +45,14 @@ type GraphicContext interface {
 	SetFontSize(fontSize float64)
 	// GetFontSize gets the current font size
 	GetFontSize() float64
+	// SetScale sets the current font scale
+	SetScale(scale float64)
+	// GetScale gets the current font scale
+	GetScale() float64
+	// SetFont sets the current truetype.Font
+	SetFont(font *truetype.Font)
+	// GetFont gets the current truetype.Font
+	GetFont() *truetype.Font
 	// SetFontData sets the current FontData
 	SetFontData(fontData FontData)
 	// GetFontData gets the current FontData

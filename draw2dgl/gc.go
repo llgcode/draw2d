@@ -118,6 +118,7 @@ type GraphicContext struct {
 	painter          *Painter
 	fillRasterizer   *raster.Rasterizer
 	strokeRasterizer *raster.Rasterizer
+	DPI              int
 }
 
 // NewGraphicContext creates a new Graphic context from an image.
@@ -127,8 +128,31 @@ func NewGraphicContext(width, height int) *GraphicContext {
 		NewPainter(),
 		raster.NewRasterizer(width, height),
 		raster.NewRasterizer(width, height),
+		92,
 	}
 	return gc
+}
+
+// CreateStringPath creates a path from the string s at x, y, and returns the string width.
+// The text is placed so that the left edge of the em square of the first character of s
+// and the baseline intersect at x, y. The majority of the affected pixels will be
+// above and to the right of the point, but some may be below or to the left.
+// For example, drawing a string that starts with a 'J' in an italic font may
+// affect pixels below and left of the point.
+func (gc *GraphicContext) CreateStringPath(s string, x, y float64) float64 {
+	return draw2dbase.CreateStringPath(gc, s, x, y)
+}
+
+// GetStringBounds returns the approximate pixel bounds of the string s at x, y.
+// The the left edge of the em square of the first character of s
+// and the baseline intersect at 0, 0 in the returned coordinates.
+// Therefore the top and left coordinates may well be negative.
+func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom float64) {
+	return draw2dbase.GetStringBounds(gc, s)
+}
+
+func (gc *GraphicContext) FillString(text string) (cursor float64) {
+	return gc.FillStringAt(text, 0, 0)
 }
 
 func (gc *GraphicContext) FillStringAt(text string, x, y float64) (width float64) {
@@ -147,6 +171,19 @@ func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (width float
 	return width
 }
 
+func (gc *GraphicContext) SetDPI(dpi int) {
+	gc.DPI = dpi
+}
+
+func (gc *GraphicContext) GetDPI() int {
+	return gc.DPI
+}
+
+// SetFontSize sets the font size in points (as in ``a 12 point font'').
+func (gc *GraphicContext) SetFontSize(fontSize float64) {
+	gc.Current.FontSize = fontSize
+}
+
 //TODO
 func (gc *GraphicContext) Clear() {
 	panic("not implemented")
@@ -160,10 +197,6 @@ func (gc *GraphicContext) ClearRect(x1, y1, x2, y2 int) {
 //TODO
 func (gc *GraphicContext) DrawImage(img image.Image) {
 	panic("not implemented")
-}
-
-func (gc *GraphicContext) FillString(text string) (cursor float64) {
-	return gc.FillStringAt(text, 0, 0)
 }
 
 func (gc *GraphicContext) paint(rasterizer *raster.Rasterizer, color color.Color) {

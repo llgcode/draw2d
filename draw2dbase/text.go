@@ -1,11 +1,126 @@
 package draw2dbase
 
 import (
+	"errors"
+	"log"
+	"math"
+
 	"github.com/golang/freetype/truetype"
 	"github.com/llgcode/draw2d"
 
+
+	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 )
+
+var (
+	glyphBuf        = &truetype.GlyphBuf{}
+	DefaultFontData = draw2d.FontData{Name: "luxi", Family: draw2d.FontFamilySans, Style: draw2d.FontStyleNormal}
+)
+
+
+func loadCurrentFont(gc draw2d.GraphicContext) (*truetype.Font, error) {
+	font := draw2d.GetFont(gc.GetFontData())
+	if font == nil {
+		font = draw2d.GetFont(DefaultFontData)
+	}
+	if font == nil {
+		return nil, errors.New("No font set, and no default font available.")
+	}
+	gc.SetFont(font)
+	gc.SetFontSize(gc.GetFontSize())
+	recalc(gc)
+	return font, nil
+}
+
+func drawGlyph(gc draw2d.GraphicContext, glyph truetype.Index, dx, dy float64) error {
+	if err := glyphBuf.Load(gc.GetFont(), fixed.Int26_6(gc.GetScale()), glyph, font.HintingNone); err != nil {
+		return err
+	}
+	e0 := 0
+	for _, e1 := range glyphBuf.Ends {
+		DrawContour(gc, glyphBuf.Points[e0:e1], dx, dy)
+		e0 = e1
+	}
+	return nil
+}
+
+// CreateStringPath creates a path from the string s at x, y, and returns the string width.
+// The text is placed so that the left edge of the em square of the first character of s
+// and the baseline intersect at x, y. The majority of the affected pixels will be
+// above and to the right of the point, but some may be below or to the left.
+// For example, drawing a string that starts with a 'J' in an italic font may
+// affect pixels below and left of the point.
+func CreateStringPath(gc draw2d.GraphicContext, s string, x, y float64) float64 {
+	f, err := loadCurrentFont(gc)
+	if err != nil {
+		log.Println(err)
+		return 0.0
+	}
+	startx := x
+	prev, hasPrev := truetype.Index(0), false
+	scale := gc.GetScale()
+	for _, rune := range s {
+		index := f.Index(rune)
+		if hasPrev {
+			x += fUnitsToFloat64(f.Kern(fixed.Int26_6(scale), prev, index))
+		}
+		err := drawGlyph(gc, index, x, y)
+		if err != nil {
+			log.Println(err)
+			return startx - x
+		}
+		x += fUnitsToFloat64(f.HMetric(fixed.Int26_6(scale), index).AdvanceWidth)
+		prev, hasPrev = index, true
+	}
+	return x - startx
+}
+
+// GetStringBounds returns the approximate pixel bounds of the string s at x, y.
+// The the left edge of the em square of the first character of s
+// and the baseline intersect at 0, 0 in the returned coordinates.
+// Therefore the top and left coordinates may well be negative.
+func GetStringBounds(gc draw2d.GraphicContext, s string) (left, top, right, bottom float64) {
+	f, err := loadCurrentFont(gc)
+	if err != nil {
+		log.Println(err)
+		return 0, 0, 0, 0
+	}
+	top, left, bottom, right = 10e6, 10e6, -10e6, -10e6
+	cursor := 0.0
+	prev, hasPrev := truetype.Index(0), false
+	scale := gc.GetScale()
+	for _, rune := range s {
+		index := f.Index(rune)
+		if hasPrev {
+			cursor += fUnitsToFloat64(f.Kern(fixed.Int26_6(scale), prev, index))
+		}
+		if err := glyphBuf.Load(gc.GetFont(), fixed.Int26_6(scale), index, font.HintingNone); err != nil {
+			log.Println(err)
+			return 0, 0, 0, 0
+		}
+		e0 := 0
+		for _, e1 := range glyphBuf.Ends {
+			ps := glyphBuf.Points[e0:e1]
+			for _, p := range ps {
+				x, y := pointToF64Point(p)
+				top = math.Min(top, y)
+				bottom = math.Max(bottom, y)
+				left = math.Min(left, x+cursor)
+				right = math.Max(right, x+cursor)
+			}
+		}
+		cursor += fUnitsToFloat64(f.HMetric(fixed.Int26_6(gc.GetScale()), index).AdvanceWidth)
+		prev, hasPrev = index, true
+	}
+	return left, top, right, bottom
+}
+
+// recalc recalculates scale and bounds values from the font size, screen
+// resolution and font metrics, and invalidates the glyph cache.
+func recalc(gc draw2d.GraphicContext) {
+	gc.SetScale(gc.GetFontSize() * float64(gc.GetDPI()) * (64.0 / 72.0))
+}
 
 // DrawContour draws the given closed contour at the given sub-pixel offset.
 func DrawContour(path draw2d.PathBuilder, ps []truetype.Point, dx, dy float64) {

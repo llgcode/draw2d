@@ -28,6 +28,7 @@ type GraphicContext struct {
 	painter          Painter
 	fillRasterizer   *raster.Rasterizer
 	strokeRasterizer *raster.Rasterizer
+	DPI              int
 }
 
 // ImageFilter defines the type of filter to use
@@ -44,7 +45,6 @@ const (
 
 // NewGraphicContext creates a new Graphic context from an image.
 func NewGraphicContext(img draw.Image) *GraphicContext {
-
 	var painter Painter
 	switch selectImage := img.(type) {
 	case *image.RGBA:
@@ -57,6 +57,7 @@ func NewGraphicContext(img draw.Image) *GraphicContext {
 
 // NewGraphicContextWithPainter creates a new Graphic context from an image and a Painter (see Freetype-go)
 func NewGraphicContextWithPainter(img draw.Image, painter Painter) *GraphicContext {
+	dpi := 92
 	width, height := img.Bounds().Dx(), img.Bounds().Dy()
 	gc := &GraphicContext{
 		draw2dbase.NewStackGraphicContext(),
@@ -64,6 +65,7 @@ func NewGraphicContextWithPainter(img draw.Image, painter Painter) *GraphicConte
 		painter,
 		raster.NewRasterizer(width, height),
 		raster.NewRasterizer(width, height),
+		dpi,
 	}
 	return gc
 }
@@ -99,6 +101,24 @@ func (gc *GraphicContext) DrawImage(img image.Image) {
 	DrawImage(img, gc.img, gc.Current.Tr, draw.Over, BilinearFilter)
 }
 
+// CreateStringPath creates a path from the string s at x, y, and returns the string width.
+// The text is placed so that the left edge of the em square of the first character of s
+// and the baseline intersect at x, y. The majority of the affected pixels will be
+// above and to the right of the point, but some may be below or to the left.
+// For example, drawing a string that starts with a 'J' in an italic font may
+// affect pixels below and left of the point.
+func (gc *GraphicContext) CreateStringPath(s string, x, y float64) float64 {
+	return draw2dbase.CreateStringPath(gc, s, x, y)
+}
+
+// GetStringBounds returns the approximate pixel bounds of the string s at x, y.
+// The the left edge of the em square of the first character of s
+// and the baseline intersect at 0, 0 in the returned coordinates.
+// Therefore the top and left coordinates may well be negative.
+func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom float64) {
+	return draw2dbase.GetStringBounds(gc, s)
+}
+
 // FillString draws the text at point (0, 0)
 func (gc *GraphicContext) FillString(text string) (cursor float64) {
 	return gc.FillStringAt(text, 0, 0)
@@ -121,6 +141,19 @@ func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (cursor floa
 	width := gc.CreateStringPath(text, x, y)
 	gc.Stroke()
 	return width
+}
+
+func (gc *GraphicContext) SetDPI(dpi int) {
+	gc.DPI = dpi
+}
+
+func (gc *GraphicContext) GetDPI() int {
+	return gc.DPI
+}
+
+// SetFontSize sets the font size in points (as in ``a 12 point font'').
+func (gc *GraphicContext) SetFontSize(fontSize float64) {
+	gc.Current.FontSize = fontSize
 }
 
 func (gc *GraphicContext) paint(rasterizer *raster.Rasterizer, color color.Color) {
