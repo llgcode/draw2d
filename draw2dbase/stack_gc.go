@@ -8,11 +8,8 @@ import (
 	"image/color"
 
 	"github.com/llgcode/draw2d"
-
 	"github.com/golang/freetype/truetype"
 )
-
-var DefaultFontData = draw2d.FontData{Name: "luxi", Family: draw2d.FontFamilySans, Style: draw2d.FontStyleNormal}
 
 type StackGraphicContext struct {
 	Current *ContextStack
@@ -118,6 +115,23 @@ func (gc *StackGraphicContext) SetFontSize(fontSize float64) {
 
 func (gc *StackGraphicContext) GetFontSize() float64 {
 	return gc.Current.FontSize
+}
+
+func (gc *StackGraphicContext) SetScale(scale float64) {
+	gc.Current.Scale = scale
+}
+
+func (gc *StackGraphicContext) GetScale() float64 {
+	return gc.Current.Scale
+}
+
+// SetFont sets the font used to draw text
+func (gc *StackGraphicContext) SetFont(font *truetype.Font) {
+	gc.Current.Font = font
+}
+
+func (gc *StackGraphicContext) GetFont() *truetype.Font {
+	return gc.Current.Font
 }
 
 func (gc *StackGraphicContext) SetFontData(fontData draw2d.FontData) {
