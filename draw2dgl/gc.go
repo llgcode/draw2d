@@ -197,10 +197,20 @@ func (gc *GraphicContext) CreateStringPath(s string, x, y float64) float64 {
 	return x - startx
 }
 
+// FillString draws the text at point (0, 0)
+func (gc *GraphicContext) FillString(text string) (width float64) {
+	return gc.FillStringAt(text, 0, 0)
+}
+
+// FillStringAt draws the text at the specified point (x, y)
 func (gc *GraphicContext) FillStringAt(text string, x, y float64) (width float64) {
-	width = gc.CreateStringPath(text, x, y)
-	gc.Fill()
-	return width
+	xorig := x
+	fontName := gc.GetFontName()
+	for _, r := range text {
+		glyph := draw2dbase.FetchGlyph(gc, fontName, r)
+		x += glyph.Fill(gc, x, y)
+	}
+	return x - xorig
 }
 
 // GetStringBounds returns the approximate pixel bounds of the string s at x, y.
@@ -242,14 +252,20 @@ func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom fl
 	return left, top, right, bottom
 }
 
+// StrokeString draws the contour of the text at point (0, 0)
 func (gc *GraphicContext) StrokeString(text string) (width float64) {
 	return gc.StrokeStringAt(text, 0, 0)
 }
 
+// StrokeStringAt draws the contour of the text at point (x, y)
 func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (width float64) {
-	width = gc.CreateStringPath(text, x, y)
-	gc.Stroke()
-	return width
+	xorig := x
+	fontName := gc.GetFontName()
+	for _, r := range text {
+		glyph := draw2dbase.FetchGlyph(gc, fontName, r)
+		x += glyph.Stroke(gc, x, y)
+	}
+	return x - xorig
 }
 
 // recalc recalculates scale and bounds values from the font size, screen
@@ -291,10 +307,6 @@ func (gc *GraphicContext) ClearRect(x1, y1, x2, y2 int) {
 //TODO
 func (gc *GraphicContext) DrawImage(img image.Image) {
 	panic("not implemented")
-}
-
-func (gc *GraphicContext) FillString(text string) (cursor float64) {
-	return gc.FillStringAt(text, 0, 0)
 }
 
 func (gc *GraphicContext) paint(rasterizer *raster.Rasterizer, color color.Color) {

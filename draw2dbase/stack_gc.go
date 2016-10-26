@@ -4,6 +4,7 @@
 package draw2dbase
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 
@@ -194,4 +195,9 @@ func (gc *StackGraphicContext) Restore() {
 		gc.Current = gc.Current.Previous
 		oldContext.Previous = nil
 	}
+}
+
+func (gc *StackGraphicContext) GetFontName() string {
+	fontData := gc.Current.FontData
+	return fmt.Sprintf("%s:%d:%d:%d", fontData.Name, fontData.Family, fontData.Style, gc.Current.FontSize)
 }

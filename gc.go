@@ -50,6 +50,8 @@ type GraphicContext interface {
 	SetFontData(fontData FontData)
 	// GetFontData gets the current FontData
 	GetFontData() FontData
+	// GetFontName gets the current FontData as a string
+	GetFontName() string
 	// DrawImage draws the raster image in the current canvas
 	DrawImage(image image.Image)
 	// Save the context and push it to the context stack
