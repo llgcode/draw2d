@@ -207,7 +207,8 @@ func (gc *GraphicContext) FillStringAt(text string, x, y float64) (width float64
 	xorig := x
 	fontName := gc.GetFontName()
 	for _, r := range text {
-		x += draw2dbase.FillGlyph(gc, x, y, fontName, r)
+		glyph := draw2dbase.FetchGlyph(gc, fontName, r)
+		x += glyph.Fill(gc, x, y)
 	}
 	return x - xorig
 }
@@ -261,7 +262,8 @@ func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (width float
 	xorig := x
 	fontName := gc.GetFontName()
 	for _, r := range text {
-		x += draw2dbase.StrokeGlyph(gc, x, y, fontName, r)
+		glyph := draw2dbase.FetchGlyph(gc, fontName, r)
+		x += glyph.Stroke(gc, x, y)
 	}
 	return x - xorig
 }
