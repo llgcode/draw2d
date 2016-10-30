@@ -123,13 +123,24 @@ func (gc *GraphicContext) FillString(text string) (width float64) {
 
 // FillStringAt draws the text at the specified point (x, y)
 func (gc *GraphicContext) FillStringAt(text string, x, y float64) (width float64) {
-	xorig := x
+	f, err := gc.loadCurrentFont()
+	if err != nil {
+		log.Println(err)
+		return 0.0
+	}
+	startx := x
+	prev, hasPrev := truetype.Index(0), false
 	fontName := gc.GetFontName()
 	for _, r := range text {
+		index := f.Index(r)
+		if hasPrev {
+			x += fUnitsToFloat64(f.Kern(fixed.Int26_6(gc.Current.Scale), prev, index))
+		}
 		glyph := draw2dbase.FetchGlyph(gc, fontName, r)
 		x += glyph.Fill(gc, x, y)
+		prev, hasPrev = index, true
 	}
-	return x - xorig
+	return x - startx
 }
 
 // StrokeString draws the contour of the text at point (0, 0)
@@ -139,13 +150,24 @@ func (gc *GraphicContext) StrokeString(text string) (width float64) {
 
 // StrokeStringAt draws the contour of the text at point (x, y)
 func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (width float64) {
-	xorig := x
+	f, err := gc.loadCurrentFont()
+	if err != nil {
+		log.Println(err)
+		return 0.0
+	}
+	startx := x
+	prev, hasPrev := truetype.Index(0), false
 	fontName := gc.GetFontName()
 	for _, r := range text {
+		index := f.Index(r)
+		if hasPrev {
+			x += fUnitsToFloat64(f.Kern(fixed.Int26_6(gc.Current.Scale), prev, index))
+		}
 		glyph := draw2dbase.FetchGlyph(gc, fontName, r)
 		x += glyph.Stroke(gc, x, y)
+		prev, hasPrev = index, true
 	}
-	return x - xorig
+	return x - startx
 }
 
 func (gc *GraphicContext) loadCurrentFont() (*truetype.Font, error) {
