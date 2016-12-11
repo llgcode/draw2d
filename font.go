@@ -144,11 +144,14 @@ func (cache *defaultFontCache) Store(fontData FontData, font *truetype.Font) {
 }
 
 var (
+  /*
 	defaultFonts = &defaultFontCache{
 		fonts:  make(map[string]*truetype.Font),
 		folder: "../resource/font",
 		namer:  FontFileName,
 	}
+  */
 
-	fontCache FontCache = defaultFonts
+	//fontCache FontCache = defaultFonts
+	fontCache FontCache = nil
 )
