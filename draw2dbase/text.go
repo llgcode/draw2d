@@ -10,8 +10,6 @@ func init() {
 
 // FetchGlyph fetches a glyph from the cache, calling renderGlyph first if it doesn't already exist
 func FetchGlyph(gc draw2d.GraphicContext, fontName string, chr rune) *Glyph {
-  return renderGlyph(gc, fontName, chr)
-  /*
 	if glyphCache[fontName] == nil {
 		glyphCache[fontName] = make(map[rune]*Glyph, 60)
 	}
@@ -19,7 +17,6 @@ func FetchGlyph(gc draw2d.GraphicContext, fontName string, chr rune) *Glyph {
 		glyphCache[fontName][chr] = renderGlyph(gc, fontName, chr)
 	}
 	return glyphCache[fontName][chr].Copy()
-  */
 }
 
 // renderGlyph renders a glyph then caches and returns it
