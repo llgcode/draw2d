@@ -28,7 +28,7 @@ func TestSync(t *testing.T) {
 	}
 }
 
-func Draw(i int, ch chan<- int) {	
+func Draw(i int, ch chan<- int) {
 	draw2d.SetFontCache(testCache)
 
 	// Draw a rounded rectangle using default colors
