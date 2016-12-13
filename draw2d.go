@@ -19,7 +19,7 @@
 // Installation
 //
 // To install or update the package draw2d on your system, run:
-//   go get -u github.com/llgcode/draw2d
+//   go get -u gopkg.in/llgcode/draw2d.v1
 //
 // Quick Start
 //
@@ -46,7 +46,7 @@
 //   draw2d.SaveToPngFile("hello.png", dest)
 //
 // There are more examples here:
-// https://github.com/llgcode/draw2d/tree/master/samples
+// https://gopkg.in/llgcode/draw2d.v1/tree/master/samples
 //
 // Drawing on pdf documents is provided by the draw2dpdf package.
 // Drawing on opengl is provided by the draw2dgl package.

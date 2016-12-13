@@ -5,16 +5,16 @@ package draw2d_test
 import (
 	"testing"
 
-	"github.com/llgcode/draw2d"
-	"github.com/llgcode/draw2d/samples/android"
-	"github.com/llgcode/draw2d/samples/frameimage"
-	"github.com/llgcode/draw2d/samples/geometry"
-	"github.com/llgcode/draw2d/samples/gopher"
-	"github.com/llgcode/draw2d/samples/gopher2"
-	"github.com/llgcode/draw2d/samples/helloworld"
-	"github.com/llgcode/draw2d/samples/line"
-	"github.com/llgcode/draw2d/samples/linecapjoin"
-	"github.com/llgcode/draw2d/samples/postscript"
+	"gopkg.in/llgcode/draw2d.v1"
+	"gopkg.in/llgcode/draw2d.v1/samples/android"
+	"gopkg.in/llgcode/draw2d.v1/samples/frameimage"
+	"gopkg.in/llgcode/draw2d.v1/samples/geometry"
+	"gopkg.in/llgcode/draw2d.v1/samples/gopher"
+	"gopkg.in/llgcode/draw2d.v1/samples/gopher2"
+	"gopkg.in/llgcode/draw2d.v1/samples/helloworld"
+	"gopkg.in/llgcode/draw2d.v1/samples/line"
+	"gopkg.in/llgcode/draw2d.v1/samples/linecapjoin"
+	"gopkg.in/llgcode/draw2d.v1/samples/postscript"
 )
 
 func TestSampleAndroid(t *testing.T) {

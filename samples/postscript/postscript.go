@@ -8,8 +8,8 @@ import (
 
 	"github.com/llgcode/ps"
 
-	"github.com/llgcode/draw2d"
-	"github.com/llgcode/draw2d/samples"
+	"gopkg.in/llgcode/draw2d.v1"
+	"gopkg.in/llgcode/draw2d.v1/samples"
 )
 
 // Main draws the tiger

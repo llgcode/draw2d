@@ -6,7 +6,7 @@ import (
 	"image"
 	"testing"
 
-	"github.com/llgcode/draw2d"
+	"gopkg.in/llgcode/draw2d.v1"
 )
 
 type sample func(gc draw2d.GraphicContext, ext string) (string, error)

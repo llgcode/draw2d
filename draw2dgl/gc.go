@@ -8,7 +8,7 @@ import (
 
 	"code.google.com/p/freetype-go/freetype/raster"
 	"github.com/go-gl/gl/v2.1/gl"
-	"github.com/llgcode/draw2d"
+	"gopkg.in/llgcode/draw2d.v1"
 )
 
 func init() {

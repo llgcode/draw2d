@@ -28,7 +28,7 @@
 //   draw2dpdf.SaveToPdfFile("hello.pdf", dest)
 //
 // There are more examples here:
-// https://github.com/llgcode/draw2d/tree/master/samples
+// https://gopkg.in/llgcode/draw2d.v1/tree/master/samples
 //
 // Alternative backends
 //

@@ -6,7 +6,7 @@ package draw2dpdf
 import (
 	"math"
 
-	"github.com/llgcode/draw2d"
+	"gopkg.in/llgcode/draw2d.v1"
 )
 
 const deg = 180 / math.Pi

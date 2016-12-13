@@ -8,8 +8,8 @@ package gopher
 import (
 	"image/color"
 
-	"github.com/llgcode/draw2d"
-	"github.com/llgcode/draw2d/samples"
+	"gopkg.in/llgcode/draw2d.v1"
+	"gopkg.in/llgcode/draw2d.v1/samples"
 )
 
 // Main draws a left hand and ear of a gopher. Afterwards it returns

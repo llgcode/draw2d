@@ -10,8 +10,8 @@ import (
 	"image/color"
 	"math"
 
-	"github.com/llgcode/draw2d"
-	"github.com/llgcode/draw2d/samples"
+	"gopkg.in/llgcode/draw2d.v1"
+	"gopkg.in/llgcode/draw2d.v1/samples"
 )
 
 // Main draws a rotated face of the gopher. Afterwards it returns

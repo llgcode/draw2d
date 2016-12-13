@@ -17,7 +17,7 @@ import (
 	"code.google.com/p/freetype-go/freetype/truetype"
 
 	"github.com/jung-kurt/gofpdf"
-	"github.com/llgcode/draw2d"
+	"gopkg.in/llgcode/draw2d.v1"
 )
 
 const (

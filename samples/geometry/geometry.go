@@ -9,9 +9,9 @@ import (
 	"image/color"
 	"math"
 
-	"github.com/llgcode/draw2d"
-	"github.com/llgcode/draw2d/samples"
-	"github.com/llgcode/draw2d/samples/gopher2"
+	"gopkg.in/llgcode/draw2d.v1"
+	"gopkg.in/llgcode/draw2d.v1/samples"
+	"gopkg.in/llgcode/draw2d.v1/samples/gopher2"
 )
 
 // Main draws geometry and returns the filename. This should only be
