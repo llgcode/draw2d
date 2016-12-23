@@ -52,10 +52,6 @@ type GraphicContext interface {
 	GetFontData() FontData
 	// GetFontName gets the current FontData as a string
 	GetFontName() string
-	// SetGlyphCache changes the glyph cache backend used by the GraphicContext
-	SetGlyphCache(cache GlyphCache)
-	// GetGlyphCache gets the current GlyphCache
-	GetGlyphCache() GlyphCache
 	// DrawImage draws the raster image in the current canvas
 	DrawImage(image image.Image)
 	// Save the context and push it to the context stack

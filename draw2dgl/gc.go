@@ -126,7 +126,7 @@ type GraphicContext struct {
 	fillRasterizer   *raster.Rasterizer
 	strokeRasterizer *raster.Rasterizer
 	glyphBuf         *truetype.GlyphBuf
-	DPI		int
+	DPI              int
 }
 
 // NewGraphicContext creates a new Graphic context from an image.
@@ -217,7 +217,7 @@ func (gc *GraphicContext) FillStringAt(text string, x, y float64) (width float64
 		if hasPrev {
 			x += fUnitsToFloat64(f.Kern(fixed.Int26_6(gc.Current.Scale), prev, index))
 		}
-		glyph := draw2dbase.FetchGlyph(gc, fontName, r)
+		glyph := gc.Current.GlyphCache.Fetch(gc, fontName, r)
 		x += glyph.Fill(gc, x, y)
 		prev, hasPrev = index, true
 	}
@@ -283,7 +283,7 @@ func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (width float
 		if hasPrev {
 			x += fUnitsToFloat64(f.Kern(fixed.Int26_6(gc.Current.Scale), prev, index))
 		}
-		glyph := draw2dbase.FetchGlyph(gc, fontName, r)
+		glyph := gc.Current.GlyphCache.Fetch(gc, fontName, r)
 		x += glyph.Stroke(gc, x, y)
 		prev, hasPrev = index, true
 	}

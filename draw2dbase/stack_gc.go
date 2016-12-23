@@ -32,7 +32,7 @@ type ContextStack struct {
 	Join        draw2d.LineJoin
 	FontSize    float64
 	FontData    draw2d.FontData
-	GlyphCache  draw2d.GlyphCache
+	GlyphCache  GlyphCache
 
 	Font *truetype.Font
 	// fontSize and dpi are used to calculate scale. scale is the number of
@@ -171,19 +171,14 @@ func (gc *StackGraphicContext) Close() {
 	gc.Current.Path.Close()
 }
 
-// Changes the glyph cache backend used by the GraphicContext.
+// Changes the glyph cache backend used by the StackGraphicContext.
 // To restore the default glyph cache, call this function passing nil as argument.
-func (gc *StackGraphicContext) SetGlyphCache(cache draw2d.GlyphCache) {
+func (gc *StackGraphicContext) SetGlyphCache(cache GlyphCache) {
 	if cache == nil {
 		gc.Current.GlyphCache = DefaultGlyphCache
 	} else {
 		gc.Current.GlyphCache = cache
 	}
-}
-
-// Gets the glyph cache backend used by the GraphicContext.
-func (gc *StackGraphicContext) GetGlyphCache() draw2d.GlyphCache {
-	return gc.Current.GlyphCache
 }
 
 func (gc *StackGraphicContext) Save() {
