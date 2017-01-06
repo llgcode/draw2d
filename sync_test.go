@@ -1,4 +1,4 @@
-// go test --race -test.v sync_test.go 
+// go test -race -test.v sync_test.go 
 
 package draw2d_test
 
