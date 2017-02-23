@@ -1,8 +1,13 @@
 package draw2dbase
 
-import "github.com/llgcode/draw2d"
+import (
+	"sync"
+
+	"github.com/llgcode/draw2d"
+)
 
 var glyphCache map[string]map[rune]*Glyph
+var glyphCacheLock sync.RWMutex
 
 func init() {
 	glyphCache = make(map[string]map[rune]*Glyph)
@@ -10,6 +15,22 @@ func init() {
 
 // FetchGlyph fetches a glyph from the cache, calling renderGlyph first if it doesn't already exist
 func FetchGlyph(gc draw2d.GraphicContext, fontName string, chr rune) *Glyph {
+	//fast parallel access with read-lock only
+	glyphCacheLock.RLock()
+	gCFont, _ := glyphCache[fontName]
+	if gCFont != nil {
+		gcRune, _ := gCFont[chr]
+		if gcRune != nil {
+			glyphCacheLock.RUnlock()
+			return gcRune
+		}
+	}
+	glyphCacheLock.RUnlock()
+
+	//cache miss requires write-lock
+	glyphCacheLock.Lock()
+	defer glyphCacheLock.Unlock()
+
 	if glyphCache[fontName] == nil {
 		glyphCache[fontName] = make(map[rune]*Glyph, 60)
 	}
