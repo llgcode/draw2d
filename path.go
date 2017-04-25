@@ -76,9 +76,10 @@ func (p *Path) MoveTo(x, y float64) {
 // LineTo adds a line to the current path
 func (p *Path) LineTo(x, y float64) {
 	if len(p.Components) == 0 { //special case when no move has been done
-		p.MoveTo(0, 0)
+		p.MoveTo(x, y)
+	} else {
+		p.appendToPath(LineToCmp, x, y)
 	}
-	p.appendToPath(LineToCmp, x, y)
 	p.x = x
 	p.y = y
 }
@@ -86,9 +87,10 @@ func (p *Path) LineTo(x, y float64) {
 // QuadCurveTo adds a quadratic bezier curve to the current path
 func (p *Path) QuadCurveTo(cx, cy, x, y float64) {
 	if len(p.Components) == 0 { //special case when no move has been done
-		p.MoveTo(0, 0)
+		p.MoveTo(x, y)
+	} else {
+		p.appendToPath(QuadCurveToCmp, cx, cy, x, y)
 	}
-	p.appendToPath(QuadCurveToCmp, cx, cy, x, y)
 	p.x = x
 	p.y = y
 }
@@ -96,9 +98,10 @@ func (p *Path) QuadCurveTo(cx, cy, x, y float64) {
 // CubicCurveTo adds a cubic bezier curve to the current path
 func (p *Path) CubicCurveTo(cx1, cy1, cx2, cy2, x, y float64) {
 	if len(p.Components) == 0 { //special case when no move has been done
-		p.MoveTo(0, 0)
+		p.MoveTo(x, y)
+	} else {
+		p.appendToPath(CubicCurveToCmp, cx1, cy1, cx2, cy2, x, y)
 	}
-	p.appendToPath(CubicCurveToCmp, cx1, cy1, cx2, cy2, x, y)
 	p.x = x
 	p.y = y
 }
