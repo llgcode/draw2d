@@ -22,6 +22,8 @@ type PathBuilder interface {
 	CubicCurveTo(cx1, cy1, cx2, cy2, x, y float64)
 	// ArcTo adds an arc to the current subpath
 	ArcTo(cx, cy, rx, ry, startAngle, angle float64)
+	// Shift moves every point in the path by x and y
+	Shift(x, y float64)
 	// Close creates a line from the current point to the last MoveTo
 	// point (if not the same) and mark the path as closed so the
 	// first and last lines join nicely.
@@ -161,6 +163,35 @@ func (p *Path) Clear() {
 // IsEmpty returns true if the path is empty
 func (p *Path) IsEmpty() bool {
 	return len(p.Components) == 0
+}
+
+// Shift moves every point in the path by x and y
+func (p *Path) Shift(x, y float64) {
+	j := 0
+	for _, cmd := range p.Components {
+		if cmd == CloseCmp {
+			continue
+		}
+		p.Points[j] += x
+		p.Points[j+1] += y
+		j += 2
+		switch cmd {
+		case QuadCurveToCmp:
+			p.Points[j] += x
+			p.Points[j+1] += y
+			j += 2
+		case CubicCurveToCmp:
+			p.Points[j] += x
+			p.Points[j+1] += y
+			p.Points[j+2] += x
+			p.Points[j+3] += y
+			j += 4
+		case ArcToCmp:
+			p.Points[j] += x
+			p.Points[j+1] += y
+			j += 4
+		}
+	}
 }
 
 // String returns a debug text view of the path
