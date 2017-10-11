@@ -132,3 +132,19 @@ func SaveToPngFile(filePath string, m image.Image) error {
 	}
 	return nil
 }
+
+func TestOutOfRangeTraceCurve(t *testing.T) {
+	c := []float64{
+		100, 100, 200, 100, 100, 200,
+	}
+	var p SegmentedPath
+	TraceCubic(&p, c, flatteningThreshold)
+}
+
+func TestOutOfRangeTraceQuad(t *testing.T) {
+	c := []float64{
+		100, 100, 200, 100,
+	}
+	var p SegmentedPath
+	TraceQuad(&p, c, flatteningThreshold)
+}

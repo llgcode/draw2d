@@ -5,6 +5,7 @@ package draw2dbase
 
 import (
 	"math"
+	"errors"
 )
 
 const (
@@ -48,7 +49,10 @@ func SubdivideCubic(c, c1, c2 []float64) {
 
 // TraceCubic generate lines subdividing the cubic curve using a Liner
 // flattening_threshold helps determines the flattening expectation of the curve
-func TraceCubic(t Liner, cubic []float64, flatteningThreshold float64) {
+func TraceCubic(t Liner, cubic []float64, flatteningThreshold float64) error {
+	if len(cubic) < 8 {
+		return errors.New("cubic length must be >= 8")
+	}
 	// Allocation curves
 	var curves [CurveRecursionLimit * 8]float64
 	copy(curves[0:8], cubic[0:8])
@@ -77,6 +81,7 @@ func TraceCubic(t Liner, cubic []float64, flatteningThreshold float64) {
 			i++
 		}
 	}
+	return nil
 }
 
 // Quad
@@ -103,7 +108,10 @@ func SubdivideQuad(c, c1, c2 []float64) {
 
 // TraceQuad generate lines subdividing the curve using a Liner
 // flattening_threshold helps determines the flattening expectation of the curve
-func TraceQuad(t Liner, quad []float64, flatteningThreshold float64) {
+func TraceQuad(t Liner, quad []float64, flatteningThreshold float64) error {
+	if len(quad) < 6 {
+		return errors.New("quad length must be >= 6")
+	}
 	// Allocates curves stack
 	var curves [CurveRecursionLimit * 6]float64
 	copy(curves[0:6], quad[0:6])
@@ -129,6 +137,7 @@ func TraceQuad(t Liner, quad []float64, flatteningThreshold float64) {
 			i++
 		}
 	}
+	return nil
 }
 
 // TraceArc trace an arc using a Liner
