@@ -126,7 +126,8 @@ type GraphicContext struct {
 	fillRasterizer   *raster.Rasterizer
 	strokeRasterizer *raster.Rasterizer
 	glyphBuf         *truetype.GlyphBuf
-	DPI		int
+	glyphCache       draw2dbase.GlyphCache
+	DPI              int
 }
 
 // NewGraphicContext creates a new Graphic context from an image.
@@ -137,6 +138,7 @@ func NewGraphicContext(width, height int) *GraphicContext {
 		raster.NewRasterizer(width, height),
 		raster.NewRasterizer(width, height),
 		&truetype.GlyphBuf{},
+		draw2dbase.DefaultGlyphCache,
 		92,
 	}
 	return gc
@@ -217,7 +219,7 @@ func (gc *GraphicContext) FillStringAt(text string, x, y float64) (width float64
 		if hasPrev {
 			x += fUnitsToFloat64(f.Kern(fixed.Int26_6(gc.Current.Scale), prev, index))
 		}
-		glyph := draw2dbase.FetchGlyph(gc, fontName, r)
+		glyph := gc.glyphCache.Fetch(gc, fontName, r)
 		x += glyph.Fill(gc, x, y)
 		prev, hasPrev = index, true
 	}
@@ -283,7 +285,7 @@ func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (width float
 		if hasPrev {
 			x += fUnitsToFloat64(f.Kern(fixed.Int26_6(gc.Current.Scale), prev, index))
 		}
-		glyph := draw2dbase.FetchGlyph(gc, fontName, r)
+		glyph := gc.glyphCache.Fetch(gc, fontName, r)
 		x += glyph.Stroke(gc, x, y)
 		prev, hasPrev = index, true
 	}
@@ -310,6 +312,16 @@ func (gc *GraphicContext) SetFont(font *truetype.Font) {
 func (gc *GraphicContext) SetFontSize(fontSize float64) {
 	gc.Current.FontSize = fontSize
 	gc.recalc()
+}
+
+// Changes the glyph cache backend used by the GraphicContext.
+// To restore the default glyph cache, call this function passing nil as argument.
+func (gc *GraphicContext) SetGlyphCache(cache draw2dbase.GlyphCache) {
+	if cache == nil {
+		gc.glyphCache = draw2dbase.DefaultGlyphCache
+	} else {
+		gc.glyphCache = cache
+	}
 }
 
 func (gc *GraphicContext) GetDPI() int {
