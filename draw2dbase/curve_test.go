@@ -101,6 +101,32 @@ func TestQuadCurve(t *testing.T) {
 	fmt.Println()
 }
 
+func TestQuadCurveCombinedPoint(t *testing.T) {
+	var p1 SegmentedPath
+	TraceQuad(&p1, []float64{0, 0, 0, 0, 0, 0}, flatteningThreshold)
+	if len(p1.Points) != 2 {
+		t.Error("It must have one point for this curve", len(p1.Points))
+	}
+	var p2 SegmentedPath
+	TraceQuad(&p2, []float64{0, 0, 100, 100, 0, 0}, flatteningThreshold)
+	if len(p2.Points) != 2 {
+		t.Error("It must have one point for this curve", len(p2.Points))
+	}
+}
+
+func TestCubicCurveCombinedPoint(t *testing.T) {
+	var p1 SegmentedPath
+	TraceCubic(&p1, []float64{0, 0, 0, 0, 0, 0, 0, 0}, flatteningThreshold)
+	if len(p1.Points) != 2 {
+		t.Error("It must have one point for this curve", len(p1.Points))
+	}
+	var p2 SegmentedPath
+	TraceCubic(&p2, []float64{0, 0, 100, 100, 200, 200, 0, 0}, flatteningThreshold)
+	if len(p2.Points) != 2 {
+		t.Error("It must have one point for this curve", len(p2.Points))
+	}
+}
+
 func BenchmarkCubicCurve(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		for i := 0; i < len(testsCubicFloat64); i += 8 {
