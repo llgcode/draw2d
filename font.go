@@ -8,6 +8,7 @@ import (
 	"log"
 	"path/filepath"
 
+	"sync"
 	"github.com/golang/freetype/truetype"
 )
 
@@ -79,16 +80,16 @@ func GetFontFolder() string {
 	return defaultFonts.folder
 }
 
+func SetFontFolder(folder string) {
+	defaultFonts.setFolder(filepath.Clean(folder))
+}
+
 func GetGlobalFontCache() FontCache {
 	return defaultFonts
 }
 
-func SetFontFolder(folder string) {
-	defaultFonts.folder = filepath.Clean(folder)
-}
-
 func SetFontNamer(fn FontFileNamer) {
-	defaultFonts.namer = fn
+	defaultFonts.setNamer(fn)
 }
 
 // Types implementing this interface can be passed to SetFontCache to change the
@@ -159,8 +160,72 @@ func (cache *FolderFontCache) Store(fontData FontData, font *truetype.Font) {
 	cache.fonts[cache.namer(fontData)] = font
 }
 
+// SyncFolderFontCache can Load font from folder
+type SyncFolderFontCache struct {
+	sync.RWMutex
+	fonts  map[string]*truetype.Font
+	folder string
+	namer  FontFileNamer
+}
+
+
+
+// NewSyncFolderFontCache creates SyncFolderFontCache 
+func NewSyncFolderFontCache(folder string) *SyncFolderFontCache {
+	return &SyncFolderFontCache{
+		fonts:  make(map[string]*truetype.Font),
+		folder: folder,
+		namer:  FontFileName,
+	}
+}
+
+func (cache *SyncFolderFontCache) setFolder(folder string) {
+	cache.Lock()
+	cache.folder = folder
+	cache.Unlock()
+}
+
+func (cache *SyncFolderFontCache) setNamer(namer FontFileNamer) {
+	cache.Lock()
+	cache.namer = namer
+	cache.Unlock()
+}
+
+// Load a font from cache if exists otherwise it will load the font from file
+func (cache *SyncFolderFontCache) Load(fontData FontData) (font *truetype.Font, err error) {
+	cache.RLock()
+	font = cache.fonts[cache.namer(fontData)]
+	cache.RUnlock()
+
+	if font != nil {
+		return font, nil
+	}
+
+	var data []byte
+	var file = cache.namer(fontData)
+
+	if data, err = ioutil.ReadFile(filepath.Join(cache.folder, file)); err != nil {
+		return
+	}
+
+	if font, err = truetype.Parse(data); err != nil {
+		return
+	}
+	cache.Lock()
+	cache.fonts[file] = font
+	cache.Unlock()
+	return
+}
+
+// Store a font to this cache
+func (cache *SyncFolderFontCache) Store(fontData FontData, font *truetype.Font) {
+	cache.Lock()
+	cache.fonts[cache.namer(fontData)] = font
+	cache.Unlock()
+}
+
 var (
-	defaultFonts = NewFolderFontCache("../resource/font")
+	defaultFonts = NewSyncFolderFontCache("../resource/font")
 
 	fontCache FontCache = defaultFonts
 )

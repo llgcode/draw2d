@@ -26,10 +26,10 @@ func TestSync(t *testing.T) {
 }
 
 func Draw(i int, ch chan<- int) {
+	draw2d.SetFontFolder("./resource/font")
 	// Draw a rounded rectangle using default colors
 	dest := image.NewRGBA(image.Rect(0, 0, 297, 210.0))
 	gc := draw2dimg.NewGraphicContext(dest)
-	gc.FontCache = draw2d.NewFolderFontCache("./resource/font")
 
 	draw2dkit.RoundedRectangle(gc, 5, 5, 135, 95, 10, 10)
 	gc.FillStroke()
