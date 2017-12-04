@@ -79,6 +79,10 @@ func GetFontFolder() string {
 	return defaultFonts.folder
 }
 
+func GetGlobalFontCache() FontCache {
+	return defaultFonts
+}
+
 func SetFontFolder(folder string) {
 	defaultFonts.folder = filepath.Clean(folder)
 }
@@ -113,13 +117,24 @@ func SetFontCache(cache FontCache) {
 	}
 }
 
-type defaultFontCache struct {
+// FolderFontCache can Load font from folder
+type FolderFontCache struct {
 	fonts  map[string]*truetype.Font
 	folder string
 	namer  FontFileNamer
 }
 
-func (cache *defaultFontCache) Load(fontData FontData) (font *truetype.Font, err error) {
+// NewFolderFontCache creates FolderFontCache 
+func NewFolderFontCache(folder string) *FolderFontCache {
+	return &FolderFontCache{
+		fonts:  make(map[string]*truetype.Font),
+		folder: folder,
+		namer:  FontFileName,
+	}
+}
+
+// Load a font from cache if exists otherwise it will load the font from file
+func (cache *FolderFontCache) Load(fontData FontData) (font *truetype.Font, err error) {
 	if font = cache.fonts[cache.namer(fontData)]; font != nil {
 		return font, nil
 	}
@@ -139,16 +154,13 @@ func (cache *defaultFontCache) Load(fontData FontData) (font *truetype.Font, err
 	return
 }
 
-func (cache *defaultFontCache) Store(fontData FontData, font *truetype.Font) {
+// Store a font to this cache
+func (cache *FolderFontCache) Store(fontData FontData, font *truetype.Font) {
 	cache.fonts[cache.namer(fontData)] = font
 }
 
 var (
-	defaultFonts = &defaultFontCache{
-		fonts:  make(map[string]*truetype.Font),
-		folder: "../resource/font",
-		namer:  FontFileName,
-	}
+	defaultFonts = NewFolderFontCache("../resource/font")
 
 	fontCache FontCache = defaultFonts
 )

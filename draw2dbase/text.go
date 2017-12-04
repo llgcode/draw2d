@@ -2,21 +2,29 @@ package draw2dbase
 
 import "github.com/llgcode/draw2d"
 
-var glyphCache map[string]map[rune]*Glyph
+// GlyphCache manage a map of glyphs
+type GlyphCache struct {
+	glyphs map[string]map[rune]*Glyph
+}
 
-func init() {
-	glyphCache = make(map[string]map[rune]*Glyph)
+
+// NewGlyphCache initializes a GlyphCache
+func NewGlyphCache() *GlyphCache {
+	glyphs := make(map[string]map[rune]*Glyph)
+	return &GlyphCache {
+		glyphs: glyphs,
+	}
 }
 
 // FetchGlyph fetches a glyph from the cache, calling renderGlyph first if it doesn't already exist
-func FetchGlyph(gc draw2d.GraphicContext, fontName string, chr rune) *Glyph {
-	if glyphCache[fontName] == nil {
-		glyphCache[fontName] = make(map[rune]*Glyph, 60)
+func (glyphCache *GlyphCache) FetchGlyph(gc draw2d.GraphicContext, fontName string, chr rune) *Glyph {
+	if glyphCache.glyphs[fontName] == nil {
+		glyphCache.glyphs[fontName] = make(map[rune]*Glyph, 60)
 	}
-	if glyphCache[fontName][chr] == nil {
-		glyphCache[fontName][chr] = renderGlyph(gc, fontName, chr)
+	if glyphCache.glyphs[fontName][chr] == nil {
+		glyphCache.glyphs[fontName][chr] = renderGlyph(gc, fontName, chr)
 	}
-	return glyphCache[fontName][chr].Copy()
+	return glyphCache.glyphs[fontName][chr].Copy()
 }
 
 // renderGlyph renders a glyph then caches and returns it
@@ -40,6 +48,7 @@ type Glyph struct {
 	Width float64
 }
 
+// Returns a copy of a Glyph
 func (g *Glyph) Copy() *Glyph {
 	return &Glyph{
 		path:  g.path.Copy(),
