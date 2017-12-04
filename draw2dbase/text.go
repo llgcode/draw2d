@@ -2,22 +2,28 @@ package draw2dbase
 
 import "github.com/llgcode/draw2d"
 
-// GlyphCache manage a map of glyphs
-type GlyphCache struct {
+// GlyphCache manage a cache of glyphs
+type GlyphCache interface {
+	// Fetch fetches a glyph from the cache, storing with Render first if it doesn't already exist
+	Fetch(gc draw2d.GraphicContext, fontName string, chr rune) *Glyph
+}
+
+// GlyphCacheImp manage a map of glyphs without sync mecanism, not thread safe
+type GlyphCacheImp struct {
 	glyphs map[string]map[rune]*Glyph
 }
 
 
 // NewGlyphCache initializes a GlyphCache
-func NewGlyphCache() *GlyphCache {
+func NewGlyphCache() *GlyphCacheImp {
 	glyphs := make(map[string]map[rune]*Glyph)
-	return &GlyphCache {
+	return &GlyphCacheImp {
 		glyphs: glyphs,
 	}
 }
 
-// FetchGlyph fetches a glyph from the cache, calling renderGlyph first if it doesn't already exist
-func (glyphCache *GlyphCache) FetchGlyph(gc draw2d.GraphicContext, fontName string, chr rune) *Glyph {
+// Fetch fetches a glyph from the cache, calling renderGlyph first if it doesn't already exist
+func (glyphCache *GlyphCacheImp) Fetch(gc draw2d.GraphicContext, fontName string, chr rune) *Glyph {
 	if glyphCache.glyphs[fontName] == nil {
 		glyphCache.glyphs[fontName] = make(map[rune]*Glyph, 60)
 	}
@@ -35,7 +41,7 @@ func renderGlyph(gc draw2d.GraphicContext, fontName string, chr rune) *Glyph {
 	width := gc.CreateStringPath(string(chr), 0, 0)
 	path := gc.GetPath()
 	return &Glyph{
-		path:  &path,
+		Path:  &path,
 		Width: width,
 	}
 }
@@ -43,15 +49,15 @@ func renderGlyph(gc draw2d.GraphicContext, fontName string, chr rune) *Glyph {
 // Glyph represents a rune which has been converted to a Path and width
 type Glyph struct {
 	// path represents a glyph, it is always at (0, 0)
-	path *draw2d.Path
+	Path *draw2d.Path
 	// Width of the glyph
 	Width float64
 }
 
-// Returns a copy of a Glyph
+// Copy Returns a copy of a Glyph
 func (g *Glyph) Copy() *Glyph {
 	return &Glyph{
-		path:  g.path.Copy(),
+		Path:  g.Path.Copy(),
 		Width: g.Width,
 	}
 }
@@ -61,7 +67,7 @@ func (g *Glyph) Fill(gc draw2d.GraphicContext, x, y float64) float64 {
 	gc.Save()
 	gc.BeginPath()
 	gc.Translate(x, y)
-	gc.Fill(g.path)
+	gc.Fill(g.Path)
 	gc.Restore()
 	return g.Width
 }
@@ -71,7 +77,7 @@ func (g *Glyph) Stroke(gc draw2d.GraphicContext, x, y float64) float64 {
 	gc.Save()
 	gc.BeginPath()
 	gc.Translate(x, y)
-	gc.Stroke(g.path)
+	gc.Stroke(g.Path)
 	gc.Restore()
 	return g.Width
 }

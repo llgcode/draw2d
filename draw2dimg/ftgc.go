@@ -35,7 +35,7 @@ type GraphicContext struct {
 	fillRasterizer   *raster.Rasterizer
 	strokeRasterizer *raster.Rasterizer
 	FontCache		 draw2d.FontCache
-	glyphCache       *draw2dbase.GlyphCache
+	glyphCache       draw2dbase.GlyphCache
 	glyphBuf         *truetype.GlyphBuf
 	DPI              int
 }
@@ -139,7 +139,7 @@ func (gc *GraphicContext) FillStringAt(text string, x, y float64) (width float64
 		if hasPrev {
 			x += fUnitsToFloat64(f.Kern(fixed.Int26_6(gc.Current.Scale), prev, index))
 		}
-		glyph := gc.glyphCache.FetchGlyph(gc, fontName, r)
+		glyph := gc.glyphCache.Fetch(gc, fontName, r)
 		x += glyph.Fill(gc, x, y)
 		prev, hasPrev = index, true
 	}
@@ -166,7 +166,7 @@ func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (width float
 		if hasPrev {
 			x += fUnitsToFloat64(f.Kern(fixed.Int26_6(gc.Current.Scale), prev, index))
 		}
-		glyph := gc.glyphCache.FetchGlyph(gc, fontName, r)
+		glyph := gc.glyphCache.Fetch(gc, fontName, r)
 		x += glyph.Stroke(gc, x, y)
 		prev, hasPrev = index, true
 	}
