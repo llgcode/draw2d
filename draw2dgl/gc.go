@@ -126,7 +126,7 @@ type GraphicContext struct {
 	fillRasterizer   *raster.Rasterizer
 	strokeRasterizer *raster.Rasterizer
 	glyphBuf         *truetype.GlyphBuf
-	DPI		int
+	DPI              int
 }
 
 // NewGraphicContext creates a new Graphic context from an image.

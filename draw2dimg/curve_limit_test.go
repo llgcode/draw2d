@@ -1,14 +1,14 @@
 package draw2dimg
 
 import (
-	"image"
-	"image/color"
 	"fmt"
-	"testing"
+	"github.com/golang/freetype/truetype"
 	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/draw2dkit"
-	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/font/gofont/goregular"
+	"image"
+	"image/color"
+	"testing"
 )
 
 // font generated from icomoon.io and converted to go byte slice

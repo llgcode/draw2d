@@ -1,4 +1,4 @@
-// go test -race -test.v sync_test.go 
+// go test -race -test.v sync_test.go
 
 package draw2d_test
 
@@ -13,7 +13,7 @@ import (
 
 func TestSync(t *testing.T) {
 	ch := make(chan int)
-	limit := 2000
+	limit := 2
 	for i := 0; i < limit; i++ {
 		go Draw(i, ch)
 	}
@@ -25,7 +25,7 @@ func TestSync(t *testing.T) {
 }
 
 func Draw(i int, ch chan<- int) {
-  draw2d.SetFontFolder("./resource/font")
+	draw2d.SetFontFolder("./resource/font")
 	// Draw a rounded rectangle using default colors
 	dest := image.NewRGBA(image.Rect(0, 0, 297, 210.0))
 	gc := draw2dimg.NewGraphicContext(dest)

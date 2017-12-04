@@ -4,8 +4,8 @@
 package draw2dbase
 
 import (
-	"math"
 	"errors"
+	"math"
 )
 
 const (
@@ -75,11 +75,11 @@ func TraceCubic(t Liner, cubic []float64, flatteningThreshold float64) error {
 		// if it's flat then trace a line
 		if (d2+d3)*(d2+d3) <= flatteningThreshold*(dx*dx+dy*dy) || i == len(curves)-8 {
 			t.LineTo(c[6], c[7])
-			i-=8
+			i -= 8
 		} else {
 			// second half of bezier go lower onto the stack
 			SubdivideCubic(c, curves[i+8:], curves[i:])
-			i+=8
+			i += 8
 		}
 	}
 	return nil
@@ -130,13 +130,13 @@ func TraceQuad(t Liner, quad []float64, flatteningThreshold float64) error {
 		d = math.Abs(((c[2]-c[4])*dy - (c[3]-c[5])*dx))
 
 		// if it's flat then trace a line
-		if (d*d) <= flatteningThreshold*(dx*dx+dy*dy) || i == len(curves) - 6 {
+		if (d*d) <= flatteningThreshold*(dx*dx+dy*dy) || i == len(curves)-6 {
 			t.LineTo(c[4], c[5])
-			i-=6
+			i -= 6
 		} else {
 			// second half of bezier go lower onto the stack
-			SubdivideQuad(c, curves[i + 6:], curves[i:])
-			i+=6
+			SubdivideQuad(c, curves[i+6:], curves[i:])
+			i += 6
 		}
 	}
 	return nil
