@@ -85,7 +85,7 @@ func SetFontFolder(folder string) {
 }
 
 func GetGlobalFontCache() FontCache {
-	return defaultFonts
+	return fontCache
 }
 
 func SetFontNamer(fn FontFileNamer) {
