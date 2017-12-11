@@ -1,7 +1,6 @@
 package draw2dgl
 
 import (
-	"errors"
 	"image"
 	"image/color"
 	"image/draw"
@@ -125,6 +124,8 @@ type GraphicContext struct {
 	painter          *Painter
 	fillRasterizer   *raster.Rasterizer
 	strokeRasterizer *raster.Rasterizer
+	FontCache		 draw2d.FontCache
+	glyphCache       draw2dbase.GlyphCache
 	glyphBuf         *truetype.GlyphBuf
 	DPI              int
 }
@@ -136,6 +137,8 @@ func NewGraphicContext(width, height int) *GraphicContext {
 		NewPainter(),
 		raster.NewRasterizer(width, height),
 		raster.NewRasterizer(width, height),
+		draw2d.GetGlobalFontCache(),
+		draw2dbase.NewGlyphCache(),
 		&truetype.GlyphBuf{},
 		92,
 	}
@@ -143,16 +146,15 @@ func NewGraphicContext(width, height int) *GraphicContext {
 }
 
 func (gc *GraphicContext) loadCurrentFont() (*truetype.Font, error) {
-	font := draw2d.GetFont(gc.Current.FontData)
-	if font == nil {
-		font = draw2d.GetFont(draw2dbase.DefaultFontData)
+	font, err := gc.FontCache.Load(gc.Current.FontData)
+	if err != nil {
+		font, err = gc.FontCache.Load(draw2dbase.DefaultFontData)
 	}
-	if font == nil {
-		return nil, errors.New("No font set, and no default font available.")
+	if font != nil {
+		gc.SetFont(font)
+		gc.SetFontSize(gc.Current.FontSize)
 	}
-	gc.SetFont(font)
-	gc.SetFontSize(gc.Current.FontSize)
-	return font, nil
+	return font, err
 }
 
 func (gc *GraphicContext) drawGlyph(glyph truetype.Index, dx, dy float64) error {
@@ -217,7 +219,7 @@ func (gc *GraphicContext) FillStringAt(text string, x, y float64) (width float64
 		if hasPrev {
 			x += fUnitsToFloat64(f.Kern(fixed.Int26_6(gc.Current.Scale), prev, index))
 		}
-		glyph := draw2dbase.FetchGlyph(gc, fontName, r)
+		glyph := gc.glyphCache.Fetch(gc, fontName, r)
 		x += glyph.Fill(gc, x, y)
 		prev, hasPrev = index, true
 	}
@@ -283,7 +285,7 @@ func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (width float
 		if hasPrev {
 			x += fUnitsToFloat64(f.Kern(fixed.Int26_6(gc.Current.Scale), prev, index))
 		}
-		glyph := draw2dbase.FetchGlyph(gc, fontName, r)
+		glyph := gc.glyphCache.Fetch(gc, fontName, r)
 		x += glyph.Stroke(gc, x, y)
 		prev, hasPrev = index, true
 	}
