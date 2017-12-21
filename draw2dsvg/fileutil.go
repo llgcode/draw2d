@@ -2,18 +2,21 @@ package draw2dsvg
 
 import (
 	"os"
-	"bytes"
+	"encoding/xml"
 	_ "errors"
 )
 
-func SaveToSvgFile(filePath string, svg *SVG) error {
+func SaveToSvgFile(filePath string, svg *Svg) error {
 	f, err := os.Create(filePath)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
 
-	bytes.NewBuffer((*bytes.Buffer)(svg).Bytes()).WriteTo(f) // clone buffer to make multiple writes possible
+	f.Write([]byte(xml.Header))
+	encoder := xml.NewEncoder(f)
+	encoder.Indent("", "\t")
+	err = encoder.Encode(svg)
 
-	return nil
+	return err
 }

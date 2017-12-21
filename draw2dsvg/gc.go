@@ -19,18 +19,18 @@ var (
 
 type SVG bytes.Buffer
 
-func NewSvg() *SVG {
-	return &SVG{}
+func NewSvg() *Svg {
+	return &Svg{Xmlns: "http://www.w3.org/2000/svg"}
 }
 
 // GraphicContext implements the draw2d.GraphicContext interface
 // It provides draw2d with a svg backend
 type GraphicContext struct {
 	*draw2dbase.StackGraphicContext
-	svg *SVG
+	svg *Svg
 }
 
-func NewGraphicContext(svg *SVG) *GraphicContext {
+func NewGraphicContext(svg *Svg) *GraphicContext {
 	gc := &GraphicContext{draw2dbase.NewStackGraphicContext(), svg}
 	return gc
 }
