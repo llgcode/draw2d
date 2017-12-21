@@ -9,7 +9,6 @@ import (
 	"image/color"
 	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/draw2dbase"
-	svgo "github.com/ajstarks/svgo/float"
 )
 
 const (
@@ -18,18 +17,20 @@ const (
 var (
 )
 
-func NewSvg() *svgo.SVG {
-	return svgo.New(&bytes.Buffer{})
+type SVG bytes.Buffer
+
+func NewSvg() *SVG {
+	return &SVG{}
 }
 
 // GraphicContext implements the draw2d.GraphicContext interface
-// It provides draw2d with a svg backend (based on svgo)
+// It provides draw2d with a svg backend
 type GraphicContext struct {
 	*draw2dbase.StackGraphicContext
-	svg *svgo.SVG
+	svg *SVG
 }
 
-func NewGraphicContext(svg *svgo.SVG) *GraphicContext {
+func NewGraphicContext(svg *SVG) *GraphicContext {
 	gc := &GraphicContext{draw2dbase.NewStackGraphicContext(), svg}
 	return gc
 }
