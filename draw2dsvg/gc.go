@@ -4,9 +4,11 @@
 package draw2dsvg
 
 import (
+	"fmt"
 	"image"
-	"bytes"
 	"image/color"
+	"strings"
+	"bytes"
 	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/draw2dbase"
 )
@@ -15,6 +17,12 @@ const (
 )
 
 var (
+)
+
+type drawType int
+const (
+	filled drawType = 1 << iota
+	stroked
 )
 
 type SVG bytes.Buffer
@@ -35,76 +43,100 @@ func NewGraphicContext(svg *Svg) *GraphicContext {
 	return gc
 }
 
-// TODO implement all following methods
+// Clear fills the current canvas with a default transparent color
+func (gc *GraphicContext) Clear() {
+	gc.svg.Groups = nil
+	gc.svg.Groups = append(gc.svg.Groups, Group{
+		// TODO add background color?
+	})
+}
 
-// BeginPath creates a new path
-func (gc *GraphicContext) BeginPath() {
+// Stroke strokes the paths with the color specified by SetStrokeColor
+func (gc *GraphicContext) Stroke(paths ...*draw2d.Path) {
+	gc.drawPaths(stroked, paths...)
+	gc.Current.Path.Clear()
+}
+// Fill fills the paths with the color specified by SetFillColor
+func (gc *GraphicContext) Fill(paths ...*draw2d.Path) {
+	gc.drawPaths(filled, paths...)
+	gc.Current.Path.Clear()
+}
+// FillStroke first fills the paths and than strokes them
+func (gc *GraphicContext) FillStroke(paths ...*draw2d.Path) {
+	gc.drawPaths(filled | stroked, paths...)
+	gc.Current.Path.Clear()
+}
 
-}
-// GetPath copies the current path, then returns it
-func (gc *GraphicContext) GetPath() draw2d.Path {
-	return draw2d.Path{}
-}
-// GetMatrixTransform returns the current transformation matrix
-func (gc *GraphicContext) GetMatrixTransform() draw2d.Matrix {
-	return draw2d.Matrix{}
-}
-// SetMatrixTransform sets the current transformation matrix
-func (gc *GraphicContext) SetMatrixTransform(tr draw2d.Matrix) {
+func (gc *GraphicContext) drawPaths (drawType drawType, paths ...*draw2d.Path) {
+	paths = append(paths, gc.Current.Path)
 
-}
-// ComposeMatrixTransform composes the current transformation matrix with tr
-func (gc *GraphicContext) ComposeMatrixTransform(tr draw2d.Matrix) {
+	svgPaths := make([]Path, len(paths))
 
-}
-// Rotate applies a rotation to the current transformation matrix. angle is in radian.
-func (gc *GraphicContext) Rotate(angle float64) {
+	for i, path := range paths {
+		svgPaths[i].Desc = toSvgPathDesc(path)
+		if drawType & stroked == stroked {
+			svgPaths[i].Stroke = toSvgRGBA(gc.Current.StrokeColor)
+		}
+		if drawType & filled == filled {
+			svgPaths[i].Fill = toSvgRGBA(gc.Current.FillColor)
+		}
+	}
 
+	gc.svg.Groups = append(gc.svg.Groups, Group{
+		Paths: svgPaths,
+	})
 }
-// Translate applies a translation to the current transformation matrix.
-func (gc *GraphicContext) Translate(tx, ty float64) {
 
+func toSvgRGBA (c color.Color) string { // TODO move elsewhere
+	r, g, b, a := c.RGBA()
+	return fmt.Sprintf("rgba(%v, %v, %v, %v)", r>>8, g>>8, b>>8, float64(a>>8)/255)
 }
-// Scale applies a scale to the current transformation matrix.
-func (gc *GraphicContext) Scale(sx, sy float64) {
 
+func toSvgPathDesc (p *draw2d.Path) string { // TODO move elsewhere
+	parts := make([]string, len(p.Components))
+	i := 0
+	for j, cmp := range p.Components {
+		switch cmp {
+		case draw2d.MoveToCmp:
+			parts[j] = fmt.Sprintf("M %v %v", p.Points[i], p.Points[i+1])
+			i += 2
+		case draw2d.LineToCmp:
+			parts[j] = fmt.Sprintf("L %v %v", p.Points[i], p.Points[i+1])
+			i += 2
+		case draw2d.QuadCurveToCmp:
+			parts[j] = fmt.Sprintf("Q %v %v %v %v", p.Points[i], p.Points[i+1], p.Points[i+2], p.Points[i+3])
+			i += 4
+		case draw2d.CubicCurveToCmp:
+			parts[j] = fmt.Sprintf("C %v %v %v %v %v %v", p.Points[i], p.Points[i+1], p.Points[i+2], p.Points[i+3], p.Points[i+4], p.Points[i+5])
+			i += 6
+		case draw2d.ArcToCmp:
+			large := 0
+			sweep := 0
+			if p.Points[i+4] - p.Points[i+5] > 0 { // TODO this is probably not correct
+				large = 1
+				sweep = 1
+			}
+			// rx ry x-axis-rotation large-arc-flag sweep-flag x y
+			parts[j] = fmt.Sprintf("A %v %v %v %v %v %v %v",
+				p.Points[i+2], // rx
+				p.Points[i+3], // ry
+				0, // x-axis-rotation
+				large, // large-arc-flag
+				sweep, // // sweep-flag
+				p.Points[i], // x // TODO this is center of arc not an endpont
+				p.Points[i+1], // y // TODO -//-
+			)
+			i += 6
+		case draw2d.CloseCmp:
+			parts[j] = "Z"
+		}
+	}
+	println("parts", parts)
+	return strings.Join(parts, " ")
 }
-// SetStrokeColor sets the current stroke color
-func (gc *GraphicContext) SetStrokeColor(c color.Color) {
+///////////////////////////////////////
+// TODO implement following methods (or remove if not neccesary)
 
-}
-// SetFillColor sets the current fill color
-func (gc *GraphicContext) SetFillColor(c color.Color) {
-
-}
-// SetFillRule sets the current fill rule
-func (gc *GraphicContext) SetFillRule(f draw2d.FillRule) {
-
-}
-// SetLineWidth sets the current line width
-func (gc *GraphicContext) SetLineWidth(lineWidth float64) {
-
-}
-// SetLineCap sets the current line cap
-func (gc *GraphicContext) SetLineCap(cap draw2d.LineCap) {
-
-}
-// SetLineJoin sets the current line join
-func (gc *GraphicContext) SetLineJoin(join draw2d.LineJoin) {
-
-}
-// SetLineDash sets the current dash
-func (gc *GraphicContext) SetLineDash(dash []float64, dashOffset float64) {
-
-}
-// SetFontSize sets the current font size
-func (gc *GraphicContext) SetFontSize(fontSize float64) {
-
-}
-// GetFontSize gets the current font size
-func (gc *GraphicContext) GetFontSize() float64 {
-	return 0
-}
 // SetFontData sets the current FontData
 func (gc *GraphicContext) SetFontData(fontData draw2d.FontData) {
 
@@ -127,10 +159,6 @@ func (gc *GraphicContext) Save() {
 }
 // Restore remove the current context and restore the last one
 func (gc *GraphicContext) Restore() {
-
-}
-// Clear fills the current canvas with a default transparent color
-func (gc *GraphicContext) Clear() {
 
 }
 // ClearRect fills the specified rectangle with a default transparent color
@@ -168,16 +196,4 @@ func (gc *GraphicContext) StrokeString(text string) (cursor float64) {
 // StrokeStringAt draws the contour of the text at point (x, y)
 func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (cursor float64) {
 	return 0
-}
-// Stroke strokes the paths with the color specified by SetStrokeColor
-func (gc *GraphicContext) Stroke(paths ...*draw2d.Path) {
-
-}
-// Fill fills the paths with the color specified by SetFillColor
-func (gc *GraphicContext) Fill(paths ...*draw2d.Path) {
-
-}
-// FillStroke first fills the paths and than strokes them
-func (gc *GraphicContext) FillStroke(paths ...*draw2d.Path) {
-
 }

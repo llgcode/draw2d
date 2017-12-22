@@ -13,7 +13,7 @@ import (
 
 // Test basic encoding of svg/xml elements
 func TestXml(t *testing.T) {
-	
+
 	svg := NewSvg()
 	svg.Groups = []Group{Group{
 		Groups: []Group{
@@ -25,7 +25,7 @@ func TestXml(t *testing.T) {
 			Text{Text: "world", Style: "opacity: 0.5"}, // text with style
 		},
 		Paths: []Path{
-			Path{Data: "M100,200 C100,100 250,100 250,200 S400,300 400,200"}, // simple path
+			Path{Desc: "M100,200 C100,100 250,100 250,200 S400,300 400,200"}, // simple path
 			Path{}, // empty path
 		},
 	}}

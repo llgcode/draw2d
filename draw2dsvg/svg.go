@@ -7,6 +7,8 @@ import (
 	"encoding/xml"
 )
 
+/* svg elements */
+
 type Svg struct {
 	XMLName xml.Name `xml:"svg"`
 	Xmlns string `xml:"xmlns,attr"`
@@ -14,16 +16,27 @@ type Svg struct {
 }
 
 type Group struct {
+	FillStroke
 	Groups []Group `xml:"g"`
 	Paths []Path `xml:"path"`
 	Texts []Text `xml:"text"`
 }
 
 type Path struct {
-	Data string `xml:"d,attr"`
+	FillStroke
+	Desc string `xml:"d,attr"`
 }
 
 type Text struct {
+	FillStroke
 	Text string `xml:",innerxml"`
 	Style string `xml:",attr,omitempty"`
+}
+
+
+/* shared attrs */
+
+type FillStroke struct {
+	Fill string `xml:"fill,attr,omitempty"`
+	Stroke string `xml:"stroke,attr,omitempty"`
 }
