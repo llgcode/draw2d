@@ -1,5 +1,6 @@
 // Copyright 2015 The draw2d Authors. All rights reserved.
 // created: 16/12/2017 by Drahoslav Bednář
+
 package draw2dsvg
 
 import (
