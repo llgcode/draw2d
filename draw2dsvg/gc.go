@@ -76,9 +76,16 @@ func (gc *GraphicContext) drawPaths (drawType drawType, paths ...*draw2d.Path) {
 		svgPaths[i].Desc = toSvgPathDesc(path)
 		if drawType & stroked == stroked {
 			svgPaths[i].Stroke = toSvgRGBA(gc.Current.StrokeColor)
+			svgPaths[i].StrokeWidth = toSvgLength(gc.Current.LineWidth)
+			svgPaths[i].StrokeLinecap = gc.Current.Cap.String()
+			svgPaths[i].StrokeLinejoin = gc.Current.Join.String()
+		} else {
+			svgPaths[i].Stroke = "none"
 		}
 		if drawType & filled == filled {
 			svgPaths[i].Fill = toSvgRGBA(gc.Current.FillColor)
+		} else {
+			svgPaths[i].Fill = "none"
 		}
 	}
 
@@ -89,7 +96,11 @@ func (gc *GraphicContext) drawPaths (drawType drawType, paths ...*draw2d.Path) {
 
 func toSvgRGBA (c color.Color) string { // TODO move elsewhere
 	r, g, b, a := c.RGBA()
-	return fmt.Sprintf("rgba(%v, %v, %v, %v)", r>>8, g>>8, b>>8, float64(a>>8)/255)
+	return fmt.Sprintf("rgba(%v, %v, %v, %.3f)", r>>8, g>>8, b>>8, float64(a>>8)/255)
+}
+
+func toSvgLength (l float64) string {
+	return fmt.Sprintf("%.4f", l)
 }
 
 func toSvgPathDesc (p *draw2d.Path) string { // TODO move elsewhere

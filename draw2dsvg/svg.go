@@ -39,4 +39,7 @@ type Text struct {
 type FillStroke struct {
 	Fill string `xml:"fill,attr,omitempty"`
 	Stroke string `xml:"stroke,attr,omitempty"`
+	StrokeWidth string `xml:"stroke-width,attr,omitempty"`
+	StrokeLinecap string `xml:"stroke-linecap,attr,omitempty"`
+	StrokeLinejoin string `xml:"stroke-linejoin,attr,omitempty"`
 }
