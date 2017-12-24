@@ -130,8 +130,8 @@ const (
 
 func (cap LineCap) String() string {
 	return map[LineCap]string{
-		RoundCap: "round",
-		ButtCap: "cap",
+		RoundCap:  "round",
+		ButtCap:   "cap",
 		SquareCap: "square",
 	}[cap]
 }

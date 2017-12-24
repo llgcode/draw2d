@@ -8,8 +8,8 @@ import (
 	"log"
 	"path/filepath"
 
-	"sync"
 	"github.com/golang/freetype/truetype"
+	"sync"
 )
 
 // FontStyle defines bold and italic styles for the font
@@ -125,7 +125,7 @@ type FolderFontCache struct {
 	namer  FontFileNamer
 }
 
-// NewFolderFontCache creates FolderFontCache 
+// NewFolderFontCache creates FolderFontCache
 func NewFolderFontCache(folder string) *FolderFontCache {
 	return &FolderFontCache{
 		fonts:  make(map[string]*truetype.Font),
@@ -168,9 +168,7 @@ type SyncFolderFontCache struct {
 	namer  FontFileNamer
 }
 
-
-
-// NewSyncFolderFontCache creates SyncFolderFontCache 
+// NewSyncFolderFontCache creates SyncFolderFontCache
 func NewSyncFolderFontCache(folder string) *SyncFolderFontCache {
 	return &SyncFolderFontCache{
 		fonts:  make(map[string]*truetype.Font),

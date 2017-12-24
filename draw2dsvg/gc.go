@@ -132,8 +132,6 @@ func toSvgPathDesc(p *draw2d.Path) string { // TODO move elsewhere
 			nom := math.Hypot(ry*cosfi, rx*sinfi)
 			x := cx + (rx*ry*cosfi)/nom
 			y := cy + (rx*ry*sinfi)/nom
-			x += 0.001 // dirty hack to ensure whole arc is drawn if start point equals endpoint
-			y += 0.001
 
 			// compute large and sweep flags
 			large := 0
@@ -143,6 +141,15 @@ func toSvgPathDesc(p *draw2d.Path) string { // TODO move elsewhere
 			}
 			if !math.Signbit(ps[5]) {
 				sweep = 1
+			}
+			// dirty hack to ensure whole arc is drawn
+			// if start point equals end point
+			if sweep == 1 {
+				x += 0.001 * sinfi
+				y += 0.001 * -cosfi
+			} else {
+				x += 0.001 * sinfi
+				y += 0.001 * cosfi
 			}
 
 			// rx ry x-axis-rotation large-arc-flag sweep-flag x y
