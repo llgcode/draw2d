@@ -81,6 +81,10 @@ func (gc *GraphicContext) drawPaths(drawType drawType, paths ...*draw2d.Path) {
 			svgPaths[i].StrokeWidth = toSvgLength(gc.Current.LineWidth)
 			svgPaths[i].StrokeLinecap = gc.Current.Cap.String()
 			svgPaths[i].StrokeLinejoin = gc.Current.Join.String()
+			if len(gc.Current.Dash) > 0 {
+				svgPaths[i].StrokeDasharray = toSvgArray(gc.Current.Dash)
+				svgPaths[i].StrokeDashoffset = toSvgLength(gc.Current.DashOffset)
+			}
 		} else {
 			svgPaths[i].Stroke = "none"
 		}
@@ -103,6 +107,14 @@ func toSvgRGBA(c color.Color) string { // TODO move elsewhere
 
 func toSvgLength(l float64) string {
 	return fmt.Sprintf("%.4f", l)
+}
+
+func toSvgArray(nums []float64) string {
+	arr := make([]string, len(nums))
+	for i, num := range nums {
+		arr[i] = fmt.Sprintf("%.4f", num)
+	}
+	return strings.Join(arr, ",")
 }
 
 func toSvgPathDesc(p *draw2d.Path) string { // TODO move elsewhere

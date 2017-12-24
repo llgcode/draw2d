@@ -11,15 +11,15 @@ import (
 
 type Svg struct {
 	XMLName xml.Name `xml:"svg"`
-	Xmlns string `xml:"xmlns,attr"`
-	Groups []Group `xml:"g"`
+	Xmlns   string   `xml:"xmlns,attr"`
+	Groups  []Group  `xml:"g"`
 }
 
 type Group struct {
 	FillStroke
 	Groups []Group `xml:"g"`
-	Paths []Path `xml:"path"`
-	Texts []Text `xml:"text"`
+	Paths  []Path  `xml:"path"`
+	Texts  []Text  `xml:"text"`
 }
 
 type Path struct {
@@ -29,17 +29,18 @@ type Path struct {
 
 type Text struct {
 	FillStroke
-	Text string `xml:",innerxml"`
+	Text  string `xml:",innerxml"`
 	Style string `xml:",attr,omitempty"`
 }
-
 
 /* shared attrs */
 
 type FillStroke struct {
-	Fill string `xml:"fill,attr,omitempty"`
-	Stroke string `xml:"stroke,attr,omitempty"`
-	StrokeWidth string `xml:"stroke-width,attr,omitempty"`
-	StrokeLinecap string `xml:"stroke-linecap,attr,omitempty"`
-	StrokeLinejoin string `xml:"stroke-linejoin,attr,omitempty"`
+	Fill             string `xml:"fill,attr,omitempty"`
+	Stroke           string `xml:"stroke,attr,omitempty"`
+	StrokeWidth      string `xml:"stroke-width,attr,omitempty"`
+	StrokeLinecap    string `xml:"stroke-linecap,attr,omitempty"`
+	StrokeLinejoin   string `xml:"stroke-linejoin,attr,omitempty"`
+	StrokeDasharray  string `xml:"stroke-dasharray,attr,omitempty"`
+	StrokeDashoffset string `xml:"stroke-dashoffset,attr,omitempty"`
 }
