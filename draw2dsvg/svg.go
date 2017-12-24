@@ -13,6 +13,7 @@ type Svg struct {
 	XMLName xml.Name `xml:"svg"`
 	Xmlns   string   `xml:"xmlns,attr"`
 	Groups  []Group  `xml:"g"`
+	FillStroke
 }
 
 type Group struct {
@@ -30,7 +31,7 @@ type Path struct {
 type Text struct {
 	FillStroke
 	Text  string `xml:",innerxml"`
-	Style string `xml:",attr,omitempty"`
+	Style string `xml:"style,attr,omitempty"`
 }
 
 /* shared attrs */

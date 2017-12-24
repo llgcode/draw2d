@@ -7,8 +7,8 @@
 package draw2dsvg
 
 import (
-	"testing"
 	"encoding/xml"
+	"testing"
 )
 
 // Test basic encoding of svg/xml elements
@@ -17,11 +17,11 @@ func TestXml(t *testing.T) {
 	svg := NewSvg()
 	svg.Groups = []Group{Group{
 		Groups: []Group{
-			Group{},  // nested groups
+			Group{}, // nested groups
 			Group{},
 		},
 		Texts: []Text{
-			Text{Text: "Hello"}, // text
+			Text{Text: "Hello"},                        // text
 			Text{Text: "world", Style: "opacity: 0.5"}, // text with style
 		},
 		Paths: []Path{
@@ -30,14 +30,14 @@ func TestXml(t *testing.T) {
 		},
 	}}
 
-	expectedOut := `<svg xmlns="http://www.w3.org/2000/svg">
+	expectedOut := `<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="none">
   <g>
     <g></g>
     <g></g>
     <path d="M100,200 C100,100 250,100 250,200 S400,300 400,200"></path>
     <path d=""></path>
     <text>Hello</text>
-    <text Style="opacity: 0.5">world</text>
+    <text style="opacity: 0.5">world</text>
   </g>
 </svg>`
 
