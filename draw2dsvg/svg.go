@@ -37,7 +37,9 @@ type Text struct {
 /* shared attrs */
 
 type FillStroke struct {
-	Fill             string `xml:"fill,attr,omitempty"`
+	Fill     string `xml:"fill,attr,omitempty"`
+	FillRule string `xml:"fill-rule,attr,omitempty"`
+
 	Stroke           string `xml:"stroke,attr,omitempty"`
 	StrokeWidth      string `xml:"stroke-width,attr,omitempty"`
 	StrokeLinecap    string `xml:"stroke-linecap,attr,omitempty"`

@@ -28,6 +28,13 @@ func toSvgArray(nums []float64) string {
 	return strings.Join(arr, ",")
 }
 
+func toSvgFillRule(rule draw2d.FillRule) string {
+	return map[draw2d.FillRule]string{
+		draw2d.FillRuleEvenOdd: "evenodd",
+		draw2d.FillRuleWinding: "nonzero",
+	}[rule]
+}
+
 func toSvgPathDesc(p *draw2d.Path) string {
 	parts := make([]string, len(p.Components))
 	ps := p.Points

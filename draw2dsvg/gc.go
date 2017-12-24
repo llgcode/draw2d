@@ -8,6 +8,7 @@ import (
 	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/draw2dbase"
 	"image"
+	"strings"
 )
 
 const ()
@@ -71,15 +72,17 @@ func (gc *GraphicContext) FillStroke(paths ...*draw2d.Path) {
 func (gc *GraphicContext) drawPaths(drawType drawType, paths ...*draw2d.Path) {
 	paths = append(paths, gc.Current.Path)
 
-	svgPaths := make([]Path, len(paths))
+	svgPath := Path{}
+	group := Group{}
 
-	group := Group{
-		Paths: svgPaths,
-	}
+	svgPathsDesc := make([]string, len(paths))
 
+	// multiple pathes has to be joined to single svg path description
+	// because fill-rule wont work for whole group
 	for i, path := range paths {
-		svgPaths[i].Desc = toSvgPathDesc(path)
+		svgPathsDesc[i] = toSvgPathDesc(path)
 	}
+	svgPath.Desc = strings.Join(svgPathsDesc, " ")
 
 	if drawType&stroked == stroked {
 		group.Stroke = toSvgRGBA(gc.Current.StrokeColor)
@@ -94,7 +97,10 @@ func (gc *GraphicContext) drawPaths(drawType drawType, paths ...*draw2d.Path) {
 
 	if drawType&filled == filled {
 		group.Fill = toSvgRGBA(gc.Current.FillColor)
+		group.FillRule = toSvgFillRule(gc.Current.FillRule)
 	}
+
+	group.Paths = []Path{svgPath}
 
 	gc.svg.Groups = append(gc.svg.Groups, group)
 }
