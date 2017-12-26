@@ -18,9 +18,10 @@ type Svg struct {
 
 type Group struct {
 	FillStroke
-	Groups []Group `xml:"g"`
-	Paths  []Path  `xml:"path"`
-	Texts  []Text  `xml:"text"`
+	Transform string  `xml:"transform,attr,omitempty"`
+	Groups    []Group `xml:"g"`
+	Paths     []Path  `xml:"path"`
+	Texts     []Text  `xml:"text"`
 }
 
 type Path struct {

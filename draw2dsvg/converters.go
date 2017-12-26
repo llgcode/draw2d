@@ -13,7 +13,11 @@ import (
 
 func toSvgRGBA(c color.Color) string {
 	r, g, b, a := c.RGBA()
-	return fmt.Sprintf("rgba(%v, %v, %v, %.3f)", r>>8, g>>8, b>>8, float64(a>>8)/255)
+	r, g, b, a = r>>8, g>>8, b>>8, a>>8
+	if a == 255 {
+		return fmt.Sprintf("#%02X%02X%02X", r, g, b)
+	}
+	return fmt.Sprintf("rgba(%v,%v,%v,%.3f)", r, g, b, float64(a)/255)
 }
 
 func toSvgLength(l float64) string {
@@ -84,10 +88,7 @@ func toSvgPathDesc(p *draw2d.Path) string {
 
 			// rx ry x-axis-rotation large-arc-flag sweep-flag x y
 			parts[i] = fmt.Sprintf("A %.4f %.4f %v %v %v %.4f %.4f",
-				rx, ry,
-				0,
-				large, sweep,
-				x, y,
+				rx, ry, 0, large, sweep, x, y,
 			)
 			ps = ps[6:]
 		case draw2d.CloseCmp:
@@ -95,4 +96,17 @@ func toSvgPathDesc(p *draw2d.Path) string {
 		}
 	}
 	return strings.Join(parts, " ")
+}
+
+func toSvgTransform(mat draw2d.Matrix) string {
+	if mat.IsIdentity() {
+		return ""
+	}
+	if mat.IsTranslation() {
+		x, y := mat.GetTranslation()
+		return fmt.Sprintf("translate(%f,%f)", x, y)
+	}
+	return fmt.Sprintf("matrix(%f,%f,%f,%f,%f,%f)",
+		mat[0], mat[1], mat[2], mat[3], mat[4], mat[5],
+	)
 }

@@ -70,38 +70,45 @@ func (gc *GraphicContext) FillStroke(paths ...*draw2d.Path) {
 }
 
 func (gc *GraphicContext) drawPaths(drawType drawType, paths ...*draw2d.Path) {
-	paths = append(paths, gc.Current.Path)
-
+	// create elements
 	svgPath := Path{}
 	group := Group{}
 
-	svgPathsDesc := make([]string, len(paths))
-
-	// multiple pathes has to be joined to single svg path description
-	// because fill-rule wont work for whole group
-	for i, path := range paths {
-		svgPathsDesc[i] = toSvgPathDesc(path)
-	}
-	svgPath.Desc = strings.Join(svgPathsDesc, " ")
-
-	if drawType&stroked == stroked {
-		group.Stroke = toSvgRGBA(gc.Current.StrokeColor)
-		group.StrokeWidth = toSvgLength(gc.Current.LineWidth)
-		group.StrokeLinecap = gc.Current.Cap.String()
-		group.StrokeLinejoin = gc.Current.Join.String()
-		if len(gc.Current.Dash) > 0 {
-			group.StrokeDasharray = toSvgArray(gc.Current.Dash)
-			group.StrokeDashoffset = toSvgLength(gc.Current.DashOffset)
+	// set attrs to path
+	{
+		paths = append(paths, gc.Current.Path)
+		svgPathsDesc := make([]string, len(paths))
+		// multiple pathes has to be joined to single svg path description
+		// because fill-rule wont work for whole group as excepted
+		for i, path := range paths {
+			svgPathsDesc[i] = toSvgPathDesc(path)
 		}
+		svgPath.Desc = strings.Join(svgPathsDesc, " ")
 	}
 
-	if drawType&filled == filled {
-		group.Fill = toSvgRGBA(gc.Current.FillColor)
-		group.FillRule = toSvgFillRule(gc.Current.FillRule)
+	// set attrs to group
+	{
+		if drawType&stroked == stroked {
+			group.Stroke = toSvgRGBA(gc.Current.StrokeColor)
+			group.StrokeWidth = toSvgLength(gc.Current.LineWidth)
+			group.StrokeLinecap = gc.Current.Cap.String()
+			group.StrokeLinejoin = gc.Current.Join.String()
+			if len(gc.Current.Dash) > 0 {
+				group.StrokeDasharray = toSvgArray(gc.Current.Dash)
+				group.StrokeDashoffset = toSvgLength(gc.Current.DashOffset)
+			}
+		}
+
+		if drawType&filled == filled {
+			group.Fill = toSvgRGBA(gc.Current.FillColor)
+			group.FillRule = toSvgFillRule(gc.Current.FillRule)
+		}
+
+		group.Transform = toSvgTransform(gc.Current.Tr)
 	}
 
+	// link elements
 	group.Paths = []Path{svgPath}
-
 	gc.svg.Groups = append(gc.svg.Groups, group)
 }
 
@@ -130,12 +137,14 @@ func (gc *GraphicContext) DrawImage(image image.Image) {
 
 // Save the context and push it to the context stack
 func (gc *GraphicContext) Save() {
-
+	gc.StackGraphicContext.Save()
+	// TODO use common transformation group for multiple elements
 }
 
 // Restore remove the current context and restore the last one
 func (gc *GraphicContext) Restore() {
-
+	gc.StackGraphicContext.Restore()
+	// TODO use common transformation group for multiple elements
 }
 
 // ClearRect fills the specified rectangle with a default transparent color
