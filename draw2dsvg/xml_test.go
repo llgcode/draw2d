@@ -15,18 +15,18 @@ import (
 func TestXml(t *testing.T) {
 
 	svg := NewSvg()
-	svg.Groups = []Group{Group{
-		Groups: []Group{
-			Group{}, // nested groups
-			Group{},
+	svg.Groups = []*Group{&Group{
+		Groups: []*Group{
+			&Group{}, // nested groups
+			&Group{},
 		},
-		Texts: []Text{
-			Text{Text: "Hello"},                        // text
-			Text{Text: "world", Style: "opacity: 0.5"}, // text with style
+		Texts: []*Text{
+			&Text{Text: "Hello"},                        // text
+			&Text{Text: "world", Style: "opacity: 0.5"}, // text with style
 		},
-		Paths: []Path{
-			Path{Desc: "M100,200 C100,100 250,100 250,200 S400,300 400,200"}, // simple path
-			Path{}, // empty path
+		Paths: []*Path{
+			&Path{Desc: "M100,200 C100,100 250,100 250,200 S400,300 400,200"}, // simple path
+			&Path{}, // empty path
 		},
 	}}
 

@@ -12,16 +12,16 @@ import (
 type Svg struct {
 	XMLName xml.Name `xml:"svg"`
 	Xmlns   string   `xml:"xmlns,attr"`
-	Groups  []Group  `xml:"g"`
+	Groups  []*Group `xml:"g"`
 	FillStroke
 }
 
 type Group struct {
 	FillStroke
-	Transform string  `xml:"transform,attr,omitempty"`
-	Groups    []Group `xml:"g"`
-	Paths     []Path  `xml:"path"`
-	Texts     []Text  `xml:"text"`
+	Transform string   `xml:"transform,attr,omitempty"`
+	Groups    []*Group `xml:"g"`
+	Paths     []*Path  `xml:"path"`
+	Texts     []*Text  `xml:"text"`
 }
 
 type Path struct {
@@ -31,11 +31,17 @@ type Path struct {
 
 type Text struct {
 	FillStroke
+	Position
 	Text  string `xml:",innerxml"`
 	Style string `xml:"style,attr,omitempty"`
 }
 
 /* shared attrs */
+
+type Position struct {
+	X float64 `xml:"x,attr,omitempty"`
+	Y float64 `xml:"y,attr,omitempty"`
+}
 
 type FillStroke struct {
 	Fill     string `xml:"fill,attr,omitempty"`

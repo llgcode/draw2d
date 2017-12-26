@@ -46,9 +46,6 @@ func NewGraphicContext(svg *Svg) *GraphicContext {
 // Clear fills the current canvas with a default transparent color
 func (gc *GraphicContext) Clear() {
 	gc.svg.Groups = nil
-	gc.svg.Groups = append(gc.svg.Groups, Group{
-	// TODO add background color?
-	})
 }
 
 // Stroke strokes the paths with the color specified by SetStrokeColor
@@ -69,47 +66,102 @@ func (gc *GraphicContext) FillStroke(paths ...*draw2d.Path) {
 	gc.Current.Path.Clear()
 }
 
+// FillString draws the text at point (0, 0)
+func (gc *GraphicContext) FillString(text string) (cursor float64) {
+	return gc.FillStringAt(text, 0, 0)
+}
+
+// FillStringAt draws the text at the specified point (x, y)
+func (gc *GraphicContext) FillStringAt(text string, x, y float64) (cursor float64) {
+	return gc.drawString(text, filled, x, y)
+}
+
+// StrokeString draws the contour of the text at point (0, 0)
+func (gc *GraphicContext) StrokeString(text string) (cursor float64) {
+	return gc.StrokeStringAt(text, 0, 0)
+}
+
+// StrokeStringAt draws the contour of the text at point (x, y)
+func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (cursor float64) {
+	return gc.drawString(text, stroked, x, y)
+}
+
+// Save the context and push it to the context stack
+func (gc *GraphicContext) Save() {
+	gc.StackGraphicContext.Save()
+	// TODO use common transformation group for multiple elements
+}
+
+// Restore remove the current context and restore the last one
+func (gc *GraphicContext) Restore() {
+	gc.StackGraphicContext.Restore()
+	// TODO use common transformation group for multiple elements
+}
+
+// private funcitons
+
 func (gc *GraphicContext) drawPaths(drawType drawType, paths ...*draw2d.Path) {
 	// create elements
 	svgPath := Path{}
+	group := gc.newGroup(drawType)
+
+	// set attrs to path element
+	paths = append(paths, gc.Current.Path)
+	svgPathsDesc := make([]string, len(paths))
+	// multiple pathes has to be joined to single svg path description
+	// because fill-rule wont work for whole group as excepted
+	for i, path := range paths {
+		svgPathsDesc[i] = toSvgPathDesc(path)
+	}
+	svgPath.Desc = strings.Join(svgPathsDesc, " ")
+
+	// link to group
+	group.Paths = []*Path{&svgPath}
+}
+
+func (gc *GraphicContext) drawString(text string, drawType drawType, x, y float64) float64 {
+	// create elements
+	svgText := Text{}
+	group := gc.newGroup(drawType)
+
+	// set attrs to text element
+	svgText.Text = text
+	svgText.X = x
+	svgText.Y = y
+	// TODO set font
+
+	// link to group
+	(*group).Texts = []*Text{&svgText}
+	return 0
+}
+
+// Creates new group from current context
+// append it to svg and return
+func (gc *GraphicContext) newGroup(drawType drawType) *Group {
 	group := Group{}
-
-	// set attrs to path
-	{
-		paths = append(paths, gc.Current.Path)
-		svgPathsDesc := make([]string, len(paths))
-		// multiple pathes has to be joined to single svg path description
-		// because fill-rule wont work for whole group as excepted
-		for i, path := range paths {
-			svgPathsDesc[i] = toSvgPathDesc(path)
-		}
-		svgPath.Desc = strings.Join(svgPathsDesc, " ")
-	}
-
 	// set attrs to group
-	{
-		if drawType&stroked == stroked {
-			group.Stroke = toSvgRGBA(gc.Current.StrokeColor)
-			group.StrokeWidth = toSvgLength(gc.Current.LineWidth)
-			group.StrokeLinecap = gc.Current.Cap.String()
-			group.StrokeLinejoin = gc.Current.Join.String()
-			if len(gc.Current.Dash) > 0 {
-				group.StrokeDasharray = toSvgArray(gc.Current.Dash)
-				group.StrokeDashoffset = toSvgLength(gc.Current.DashOffset)
-			}
+	if drawType&stroked == stroked {
+		group.Stroke = toSvgRGBA(gc.Current.StrokeColor)
+		group.StrokeWidth = toSvgLength(gc.Current.LineWidth)
+		group.StrokeLinecap = gc.Current.Cap.String()
+		group.StrokeLinejoin = gc.Current.Join.String()
+		if len(gc.Current.Dash) > 0 {
+			group.StrokeDasharray = toSvgArray(gc.Current.Dash)
+			group.StrokeDashoffset = toSvgLength(gc.Current.DashOffset)
 		}
-
-		if drawType&filled == filled {
-			group.Fill = toSvgRGBA(gc.Current.FillColor)
-			group.FillRule = toSvgFillRule(gc.Current.FillRule)
-		}
-
-		group.Transform = toSvgTransform(gc.Current.Tr)
 	}
 
-	// link elements
-	group.Paths = []Path{svgPath}
-	gc.svg.Groups = append(gc.svg.Groups, group)
+	if drawType&filled == filled {
+		group.Fill = toSvgRGBA(gc.Current.FillColor)
+		group.FillRule = toSvgFillRule(gc.Current.FillRule)
+	}
+
+	group.Transform = toSvgTransform(gc.Current.Tr)
+
+	// link
+	gc.svg.Groups = append(gc.svg.Groups, &group)
+
+	return &group
 }
 
 ///////////////////////////////////////
@@ -135,18 +187,6 @@ func (gc *GraphicContext) DrawImage(image image.Image) {
 
 }
 
-// Save the context and push it to the context stack
-func (gc *GraphicContext) Save() {
-	gc.StackGraphicContext.Save()
-	// TODO use common transformation group for multiple elements
-}
-
-// Restore remove the current context and restore the last one
-func (gc *GraphicContext) Restore() {
-	gc.StackGraphicContext.Restore()
-	// TODO use common transformation group for multiple elements
-}
-
 // ClearRect fills the specified rectangle with a default transparent color
 func (gc *GraphicContext) ClearRect(x1, y1, x2, y2 int) {
 
@@ -169,25 +209,5 @@ func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom fl
 
 // CreateStringPath creates a path from the string s at x, y
 func (gc *GraphicContext) CreateStringPath(text string, x, y float64) (cursor float64) {
-	return 0
-}
-
-// FillString draws the text at point (0, 0)
-func (gc *GraphicContext) FillString(text string) (cursor float64) {
-	return 0
-}
-
-// FillStringAt draws the text at the specified point (x, y)
-func (gc *GraphicContext) FillStringAt(text string, x, y float64) (cursor float64) {
-	return 0
-}
-
-// StrokeString draws the contour of the text at point (0, 0)
-func (gc *GraphicContext) StrokeString(text string) (cursor float64) {
-	return 0
-}
-
-// StrokeStringAt draws the contour of the text at point (x, y)
-func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) (cursor float64) {
 	return 0
 }
