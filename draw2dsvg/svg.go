@@ -32,8 +32,10 @@ type Path struct {
 type Text struct {
 	FillStroke
 	Position
-	Text  string `xml:",innerxml"`
-	Style string `xml:"style,attr,omitempty"`
+	FontSize   float64 `xml:"font-size,attr,omitempty"`
+	FontFamily string  `xml:"font-family,attr,omitempty"`
+	Text       string  `xml:",innerxml"`
+	Style      string  `xml:"style,attr,omitempty"`
 }
 
 /* shared attrs */

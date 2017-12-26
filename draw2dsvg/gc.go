@@ -126,12 +126,13 @@ func (gc *GraphicContext) drawString(text string, drawType drawType, x, y float6
 
 	// set attrs to text element
 	svgText.Text = text
+	svgText.FontSize = gc.Current.FontSize
 	svgText.X = x
 	svgText.Y = y
-	// TODO set font
+	svgText.FontFamily = "" // TODO set font
 
 	// link to group
-	(*group).Texts = []*Text{&svgText}
+	group.Texts = []*Text{&svgText}
 	return 0
 }
 
