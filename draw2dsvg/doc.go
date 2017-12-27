@@ -2,10 +2,10 @@
 // created: 16/12/2017 by Drahoslav Bednář
 
 // Package draw2svg provides a graphic context that can draw
-// vector graphics and text on svg file using the svgo package.
+// vector graphics and text on svg file.
 //
 // Quick Start
 // The following Go code geneartes a simple drawing and saves it
 // to a svg document:
-// 	// TODO
+// TODO
 package draw2dsvg

@@ -16,6 +16,13 @@ type Svg struct {
 	FillStroke
 }
 
+func NewSvg() *Svg {
+	return &Svg{
+		Xmlns:      "http://www.w3.org/2000/svg",
+		FillStroke: FillStroke{Fill: "none", Stroke: "none"},
+	}
+}
+
 type Group struct {
 	FillStroke
 	Transform string   `xml:"transform,attr,omitempty"`

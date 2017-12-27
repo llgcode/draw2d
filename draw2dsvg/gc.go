@@ -11,25 +11,12 @@ import (
 	"strings"
 )
 
-const ()
-
-var ()
-
 type drawType int
 
 const (
 	filled drawType = 1 << iota
 	stroked
 )
-
-type SVG bytes.Buffer
-
-func NewSvg() *Svg {
-	return &Svg{
-		Xmlns:      "http://www.w3.org/2000/svg",
-		FillStroke: FillStroke{Fill: "none", Stroke: "none"},
-	}
-}
 
 // GraphicContext implements the draw2d.GraphicContext interface
 // It provides draw2d with a svg backend
@@ -210,5 +197,5 @@ func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom fl
 
 // CreateStringPath creates a path from the string s at x, y
 func (gc *GraphicContext) CreateStringPath(text string, x, y float64) (cursor float64) {
-	return 0
+	return 0 // TODO use glyphCache for creating string path
 }
