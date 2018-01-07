@@ -9,10 +9,22 @@ import (
 
 /* svg elements */
 
+type FontMode int
+
+const (
+	SysFontMode FontMode = 1 << iota
+	LinkFontMode
+	SvgFontMode
+	CssFontMode
+	PathFontMode
+)
+
 type Svg struct {
-	XMLName xml.Name `xml:"svg"`
-	Xmlns   string   `xml:"xmlns,attr"`
-	Groups  []*Group `xml:"g"`
+	XMLName  xml.Name `xml:"svg"`
+	Xmlns    string   `xml:"xmlns,attr"`
+	Fonts    []*Font  `xml:"defs>font"`
+	Groups   []*Group `xml:"g"`
+	fontMode FontMode
 	FillStroke
 }
 
@@ -20,6 +32,7 @@ func NewSvg() *Svg {
 	return &Svg{
 		Xmlns:      "http://www.w3.org/2000/svg",
 		FillStroke: FillStroke{Fill: "none", Stroke: "none"},
+		fontMode:   SvgFontMode,
 	}
 }
 
@@ -45,7 +58,40 @@ type Text struct {
 	Style      string  `xml:"style,attr,omitempty"`
 }
 
+type Font struct {
+	Identity
+	Face   *Face    `xml:"font-face"`
+	Glyphs []*Glyph `xml:"glyph"`
+}
+
+type Face struct {
+	Family    string  `xml:"font-family,attr"`
+	Units     int     `xml:"units-per-em,attr"`
+	HorizAdvX float64 `xml:"horiz-adv-x,attr"`
+	// TODO add other attrs, like style, variant, weight...
+}
+
+type Glyph struct {
+	Rune      Rune    `xml:"unicode,attr"`
+	Desc      string  `xml:"d,attr"`
+	HorizAdvX float64 `xml:"horiz-adv-x,attr"`
+}
+
+type Rune rune
+
+func (r Rune) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
+	return xml.Attr{
+		Name:  name,
+		Value: string(rune(r)),
+	}, nil
+}
+
 /* shared attrs */
+
+type Identity struct {
+	Id   string `xml:"id,attr"`
+	Name string `xml:"name,attr"`
+}
 
 type Position struct {
 	X float64 `xml:"x,attr,omitempty"`

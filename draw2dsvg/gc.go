@@ -4,17 +4,17 @@
 package draw2dsvg
 
 import (
+	"fmt"
+	"github.com/golang/freetype/truetype"
 	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/draw2dbase"
+	"golang.org/x/image/font"
+	"golang.org/x/image/math/fixed"
 	"image"
 	"log"
-	"strings"
 	"math"
-	"github.com/golang/freetype/truetype"
-	"golang.org/x/image/math/fixed"
-	"golang.org/x/image/font"
 	"strconv"
-	"fmt"
+	"strings"
 )
 
 type drawType int
@@ -133,12 +133,16 @@ func (gc *GraphicContext) drawString(text string, drawType drawType, x, y float6
 	svgText.FontSize = gc.Current.FontSize
 	svgText.X = x
 	svgText.Y = y
-	svgText.FontFamily = "" // TODO set font
+	svgText.FontFamily = gc.Current.FontData.Name
+
+	if gc.svg.fontMode == SvgFontMode {
+		gc.embedSvgFont(text)
+	}
 
 	// link to group
 	group.Texts = []*Text{&svgText}
 	left, _, right, _ := gc.GetStringBounds(text)
-	return right-left
+	return right - left
 }
 
 // Creates new group from current context
@@ -170,19 +174,58 @@ func (gc *GraphicContext) newGroup(drawType drawType) *Group {
 	return &group
 }
 
-///////////////////////////////////////
-// TODO implement following methods (or remove if not neccesary)
+// Embed svg font definition to svg tree itself
+func (gc *GraphicContext) embedSvgFont(text string) {
+	fontName := gc.Current.FontData.Name
+	gc.loadCurrentFont()
 
-// SetFontData sets the current FontData
-func (gc *GraphicContext) SetFontData(fontData draw2d.FontData) {
+	// find or create font Element
+	svgFont := (*Font)(nil)
+	for _, font := range gc.svg.Fonts {
+		if font.Name == fontName {
+			svgFont = font
+			break
+		}
+	}
+	if svgFont == nil {
+		// create new
+		svgFont = &Font{}
+		// and link
+		gc.svg.Fonts = append(gc.svg.Fonts, svgFont)
+	}
 
+	// fill with glyphs
+
+	gc.Save()
+	defer gc.Restore()
+	gc.SetFontSize(2048)
+	defer gc.SetDPI(gc.GetDPI())
+	gc.SetDPI(92)
+filling:
+	for _, rune := range text {
+		for _, g := range svgFont.Glyphs {
+			if g.Rune == Rune(rune) {
+				continue filling
+			}
+		}
+		glyph := gc.glyphCache.Fetch(gc, gc.GetFontName(), rune)
+		// glyphCache.Load indirectly calls CreateStringPath for single rune string
+
+		glypPath := glyph.Path.VerticalFlip() // svg font glyphs have oposite y axe
+		svgFont.Glyphs = append(svgFont.Glyphs, &Glyph{
+			Rune:      Rune(rune),
+			Desc:      toSvgPathDesc(glypPath),
+			HorizAdvX: glyph.Width,
+		})
+	}
+
+	// set attrs
+	svgFont.Id = "font-" + strconv.Itoa(len(gc.svg.Fonts))
+	svgFont.Name = fontName
+
+	// TODO use css @font-face with id instead of this
+	svgFont.Face = &Face{Family: fontName, Units: 2048, HorizAdvX: 2048}
 }
-
-// GetFontData gets the current FontData
-func (gc *GraphicContext) GetFontData() draw2d.FontData {
-	return draw2d.FontData{}
-}
-
 
 // NOTE following functions copied from dwra2d{img|gl}
 // TODO move them all to common draw2dbase?
@@ -217,7 +260,6 @@ func (gc *GraphicContext) CreateStringPath(s string, x, y float64) (cursor float
 
 	return x - startx
 }
-
 
 // GetStringBounds returns the approximate pixel bounds of the string s at x, y.
 // The the left edge of the em square of the first character of s
@@ -310,7 +352,6 @@ func (gc *GraphicContext) SetFontSize(fontSize float64) {
 	gc.Current.FontSize = fontSize
 	gc.recalc()
 }
-
 
 ///////////////////////////////////////
 // TODO implement following methods (or remove if not neccesary)

@@ -1,9 +1,9 @@
 package draw2dsvg
 
 import (
-	"os"
 	"encoding/xml"
 	_ "errors"
+	"os"
 )
 
 func SaveToSvgFile(filePath string, svg *Svg) error {
