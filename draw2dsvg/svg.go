@@ -42,6 +42,7 @@ type Group struct {
 	Groups    []*Group `xml:"g"`
 	Paths     []*Path  `xml:"path"`
 	Texts     []*Text  `xml:"text"`
+	Image     *Image   `xml:"image"`
 }
 
 type Path struct {
@@ -57,6 +58,16 @@ type Text struct {
 	Text       string  `xml:",innerxml"`
 	Style      string  `xml:"style,attr,omitempty"`
 }
+
+type Image struct {
+	Href   string `xml:"href,attr"`
+	X      int    `xml:"x,attr,omitempty"`
+	Y      int    `xml:"y,attr,omitempty"`
+	Width  int    `xml:"width,attr"`
+	Height int    `xml:"height,attr"`
+}
+
+/* font related elements */
 
 type Font struct {
 	Identity

@@ -353,6 +353,19 @@ func (gc *GraphicContext) SetFontSize(fontSize float64) {
 	gc.recalc()
 }
 
+// DrawImage draws the raster image in the current canvas
+func (gc *GraphicContext) DrawImage(image image.Image) {
+	bounds := image.Bounds()
+
+	gc.newGroup(0).Image = &Image{
+		Href:   imageToSvgHref(image),
+		X:      bounds.Min.X,
+		Y:      bounds.Min.Y,
+		Width:  bounds.Max.X - bounds.Min.X,
+		Height: bounds.Max.Y - bounds.Min.Y,
+	}
+}
+
 ///////////////////////////////////////
 // TODO implement following methods (or remove if not neccesary)
 
@@ -360,11 +373,6 @@ func (gc *GraphicContext) SetFontSize(fontSize float64) {
 func (gc *GraphicContext) GetFontName() string {
 	fontData := gc.Current.FontData
 	return fmt.Sprintf("%s:%d:%d:%d", fontData.Name, fontData.Family, fontData.Style, gc.Current.FontSize)
-}
-
-// DrawImage draws the raster image in the current canvas
-func (gc *GraphicContext) DrawImage(image image.Image) {
-	// panic("not implemented")
 }
 
 // ClearRect fills the specified rectangle with a default transparent color

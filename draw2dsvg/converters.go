@@ -4,9 +4,13 @@
 package draw2dsvg
 
 import (
+	"bytes"
+	"encoding/base64"
 	"fmt"
 	"github.com/llgcode/draw2d"
+	"image"
 	"image/color"
+	"image/png"
 	"math"
 	"strings"
 )
@@ -109,4 +113,12 @@ func toSvgTransform(mat draw2d.Matrix) string {
 	return fmt.Sprintf("matrix(%f,%f,%f,%f,%f,%f)",
 		mat[0], mat[1], mat[2], mat[3], mat[4], mat[5],
 	)
+}
+
+func imageToSvgHref(image image.Image) string {
+	out := "data:image/png;base64,"
+	pngBuf := &bytes.Buffer{}
+	png.Encode(pngBuf, image)
+	out += base64.RawStdEncoding.EncodeToString(pngBuf.Bytes())
+	return out
 }
