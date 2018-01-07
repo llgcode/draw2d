@@ -202,7 +202,8 @@ func FillString(gc draw2d.GraphicContext, x, y, width, height float64) {
 	gc.SetFontData(draw2d.FontData{
 		Name:   "luxi",
 		Family: draw2d.FontFamilyMono,
-		Style:  draw2d.FontStyleBold | draw2d.FontStyleItalic})
+		Style:  draw2d.FontStyleBold | draw2d.FontStyleItalic,
+	})
 	w := gc.FillString("Hug")
 	gc.Translate(w+sx, 0)
 	left, top, right, bottom := gc.GetStringBounds("cou")

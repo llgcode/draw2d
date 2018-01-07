@@ -4,11 +4,17 @@
 package draw2dsvg
 
 import (
-	"bytes"
 	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/draw2dbase"
 	"image"
+	"log"
 	"strings"
+	"math"
+	"github.com/golang/freetype/truetype"
+	"golang.org/x/image/math/fixed"
+	"golang.org/x/image/font"
+	"strconv"
+	"fmt"
 )
 
 type drawType int
@@ -22,11 +28,22 @@ const (
 // It provides draw2d with a svg backend
 type GraphicContext struct {
 	*draw2dbase.StackGraphicContext
-	svg *Svg
+	FontCache  draw2d.FontCache
+	glyphCache draw2dbase.GlyphCache
+	glyphBuf   *truetype.GlyphBuf
+	svg        *Svg
+	DPI        int
 }
 
 func NewGraphicContext(svg *Svg) *GraphicContext {
-	gc := &GraphicContext{draw2dbase.NewStackGraphicContext(), svg}
+	gc := &GraphicContext{
+		draw2dbase.NewStackGraphicContext(),
+		draw2d.GetGlobalFontCache(),
+		draw2dbase.NewGlyphCache(),
+		&truetype.GlyphBuf{},
+		svg,
+		92,
+	}
 	return gc
 }
 
@@ -120,7 +137,8 @@ func (gc *GraphicContext) drawString(text string, drawType drawType, x, y float6
 
 	// link to group
 	group.Texts = []*Text{&svgText}
-	return 0
+	left, _, right, _ := gc.GetStringBounds(text)
+	return right-left
 }
 
 // Creates new group from current context
@@ -165,37 +183,150 @@ func (gc *GraphicContext) GetFontData() draw2d.FontData {
 	return draw2d.FontData{}
 }
 
+
+// NOTE following functions copied from dwra2d{img|gl}
+// TODO move them all to common draw2dbase?
+
+// CreateStringPath creates a path from the string s at x, y, and returns the string width.
+// The text is placed so that the left edge of the em square of the first character of s
+// and the baseline intersect at x, y. The majority of the affected pixels will be
+// above and to the right of the point, but some may be below or to the left.
+// For example, drawing a string that starts with a 'J' in an italic font may
+// affect pixels below and left of the point.
+func (gc *GraphicContext) CreateStringPath(s string, x, y float64) (cursor float64) {
+	f, err := gc.loadCurrentFont()
+	if err != nil {
+		log.Println(err)
+		return 0.0
+	}
+	startx := x
+	prev, hasPrev := truetype.Index(0), false
+	for _, rune := range s {
+		index := f.Index(rune)
+		if hasPrev {
+			x += fUnitsToFloat64(f.Kern(fixed.Int26_6(gc.Current.Scale), prev, index))
+		}
+		err := gc.drawGlyph(index, x, y)
+		if err != nil {
+			log.Println(err)
+			return startx - x
+		}
+		x += fUnitsToFloat64(f.HMetric(fixed.Int26_6(gc.Current.Scale), index).AdvanceWidth)
+		prev, hasPrev = index, true
+	}
+
+	return x - startx
+}
+
+
+// GetStringBounds returns the approximate pixel bounds of the string s at x, y.
+// The the left edge of the em square of the first character of s
+// and the baseline intersect at 0, 0 in the returned coordinates.
+// Therefore the top and left coordinates may well be negative.
+func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom float64) {
+	f, err := gc.loadCurrentFont()
+	if err != nil {
+		log.Println(err)
+		return 0, 0, 0, 0
+	}
+	if gc.Current.Scale == 0 {
+		panic("zero scale")
+	}
+	top, left, bottom, right = 10e6, 10e6, -10e6, -10e6
+	cursor := 0.0
+	prev, hasPrev := truetype.Index(0), false
+	for _, rune := range s {
+		index := f.Index(rune)
+		if hasPrev {
+			cursor += fUnitsToFloat64(f.Kern(fixed.Int26_6(gc.Current.Scale), prev, index))
+		}
+		if err := gc.glyphBuf.Load(gc.Current.Font, fixed.Int26_6(gc.Current.Scale), index, font.HintingNone); err != nil {
+			log.Println(err)
+			return 0, 0, 0, 0
+		}
+		e0 := 0
+		for _, e1 := range gc.glyphBuf.Ends {
+			ps := gc.glyphBuf.Points[e0:e1]
+			for _, p := range ps {
+				x, y := pointToF64Point(p)
+				top = math.Min(top, y)
+				bottom = math.Max(bottom, y)
+				left = math.Min(left, x+cursor)
+				right = math.Max(right, x+cursor)
+			}
+		}
+		cursor += fUnitsToFloat64(f.HMetric(fixed.Int26_6(gc.Current.Scale), index).AdvanceWidth)
+		prev, hasPrev = index, true
+	}
+	return left, top, right, bottom
+}
+
+func (gc *GraphicContext) loadCurrentFont() (*truetype.Font, error) {
+	font, err := gc.FontCache.Load(gc.Current.FontData)
+	if err != nil {
+		font, err = gc.FontCache.Load(draw2dbase.DefaultFontData)
+	}
+	if font != nil {
+		gc.SetFont(font)
+		gc.SetFontSize(gc.Current.FontSize)
+	}
+	return font, err
+}
+
+func (gc *GraphicContext) drawGlyph(glyph truetype.Index, dx, dy float64) error {
+	if err := gc.glyphBuf.Load(gc.Current.Font, fixed.Int26_6(gc.Current.Scale), glyph, font.HintingNone); err != nil {
+		return err
+	}
+	e0 := 0
+	for _, e1 := range gc.glyphBuf.Ends {
+		DrawContour(gc, gc.glyphBuf.Points[e0:e1], dx, dy)
+		e0 = e1
+	}
+	return nil
+}
+
+// recalc recalculates scale and bounds values from the font size, screen
+// resolution and font metrics, and invalidates the glyph cache.
+func (gc *GraphicContext) recalc() {
+	gc.Current.Scale = gc.Current.FontSize * float64(gc.DPI) * (64.0 / 72.0)
+}
+
+func (gc *GraphicContext) SetDPI(dpi int) {
+	gc.DPI = dpi
+	gc.recalc()
+}
+
+func (gc *GraphicContext) GetDPI() int {
+	return gc.DPI
+}
+
+// SetFont sets the font used to draw text.
+func (gc *GraphicContext) SetFont(font *truetype.Font) {
+	gc.Current.Font = font
+}
+
+// SetFontSize sets the font size in points (as in “a 12 point font”).
+func (gc *GraphicContext) SetFontSize(fontSize float64) {
+	gc.Current.FontSize = fontSize
+	gc.recalc()
+}
+
+
+///////////////////////////////////////
+// TODO implement following methods (or remove if not neccesary)
+
 // GetFontName gets the current FontData as a string
 func (gc *GraphicContext) GetFontName() string {
-	return ""
+	fontData := gc.Current.FontData
+	return fmt.Sprintf("%s:%d:%d:%d", fontData.Name, fontData.Family, fontData.Style, gc.Current.FontSize)
 }
 
 // DrawImage draws the raster image in the current canvas
 func (gc *GraphicContext) DrawImage(image image.Image) {
-
+	// panic("not implemented")
 }
 
 // ClearRect fills the specified rectangle with a default transparent color
 func (gc *GraphicContext) ClearRect(x1, y1, x2, y2 int) {
-
-}
-
-// SetDPI sets the current DPI
-func (gc *GraphicContext) SetDPI(dpi int) {
-
-}
-
-// GetDPI gets the current DPI
-func (gc *GraphicContext) GetDPI() int {
-	return 0
-}
-
-// GetStringBounds gets pixel bounds(dimensions) of given string
-func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom float64) {
-	return 0, 0, 0, 0
-}
-
-// CreateStringPath creates a path from the string s at x, y
-func (gc *GraphicContext) CreateStringPath(text string, x, y float64) (cursor float64) {
-	return 0 // TODO use glyphCache for creating string path
+	// panic("not implemented")
 }
