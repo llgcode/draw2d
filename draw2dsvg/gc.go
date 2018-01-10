@@ -369,7 +369,7 @@ func (gc *GraphicContext) DrawImage(image image.Image) {
 ///////////////////////////////////////
 // TODO implement following methods (or remove if not neccesary)
 
-// GetFontName gets the current FontData as a string
+// GetFontName gets the current FontData with fontSize as a string
 func (gc *GraphicContext) GetFontName() string {
 	fontData := gc.Current.FontData
 	return fmt.Sprintf("%s:%d:%d:%d", fontData.Name, fontData.Family, fontData.Style, gc.Current.FontSize)
