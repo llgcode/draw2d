@@ -102,132 +102,52 @@ func (gc *GraphicContext) Restore() {
 	// TODO use common transformation group for multiple elements
 }
 
-// private funcitons
-
-func (gc *GraphicContext) drawPaths(drawType drawType, paths ...*draw2d.Path) {
-	// create elements
-	svgPath := Path{}
-	group := gc.newGroup(drawType)
-
-	// set attrs to path element
-	paths = append(paths, gc.Current.Path)
-	svgPathsDesc := make([]string, len(paths))
-	// multiple pathes has to be joined to single svg path description
-	// because fill-rule wont work for whole group as excepted
-	for i, path := range paths {
-		svgPathsDesc[i] = toSvgPathDesc(path)
-	}
-	svgPath.Desc = strings.Join(svgPathsDesc, " ")
-
-	// link to group
-	group.Paths = []*Path{&svgPath}
+func (gc *GraphicContext) SetDPI(dpi int) {
+	gc.DPI = dpi
+	gc.recalc()
 }
 
-func (gc *GraphicContext) drawString(text string, drawType drawType, x, y float64) float64 {
-	// create elements
-	svgText := Text{}
-	group := gc.newGroup(drawType)
-
-	// set attrs to text element
-	svgText.Text = text
-	svgText.FontSize = gc.Current.FontSize
-	svgText.X = x
-	svgText.Y = y
-	svgText.FontFamily = gc.Current.FontData.Name
-
-	if gc.svg.fontMode == SvgFontMode {
-		gc.embedSvgFont(text)
-	}
-
-	// link to group
-	group.Texts = []*Text{&svgText}
-	left, _, right, _ := gc.GetStringBounds(text)
-	return right - left
+func (gc *GraphicContext) GetDPI() int {
+	return gc.DPI
 }
 
-// Creates new group from current context
-// append it to svg and return
-func (gc *GraphicContext) newGroup(drawType drawType) *Group {
-	group := Group{}
-	// set attrs to group
-	if drawType&stroked == stroked {
-		group.Stroke = toSvgRGBA(gc.Current.StrokeColor)
-		group.StrokeWidth = toSvgLength(gc.Current.LineWidth)
-		group.StrokeLinecap = gc.Current.Cap.String()
-		group.StrokeLinejoin = gc.Current.Join.String()
-		if len(gc.Current.Dash) > 0 {
-			group.StrokeDasharray = toSvgArray(gc.Current.Dash)
-			group.StrokeDashoffset = toSvgLength(gc.Current.DashOffset)
-		}
-	}
-
-	if drawType&filled == filled {
-		group.Fill = toSvgRGBA(gc.Current.FillColor)
-		group.FillRule = toSvgFillRule(gc.Current.FillRule)
-	}
-
-	group.Transform = toSvgTransform(gc.Current.Tr)
-
-	// link
-	gc.svg.Groups = append(gc.svg.Groups, &group)
-
-	return &group
+// SetFont sets the font used to draw text.
+func (gc *GraphicContext) SetFont(font *truetype.Font) {
+	gc.Current.Font = font
 }
 
-// Embed svg font definition to svg tree itself
-func (gc *GraphicContext) embedSvgFont(text string) {
-	fontName := gc.Current.FontData.Name
-	gc.loadCurrentFont()
-
-	// find or create font Element
-	svgFont := (*Font)(nil)
-	for _, font := range gc.svg.Fonts {
-		if font.Name == fontName {
-			svgFont = font
-			break
-		}
-	}
-	if svgFont == nil {
-		// create new
-		svgFont = &Font{}
-		// and link
-		gc.svg.Fonts = append(gc.svg.Fonts, svgFont)
-	}
-
-	// fill with glyphs
-
-	gc.Save()
-	defer gc.Restore()
-	gc.SetFontSize(2048)
-	defer gc.SetDPI(gc.GetDPI())
-	gc.SetDPI(92)
-filling:
-	for _, rune := range text {
-		for _, g := range svgFont.Glyphs {
-			if g.Rune == Rune(rune) {
-				continue filling
-			}
-		}
-		glyph := gc.glyphCache.Fetch(gc, gc.GetFontName(), rune)
-		// glyphCache.Load indirectly calls CreateStringPath for single rune string
-
-		glypPath := glyph.Path.VerticalFlip() // svg font glyphs have oposite y axe
-		svgFont.Glyphs = append(svgFont.Glyphs, &Glyph{
-			Rune:      Rune(rune),
-			Desc:      toSvgPathDesc(glypPath),
-			HorizAdvX: glyph.Width,
-		})
-	}
-
-	// set attrs
-	svgFont.Id = "font-" + strconv.Itoa(len(gc.svg.Fonts))
-	svgFont.Name = fontName
-
-	// TODO use css @font-face with id instead of this
-	svgFont.Face = &Face{Family: fontName, Units: 2048, HorizAdvX: 2048}
+// SetFontSize sets the font size in points (as in “a 12 point font”).
+func (gc *GraphicContext) SetFontSize(fontSize float64) {
+	gc.Current.FontSize = fontSize
+	gc.recalc()
 }
 
-// NOTE following functions copied from dwra2d{img|gl}
+// DrawImage draws the raster image in the current canvas
+func (gc *GraphicContext) DrawImage(image image.Image) {
+	bounds := image.Bounds()
+
+	svgImage := &Image{Href: imageToSvgHref(image)}
+	svgImage.X = float64(bounds.Min.X)
+	svgImage.Y = float64(bounds.Min.Y)
+	svgImage.Width = toSvgLength(float64(bounds.Max.X - bounds.Min.X))
+	svgImage.Height = toSvgLength(float64(bounds.Max.Y - bounds.Min.Y))
+	gc.newGroup(0).Image = svgImage
+}
+
+// ClearRect fills the specified rectangle with a default transparent color
+func (gc *GraphicContext) ClearRect(x1, y1, x2, y2 int) {
+	mask := gc.newMask(x1, y1, x2-x1, y2-y1)
+
+	newGroup := &Group{
+		Groups: gc.svg.Groups,
+		Mask:   "url(#" + mask.Id + ")",
+	}
+
+	// replace groups with new masked group
+	gc.svg.Groups = []*Group{newGroup}
+}
+
+// NOTE following  two functions and soe other further below copied from dwra2d{img|gl}
 // TODO move them all to common draw2dbase?
 
 // CreateStringPath creates a path from the string s at x, y, and returns the string width.
@@ -303,6 +223,149 @@ func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom fl
 	return left, top, right, bottom
 }
 
+////////////////////
+// private funcitons
+
+func (gc *GraphicContext) drawPaths(drawType drawType, paths ...*draw2d.Path) {
+	// create elements
+	svgPath := Path{}
+	group := gc.newGroup(drawType)
+
+	// set attrs to path element
+	paths = append(paths, gc.Current.Path)
+	svgPathsDesc := make([]string, len(paths))
+	// multiple pathes has to be joined to single svg path description
+	// because fill-rule wont work for whole group as excepted
+	for i, path := range paths {
+		svgPathsDesc[i] = toSvgPathDesc(path)
+	}
+	svgPath.Desc = strings.Join(svgPathsDesc, " ")
+
+	// attach to group
+	group.Paths = []*Path{&svgPath}
+}
+
+// Add text element to svg and returns its expected width
+func (gc *GraphicContext) drawString(text string, drawType drawType, x, y float64) float64 {
+	// create elements
+	svgText := Text{}
+	group := gc.newGroup(drawType)
+
+	// set attrs to text element
+	svgText.Text = text
+	svgText.FontSize = gc.Current.FontSize
+	svgText.X = x
+	svgText.Y = y
+	svgText.FontFamily = gc.Current.FontData.Name
+
+	if gc.svg.FontMode == SvgFontMode {
+		gc.embedSvgFont(text)
+	}
+
+	// attach to group
+	group.Texts = []*Text{&svgText}
+	left, _, right, _ := gc.GetStringBounds(text)
+	return right - left
+}
+
+// Creates new group from current context
+// attach it to svg and return
+func (gc *GraphicContext) newGroup(drawType drawType) *Group {
+	group := Group{}
+	// set attrs to group
+	if drawType&stroked == stroked {
+		group.Stroke = toSvgRGBA(gc.Current.StrokeColor)
+		group.StrokeWidth = toSvgLength(gc.Current.LineWidth)
+		group.StrokeLinecap = gc.Current.Cap.String()
+		group.StrokeLinejoin = gc.Current.Join.String()
+		if len(gc.Current.Dash) > 0 {
+			group.StrokeDasharray = toSvgArray(gc.Current.Dash)
+			group.StrokeDashoffset = toSvgLength(gc.Current.DashOffset)
+		}
+	}
+
+	if drawType&filled == filled {
+		group.Fill = toSvgRGBA(gc.Current.FillColor)
+		group.FillRule = toSvgFillRule(gc.Current.FillRule)
+	}
+
+	group.Transform = toSvgTransform(gc.Current.Tr)
+
+	// attach
+	gc.svg.Groups = append(gc.svg.Groups, &group)
+
+	return &group
+}
+
+// creates new mask attached to svg
+func (gc *GraphicContext) newMask(x, y, width, height int) *Mask {
+	mask := &Mask{}
+	mask.X = float64(x)
+	mask.Y = float64(y)
+	mask.Width = toSvgLength(float64(width))
+	mask.Height = toSvgLength(float64(height))
+
+	// attach mask
+	gc.svg.Masks = append(gc.svg.Masks, mask)
+	mask.Id = "mask-" + strconv.Itoa(len(gc.svg.Masks))
+	return mask
+}
+
+// Embed svg font definition to svg tree itself
+// Or update existing if already exists for curent font data
+func (gc *GraphicContext) embedSvgFont(text string) *Font {
+	fontName := gc.Current.FontData.Name
+	gc.loadCurrentFont()
+
+	// find or create font Element
+	svgFont := (*Font)(nil)
+	for _, font := range gc.svg.Fonts {
+		if font.Name == fontName {
+			svgFont = font
+			break
+		}
+	}
+	if svgFont == nil {
+		// create new
+		svgFont = &Font{}
+		// and attach
+		gc.svg.Fonts = append(gc.svg.Fonts, svgFont)
+	}
+
+	// fill with glyphs
+
+	gc.Save()
+	defer gc.Restore()
+	gc.SetFontSize(2048)
+	defer gc.SetDPI(gc.GetDPI())
+	gc.SetDPI(92)
+filling:
+	for _, rune := range text {
+		for _, g := range svgFont.Glyphs {
+			if g.Rune == Rune(rune) {
+				continue filling
+			}
+		}
+		glyph := gc.glyphCache.Fetch(gc, gc.GetFontName(), rune)
+		// glyphCache.Load indirectly calls CreateStringPath for single rune string
+
+		glypPath := glyph.Path.VerticalFlip() // svg font glyphs have oposite y axe
+		svgFont.Glyphs = append(svgFont.Glyphs, &Glyph{
+			Rune:      Rune(rune),
+			Desc:      toSvgPathDesc(glypPath),
+			HorizAdvX: glyph.Width,
+		})
+	}
+
+	// set attrs
+	svgFont.Id = "font-" + strconv.Itoa(len(gc.svg.Fonts))
+	svgFont.Name = fontName
+
+	// TODO use css @font-face with id instead of this
+	svgFont.Face = &Face{Family: fontName, Units: 2048, HorizAdvX: 2048}
+	return svgFont
+}
+
 func (gc *GraphicContext) loadCurrentFont() (*truetype.Font, error) {
 	font, err := gc.FontCache.Load(gc.Current.FontData)
 	if err != nil {
@@ -333,39 +396,6 @@ func (gc *GraphicContext) recalc() {
 	gc.Current.Scale = gc.Current.FontSize * float64(gc.DPI) * (64.0 / 72.0)
 }
 
-func (gc *GraphicContext) SetDPI(dpi int) {
-	gc.DPI = dpi
-	gc.recalc()
-}
-
-func (gc *GraphicContext) GetDPI() int {
-	return gc.DPI
-}
-
-// SetFont sets the font used to draw text.
-func (gc *GraphicContext) SetFont(font *truetype.Font) {
-	gc.Current.Font = font
-}
-
-// SetFontSize sets the font size in points (as in “a 12 point font”).
-func (gc *GraphicContext) SetFontSize(fontSize float64) {
-	gc.Current.FontSize = fontSize
-	gc.recalc()
-}
-
-// DrawImage draws the raster image in the current canvas
-func (gc *GraphicContext) DrawImage(image image.Image) {
-	bounds := image.Bounds()
-
-	gc.newGroup(0).Image = &Image{
-		Href:   imageToSvgHref(image),
-		X:      bounds.Min.X,
-		Y:      bounds.Min.Y,
-		Width:  bounds.Max.X - bounds.Min.X,
-		Height: bounds.Max.Y - bounds.Min.Y,
-	}
-}
-
 ///////////////////////////////////////
 // TODO implement following methods (or remove if not neccesary)
 
@@ -373,9 +403,4 @@ func (gc *GraphicContext) DrawImage(image image.Image) {
 func (gc *GraphicContext) GetFontName() string {
 	fontData := gc.Current.FontData
 	return fmt.Sprintf("%s:%d:%d:%d", fontData.Name, fontData.Family, fontData.Style, gc.Current.FontSize)
-}
-
-// ClearRect fills the specified rectangle with a default transparent color
-func (gc *GraphicContext) ClearRect(x1, y1, x2, y2 int) {
-	// panic("not implemented")
 }

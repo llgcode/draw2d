@@ -26,6 +26,9 @@ func toSvgRGBA(c color.Color) string {
 }
 
 func toSvgLength(l float64) string {
+	if math.IsInf(l, 1) {
+		return "100%"
+	}
 	return optiSprintf("%f", l)
 }
 

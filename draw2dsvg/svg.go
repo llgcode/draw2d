@@ -23,8 +23,9 @@ type Svg struct {
 	XMLName  xml.Name `xml:"svg"`
 	Xmlns    string   `xml:"xmlns,attr"`
 	Fonts    []*Font  `xml:"defs>font"`
+	Masks    []*Mask  `xml:"defs>mask"`
 	Groups   []*Group `xml:"g"`
-	fontMode FontMode
+	FontMode FontMode `xml:"-"`
 	FillStroke
 }
 
@@ -32,7 +33,7 @@ func NewSvg() *Svg {
 	return &Svg{
 		Xmlns:      "http://www.w3.org/2000/svg",
 		FillStroke: FillStroke{Fill: "none", Stroke: "none"},
-		fontMode:   SvgFontMode,
+		FontMode:   SvgFontMode,
 	}
 }
 
@@ -43,6 +44,7 @@ type Group struct {
 	Paths     []*Path  `xml:"path"`
 	Texts     []*Text  `xml:"text"`
 	Image     *Image   `xml:"image"`
+	Mask      string   `xml:"mask,attr,omitempty"`
 }
 
 type Path struct {
@@ -60,11 +62,41 @@ type Text struct {
 }
 
 type Image struct {
-	Href   string `xml:"href,attr"`
-	X      int    `xml:"x,attr,omitempty"`
-	Y      int    `xml:"y,attr,omitempty"`
-	Width  int    `xml:"width,attr"`
-	Height int    `xml:"height,attr"`
+	Position
+	Dimension
+	Href string `xml:"href,attr"`
+}
+
+type Mask struct {
+	Identity
+	Position
+	Dimension
+}
+
+type Rect struct {
+	Position
+	Dimension
+	FillStroke
+}
+
+func (m Mask) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	bigRect := Rect{}
+	bigRect.X, bigRect.Y = 0, 0
+	bigRect.Width, bigRect.Height = "100%", "100%"
+	bigRect.Fill = "#fff"
+	rect := Rect{}
+	rect.X, rect.Y = m.X, m.Y
+	rect.Width, rect.Height = m.Width, m.Height
+	rect.Fill = "#000"
+
+	return e.EncodeElement(struct {
+		XMLName xml.Name `xml:"mask"`
+		Rects   [2]Rect  `xml:"rect"`
+		Id      string   `xml:"id,attr"`
+	}{
+		Rects: [2]Rect{bigRect, rect},
+		Id:    m.Id,
+	}, start)
 }
 
 /* font related elements */
@@ -107,6 +139,11 @@ type Identity struct {
 type Position struct {
 	X float64 `xml:"x,attr,omitempty"`
 	Y float64 `xml:"y,attr,omitempty"`
+}
+
+type Dimension struct {
+	Width  string `xml:"width,attr"`
+	Height string `xml:"height,attr"`
 }
 
 type FillStroke struct {
