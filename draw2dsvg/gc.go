@@ -247,6 +247,16 @@ func (gc *GraphicContext) drawPaths(drawType drawType, paths ...*draw2d.Path) {
 
 // Add text element to svg and returns its expected width
 func (gc *GraphicContext) drawString(text string, drawType drawType, x, y float64) float64 {
+	switch gc.svg.FontMode {
+	case PathFontMode:
+		w := gc.CreateStringPath(text, x, y)
+		gc.drawPaths(drawType)
+		gc.Current.Path.Clear()
+		return w
+	case SvgFontMode:
+		gc.embedSvgFont(text)
+	}
+
 	// create elements
 	svgText := Text{}
 	group := gc.newGroup(drawType)
@@ -257,10 +267,6 @@ func (gc *GraphicContext) drawString(text string, drawType drawType, x, y float6
 	svgText.X = x
 	svgText.Y = y
 	svgText.FontFamily = gc.Current.FontData.Name
-
-	if gc.svg.FontMode == SvgFontMode {
-		gc.embedSvgFont(text)
-	}
 
 	// attach to group
 	group.Texts = []*Text{&svgText}

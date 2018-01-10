@@ -11,11 +11,24 @@ import (
 
 type FontMode int
 
+// Modes of font handling in svg
 const (
+	// Does nothing special
+	// Makes sense only for common system fonts
 	SysFontMode FontMode = 1 << iota
-	LinkFontMode
+
+	// Links font files in css def
+	// Requires distribution of font files with outputed svg
+	LinkFontMode // TODO implement
+
+	// Embeds glyphs definition in svg file itself in svg font format
+	// Has poor browser support
 	SvgFontMode
-	CssFontMode
+
+	// Embeds font definiton in svg file itself in woff format as part of css def
+	CssFontMode // TODO implement
+
+	// Converts texts to paths
 	PathFontMode
 )
 
@@ -33,7 +46,7 @@ func NewSvg() *Svg {
 	return &Svg{
 		Xmlns:      "http://www.w3.org/2000/svg",
 		FillStroke: FillStroke{Fill: "none", Stroke: "none"},
-		FontMode:   SvgFontMode,
+		FontMode:   PathFontMode,
 	}
 }
 

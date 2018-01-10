@@ -87,11 +87,11 @@ func toSvgPathDesc(p *draw2d.Path) string {
 			// dirty hack to ensure whole arc is drawn
 			// if start point equals end point
 			if sweep == 1 {
-				x += 0.0001 * sinfi
-				y += 0.0001 * -cosfi
+				x += 0.01 * sinfi
+				y += 0.01 * -cosfi
 			} else {
-				x += 0.0001 * sinfi
-				y += 0.0001 * cosfi
+				x += 0.01 * sinfi
+				y += 0.01 * cosfi
 			}
 
 			// rx ry x-axis-rotation large-arc-flag sweep-flag x y
@@ -153,6 +153,7 @@ func optiSprintf(format string, a ...interface{}) string {
 	return fmt.Sprintf(format, a...)
 }
 
+// TODO needs test, since it is not quiet right
 func getPrec(num float64, better bool) int {
 	max := 3
 	eps := 0.0005
