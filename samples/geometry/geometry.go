@@ -189,6 +189,7 @@ func CubicCurve(gc draw2d.GraphicContext, x, y, width, height float64) {
 }
 
 // FillString draws a filled and stroked string.
+// And filles/stroked path created from string. Which may have different - unselectable -  output in non raster gc implementations.
 func FillString(gc draw2d.GraphicContext, x, y, width, height float64) {
 	sx, sy := width/100, height/100
 	gc.Save()
@@ -202,7 +203,8 @@ func FillString(gc draw2d.GraphicContext, x, y, width, height float64) {
 	gc.SetFontData(draw2d.FontData{
 		Name:   "luxi",
 		Family: draw2d.FontFamilyMono,
-		Style:  draw2d.FontStyleBold | draw2d.FontStyleItalic})
+		Style:  draw2d.FontStyleBold | draw2d.FontStyleItalic,
+	})
 	w := gc.FillString("Hug")
 	gc.Translate(w+sx, 0)
 	left, top, right, bottom := gc.GetStringBounds("cou")
@@ -214,6 +216,14 @@ func FillString(gc draw2d.GraphicContext, x, y, width, height float64) {
 	gc.SetStrokeColor(color.NRGBA{0x33, 0x33, 0xff, 0xff})
 	gc.SetLineWidth(height / 100)
 	gc.StrokeString("Hug")
+
+	gc.Translate(-(w + sx), sy*24)
+	w = gc.CreateStringPath("Hug", 0, 0)
+	gc.Fill()
+	gc.Translate(w+sx, 0)
+	gc.CreateStringPath("Hug", 0, 0)
+	path := gc.GetPath()
+	gc.Stroke((&path).VerticalFlip())
 	gc.Restore()
 }
 

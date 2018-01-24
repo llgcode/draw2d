@@ -2,7 +2,6 @@
 
 package draw2d_test
 
-
 import (
 	"fmt"
 	"github.com/llgcode/draw2d"

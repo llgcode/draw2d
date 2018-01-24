@@ -124,7 +124,7 @@ type GraphicContext struct {
 	painter          *Painter
 	fillRasterizer   *raster.Rasterizer
 	strokeRasterizer *raster.Rasterizer
-	FontCache		 draw2d.FontCache
+	FontCache        draw2d.FontCache
 	glyphCache       draw2dbase.GlyphCache
 	glyphBuf         *truetype.GlyphBuf
 	DPI              int
