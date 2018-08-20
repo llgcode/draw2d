@@ -4,8 +4,7 @@
 package draw2dsvg
 
 import (
-	"fmt"
-	"github.com/golang/freetype/truetype"
+		"github.com/golang/freetype/truetype"
 	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/draw2dbase"
 	"golang.org/x/image/font"
@@ -400,13 +399,4 @@ func (gc *GraphicContext) drawGlyph(glyph truetype.Index, dx, dy float64) error 
 // resolution and font metrics, and invalidates the glyph cache.
 func (gc *GraphicContext) recalc() {
 	gc.Current.Scale = gc.Current.FontSize * float64(gc.DPI) * (64.0 / 72.0)
-}
-
-///////////////////////////////////////
-// TODO implement following methods (or remove if not neccesary)
-
-// GetFontName gets the current FontData with fontSize as a string
-func (gc *GraphicContext) GetFontName() string {
-	fontData := gc.Current.FontData
-	return fmt.Sprintf("%s:%d:%d:%d", fontData.Name, fontData.Family, fontData.Style, gc.Current.FontSize)
 }
