@@ -41,6 +41,13 @@ type ContextStack struct {
 	Previous *ContextStack
 }
 
+// GetFontName gets the current FontData with fontSize as a string
+func (cs *ContextStack) GetFontName() string {
+	fontData := cs.FontData
+	return fmt.Sprintf("%s:%d:%d:%9.2f", fontData.Name, fontData.Family, fontData.Style, cs.FontSize)
+}
+
+
 /**
  * Create a new Graphic context from an image
  */
@@ -198,6 +205,5 @@ func (gc *StackGraphicContext) Restore() {
 }
 
 func (gc *StackGraphicContext) GetFontName() string {
-	fontData := gc.Current.FontData
-	return fmt.Sprintf("%s:%d:%d:%d", fontData.Name, fontData.Family, fontData.Style, gc.Current.FontSize)
+	return gc.Current.GetFontName()
 }
