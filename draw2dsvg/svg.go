@@ -35,6 +35,8 @@ const (
 type Svg struct {
 	XMLName  xml.Name `xml:"svg"`
 	Xmlns    string   `xml:"xmlns,attr"`
+	Width    float64  `xml:"width,attr,omitempty"`
+	Height   float64  `xml:"height,attr,omitempty"`
 	Fonts    []*Font  `xml:"defs>font"`
 	Masks    []*Mask  `xml:"defs>mask"`
 	Groups   []*Group `xml:"g"`
