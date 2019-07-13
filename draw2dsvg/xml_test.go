@@ -77,9 +77,9 @@ func TestXml_WidthHeight(t *testing.T) {
 	}
 	t.Run("no width, height", subtest)
 
-	expect = `<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480" fill="none" stroke="none">
+	expect = `<svg xmlns="http://www.w3.org/2000/svg" width="640px" height="480" fill="none" stroke="none">
   <defs></defs>
 </svg>`
-	svg.Width, svg.Height = 640, 480
+	svg.Width, svg.Height = "640px", "480"
 	t.Run("with width, height", subtest)
 }
