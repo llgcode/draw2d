@@ -56,3 +56,30 @@ func TestXml(t *testing.T) {
 		)
 	}
 }
+
+func TestXml_WidthHeight(t *testing.T) {
+	expect := `<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="none">
+  <defs></defs>
+</svg>`
+	svg := NewSvg()
+	subtest := func(t *testing.T) {
+		out, err := xml.MarshalIndent(svg, "", "  ")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if string(out) != expect {
+			t.Errorf("svg output is not as expected\n"+
+				"got:\n%s\n\n"+
+				"want:\n%s\n",
+				string(out),
+				expect)
+		}
+	}
+	t.Run("no width, height", subtest)
+
+	expect = `<svg xmlns="http://www.w3.org/2000/svg" width="640px" height="480" fill="none" stroke="none">
+  <defs></defs>
+</svg>`
+	svg.Width, svg.Height = "640px", "480"
+	t.Run("with width, height", subtest)
+}
