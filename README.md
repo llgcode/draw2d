@@ -3,7 +3,10 @@ draw2d
 [![Coverage](http://gocover.io/_badge/github.com/llgcode/draw2d?0)](http://gocover.io/github.com/llgcode/draw2d)
 [![GoDoc](https://godoc.org/github.com/llgcode/draw2d?status.svg)](https://godoc.org/github.com/llgcode/draw2d)
 
-Package draw2d is a pure [go](http://golang.org) 2D vector graphics library with support for multiple output devices such as [images](http://golang.org/pkg/image) (draw2d), pdf documents (draw2dpdf) and opengl (draw2dgl), which can also be used on the google app engine. It can be used as a pure go [Cairo](http://www.cairographics.org/) alternative. draw2d is released under the BSD license. See the [documentation](http://godoc.org/github.com/llgcode/draw2d) for more details.
+Package draw2d is a [go](http://golang.org) 2D vector graphics library with support for multiple outputs such as [images](http://golang.org/pkg/image) (draw2d), pdf documents (draw2dpdf), opengl (draw2dgl) and svg (draw2dsvg). 
+There's also a [Postscript reader](https://github.com/llgcode/ps) that uses draw2d.
+draw2d is released under the BSD license. 
+See the [documentation](http://godoc.org/github.com/llgcode/draw2d) for more details.
 
 [![geometry](https://raw.githubusercontent.com/llgcode/draw2d/master/output/samples/geometry.png)](https://raw.githubusercontent.com/llgcode/draw2d/master/resource/image/geometry.pdf)[![postscript](https://raw.githubusercontent.com/llgcode/draw2d/master/output/samples/postscript.png)](https://raw.githubusercontent.com/llgcode/draw2d/master/resource/image/postscript.pdf)
 
