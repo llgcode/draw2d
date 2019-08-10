@@ -37,6 +37,7 @@ type Svg struct {
 	Xmlns    string   `xml:"xmlns,attr"`
 	Width    string   `xml:"width,attr,omitempty"`
 	Height   string   `xml:"height,attr,omitempty"`
+	ViewBox  string   `xml:"viewBox,attr,omitempty"`
 	Fonts    []*Font  `xml:"defs>font"`
 	Masks    []*Mask  `xml:"defs>mask"`
 	Groups   []*Group `xml:"g"`
