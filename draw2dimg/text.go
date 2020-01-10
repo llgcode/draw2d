@@ -13,9 +13,23 @@ func DrawContour(path draw2d.PathBuilder, ps []truetype.Point, dx, dy float64) {
 		return
 	}
 	startX, startY := pointToF64Point(ps[0])
+	var others []truetype.Point
+	if ps[0].Flags&0x01 != 0 {
+		others = ps[1:]
+	} else {
+		lastX, lastY := pointToF64Point(ps[len(ps)-1])
+		if ps[len(ps)-1].Flags&0x01 != 0 {
+			startX, startY = lastX, lastY
+			others = ps[:len(ps)-1]
+		} else {
+			startX = (startX + lastX) / 2
+			startY = (startY + lastY) / 2
+			others = ps
+		}
+	}
 	path.MoveTo(startX+dx, startY+dy)
 	q0X, q0Y, on0 := startX, startY, true
-	for _, p := range ps[1:] {
+	for _, p := range others {
 		qX, qY := pointToF64Point(p)
 		on := p.Flags&0x01 != 0
 		if on {
