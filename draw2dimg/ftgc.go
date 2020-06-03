@@ -34,10 +34,11 @@ type GraphicContext struct {
 	painter          Painter
 	fillRasterizer   *raster.Rasterizer
 	strokeRasterizer *raster.Rasterizer
-	FontCache		 draw2d.FontCache
+	FontCache        draw2d.FontCache
 	glyphCache       draw2dbase.GlyphCache
 	glyphBuf         *truetype.GlyphBuf
 	DPI              int
+	Filter           ImageFilter
 }
 
 // ImageFilter defines the type of filter to use
@@ -79,6 +80,7 @@ func NewGraphicContextWithPainter(img draw.Image, painter Painter) *GraphicConte
 		draw2dbase.NewGlyphCache(),
 		&truetype.GlyphBuf{},
 		dpi,
+		BilinearFilter,
 	}
 	return gc
 }
@@ -116,7 +118,7 @@ func DrawImage(src image.Image, dest draw.Image, tr draw2d.Matrix, op draw.Op, f
 
 // DrawImage draws the raster image in the current canvas
 func (gc *GraphicContext) DrawImage(img image.Image) {
-	DrawImage(img, gc.img, gc.Current.Tr, draw.Over, BilinearFilter)
+	DrawImage(img, gc.img, gc.Current.Tr, draw.Over, gc.Filter)
 }
 
 // FillString draws the text at point (0, 0)
@@ -274,6 +276,11 @@ func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom fl
 // resolution and font metrics, and invalidates the glyph cache.
 func (gc *GraphicContext) recalc() {
 	gc.Current.Scale = gc.Current.FontSize * float64(gc.DPI) * (64.0 / 72.0)
+}
+
+// SetFilter sets the ImageFilter to use for transformations
+func (gc *GraphicContext) SetFilter(filter ImageFilter) {
+	gc.Filter = filter
 }
 
 // SetDPI sets the screen resolution in dots per inch.
