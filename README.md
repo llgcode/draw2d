@@ -2,6 +2,7 @@ draw2d
 ======
 [![Coverage](http://gocover.io/_badge/github.com/llgcode/draw2d?0)](http://gocover.io/github.com/llgcode/draw2d)
 [![GoDoc](https://godoc.org/github.com/llgcode/draw2d?status.svg)](https://godoc.org/github.com/llgcode/draw2d)
+[![BuyMeaBeer](https://img.shields.io/badge/buy_me-a_beer-orange)](https://www.buymeacoffee.com/llgcoffee)
 
 Package draw2d is a [go](http://golang.org) 2D vector graphics library with support for multiple outputs such as [images](http://golang.org/pkg/image) (draw2d), pdf documents (draw2dpdf), opengl (draw2dgl) and svg (draw2dsvg). 
 There's also a [Postscript reader](https://github.com/llgcode/ps) that uses draw2d.
