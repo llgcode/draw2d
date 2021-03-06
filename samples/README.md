@@ -16,7 +16,7 @@ import (
 	"github.com/llgcode/draw2d/samples/android"
 )
 
-function main(){}
+func main(){}
 	// Initialize the graphic context on an RGBA image
 	dest := image.NewRGBA(image.Rect(0, 0, 297, 210.0))
 	gc := draw2dimg.NewGraphicContext(dest)
