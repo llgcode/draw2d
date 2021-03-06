@@ -9,28 +9,31 @@ Using the image backend
 The following Go code draws the android sample on a png image:
 
 ```
-import (
-	"image"
+package main
 
-	"github.com/llgcode/draw2d"
-	"github.com/llgcode/draw2d/samples/android"
-)
+import "log"
+import "image"
+import "github.com/llgcode/draw2d/draw2dimg"
+import "github.com/llgcode/draw2d/samples/android"
 
-func main(){}
+func main(){
 	// Initialize the graphic context on an RGBA image
 	dest := image.NewRGBA(image.Rect(0, 0, 297, 210.0))
 	gc := draw2dimg.NewGraphicContext(dest)
 	// Draw Android logo
 	fn, err := android.Main(gc, "png")
 	if err != nil {
-		t.Errorf("Drawing %q failed: %v", fn, err)
+		log.Printf("Drawing %q failed: %v", fn, err)
 		return
 	}
 	// Save to png
-	err = draw2d.SaveToPngFile(fn, dest)
+	err = draw2dimg.SaveToPngFile(fn, dest)
 	if err != nil {
-		t.Errorf("Saving %q failed: %v", fn, err)
+		log.Printf("Saving %q failed: %v", fn, err)
+		return
 	}
+
+	log.Printf("Succesfully created %q", fn)
 }
 ```
 
