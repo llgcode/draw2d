@@ -99,7 +99,7 @@ func (gc *GraphicContext) Clear() {
 // ClearRect fills the current canvas with a default transparent color at the specified rectangle
 func (gc *GraphicContext) ClearRect(x1, y1, x2, y2 int) {
 	imageColor := image.NewUniform(gc.Current.FillColor)
-	draw.Draw(gc.img, image.Rect(x1, y1, x2, y2), imageColor, image.ZP, draw.Over)
+	draw.Draw(gc.img, image.Rect(x1, y1, x2, y2), imageColor, image.ZP, draw.Src)
 }
 
 // DrawImage draws an image into dest using an affine transformation matrix, an op and a filter
