@@ -155,6 +155,7 @@ func optiSprintf(format string, a ...interface{}) string {
 
 // TODO needs test, since it is not quiet right
 func getPrec(num float64, better bool) int {
+	num = math.Abs(num)
 	max := 3
 	eps := 0.0005
 	if better {
