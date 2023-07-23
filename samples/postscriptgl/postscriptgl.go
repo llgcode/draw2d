@@ -2,7 +2,7 @@
 package main
 
 import (
-	"io/ioutil"
+	"io"
 	"log"
 	"math"
 	"os"
@@ -69,7 +69,7 @@ func main() {
 		return
 	}
 	defer src.Close()
-	bytes, err := ioutil.ReadAll(src)
+	bytes, err := io.ReadAll(src)
 	postscriptContent = string(bytes)
 	err = glfw.Init()
 	if err != nil {

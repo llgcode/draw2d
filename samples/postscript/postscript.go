@@ -2,7 +2,7 @@
 package postscript
 
 import (
-	"io/ioutil"
+	"io"
 	"os"
 	"strings"
 
@@ -40,7 +40,7 @@ func Draw(gc draw2d.GraphicContext, filename string) {
 		panic(err)
 	}
 	defer src.Close()
-	bytes, err := ioutil.ReadAll(src)
+	bytes, err := io.ReadAll(src)
 	reader := strings.NewReader(string(bytes))
 
 	// Initialize and interpret the postscript

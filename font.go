@@ -4,8 +4,8 @@
 package draw2d
 
 import (
-	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 
 	"github.com/golang/freetype/truetype"
@@ -143,7 +143,7 @@ func (cache *FolderFontCache) Load(fontData FontData) (font *truetype.Font, err 
 	var data []byte
 	var file = cache.namer(fontData)
 
-	if data, err = ioutil.ReadFile(filepath.Join(cache.folder, file)); err != nil {
+	if data, err = os.ReadFile(filepath.Join(cache.folder, file)); err != nil {
 		return
 	}
 
@@ -202,7 +202,7 @@ func (cache *SyncFolderFontCache) Load(fontData FontData) (font *truetype.Font, 
 	var data []byte
 	var file = cache.namer(fontData)
 
-	if data, err = ioutil.ReadFile(filepath.Join(cache.folder, file)); err != nil {
+	if data, err = os.ReadFile(filepath.Join(cache.folder, file)); err != nil {
 		return
 	}
 
