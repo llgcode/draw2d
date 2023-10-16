@@ -4,7 +4,18 @@ import (
 	"encoding/xml"
 	_ "errors"
 	"os"
+	"io"
 )
+
+func WriteSvg(w io.Writer, svg *Svg) error {
+	_, err = w.Write([]byte(xml.Header))
+	if err != nil {
+		return err
+	}
+	encoder := xml.NewEncoder(w)
+	encoder.Indent("", "\t")
+	return encoder.Encode(svg)
+}
 
 func SaveToSvgFile(filePath string, svg *Svg) error {
 	f, err := os.Create(filePath)
@@ -12,11 +23,5 @@ func SaveToSvgFile(filePath string, svg *Svg) error {
 		return err
 	}
 	defer f.Close()
-
-	f.Write([]byte(xml.Header))
-	encoder := xml.NewEncoder(f)
-	encoder.Indent("", "\t")
-	err = encoder.Encode(svg)
-
-	return err
+	return WriteSvg(f, svg)
 }
