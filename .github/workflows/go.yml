@@ -1,0 +1,31 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: Go
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.20'
+
+    - name: Get Dependencies
+      run: go mod tidy
+
+    - name: Build
+      run: go build -v . ./draw2dbase ./draw2dimg ./draw2dkit ./draw2dpdf ./draw2dsvg
+      
+    - name: Test
+      run: go test -v . ./draw2dbase ./draw2dimg ./draw2dkit ./draw2dpdf ./draw2dsvg
