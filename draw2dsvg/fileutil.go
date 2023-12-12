@@ -3,12 +3,12 @@ package draw2dsvg
 import (
 	"encoding/xml"
 	_ "errors"
-	"os"
 	"io"
+	"os"
 )
 
 func WriteSvg(w io.Writer, svg *Svg) error {
-	_, err = w.Write([]byte(xml.Header))
+	_, err := w.Write([]byte(xml.Header))
 	if err != nil {
 		return err
 	}
