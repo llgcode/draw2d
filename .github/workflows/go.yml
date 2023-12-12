@@ -21,8 +21,11 @@ jobs:
       with:
         go-version: '1.20'
 
-    - name: Build
-      run: go build -v ./...
+    - name: Get Dependencies
+      run: go mod tidy
 
+    - name: Build
+      run: go build -v . ./draw2dbase ./draw2dimg ./draw2dkit ./draw2dpdf ./draw2dsvg
+      
     - name: Test
-      run: go test -v ./...
+      run: go test -v . ./draw2dbase ./draw2dimg ./draw2dkit ./draw2dpdf ./draw2dsvg
