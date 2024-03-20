@@ -133,7 +133,6 @@ Packages using draw2d
 ---------------------
 
  - [ps](https://github.com/llgcode/ps): Postscript interpreter written in Go
- - [gonum/plot](https://github.com/gonum/plot): drawing plots in Go
  - [go.uik](https://github.com/skelterjohn/go.uik): a concurrent UI kit written in pure go.
  - [smartcrop](https://github.com/muesli/smartcrop): content aware image cropping
  - [karta](https://github.com/peterhellberg/karta): drawing Voronoi diagrams
