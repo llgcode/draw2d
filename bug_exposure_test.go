@@ -146,7 +146,7 @@ func TestBugExposure_Issue155_LineCapVisualComparison(t *testing.T) {
 	// Test point: Check a pixel at the edge of where SquareCap should extend
 	// SquareCap should extend by HalfLineWidth (10 pixels) past the endpoint
 	// So we test at lineEndX + HalfLineWidth = 150 + 10 = 160
-	testX := lineEndX + int(lineWidth/2)
+	testX := lineEndX + int(lineWidth/2) // = 150 + 10 = 160
 
 	// Draw with ButtCap
 	imgButt := image.NewRGBA(image.Rect(0, 0, width, height))
@@ -180,16 +180,16 @@ func TestBugExposure_Issue155_LineCapVisualComparison(t *testing.T) {
 	rSquare, _, _, _ := pixelSquare.RGBA()
 
 	// ButtCap should be white (no extension), SquareCap should be darker (extended)
-	// We check if SquareCap is darker than ButtCap at this position
+	// We check if SquareCap has coverage at this position (indicating extension)
 
 	buttIsWhite := rButt > 32768  // > 50% white
-	squareIsDarker := rSquare < rButt  // SquareCap should have some coverage
+	squareHasCoverage := rSquare < rButt  // SquareCap should have some coverage
 
-	if buttIsWhite && squareIsDarker {
+	if buttIsWhite && squareHasCoverage {
 		// They're different - this is expected behavior!
 		t.Logf("SUCCESS: Line caps work differently")
 		t.Logf("ButtCap pixel at x=%d: %v (white=%v)", testX, rButt>>8, buttIsWhite)
-		t.Logf("SquareCap pixel at x=%d: %v (darker)", testX, rSquare>>8)
+		t.Logf("SquareCap pixel at x=%d: %v (has coverage)", testX, rSquare>>8)
 	} else {
 		// They're the same - this is the bug!
 		t.Errorf("BUG EXPOSED - Issue #155: SetLineCap doesn't work")
