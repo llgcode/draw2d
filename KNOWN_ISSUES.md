@@ -22,7 +22,21 @@ The user (in French) asked: "Je me demande si finalement tu n'as pas adapté cer
 
 **Actual Behavior:** The stroke from the last LineTo() point back to the MoveTo() starting point is missing.
 
-**Proof:**
+**Visual Proof:**
+
+**WITHOUT Close() - Bug Exposed:**
+
+![Triangle without Close()](https://github.com/user-attachments/assets/7ec52788-3337-495d-92d1-b0b3386b0f20)
+
+*Notice the top-right diagonal stroke is MISSING - the triangle is not complete!*
+
+**WITH Close() - Workaround:**
+
+![Triangle with Close()](https://github.com/user-attachments/assets/12918e4d-cf8e-4113-8b58-f2fb515a4259)
+
+*With Close(), all three sides are stroked properly - the triangle is complete!*
+
+**Proof from Test:**
 ```
 Pixel at (225, 82) on closing line is RGBA(0, 0, 0, 255), expected white stroke
 The stroke from last point to first point is missing
@@ -31,10 +45,6 @@ The stroke from last point to first point is missing
 **Workaround:** Call `gc.Close()` before `gc.FillStroke()`
 
 **Issue Link:** https://github.com/llgcode/draw2d/issues/181
-
-**Images Generated:**
-- `/tmp/bug_issue_181_without_close.png` - Shows incomplete triangle (missing closing stroke)
-- `/tmp/bug_issue_181_with_close.png` - Shows complete triangle (with Close() workaround)
 
 ---
 
