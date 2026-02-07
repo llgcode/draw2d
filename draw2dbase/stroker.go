@@ -18,6 +18,7 @@ type LineStroker struct {
 	rewind        []float64
 	center        []float64 // Store centerline points for cap calculations
 	x, y, nx, ny  float64
+	pendingJoin   bool // Flag to indicate if we need to process a join
 }
 
 func NewLineStroker(c draw2d.LineCap, j draw2d.LineJoin, flattener Flattener) *LineStroker {
@@ -34,11 +35,17 @@ func (l *LineStroker) MoveTo(x, y float64) {
 }
 
 func (l *LineStroker) LineTo(x, y float64) {
+	if l.pendingJoin && len(l.vertices) >= 4 {
+		// Process the join before adding the new line segment
+		l.processJoin(x, y)
+	}
 	l.line(l.x, l.y, x, y)
+	l.pendingJoin = false
 }
 
 func (l *LineStroker) LineJoin() {
-
+	// Mark that a join is needed before the next segment
+	l.pendingJoin = true
 }
 
 func (l *LineStroker) line(x1, y1, x2, y2 float64) {
@@ -52,6 +59,118 @@ func (l *LineStroker) line(x1, y1, x2, y2 float64) {
 		// Store centerline points for cap calculations
 		l.center = append(l.center, x1, y1, x2, y2)
 		l.x, l.y, l.nx, l.ny = x2, y2, nx, ny
+	}
+}
+
+// processJoin handles the join between the current segment and the next segment
+func (l *LineStroker) processJoin(nextX, nextY float64) {
+	// Get the current position and normal
+	prevX, prevY := l.x, l.y
+	prevNX, prevNY := l.nx, l.ny
+	
+	// Calculate the normal for the next segment
+	dx := nextX - prevX
+	dy := nextY - prevY
+	d := vectorDistance(dx, dy)
+	if d == 0 {
+		return
+	}
+	nextNX := dy * l.HalfLineWidth / d
+	nextNY := -(dx * l.HalfLineWidth / d)
+	
+	// The join point is at (prevX, prevY)
+	// We need to connect the offset edges from the previous segment to the next segment
+	
+	// Previous segment ends at:
+	// - outer edge: (prevX + prevNX, prevY + prevNY)
+	// - inner edge: (prevX - prevNX, prevY - prevNY)
+	
+	// Next segment starts at:
+	// - outer edge: (prevX + nextNX, prevY + nextNY)
+	// - inner edge: (prevX - nextNX, prevY - nextNY)
+	
+	// Determine which side needs the join (outer or inner)
+	// This is determined by the turn direction (cross product of the two direction vectors)
+	
+	// Get the direction of the previous segment (from the last two centerline points)
+	if len(l.center) < 4 {
+		return
+	}
+	
+	lastCenterIdx := len(l.center) - 2
+	prevDX := prevX - l.center[lastCenterIdx-2]
+	prevDY := prevY - l.center[lastCenterIdx-1]
+	
+	// Cross product to determine turn direction
+	// positive = left turn (counterclockwise), negative = right turn (clockwise)
+	cross := prevDX*dy - prevDY*dx
+	
+	// For the outer edge (vertices side), we need a join if the normals don't align
+	// For simplicity, we'll apply the join style based on the angle between segments
+	
+	switch l.Join {
+	case draw2d.BevelJoin:
+		// Bevel join: simply connect the two edges with a straight line
+		// This is implicitly handled by the vertices already, no extra work needed
+		
+	case draw2d.RoundJoin:
+		// Round join: add an arc between the two edges
+		// We need to add vertices along the outer edge
+		if cross != 0 {
+			// Determine which edge is the outer edge based on turn direction
+			var centerX, centerY, startAngle, endAngle float64
+			centerX, centerY = prevX, prevY
+			
+			if cross > 0 {
+				// Left turn - outer edge is on the vertices side
+				startAngle = math.Atan2(prevNY, prevNX)
+				endAngle = math.Atan2(nextNY, nextNX)
+			} else {
+				// Right turn - outer edge is on the rewind side
+				startAngle = math.Atan2(-prevNY, -prevNX)
+				endAngle = math.Atan2(-nextNY, -nextNX)
+			}
+			
+			// Normalize angle difference
+			angleDiff := endAngle - startAngle
+			if angleDiff > math.Pi {
+				endAngle -= 2 * math.Pi
+			} else if angleDiff < -math.Pi {
+				endAngle += 2 * math.Pi
+			}
+			
+			// Add arc vertices for the round join
+			// We'll add them directly to the vertices or rewind array as needed
+			// For now, let's just add intermediate points
+			numSegments := 4
+			for i := 1; i < numSegments; i++ {
+				t := float64(i) / float64(numSegments)
+				angle := startAngle + t*(endAngle-startAngle)
+				vx := centerX + l.HalfLineWidth*math.Cos(angle)
+				vy := centerY + l.HalfLineWidth*math.Sin(angle)
+				
+				if cross > 0 {
+					l.vertices = append(l.vertices, vx, vy)
+				} else {
+					// For inner edge, we prepend to rewind (will be reversed later)
+					l.rewind = append(l.rewind, vx, vy)
+				}
+			}
+		}
+		
+	case draw2d.MiterJoin:
+		// Miter join: extend the two edges until they meet
+		// This can create very long spikes at sharp angles, so we may need a miter limit
+		// For now, we'll implement a simple miter
+		
+		// Calculate the miter point where the two extended edges meet
+		// This requires finding the intersection of two lines
+		
+		// Line 1: prevX + prevNX + t1 * prevDX, prevY + prevNY + t1 * prevDY
+		// Line 2: prevX + nextNX + t2 * dx, prevY + nextNY + t2 * dy
+		
+		// For simplicity, we'll skip the miter calculation for now
+		// and fall back to bevel behavior
 	}
 }
 
