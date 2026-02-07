@@ -143,9 +143,10 @@ func TestBugExposure_Issue155_LineCapVisualComparison(t *testing.T) {
 	lineEndX := 150
 	lineWidth := 20.0
 	
-	// Test point: Check a pixel just beyond the line end
-	// Different caps should result in different pixel values here
-	testX := lineEndX + int(lineWidth/2) + 2
+	// Test point: Check a pixel at the edge of where SquareCap should extend
+	// SquareCap should extend by HalfLineWidth (10 pixels) past the endpoint
+	// So we test at lineEndX + HalfLineWidth = 150 + 10 = 160
+	testX := lineEndX + int(lineWidth/2)
 
 	// Draw with ButtCap
 	imgButt := image.NewRGBA(image.Rect(0, 0, width, height))
@@ -178,24 +179,24 @@ func TestBugExposure_Issue155_LineCapVisualComparison(t *testing.T) {
 	rButt, _, _, _ := pixelButt.RGBA()
 	rSquare, _, _, _ := pixelSquare.RGBA()
 
-	// ButtCap should be white (no extension), SquareCap should be black (extended)
-	// But if the bug exists, they'll both be the same
+	// ButtCap should be white (no extension), SquareCap should be darker (extended)
+	// We check if SquareCap is darker than ButtCap at this position
 
 	buttIsWhite := rButt > 32768  // > 50% white
-	squareIsBlack := rSquare < 32768  // < 50% white (i.e., more black)
+	squareIsDarker := rSquare < rButt  // SquareCap should have some coverage
 
-	if buttIsWhite == squareIsBlack {
+	if buttIsWhite && squareIsDarker {
 		// They're different - this is expected behavior!
-		t.Logf("SUCCESS: Line caps appear to work differently")
+		t.Logf("SUCCESS: Line caps work differently")
 		t.Logf("ButtCap pixel at x=%d: %v (white=%v)", testX, rButt>>8, buttIsWhite)
-		t.Logf("SquareCap pixel at x=%d: %v (black=%v)", testX, rSquare>>8, squareIsBlack)
+		t.Logf("SquareCap pixel at x=%d: %v (darker)", testX, rSquare>>8)
 	} else {
 		// They're the same - this is the bug!
 		t.Errorf("BUG EXPOSED - Issue #155: SetLineCap doesn't work")
 		t.Errorf("ButtCap and SquareCap produce same result at x=%d", testX)
 		t.Errorf("ButtCap pixel: %v (should be white/background)", rButt>>8)
-		t.Errorf("SquareCap pixel: %v (should be black/line color)", rSquare>>8)
-		t.Errorf("Expected ButtCap to NOT extend, SquareCap to extend beyond line end")
+		t.Errorf("SquareCap pixel: %v (should be darker/have coverage)", rSquare>>8)
+		t.Errorf("Expected ButtCap to NOT extend, SquareCap to extend to line end + HalfLineWidth")
 		t.Errorf("See: https://github.com/llgcode/draw2d/issues/155")
 	}
 }
