@@ -322,7 +322,7 @@ func (gc *GraphicContext) Stroke(paths ...*draw2d.Path) {
 	for _, path := range paths {
 		var vertices []Point2D
 		flattener := &pathFlattener{vertices: &vertices, transform: gc.Current.Tr}
-		
+
 		stroker := draw2dbase.NewLineStroker(gc.Current.Cap, gc.Current.Join, flattener)
 		stroker.HalfLineWidth = gc.Current.LineWidth / 2
 
@@ -334,7 +334,7 @@ func (gc *GraphicContext) Stroke(paths ...*draw2d.Path) {
 		}
 
 		draw2dbase.Flatten(path, liner, gc.Current.Tr.GetScale())
-		
+
 		if len(vertices) > 0 {
 			gc.renderer.AddPolygon(vertices, gc.Current.StrokeColor)
 		}
@@ -390,13 +390,13 @@ func (pf *pathFlattener) MoveTo(x, y float64) {
 
 func (pf *pathFlattener) LineTo(x, y float64) {
 	x, y = pf.transform.TransformPoint(x, y)
-	
+
 	// Add the starting point on the first LineTo after MoveTo
 	if !pf.started {
 		*pf.vertices = append(*pf.vertices, Point2D{float32(pf.lastX), float32(pf.lastY)})
 		pf.started = true
 	}
-	
+
 	// Add the current point to form the polygon
 	*pf.vertices = append(*pf.vertices, Point2D{float32(x), float32(y)})
 	pf.lastX, pf.lastY = x, y
