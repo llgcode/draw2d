@@ -6,7 +6,7 @@ import (
 	"log"
 	"runtime"
 
-	"github.com/go-gl/gl/v2.1/gl"
+	gl "github.com/go-gl/gl/v3.1/gles2"
 	"github.com/go-gl/glfw/v3.1/glfw"
 	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/draw2dgles2"
@@ -22,12 +22,12 @@ var (
 func reshape(window *glfw.Window, w, h int) {
 	gl.ClearColor(1, 1, 1, 1)
 	gl.Viewport(0, 0, int32(w), int32(h))
-	
+
 	// Enable blending for transparency
 	gl.Enable(gl.BLEND)
 	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 	gl.Disable(gl.DEPTH_TEST)
-	
+
 	width, height = w, h
 	redraw = true
 }

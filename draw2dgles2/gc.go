@@ -9,7 +9,7 @@ import (
 	"image/color"
 	"log"
 
-	"github.com/go-gl/gl/v2.1/gl"
+	gl "github.com/go-gl/gl/v3.1/gles2"
 	"github.com/golang/freetype/truetype"
 	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/draw2dbase"
@@ -25,7 +25,7 @@ type Renderer struct {
 	textureProgram    uint32
 	vbo               uint32
 	projectionUniform int32
-	
+
 	// Batching
 	vertices []float32
 	colors   []float32
@@ -106,11 +106,11 @@ func (r *Renderer) Flush() {
 
 	// Upload vertices
 	gl.BindBuffer(gl.ARRAY_BUFFER, r.vbo)
-	
+
 	// Interleave position and color data
 	vertexSize := 2 + 4 // 2 floats for position, 4 for color
 	data := make([]float32, len(r.vertices)/2*vertexSize)
-	
+
 	for i := 0; i < len(r.vertices)/2; i++ {
 		data[i*vertexSize+0] = r.vertices[i*2+0]
 		data[i*vertexSize+1] = r.vertices[i*2+1]
@@ -376,18 +376,21 @@ func (gc *GraphicContext) pathToVertices(path *draw2d.Path) []Point2D {
 
 // pathFlattener implements draw2dbase.Flattener to collect vertices
 type pathFlattener struct {
-	vertices  *[]Point2D
-	transform draw2d.Matrix
+	vertices     *[]Point2D
+	transform    draw2d.Matrix
 	lastX, lastY float64
 }
 
 func (pf *pathFlattener) MoveTo(x, y float64) {
-	x, y = pf.transform.Transform(x, y)
-	pf.lastX, pf.lastY = x, y
+	pts := []float64{x, y}
+	pf.transform.Transform(pts)
+	pf.lastX, pf.lastY = pts[0], pts[1]
 }
 
 func (pf *pathFlattener) LineTo(x, y float64) {
-	x, y = pf.transform.Transform(x, y)
+	pts := []float64{x, y}
+	pf.transform.Transform(pts)
+	x, y = pts[0], pts[1]
 	*pf.vertices = append(*pf.vertices, Point2D{float32(pf.lastX), float32(pf.lastY)})
 	*pf.vertices = append(*pf.vertices, Point2D{float32(x), float32(y)})
 	pf.lastX, pf.lastY = x, y
@@ -461,7 +464,7 @@ func (gc *GraphicContext) FillStringAt(text string, x, y float64) float64 {
 	startx := x
 	prev, hasPrev := truetype.Index(0), false
 	fontName := gc.GetFontName()
-	
+
 	f := gc.Current.Font
 	for _, r := range text {
 		index := f.Index(r)
@@ -469,11 +472,11 @@ func (gc *GraphicContext) FillStringAt(text string, x, y float64) float64 {
 			x += fUnitsToFloat64(f.Kern(fixed.Int26_6(gc.Current.Scale), prev, index))
 		}
 		glyph := gc.glyphCache.Fetch(gc, fontName, r)
-		
+
 		// Use draw2dimg's glyph renderer temporarily
 		// In a full implementation, this would render to texture atlas
 		x += glyph.Fill(gc, x, y)
-		
+
 		prev, hasPrev = index, true
 	}
 	return x - startx
@@ -495,7 +498,7 @@ func (gc *GraphicContext) StrokeStringAt(text string, x, y float64) float64 {
 	startx := x
 	prev, hasPrev := truetype.Index(0), false
 	fontName := gc.GetFontName()
-	
+
 	f := gc.Current.Font
 	for _, r := range text {
 		index := f.Index(r)
@@ -516,7 +519,7 @@ func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom fl
 		log.Println(err)
 		return 0, 0, 0, 0
 	}
-	
+
 	top, left, bottom, right = 10e6, 10e6, -10e6, -10e6
 	cursor := 0.0
 	prev, hasPrev := truetype.Index(0), false

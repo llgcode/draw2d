@@ -5,7 +5,7 @@ package draw2dgles2
 
 // VertexShader is the vertex shader for rendering primitives
 const VertexShader = `
-#version 120
+#version 100
 
 attribute vec2 position;
 attribute vec4 color;
@@ -22,7 +22,7 @@ void main() {
 
 // FragmentShader is the fragment shader for rendering primitives
 const FragmentShader = `
-#version 120
+#version 100
 
 varying vec4 v_color;
 
@@ -33,7 +33,7 @@ void main() {
 
 // TextureVertexShader is the vertex shader for textured rendering (text glyphs)
 const TextureVertexShader = `
-#version 120
+#version 100
 
 attribute vec2 position;
 attribute vec2 texCoord;
@@ -53,7 +53,7 @@ void main() {
 
 // TextureFragmentShader is the fragment shader for textured rendering
 const TextureFragmentShader = `
-#version 120
+#version 100
 
 varying vec2 v_texCoord;
 varying vec4 v_color;
