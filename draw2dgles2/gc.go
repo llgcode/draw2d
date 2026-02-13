@@ -91,6 +91,8 @@ func (r *Renderer) setupProjection() {
 
 // Flush renders all batched primitives
 func (r *Renderer) Flush() {
+	log.Printf("Flush: rendering %d vertices, %d indices (%d triangles)", len(r.vertices)/2, len(r.indices), len(r.indices)/3)
+	
 	if len(r.indices) == 0 {
 		return
 	}
@@ -163,14 +165,18 @@ func (r *Renderer) AddTriangle(x1, y1, x2, y2, x3, y3 float32, c color.Color) {
 // AddPolygon adds a filled polygon (will be triangulated)
 func (r *Renderer) AddPolygon(vertices []Point2D, c color.Color) {
 	if len(vertices) < 3 {
+		log.Printf("AddPolygon: skipping polygon with only %d vertices", len(vertices))
 		return
 	}
 
 	// Triangulate the polygon
 	triangleIndices := Triangulate(vertices)
 	if len(triangleIndices) == 0 {
+		log.Printf("AddPolygon: triangulation failed for %d vertices", len(vertices))
 		return
 	}
+	
+	log.Printf("AddPolygon: triangulated %d vertices into %d triangles", len(vertices), len(triangleIndices)/3)
 
 	baseIdx := uint16(len(r.vertices) / 2)
 
@@ -350,6 +356,7 @@ func (gc *GraphicContext) Fill(paths ...*draw2d.Path) {
 	// Convert paths to polygons
 	for _, path := range paths {
 		vertices := gc.pathToVertices(path)
+		log.Printf("Fill: collected %d vertices for path", len(vertices))
 		if len(vertices) > 0 {
 			gc.renderer.AddPolygon(vertices, gc.Current.FillColor)
 		}
