@@ -67,8 +67,9 @@ func isEar(vertices []Point2D, indices []int, count, prev, curr, next int) bool 
 	p2 := vertices[curr]
 	p3 := vertices[next]
 
-	// Check if triangle is CCW (convex)
-	if cross2D(sub2D(p2, p1), sub2D(p3, p2)) <= 0 {
+	// Check if triangle is convex (for screen coordinates where Y increases downward)
+	// We want clockwise winding, so cross product should be positive
+	if cross2D(sub2D(p2, p1), sub2D(p3, p2)) < 0 {
 		return false
 	}
 
