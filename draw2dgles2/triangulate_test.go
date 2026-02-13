@@ -4,6 +4,7 @@
 package draw2dgles2
 
 import (
+	"math"
 	"testing"
 )
 
@@ -196,13 +197,13 @@ func BenchmarkTriangulate(b *testing.B) {
 }
 
 func BenchmarkTriangulateLarge(b *testing.B) {
-	// Create a polygon with many vertices
+	// Create a polygon with many vertices (circular pattern)
 	vertices := make([]Point2D, 100)
 	for i := 0; i < 100; i++ {
-		angle := float32(i) * 3.14159 * 2 / 100
+		angle := float64(i) * 3.14159 * 2 / 100
 		vertices[i] = Point2D{
-			X: 50 + 40*float32(cos(float64(angle))),
-			Y: 50 + 40*float32(sin(float64(angle))),
+			X: 50 + 40*float32(math.Cos(angle)),
+			Y: 50 + 40*float32(math.Sin(angle)),
 		}
 	}
 
@@ -210,14 +211,4 @@ func BenchmarkTriangulateLarge(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		Triangulate(vertices)
 	}
-}
-
-func cos(x float64) float64 {
-	// Simple cos approximation for benchmark
-	return float64(Point2D{}.X) // Placeholder
-}
-
-func sin(x float64) float64 {
-	// Simple sin approximation for benchmark
-	return float64(Point2D{}.Y) // Placeholder
 }

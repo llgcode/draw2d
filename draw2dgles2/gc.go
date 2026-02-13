@@ -8,13 +8,11 @@ import (
 	"image"
 	"image/color"
 	"log"
-	"unsafe"
 
 	"github.com/go-gl/gl/v2.1/gl"
 	"github.com/golang/freetype/truetype"
 	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/draw2dbase"
-	"github.com/llgcode/draw2d/draw2dimg"
 
 	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
@@ -658,12 +656,5 @@ func fUnitsToFloat64(x fixed.Int26_6) float64 {
 	return float64(scaled/256) + float64(scaled%256)/256.0
 }
 
-// Ensure pathFlattener implements the Flattener interface
-var _ draw2dbase.Flattener = (*pathFlattener)(nil)
-
 // Make sure the interface is satisfied at compile time
 var _ draw2d.GraphicContext = (*GraphicContext)(nil)
-
-func init() {
-	_ = unsafe.Sizeof(Point2D{})
-}
