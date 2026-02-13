@@ -33,7 +33,7 @@ func reshape(window *glfw.Window, w, h int) {
 	gl.Disable(gl.DEPTH_TEST)
 
 	width, height = w, h
-	redraw = true
+	requestRedraw()
 }
 
 func display(gc *draw2dgles2.GraphicContext) {
@@ -142,7 +142,9 @@ func main() {
 			window.SwapBuffers()
 			redraw = false
 		}
-		glfw.PollEvents()
+		// WaitEvents blocks until an event arrives, avoiding busy-wait CPU usage.
+		// This is appropriate because the scene is static and only redraws on demand.
+		glfw.WaitEvents()
 	}
 }
 
@@ -152,11 +154,17 @@ func onKey(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods 
 		key == glfw.KeyQ && action == glfw.Press:
 		w.SetShouldClose(true)
 	case key == glfw.KeySpace && action == glfw.Press:
-		redraw = true
+		requestRedraw()
 	case key == glfw.KeyS && action == glfw.Press:
 		wantScreenshot = true
-		redraw = true
+		requestRedraw()
 	}
+}
+
+// requestRedraw marks the scene as needing a redraw and wakes WaitEvents.
+func requestRedraw() {
+	redraw = true
+	glfw.PostEmptyEvent()
 }
 
 // saveScreenshot reads back the framebuffer and saves it as PNG
