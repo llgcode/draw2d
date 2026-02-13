@@ -23,7 +23,9 @@ type Renderer struct {
 	width, height     int
 	program           uint32
 	textureProgram    uint32
+	vao               uint32
 	vbo               uint32
+	ebo               uint32
 	projectionUniform int32
 
 	// Batching
@@ -57,8 +59,15 @@ func NewRenderer(width, height int) (*Renderer, error) {
 	// Get uniform locations
 	r.projectionUniform = gl.GetUniformLocation(r.program, gl.Str("projection\x00"))
 
-	// Create VBO
+	// Create VAO (required for OpenGL 3.2+ core profile contexts)
+	gl.GenVertexArrays(1, &r.vao)
+	gl.BindVertexArray(r.vao)
+
+	// Create VBO for interleaved vertex data
 	gl.GenBuffers(1, &r.vbo)
+
+	// Create EBO for index data (required for core profile)
+	gl.GenBuffers(1, &r.ebo)
 
 	// Setup projection matrix
 	r.setupProjection()
@@ -95,23 +104,22 @@ func (r *Renderer) Flush() {
 		return
 	}
 
+	vertexCount := len(r.vertices) / 2
+
 	gl.UseProgram(r.program)
 
-	// Enable attributes
+	// Bind VAO (required for core profile contexts)
+	gl.BindVertexArray(r.vao)
+
+	// Get attribute locations
 	posAttrib := uint32(gl.GetAttribLocation(r.program, gl.Str("position\x00")))
 	colorAttrib := uint32(gl.GetAttribLocation(r.program, gl.Str("color\x00")))
 
-	gl.EnableVertexAttribArray(posAttrib)
-	gl.EnableVertexAttribArray(colorAttrib)
-
-	// Upload vertices
-	gl.BindBuffer(gl.ARRAY_BUFFER, r.vbo)
-
-	// Interleave position and color data
+	// Interleave position and color data into a single buffer
 	vertexSize := 2 + 4 // 2 floats for position, 4 for color
-	data := make([]float32, len(r.vertices)/2*vertexSize)
+	data := make([]float32, vertexCount*vertexSize)
 
-	for i := 0; i < len(r.vertices)/2; i++ {
+	for i := 0; i < vertexCount; i++ {
 		data[i*vertexSize+0] = r.vertices[i*2+0]
 		data[i*vertexSize+1] = r.vertices[i*2+1]
 		data[i*vertexSize+2] = r.colors[i*4+0]
@@ -120,19 +128,29 @@ func (r *Renderer) Flush() {
 		data[i*vertexSize+5] = r.colors[i*4+3]
 	}
 
+	// Upload vertex data to VBO
+	gl.BindBuffer(gl.ARRAY_BUFFER, r.vbo)
 	gl.BufferData(gl.ARRAY_BUFFER, len(data)*4, gl.Ptr(data), gl.STREAM_DRAW)
 
+	// Setup vertex attribute pointers
 	stride := int32(vertexSize * 4)
+	gl.EnableVertexAttribArray(posAttrib)
 	gl.VertexAttribPointer(posAttrib, 2, gl.FLOAT, false, stride, gl.PtrOffset(0))
+	gl.EnableVertexAttribArray(colorAttrib)
 	gl.VertexAttribPointer(colorAttrib, 4, gl.FLOAT, false, stride, gl.PtrOffset(2*4))
 
-	// Draw triangles
-	gl.DrawElements(gl.TRIANGLES, int32(len(r.indices)), gl.UNSIGNED_SHORT, gl.Ptr(r.indices))
+	// Upload index data to EBO (required for core profile; client-side indices don't work)
+	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, r.ebo)
+	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(r.indices)*2, gl.Ptr(r.indices), gl.STREAM_DRAW)
+
+	// Draw triangles using the element buffer
+	gl.DrawElements(gl.TRIANGLES, int32(len(r.indices)), gl.UNSIGNED_SHORT, gl.PtrOffset(0))
 
 	gl.DisableVertexAttribArray(posAttrib)
 	gl.DisableVertexAttribArray(colorAttrib)
+	gl.BindVertexArray(0)
 
-	// Clear buffers
+	// Clear batching buffers
 	r.vertices = r.vertices[:0]
 	r.colors = r.colors[:0]
 	r.indices = r.indices[:0]
@@ -196,10 +214,69 @@ func (r *Renderer) AddPolygon(vertices []Point2D, c color.Color) {
 	}
 }
 
+// AddTriangleStrip renders a triangle strip from matched outer/inner vertex arrays.
+// This is used for stroke rendering where the stroke outline forms a strip
+// between the outer and inner edges of the path.
+func (r *Renderer) AddTriangleStrip(outer, inner []Point2D, clr color.Color) {
+	minLen := len(outer)
+	if len(inner) < minLen {
+		minLen = len(inner)
+	}
+	if minLen < 2 {
+		return
+	}
+
+	c := color.RGBAModel.Convert(clr).(color.RGBA)
+	red, green, blue, alpha := c.RGBA()
+	rf := float32(red) / 65535.0
+	gf := float32(green) / 65535.0
+	bf := float32(blue) / 65535.0
+	af := float32(alpha) / 65535.0
+
+	baseIdx := uint16(len(r.vertices) / 2)
+
+	// Add outer vertices
+	for i := 0; i < minLen; i++ {
+		r.vertices = append(r.vertices, outer[i].X, outer[i].Y)
+		r.colors = append(r.colors, rf, gf, bf, af)
+	}
+	// Add inner vertices
+	for i := 0; i < minLen; i++ {
+		r.vertices = append(r.vertices, inner[i].X, inner[i].Y)
+		r.colors = append(r.colors, rf, gf, bf, af)
+	}
+
+	// Create quads connecting outer[i]-outer[i+1]-inner[i+1]-inner[i]
+	for i := 0; i < minLen-1; i++ {
+		o0 := baseIdx + uint16(i)
+		o1 := baseIdx + uint16(i+1)
+		i0 := baseIdx + uint16(minLen+i)
+		i1 := baseIdx + uint16(minLen+i+1)
+
+		r.indices = append(r.indices, o0, o1, i0)
+		r.indices = append(r.indices, o1, i1, i0)
+	}
+
+	// Close the strip (last quad connects back to first)
+	o0 := baseIdx + uint16(minLen-1)
+	o1 := baseIdx // first outer
+	i0 := baseIdx + uint16(2*minLen-1)
+	i1 := baseIdx + uint16(minLen) // first inner
+
+	r.indices = append(r.indices, o0, o1, i0)
+	r.indices = append(r.indices, o1, i1, i0)
+}
+
 // Destroy cleans up OpenGL resources
 func (r *Renderer) Destroy() {
+	if r.vao != 0 {
+		gl.DeleteVertexArrays(1, &r.vao)
+	}
 	if r.vbo != 0 {
 		gl.DeleteBuffers(1, &r.vbo)
+	}
+	if r.ebo != 0 {
+		gl.DeleteBuffers(1, &r.ebo)
 	}
 	if r.program != 0 {
 		gl.DeleteProgram(r.program)
@@ -318,12 +395,14 @@ func (gc *GraphicContext) DrawImage(img image.Image) {
 func (gc *GraphicContext) Stroke(paths ...*draw2d.Path) {
 	paths = append(paths, gc.Current.Path)
 
-	// For stroking, we need to collect the outline polygon that the stroker generates
 	for _, path := range paths {
-		var vertices []Point2D
-		flattener := &pathFlattener{vertices: &vertices, transform: gc.Current.Tr}
+		sf := &strokeFlattener{
+			renderer:  gc.renderer,
+			color:     gc.Current.StrokeColor,
+			transform: gc.Current.Tr,
+		}
 
-		stroker := draw2dbase.NewLineStroker(gc.Current.Cap, gc.Current.Join, flattener)
+		stroker := draw2dbase.NewLineStroker(gc.Current.Cap, gc.Current.Join, sf)
 		stroker.HalfLineWidth = gc.Current.LineWidth / 2
 
 		var liner draw2dbase.Flattener
@@ -334,10 +413,7 @@ func (gc *GraphicContext) Stroke(paths ...*draw2d.Path) {
 		}
 
 		draw2dbase.Flatten(path, liner, gc.Current.Tr.GetScale())
-
-		if len(vertices) > 0 {
-			gc.renderer.AddPolygon(vertices, gc.Current.StrokeColor)
-		}
+		sf.flush()
 	}
 
 	gc.Current.Path.Clear()
@@ -347,11 +423,9 @@ func (gc *GraphicContext) Stroke(paths ...*draw2d.Path) {
 func (gc *GraphicContext) Fill(paths ...*draw2d.Path) {
 	paths = append(paths, gc.Current.Path)
 
-	// Convert paths to polygons
 	for _, path := range paths {
-		vertices := gc.pathToVertices(path)
-		if len(vertices) > 0 {
-			gc.renderer.AddPolygon(vertices, gc.Current.FillColor)
+		for _, polygon := range gc.pathToPolygons(path) {
+			gc.renderer.AddPolygon(polygon, gc.Current.FillColor)
 		}
 	}
 
@@ -362,17 +436,19 @@ func (gc *GraphicContext) Fill(paths ...*draw2d.Path) {
 func (gc *GraphicContext) FillStroke(paths ...*draw2d.Path) {
 	paths = append(paths, gc.Current.Path)
 
-	// Process each path, sending it to both fill and stroke flatteners
 	for _, path := range paths {
-		// Collect vertices for filling
-		var fillVertices []Point2D
-		fillFlattener := &pathFlattener{vertices: &fillVertices, transform: gc.Current.Tr}
+		// Collect polygons for filling
+		var fillPolygons [][]Point2D
+		fillFlattener := &pathFlattener{polygons: &fillPolygons, transform: gc.Current.Tr}
 
-		// Collect vertices for stroking
-		var strokeVertices []Point2D
-		strokeFlattener := &pathFlattener{vertices: &strokeVertices, transform: gc.Current.Tr}
+		// Stroke via triangle strip
+		sf := &strokeFlattener{
+			renderer:  gc.renderer,
+			color:     gc.Current.StrokeColor,
+			transform: gc.Current.Tr,
+		}
 
-		stroker := draw2dbase.NewLineStroker(gc.Current.Cap, gc.Current.Join, strokeFlattener)
+		stroker := draw2dbase.NewLineStroker(gc.Current.Cap, gc.Current.Join, sf)
 		stroker.HalfLineWidth = gc.Current.LineWidth / 2
 
 		var liner draw2dbase.Flattener
@@ -385,36 +461,48 @@ func (gc *GraphicContext) FillStroke(paths ...*draw2d.Path) {
 		// Use DemuxFlattener to send path to both fill and stroke
 		demux := draw2dbase.DemuxFlattener{Flatteners: []draw2dbase.Flattener{fillFlattener, liner}}
 		draw2dbase.Flatten(path, demux, gc.Current.Tr.GetScale())
+		fillFlattener.flushCurrent()
+		sf.flush()
 
-		// Add the collected vertices to the renderer
-		if len(fillVertices) > 0 {
-			gc.renderer.AddPolygon(fillVertices, gc.Current.FillColor)
-		}
-		if len(strokeVertices) > 0 {
-			gc.renderer.AddPolygon(strokeVertices, gc.Current.StrokeColor)
+		for _, polygon := range fillPolygons {
+			gc.renderer.AddPolygon(polygon, gc.Current.FillColor)
 		}
 	}
 
 	gc.Current.Path.Clear()
 }
 
-// pathToVertices converts a path to a list of vertices
-func (gc *GraphicContext) pathToVertices(path *draw2d.Path) []Point2D {
-	var vertices []Point2D
-	flattener := &pathFlattener{vertices: &vertices, transform: gc.Current.Tr}
+// pathToPolygons converts a path to a list of polygons (one per sub-path)
+func (gc *GraphicContext) pathToPolygons(path *draw2d.Path) [][]Point2D {
+	var polygons [][]Point2D
+	flattener := &pathFlattener{polygons: &polygons, transform: gc.Current.Tr}
 	draw2dbase.Flatten(path, flattener, gc.Current.Tr.GetScale())
-	return vertices
+	flattener.flushCurrent()
+	return polygons
 }
 
 // pathFlattener implements draw2dbase.Flattener to collect vertices
+// organized into separate polygons per sub-path.
 type pathFlattener struct {
-	vertices     *[]Point2D
+	polygons     *[][]Point2D
+	current      []Point2D
 	transform    draw2d.Matrix
 	lastX, lastY float64
 	started      bool
 }
 
+// flushCurrent saves the current polygon (if valid) and resets for a new sub-path.
+func (pf *pathFlattener) flushCurrent() {
+	if len(pf.current) >= 3 {
+		*pf.polygons = append(*pf.polygons, pf.current)
+	}
+	pf.current = nil
+	pf.started = false
+}
+
 func (pf *pathFlattener) MoveTo(x, y float64) {
+	// Flush previous sub-path if any
+	pf.flushCurrent()
 	x, y = pf.transform.TransformPoint(x, y)
 	pf.lastX, pf.lastY = x, y
 	pf.started = false
@@ -425,18 +513,98 @@ func (pf *pathFlattener) LineTo(x, y float64) {
 
 	// Add the starting point on the first LineTo after MoveTo
 	if !pf.started {
-		*pf.vertices = append(*pf.vertices, Point2D{float32(pf.lastX), float32(pf.lastY)})
+		pf.current = append(pf.current, Point2D{float32(pf.lastX), float32(pf.lastY)})
 		pf.started = true
 	}
 
 	// Add the current point to form the polygon
-	*pf.vertices = append(*pf.vertices, Point2D{float32(x), float32(y)})
+	pf.current = append(pf.current, Point2D{float32(x), float32(y)})
 	pf.lastX, pf.lastY = x, y
 }
 
 func (pf *pathFlattener) LineJoin() {}
-func (pf *pathFlattener) Close()    {}
-func (pf *pathFlattener) End()      {}
+
+func (pf *pathFlattener) Close() {
+	pf.flushCurrent()
+}
+
+func (pf *pathFlattener) End() {
+	pf.flushCurrent()
+}
+
+// strokeFlattener receives stroke outline vertices from the LineStroker
+// and renders them as a triangle strip between the outer and inner edges.
+// The LineStroker outputs vertices in order: outer edge forward, then
+// inner edge reversed, then back to start. This flattener splits them
+// at the midpoint and creates a quad strip.
+type strokeFlattener struct {
+	renderer     *Renderer
+	color        color.Color
+	transform    draw2d.Matrix
+	current      []Point2D
+	lastX, lastY float64
+	started      bool
+}
+
+func (sf *strokeFlattener) MoveTo(x, y float64) {
+	sf.flush()
+	x, y = sf.transform.TransformPoint(x, y)
+	sf.lastX, sf.lastY = x, y
+	sf.started = false
+}
+
+func (sf *strokeFlattener) LineTo(x, y float64) {
+	x, y = sf.transform.TransformPoint(x, y)
+	if !sf.started {
+		sf.current = append(sf.current, Point2D{float32(sf.lastX), float32(sf.lastY)})
+		sf.started = true
+	}
+	sf.current = append(sf.current, Point2D{float32(x), float32(y)})
+	sf.lastX, sf.lastY = x, y
+}
+
+func (sf *strokeFlattener) LineJoin() {}
+func (sf *strokeFlattener) Close()   { sf.flush() }
+func (sf *strokeFlattener) End()     { sf.flush() }
+
+func (sf *strokeFlattener) flush() {
+	verts := sf.current
+	sf.current = nil
+	sf.started = false
+
+	if len(verts) < 6 {
+		return
+	}
+
+	// Remove trailing vertices that duplicate the first vertex
+	for len(verts) > 4 {
+		last := len(verts) - 1
+		dx := verts[last].X - verts[0].X
+		dy := verts[last].Y - verts[0].Y
+		if dx*dx+dy*dy < 0.5 {
+			verts = verts[:last]
+		} else {
+			break
+		}
+	}
+
+	n := len(verts)
+	if n < 6 {
+		return
+	}
+
+	mid := n / 2
+	outer := verts[:mid]
+	inner := make([]Point2D, n-mid)
+	copy(inner, verts[mid:])
+
+	// Reverse inner to match outer's direction
+	for i, j := 0, len(inner)-1; i < j; i, j = i+1, j-1 {
+		inner[i], inner[j] = inner[j], inner[i]
+	}
+
+	sf.renderer.AddTriangleStrip(outer, inner, sf.color)
+}
 
 // Flush renders all batched primitives
 func (gc *GraphicContext) Flush() {

@@ -2,8 +2,11 @@
 package main
 
 import (
+	"image"
 	"image/color"
+	"image/png"
 	"log"
+	"os"
 	"runtime"
 
 	gl "github.com/go-gl/gl/v3.1/gles2"
@@ -14,9 +17,10 @@ import (
 )
 
 var (
-	width, height = 800, 600
-	rotate        int
-	redraw        = true
+	width, height  = 800, 600
+	rotate         int
+	redraw         = true
+	wantScreenshot = false
 )
 
 func reshape(window *glfw.Window, w, h int) {
@@ -80,18 +84,18 @@ func main() {
 	}
 	defer glfw.Terminate()
 
-	// Request OpenGL 3.2 core profile (minimum for modern shaders)
-	// Note: Can also use OpenGL ES 2.0+ on mobile/embedded
+	// Request OpenGL 3.2 core profile for modern shader support.
+	// The gles2 backend uses VAO+VBO+EBO so it works in core profile.
 	glfw.WindowHint(glfw.ContextVersionMajor, 3)
 	glfw.WindowHint(glfw.ContextVersionMinor, 2)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
+	glfw.WindowHint(glfw.Samples, 4) // Enable 4x MSAA for antialiasing
 
 	window, err := glfw.CreateWindow(width, height, "draw2d OpenGL ES 2 Example", nil, nil)
 	if err != nil {
-		// Fall back to default context if core profile fails
-		glfw.WindowHint(glfw.ContextVersionMajor, 2)
-		glfw.WindowHint(glfw.ContextVersionMinor, 1)
+		// Fall back to compatibility profile if core profile fails
+		glfw.DefaultWindowHints()
 		window, err = glfw.CreateWindow(width, height, "draw2d OpenGL ES 2 Example", nil, nil)
 		if err != nil {
 			panic(err)
@@ -131,6 +135,10 @@ func main() {
 	for !window.ShouldClose() {
 		if redraw {
 			display(gc)
+			if wantScreenshot {
+				saveScreenshot("output/samples/helloworldgles2.png")
+				wantScreenshot = false
+			}
 			window.SwapBuffers()
 			redraw = false
 		}
@@ -145,5 +153,37 @@ func onKey(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods 
 		w.SetShouldClose(true)
 	case key == glfw.KeySpace && action == glfw.Press:
 		redraw = true
+	case key == glfw.KeyS && action == glfw.Press:
+		wantScreenshot = true
+		redraw = true
 	}
+}
+
+// saveScreenshot reads back the framebuffer and saves it as PNG
+func saveScreenshot(filename string) {
+	pixels := make([]uint8, width*height*4)
+	gl.ReadPixels(0, 0, int32(width), int32(height), gl.RGBA, gl.UNSIGNED_BYTE, gl.Ptr(&pixels[0]))
+
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+	// OpenGL reads from bottom-up, flip rows
+	for y := 0; y < height; y++ {
+		glY := height - 1 - y
+		copy(img.Pix[y*width*4:(y+1)*width*4], pixels[glY*width*4:(glY+1)*width*4])
+	}
+
+	if err := os.MkdirAll("output/samples", 0755); err != nil {
+		log.Printf("Failed to create output dir: %v", err)
+		return
+	}
+	f, err := os.Create(filename)
+	if err != nil {
+		log.Printf("Failed to save screenshot: %v", err)
+		return
+	}
+	defer f.Close()
+	if err := png.Encode(f, img); err != nil {
+		log.Printf("Failed to encode PNG: %v", err)
+		return
+	}
+	log.Printf("Screenshot saved to %s", filename)
 }

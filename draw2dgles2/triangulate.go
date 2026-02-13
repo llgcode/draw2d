@@ -10,12 +10,45 @@ type Point2D struct {
 	X, Y float32
 }
 
+// signedArea2 computes twice the signed area of a polygon.
+// Positive = clockwise in screen coordinates (Y-down), Negative = counter-clockwise.
+func signedArea2(vertices []Point2D) float32 {
+	var sum float32
+	n := len(vertices)
+	for i := 0; i < n; i++ {
+		j := (i + 1) % n
+		sum += vertices[i].X*vertices[j].Y - vertices[j].X*vertices[i].Y
+	}
+	return sum
+}
+
 // Triangulate converts a polygon (list of vertices) into triangles using ear-clipping algorithm.
+// Automatically detects polygon winding order (CW or CCW).
 // Returns a list of triangle indices.
 func Triangulate(vertices []Point2D) []uint16 {
 	if len(vertices) < 3 {
 		return nil
 	}
+
+	// Remove trailing duplicate/near-duplicate vertices that match the first vertex.
+	// This is common from path Close operations that add a LineTo back to start.
+	for len(vertices) > 3 {
+		last := len(vertices) - 1
+		dx := vertices[last].X - vertices[0].X
+		dy := vertices[last].Y - vertices[0].Y
+		if dx*dx+dy*dy < 0.5 {
+			vertices = vertices[:last]
+		} else {
+			break
+		}
+	}
+
+	if len(vertices) < 3 {
+		return nil
+	}
+
+	// Detect winding order using signed area
+	cw := signedArea2(vertices) > 0
 
 	// Create index list
 	indices := make([]int, len(vertices))
@@ -35,7 +68,7 @@ func Triangulate(vertices []Point2D) []uint16 {
 			curr := indices[i]
 			next := indices[(i+1)%count]
 
-			if isEar(vertices, indices, count, prev, curr, next) {
+			if isEar(vertices, indices, count, prev, curr, next, cw) {
 				// Add triangle
 				triangles = append(triangles, uint16(prev), uint16(curr), uint16(next))
 
@@ -48,7 +81,10 @@ func Triangulate(vertices []Point2D) []uint16 {
 		}
 
 		if !earFound {
-			// Degenerate polygon, just triangulate remaining
+			// Degenerate polygon — use fan triangulation as fallback
+			for i := 1; i < count-1; i++ {
+				triangles = append(triangles, uint16(indices[0]), uint16(indices[i]), uint16(indices[i+1]))
+			}
 			break
 		}
 	}
@@ -61,16 +97,25 @@ func Triangulate(vertices []Point2D) []uint16 {
 	return triangles
 }
 
-// isEar checks if the vertex at curr forms an ear
-func isEar(vertices []Point2D, indices []int, count, prev, curr, next int) bool {
+// isEar checks if the vertex at curr forms an ear.
+// The cw parameter indicates whether the polygon has clockwise winding.
+func isEar(vertices []Point2D, indices []int, count, prev, curr, next int, cw bool) bool {
 	p1 := vertices[prev]
 	p2 := vertices[curr]
 	p3 := vertices[next]
 
-	// Check if triangle is convex (for screen coordinates where Y increases downward)
-	// We want clockwise winding, so cross product should be positive
-	if cross2D(sub2D(p2, p1), sub2D(p3, p2)) < 0 {
-		return false
+	// Check if triangle is convex based on polygon winding.
+	// For CW polygons: convex vertex has positive cross product.
+	// For CCW polygons: convex vertex has negative cross product.
+	cross := cross2D(sub2D(p2, p1), sub2D(p3, p2))
+	if cw {
+		if cross < 0 {
+			return false
+		}
+	} else {
+		if cross > 0 {
+			return false
+		}
 	}
 
 	// Check if any other vertex is inside this triangle
