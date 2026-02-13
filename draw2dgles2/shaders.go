@@ -23,6 +23,7 @@ void main() {
 // FragmentShader is the fragment shader for rendering primitives
 const FragmentShader = `
 #version 100
+precision mediump float;
 
 varying vec4 v_color;
 
@@ -54,6 +55,7 @@ void main() {
 // TextureFragmentShader is the fragment shader for textured rendering
 const TextureFragmentShader = `
 #version 100
+precision mediump float;
 
 varying vec2 v_texCoord;
 varying vec4 v_color;
