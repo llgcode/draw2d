@@ -319,25 +319,25 @@ func (gc *GraphicContext) Stroke(paths ...*draw2d.Path) {
 	paths = append(paths, gc.Current.Path)
 
 	// For stroking, we need to collect the outline polygon that the stroker generates
-	var vertices []Point2D
-	flattener := &pathFlattener{vertices: &vertices, transform: gc.Current.Tr}
-	
-	stroker := draw2dbase.NewLineStroker(gc.Current.Cap, gc.Current.Join, flattener)
-	stroker.HalfLineWidth = gc.Current.LineWidth / 2
-
-	var liner draw2dbase.Flattener
-	if gc.Current.Dash != nil && len(gc.Current.Dash) > 0 {
-		liner = draw2dbase.NewDashConverter(gc.Current.Dash, gc.Current.DashOffset, stroker)
-	} else {
-		liner = stroker
-	}
-
 	for _, path := range paths {
-		draw2dbase.Flatten(path, liner, gc.Current.Tr.GetScale())
-	}
+		var vertices []Point2D
+		flattener := &pathFlattener{vertices: &vertices, transform: gc.Current.Tr}
+		
+		stroker := draw2dbase.NewLineStroker(gc.Current.Cap, gc.Current.Join, flattener)
+		stroker.HalfLineWidth = gc.Current.LineWidth / 2
 
-	if len(vertices) > 0 {
-		gc.renderer.AddPolygon(vertices, gc.Current.StrokeColor)
+		var liner draw2dbase.Flattener
+		if gc.Current.Dash != nil && len(gc.Current.Dash) > 0 {
+			liner = draw2dbase.NewDashConverter(gc.Current.Dash, gc.Current.DashOffset, stroker)
+		} else {
+			liner = stroker
+		}
+
+		draw2dbase.Flatten(path, liner, gc.Current.Tr.GetScale())
+		
+		if len(vertices) > 0 {
+			gc.renderer.AddPolygon(vertices, gc.Current.StrokeColor)
+		}
 	}
 
 	gc.Current.Path.Clear()
@@ -379,25 +379,25 @@ type pathFlattener struct {
 	vertices     *[]Point2D
 	transform    draw2d.Matrix
 	lastX, lastY float64
-	first        bool
+	started      bool
 }
 
 func (pf *pathFlattener) MoveTo(x, y float64) {
 	x, y = pf.transform.TransformPoint(x, y)
 	pf.lastX, pf.lastY = x, y
-	pf.first = true
+	pf.started = false
 }
 
 func (pf *pathFlattener) LineTo(x, y float64) {
 	x, y = pf.transform.TransformPoint(x, y)
 	
-	// For the first point after MoveTo, add it to start the polygon
-	if pf.first {
+	// Add the starting point on the first LineTo after MoveTo
+	if !pf.started {
 		*pf.vertices = append(*pf.vertices, Point2D{float32(pf.lastX), float32(pf.lastY)})
-		pf.first = false
+		pf.started = true
 	}
 	
-	// Add the current point
+	// Add the current point to form the polygon
 	*pf.vertices = append(*pf.vertices, Point2D{float32(x), float32(y)})
 	pf.lastX, pf.lastY = x, y
 }
