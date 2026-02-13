@@ -38,9 +38,10 @@ func TestIssue139_YAxisFlipDoesNotWork(t *testing.T) {
 
 	// Check if transformation was actually applied
 	// The Y scale component should be negative
-	if transformedMatrix.GetScaleY() >= 0 {
-		t.Errorf("Bug confirmed: Y-axis flip not applied. Initial ScaleY: %v, After flip ScaleY: %v",
-			initialMatrix.GetScaleY(), transformedMatrix.GetScaleY())
+	_, scaleY := transformedMatrix.GetScaling()
+	if scaleY >= 0 {
+		_, initialScaleY := initialMatrix.GetScaling()
+		t.Errorf("Bug confirmed: Y-axis flip not applied. Initial ScaleY: %v, After flip ScaleY: %v", initialScaleY, scaleY)
 	}
 
 	// Even if the matrix is set, rendering might not respect it
