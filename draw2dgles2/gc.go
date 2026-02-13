@@ -360,10 +360,42 @@ func (gc *GraphicContext) Fill(paths ...*draw2d.Path) {
 
 // FillStroke fills and strokes the current path
 func (gc *GraphicContext) FillStroke(paths ...*draw2d.Path) {
-	// Fill first, then stroke
-	gc.Fill(paths...)
-	// Re-add the paths since Fill cleared them
-	gc.Stroke(paths...)
+	paths = append(paths, gc.Current.Path)
+
+	// Process each path, sending it to both fill and stroke flatteners
+	for _, path := range paths {
+		// Collect vertices for filling
+		var fillVertices []Point2D
+		fillFlattener := &pathFlattener{vertices: &fillVertices, transform: gc.Current.Tr}
+
+		// Collect vertices for stroking
+		var strokeVertices []Point2D
+		strokeFlattener := &pathFlattener{vertices: &strokeVertices, transform: gc.Current.Tr}
+
+		stroker := draw2dbase.NewLineStroker(gc.Current.Cap, gc.Current.Join, strokeFlattener)
+		stroker.HalfLineWidth = gc.Current.LineWidth / 2
+
+		var liner draw2dbase.Flattener
+		if gc.Current.Dash != nil && len(gc.Current.Dash) > 0 {
+			liner = draw2dbase.NewDashConverter(gc.Current.Dash, gc.Current.DashOffset, stroker)
+		} else {
+			liner = stroker
+		}
+
+		// Use DemuxFlattener to send path to both fill and stroke
+		demux := draw2dbase.DemuxFlattener{Flatteners: []draw2dbase.Flattener{fillFlattener, liner}}
+		draw2dbase.Flatten(path, demux, gc.Current.Tr.GetScale())
+
+		// Add the collected vertices to the renderer
+		if len(fillVertices) > 0 {
+			gc.renderer.AddPolygon(fillVertices, gc.Current.FillColor)
+		}
+		if len(strokeVertices) > 0 {
+			gc.renderer.AddPolygon(strokeVertices, gc.Current.StrokeColor)
+		}
+	}
+
+	gc.Current.Path.Clear()
 }
 
 // pathToVertices converts a path to a list of vertices
