@@ -519,12 +519,138 @@ func (gc *GraphicContext) GetStringBounds(s string) (left, top, right, bottom fl
 		return 0, 0, 0, 0
 	}
 	
-	return draw2dimg.GetStringBounds(gc, f, s)
+	top, left, bottom, right = 10e6, 10e6, -10e6, -10e6
+	cursor := 0.0
+	prev, hasPrev := truetype.Index(0), false
+	for _, rune := range s {
+		index := f.Index(rune)
+		if hasPrev {
+			cursor += fUnitsToFloat64(f.Kern(fixed.Int26_6(gc.Current.Scale), prev, index))
+		}
+		if err := gc.glyphBuf.Load(gc.Current.Font, fixed.Int26_6(gc.Current.Scale), index, font.HintingNone); err != nil {
+			log.Println(err)
+			return 0, 0, 0, 0
+		}
+		e0 := 0
+		for _, e1 := range gc.glyphBuf.Ends {
+			ps := gc.glyphBuf.Points[e0:e1]
+			for _, p := range ps {
+				x, y := pointToF64Point(p)
+				top = min(top, y)
+				bottom = max(bottom, y)
+				left = min(left, x+cursor)
+				right = max(right, x+cursor)
+			}
+			e0 = e1
+		}
+		cursor += fUnitsToFloat64(f.HMetric(fixed.Int26_6(gc.Current.Scale), index).AdvanceWidth)
+		prev, hasPrev = index, true
+	}
+	return left, top, right, bottom
 }
 
 // CreateStringPath creates a path from string
 func (gc *GraphicContext) CreateStringPath(s string, x, y float64) float64 {
-	return draw2dimg.CreateStringPath(gc, s, x, y)
+	f, err := gc.loadCurrentFont()
+	if err != nil {
+		log.Println(err)
+		return 0.0
+	}
+	startx := x
+	prev, hasPrev := truetype.Index(0), false
+	for _, rune := range s {
+		index := f.Index(rune)
+		if hasPrev {
+			x += fUnitsToFloat64(f.Kern(fixed.Int26_6(gc.Current.Scale), prev, index))
+		}
+		err := gc.drawGlyph(index, x, y)
+		if err != nil {
+			log.Println(err)
+			return startx - x
+		}
+		x += fUnitsToFloat64(f.HMetric(fixed.Int26_6(gc.Current.Scale), index).AdvanceWidth)
+		prev, hasPrev = index, true
+	}
+	return x - startx
+}
+
+func (gc *GraphicContext) drawGlyph(glyph truetype.Index, dx, dy float64) error {
+	if err := gc.glyphBuf.Load(gc.Current.Font, fixed.Int26_6(gc.Current.Scale), glyph, font.HintingNone); err != nil {
+		return err
+	}
+	e0 := 0
+	for _, e1 := range gc.glyphBuf.Ends {
+		drawContour(gc, gc.glyphBuf.Points[e0:e1], dx, dy)
+		e0 = e1
+	}
+	return nil
+}
+
+func pointToF64Point(p truetype.Point) (x, y float64) {
+	return fUnitsToFloat64(p.X), -fUnitsToFloat64(p.Y)
+}
+
+func drawContour(path draw2d.PathBuilder, ps []truetype.Point, dx, dy float64) {
+	if len(ps) == 0 {
+		return
+	}
+	startX, startY := pointToF64Point(ps[0])
+	var others []truetype.Point
+	if ps[0].Flags&0x01 != 0 {
+		others = ps[1:]
+	} else {
+		lastX, lastY := pointToF64Point(ps[len(ps)-1])
+		if ps[len(ps)-1].Flags&0x01 != 0 {
+			startX, startY = lastX, lastY
+			others = ps[:len(ps)-1]
+		} else {
+			startX = (startX + lastX) / 2
+			startY = (startY + lastY) / 2
+			others = ps
+		}
+	}
+	path.MoveTo(startX+dx, startY+dy)
+	q0X, q0Y, on0 := startX, startY, true
+	for _, p := range others {
+		qX, qY := pointToF64Point(p)
+		on := p.Flags&0x01 != 0
+		if on {
+			if on0 {
+				path.LineTo(qX+dx, qY+dy)
+			} else {
+				path.QuadCurveTo(q0X+dx, q0Y+dy, qX+dx, qY+dy)
+			}
+		} else {
+			if on0 {
+				// No-op.
+			} else {
+				midX := (q0X + qX) / 2
+				midY := (q0Y + qY) / 2
+				path.QuadCurveTo(q0X+dx, q0Y+dy, midX+dx, midY+dy)
+			}
+		}
+		q0X, q0Y, on0 = qX, qY, on
+	}
+	// Close the curve.
+	if on0 {
+		path.LineTo(startX+dx, startY+dy)
+	} else {
+		path.QuadCurveTo(q0X+dx, q0Y+dy, startX+dx, startY+dy)
+	}
+}
+
+func min(a, b float64) float64 {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func max(a, b float64) float64 {
+	if a > b {
+		return a
+	}
+	return b
 }
 
 func fUnitsToFloat64(x fixed.Int26_6) float64 {
