@@ -1,0 +1,8 @@
+{
+    "terminal.integrated.env.windows": {
+        "path": "${env:path};C:/msys64/mingw64/bin"
+    },
+    "go.toolsEnvVars": {
+        "PATH": "${env:PATH};C:/msys64/mingw64/bin"
+    }
+}

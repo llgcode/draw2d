@@ -4,7 +4,7 @@ draw2d
 [![GoDoc](https://godoc.org/github.com/llgcode/draw2d?status.svg)](https://godoc.org/github.com/llgcode/draw2d)
 [![BuyMeaBeer](https://img.shields.io/badge/buy_me-a_beer-orange)](https://www.buymeacoffee.com/llgcoffee)
 
-Package draw2d is a [go](http://golang.org) 2D vector graphics library with support for multiple outputs such as [images](http://golang.org/pkg/image) (draw2d), pdf documents (draw2dpdf), opengl (draw2dgl) and svg (draw2dsvg). 
+Package draw2d is a [go](http://golang.org) 2D vector graphics library with support for multiple outputs such as [images](http://golang.org/pkg/image) (draw2d), pdf documents (draw2dpdf), opengl (draw2dgl, draw2dgles2) and svg (draw2dsvg). 
 There's also a [Postscript reader](https://github.com/llgcode/ps) that uses draw2d.
 draw2d is released under the BSD license. 
 See the [documentation](http://godoc.org/github.com/llgcode/draw2d) for more details.
@@ -107,7 +107,11 @@ func main() {
 
 There are more examples here: https://github.com/llgcode/draw2d/tree/master/samples
 
-Drawing on opengl is provided by the draw2dgl package.
+Drawing on opengl is provided by two packages:
+- **draw2dgl**: Legacy OpenGL 2.1 backend (uses fixed-function pipeline)
+- **draw2dgles2**: Modern OpenGL ES 2.0+ backend (uses shaders and VBOs for better performance)
+
+See [draw2dgles2/README.md](draw2dgles2/README.md) for details on the modern OpenGL ES 2 backend.
 
 Testing
 -------
