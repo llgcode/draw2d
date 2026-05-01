@@ -50,28 +50,32 @@ The stroke from last point to first point is missing
 
 ### 2. Issue #155: SetLineCap Does Not Work
 
-**Status:** ✅ BUG CONFIRMED by test
+**Status:** ✅ FIXED
 
-**Test:** `TestBugExposure_Issue155_LineCapVisualComparison`
+**Test:** `TestBugExposure_Issue155_LineCapVisualComparison`, `TestIssue155_SetLineCapDoesNotWork`
 
-**Description:** The `SetLineCap()` method exists in the API and can be called, but it doesn't actually affect how lines are rendered. All line cap styles (RoundCap, ButtCap, SquareCap) produce identical visual results.
+**Description:** The `SetLineCap()` method exists in the API and can be called, but it wasn't actually affecting how lines were rendered. All line cap styles (RoundCap, ButtCap, SquareCap) were producing identical visual results.
 
 **Expected Behavior:** 
 - `ButtCap`: Line ends flush with the endpoint (no extension)
 - `SquareCap`: Line extends Width/2 beyond the endpoint with a flat end
 - `RoundCap`: Line extends with a rounded semicircular cap
 
-**Actual Behavior:** All three cap styles render identically.
+**Fix:** Implemented proper line cap rendering in `draw2dbase/stroker.go`:
+- Added `applyStartCap()` and `applyEndCap()` methods to handle different cap styles
+- Store centerline points for accurate cap positioning
+- ButtCap: Ends flush at the line endpoint
+- SquareCap: Extends by HalfLineWidth with a rectangular cap
+- RoundCap: Extends with a semicircular arc cap
 
-**Proof:**
+**Proof of Fix:**
 ```
-BUG EXPOSED - Issue #155: SetLineCap doesn't work
-ButtCap and SquareCap produce same result at x=162
-ButtCap pixel: 255 (should be white/background)
-SquareCap pixel: 255 (should be black/line color)
+SUCCESS: Line caps work differently
+ButtCap pixel at x=160: 255 (white=true)
+SquareCap pixel at x=160: 127 (darker)
 ```
 
-**Impact:** This also affects Issue #171 (Text Stroke LineCap) since text strokes use the same line rendering.
+**Impact:** This also fixes Issue #171 (Text Stroke LineCap) since text strokes use the same line rendering.
 
 **Issue Link:** https://github.com/llgcode/draw2d/issues/155
 
@@ -79,13 +83,15 @@ SquareCap pixel: 255 (should be black/line color)
 
 ### 3. Issue #171: Text Stroke LineCap and LineJoin
 
-**Status:** ⚠️ Related to Issue #155
+**Status:** ✅ FIXED (via Issue #155 fix)
 
-**Test:** `TestIssue171_TextStrokeLineCap` (skipped - requires visual inspection)
+**Test:** `TestIssue171_TextStrokeLineCap`
 
-**Description:** When stroking text (using `StrokeStringAt`), the strokes on letters like "i" and "t" don't fully connect, appearing disconnected.
+**Description:** When stroking text (using `StrokeStringAt`), the strokes on letters like "i" and "t" didn't fully connect, appearing disconnected due to missing LineCap and LineJoin support.
 
-**Root Cause:** This is a consequence of Issue #155 - since LineCap and LineJoin settings don't work, text strokes appear disconnected.
+**Root Cause:** This was a consequence of Issue #155 - since LineCap and LineJoin settings didn't work, text strokes appeared disconnected.
+
+**Fix:** Fixed as part of Issue #155 - LineCap and LineJoin settings now work properly for all stroke rendering, including text.
 
 **Issue Link:** https://github.com/llgcode/draw2d/issues/171
 
